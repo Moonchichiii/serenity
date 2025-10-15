@@ -9,10 +9,7 @@
     "preview": "vite preview",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
-    "type-check": "tsc --noEmit",
-    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css}\"",
-    "clean": "rm -rf node_modules dist .turbo coverage"
+    "type-check": "tsc --noEmit"    
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
