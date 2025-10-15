@@ -1,0 +1,57 @@
+# Core Django
+django==5.0.10
+djangorestframework==3.15.2
+django-cors-headers==4.6.0
+django-filter==24.5
+djangorestframework-simplejwt==5.5.2
+
+# Database
+psycopg2-binary==2.9.10
+dj-database-url==2.3.0
+
+# Environment & Config
+python-decouple==3.10
+
+# Date & Time
+python-dateutil==2.10.0
+pytz==2025.1
+
+# Wagtail CMS
+wagtail==6.2
+wagtail-localize==1.10
+wagtailmenus==4.0.1
+
+# Images
+Pillow==11.0.0
+django-imagekit==5.0.0
+
+# Background Tasks
+celery==5.6.0
+redis==5.2.2
+django-celery-beat==2.8.1
+
+# Email
+django-anymail[sendgrid]==13.3.0
+
+# Calendar Integration
+ics==0.8.1
+google-auth==2.37.0
+google-auth-oauthlib==1.2.1
+google-auth-httplib2==0.2.0
+google-api-python-client==2.158.0
+
+# Stripe Payment (prepared)
+stripe==11.4.0
+
+# API Documentation
+drf-spectacular==0.28.8
+
+# Production Server
+gunicorn==23.0.0
+whitenoise==6.8.2
+
+# Development Tools
+ruff==0.8.6
+django-debug-toolbar==4.5.0
+django-extensions==3.2.3
+ipython==8.31.0

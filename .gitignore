@@ -1,0 +1,131 @@
+# ===== GENERAL =====
+.DS_Store
+.env
+.env.local
+.env.*.local
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# ===== PYTHON / DJANGO =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Django specific
+*.sqlite3
+db.sqlite3
+/media/
+/staticfiles/
+/static/
+local_settings.py
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# IPython
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Ruff
+.ruff_cache/
+
+# ===== NODE / FRONTEND =====
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build outputs
+dist/
+dist-ssr/
+*.local
+
+# Editor directories
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+coverage/
+.nyc_output/
+
+# Turbo
+.turbo/
+
+# ===== SECRETS & CREDENTIALS =====
+# Google Calendar credentials
+credentials.json
+token.json
+client_secret*.json
+
+# Stripe keys
+.stripe/
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+
+# ===== WAGTAIL =====
+/apps/backend/media/
+/apps/backend/static/
+
+# ===== DOCKER =====
+*.env.docker
+docker-compose.override.yml
+
+# ===== MACOS =====
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ===== LINUX =====
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# ===== WINDOWS =====
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ===== BACKUPS =====
+*.bak
+*.backup
+*.swp
+*.tmp
+
+# ===== PROJECT SPECIFIC =====
+/apps/backend/locale/
+/apps/frontend/.routeTree.gen.ts
