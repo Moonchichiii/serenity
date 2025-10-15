@@ -16,6 +16,8 @@ export default defineConfig({
       '@/lib': path.resolve(__dirname, './src/lib'),
       '@/styles': path.resolve(__dirname, './src/styles'),
       '@/i18n': path.resolve(__dirname, './src/i18n'),
+      '@/pages': path.resolve(__dirname, './src/pages'),
+      '@/api': path.resolve(__dirname, './src/api'),
     },
     // Optimize resolve operations - be explicit!
     extensions: ['.tsx', '.ts', '.jsx', '.js'],
@@ -40,13 +42,16 @@ export default defineConfig({
       },
     },
 
-    // Warm up frequently used files
+    // Warm up frequently used files (FIXED PATHS)
     warmup: {
       clientFiles: [
         './src/App.tsx',
         './src/main.tsx',
-        './src/components/layout/Navigation.tsx',
-        './src/components/home/Hero.tsx',
+        './src/components/layout/Header.tsx', // Changed from Navigation.tsx
+        './src/components/layout/Footer.tsx',
+        './src/pages/hero.tsx', // Changed from components/home/Hero.tsx
+        './src/pages/about.tsx',
+        './src/pages/services.tsx',
         './src/lib/utils.ts',
       ],
     },

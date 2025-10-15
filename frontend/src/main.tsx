@@ -8,7 +8,7 @@ import { Toaster } from 'react-hot-toast'
 import '@/i18n/config'
 
 // Import styles
-import '@/styles/index.css'
+import '@/index.css'
 
 // Import App
 import App from './App'

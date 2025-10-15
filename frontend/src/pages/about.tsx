@@ -13,35 +13,33 @@ export function About() {
   ]
 
   return (
-    <section id="about" className="bg-gradient-warm px-4 py-20 lg:px-8">
+    <section id="about" className="py-20 px-4 lg:px-8 bg-gradient-warm">
       <div className="container mx-auto max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mb-12 text-center"
+          className="text-center mb-12"
         >
-          <h2 className="font-heading text-charcoal mb-4 text-4xl font-bold md:text-5xl">
-            {t('about.title')}
-          </h2>
-          <p className="text-charcoal/70 text-xl">{t('about.subtitle')}</p>
+          <h2 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-4">{t('about.title')}</h2>
+          <p className="text-xl text-charcoal/70">{t('about.subtitle')}</p>
         </motion.div>
 
         {/* Masonry Grid */}
-        <div className="grid auto-rows-auto grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-auto">
           {/* Intro Card */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="shadow-soft hover:shadow-warm border-sage-200/30 rounded-3xl border-2 bg-white p-8 transition-all duration-300 lg:col-span-2"
+            className="bg-white rounded-3xl p-8 shadow-soft hover:shadow-warm transition-all duration-300 lg:col-span-2 border-2 border-sage-200/30"
           >
-            <p className="text-charcoal/80 mb-4 text-lg leading-relaxed">{t('about.intro')}</p>
-            <div className="bg-honey-100 inline-flex items-center gap-2 rounded-full px-4 py-2">
-              <Award className="text-honey-500 h-5 w-5" />
-              <span className="text-charcoal text-sm font-medium">{t('about.certification')}</span>
+            <p className="text-lg text-charcoal/80 leading-relaxed mb-4">{t('about.intro')}</p>
+            <div className="inline-flex items-center gap-2 bg-honey-100 px-4 py-2 rounded-full">
+              <Award className="w-5 h-5 text-honey-500" />
+              <span className="text-sm font-medium text-charcoal">{t('about.certification')}</span>
             </div>
           </motion.div>
 
@@ -51,11 +49,9 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="from-terracotta-100 to-honey-100 shadow-soft hover:shadow-warm border-terracotta-200/30 row-span-2 rounded-3xl border-2 bg-gradient-to-br p-8 transition-all duration-300"
+            className="bg-gradient-to-br from-terracotta-100 to-honey-100 rounded-3xl p-8 shadow-soft hover:shadow-warm transition-all duration-300 row-span-2 border-2 border-terracotta-200/30"
           >
-            <h3 className="font-heading text-charcoal mb-4 text-2xl font-semibold">
-              {t('about.approach')}
-            </h3>
+            <h3 className="text-2xl font-heading font-semibold text-charcoal mb-4">{t('about.approach')}</h3>
             <p className="text-charcoal/70 leading-relaxed">{t('about.approachText')}</p>
           </motion.div>
 
@@ -65,12 +61,10 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="bg-sage-100 shadow-soft hover:shadow-warm border-sage-200/30 rounded-3xl border-2 p-8 transition-all duration-300 lg:col-span-2"
+            className="bg-sage-100 rounded-3xl p-8 shadow-soft hover:shadow-warm transition-all duration-300 lg:col-span-2 border-2 border-sage-200/30"
           >
-            <h3 className="font-heading text-charcoal mb-6 text-2xl font-semibold">
-              {t('about.specialties')}
-            </h3>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <h3 className="text-2xl font-heading font-semibold text-charcoal mb-6">{t('about.specialties')}</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {specialties.map((specialty, index) => (
                 <motion.div
                   key={specialty.key}
@@ -79,10 +73,10 @@ export function About() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
                   whileHover={{ scale: 1.05, y: -2 }}
-                  className="hover:shadow-warm hover:border-terracotta-300/50 flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-transparent bg-white p-4 transition-all duration-300"
+                  className="flex items-center gap-3 bg-white rounded-2xl p-4 hover:shadow-warm transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-terracotta-300/50"
                 >
-                  <div className={`rounded-xl p-3 ${specialty.color}`}>
-                    <specialty.icon className="h-5 w-5" />
+                  <div className={`p-3 rounded-xl ${specialty.color}`}>
+                    <specialty.icon className="w-5 h-5" />
                   </div>
                   <span className="text-charcoal font-medium">{t(`about.${specialty.key}`)}</span>
                 </motion.div>

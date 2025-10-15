@@ -12,30 +12,30 @@ export function Hero() {
   return (
     <section
       id="home"
-      className="bg-gradient-hero relative flex min-h-screen items-center justify-center overflow-hidden pt-20"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-gradient-hero"
     >
       {/* Animated background pattern */}
       <div className="absolute inset-0 opacity-10">
-        <div className="bg-sage-300 animate-float absolute top-20 left-10 h-72 w-72 rounded-full mix-blend-multiply blur-3xl filter" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-sage-300 rounded-full mix-blend-multiply filter blur-3xl animate-float" />
         <div
-          className="bg-honey-200 animate-float absolute top-40 right-10 h-72 w-72 rounded-full mix-blend-multiply blur-3xl filter"
+          className="absolute top-40 right-10 w-72 h-72 bg-honey-200 rounded-full mix-blend-multiply filter blur-3xl animate-float"
           style={{ animationDelay: '2s' }}
         />
         <div
-          className="bg-terracotta-200 animate-float absolute bottom-20 left-1/2 h-72 w-72 rounded-full mix-blend-multiply blur-3xl filter"
+          className="absolute bottom-20 left-1/2 w-72 h-72 bg-terracotta-200 rounded-full mix-blend-multiply filter blur-3xl animate-float"
           style={{ animationDelay: '4s' }}
         />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 text-center lg:px-8">
+      <div className="relative z-10 container mx-auto px-4 lg:px-8 text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
         >
           <motion.h1
-            className="font-heading text-charcoal mb-6 text-5xl font-bold text-balance md:text-6xl lg:text-7xl"
+            className="text-5xl md:text-6xl lg:text-7xl font-heading font-bold text-charcoal mb-6 text-balance"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -44,7 +44,7 @@ export function Hero() {
           </motion.h1>
 
           <motion.p
-            className="text-charcoal/80 mx-auto mb-10 max-w-2xl text-xl text-balance md:text-2xl"
+            className="text-xl md:text-2xl text-charcoal/80 mb-10 max-w-2xl mx-auto text-balance"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
@@ -65,7 +65,7 @@ export function Hero() {
       </div>
 
       {/* Decorative Element */}
-      <div className="from-porcelain absolute right-0 bottom-0 left-0 z-10 h-24 bg-gradient-to-t to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-porcelain to-transparent z-10" />
     </section>
   )
 }

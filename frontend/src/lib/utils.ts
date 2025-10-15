@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from 'clsx'
-import { format } from 'date-fns'
-import { enUS, fr } from 'date-fns/locale'
 import { twMerge } from 'tailwind-merge'
+import { format } from 'date-fns'
+import { fr, enUS } from 'date-fns/locale'
 
 /**
  * Merge Tailwind classes with proper precedence
