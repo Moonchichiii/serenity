@@ -96,7 +96,7 @@
    ============================================ */
 @layer base {
   * {
-    border-color: theme('colors.border');
+    border-color: var(--color-border);
   }
 
   html {
@@ -104,8 +104,8 @@
   }
 
   body {
-    background-color: theme('colors.background');
-    color: theme('colors.foreground');
+    background-color: var(--color-background);
+    color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -122,8 +122,8 @@
 
   /* Selection color - warm terracotta */
   ::selection {
-    background-color: theme('colors.terracotta.200');
-    color: theme('colors.charcoal');
+    background-color: var(--color-terracotta-200);
+    color: var(--color-charcoal);
   }
 
   /* Custom scrollbar - warm tones */
@@ -132,24 +132,24 @@
   }
 
   ::-webkit-scrollbar-track {
-    background-color: theme('colors.sand.100');
+    background-color: var(--color-sand-100);
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: theme('colors.terracotta.300');
+    background-color: var(--color-terracotta-300);
     border-radius: 9999px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background-color: theme('colors.terracotta.400');
+    background-color: var(--color-terracotta-400);
   }
 
   /* Focus visible - warm ring */
   *:focus-visible {
     outline: none;
     box-shadow:
-      0 0 0 2px theme('colors.porcelain'),
-      0 0 0 4px theme('colors.terracotta.400');
+      0 0 0 2px var(--color-porcelain),
+      0 0 0 4px var(--color-terracotta-400);
   }
 }
 
@@ -166,21 +166,21 @@
   .bg-gradient-hero {
     background: linear-gradient(
       135deg,
-      theme('colors.sage.200') 0%,
-      theme('colors.sand.200') 50%,
-      theme('colors.honey.100') 100%
+      var(--color-sage-200) 0%,
+      var(--color-sand-200) 50%,
+      var(--color-honey-100) 100%
     );
   }
 
   .bg-gradient-warm {
-    background: linear-gradient(180deg, theme('colors.porcelain') 0%, theme('colors.sand.50') 100%);
+    background: linear-gradient(180deg, var(--color-porcelain) 0%, var(--color-sand-50) 100%);
   }
 
   .bg-gradient-accent {
     background: linear-gradient(
       135deg,
-      theme('colors.terracotta.300') 0%,
-      theme('colors.honey.300') 100%
+      var(--color-terracotta-300) 0%,
+      var(--color-honey-300) 100%
     );
   }
 
@@ -220,7 +220,7 @@
     bottom: -2px;
     width: 0;
     height: 2px;
-    background: linear-gradient(90deg, theme('colors.terracotta.400'), theme('colors.honey.400'));
+    background: linear-gradient(90deg, var(--color-terracotta-400), var(--color-honey-400));
     transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -335,42 +335,43 @@ a {
 }
 
 a:hover {
-  color: theme('colors.terracotta.500');
+  color: var(--color-terracotta-500);
 }
 
 /* Buttons - warm hover states */
 .btn-primary {
-  background-color: theme('colors.charcoal');
-  color: theme('colors.porcelain');
+  background-color: var(--color-charcoal);
+  color: var(--color-porcelain);
   transition: var(--transition-smooth);
 }
 
 .btn-primary:hover {
-  background-color: theme('colors.terracotta.500');
+  background-color: var(--color-terracotta-500);
   box-shadow: var(--shadow-warm);
 }
 
 .btn-secondary {
-  background-color: theme('colors.sage.200');
-  color: theme('colors.charcoal');
+  background-color: var(--color-sage-200);
+  color: var(--color-charcoal);
   transition: var(--transition-smooth);
 }
 
 .btn-secondary:hover {
-  background-color: theme('colors.terracotta.300');
+  background-color: var(--color-terracotta-300);
 }
 
-/* Cards - warm hover effect */
+/* Cards - warm hover effect (Tailwind v4 token-based) */
 .card {
-  background-color: theme('colors.card');
-  border: 2px solid theme('colors.sage.200' / 0.3);
+  background-color: var(--color-card);
+  /* For opacity, use color-mix or pick a fixed rgba like you did */
+  border: 2px solid color-mix(in oklab, var(--color-sage-200) 30%, transparent);
   border-radius: 1.5rem;
   box-shadow: var(--shadow-soft);
   transition: var(--transition-smooth);
 }
 
 .card:hover {
-  border-color: theme('colors.terracotta.300' / 0.5);
+  border-color: color-mix(in oklab, var(--color-terracotta-300) 50%, transparent);
   box-shadow: var(--shadow-warm);
 }
 
@@ -378,15 +379,15 @@ a:hover {
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: theme('colors.terracotta.300');
-  box-shadow: 0 0 0 2px theme('colors.terracotta.200');
+  border-color: var(--color-terracotta-300);
+  box-shadow: 0 0 0 2px var(--color-terracotta-200);
   outline: none;
 }
 
 /* Loading spinner - warm colors */
 .spinner {
-  border: 3px solid theme('colors.sand.200');
-  border-top-color: theme('colors.terracotta.400');
+  border: 3px solid var(--color-sand-200);
+  border-top-color: var(--color-terracotta-400);
   animation: spin 0.6s linear infinite;
 }
 
@@ -394,18 +395,4 @@ select:focus {
   to {
     transform: rotate(360deg);
   }
-}
-
-/* Cards - warm hover effect */
-.card {
-  background-color: #ffffff; /* Changed from theme('colors.card') */
-  border: 2px solid rgb(220 229 223 / 0.3); /* Using RGB with opacity */
-  border-radius: 1.5rem;
-  box-shadow: var(--shadow-soft);
-  transition: var(--transition-smooth);
-}
-
-.card:hover {
-  border-color: rgb(247 181 163 / 0.5); /* terracotta-300 with opacity */
-  box-shadow: var(--shadow-warm);
 }
