@@ -1,4 +1,4 @@
-import React, { StrictMode } from 'react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'react-hot-toast'
@@ -9,8 +9,7 @@ import '@/i18n/config'
 // Import styles
 import '@/index.css'
 
-// Import App
-import App from './App'
+
 
 // Create Query Client
 const queryClient = new QueryClient({
@@ -22,8 +21,6 @@ const queryClient = new QueryClient({
     },
   },
 })
-
-
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -45,9 +42,6 @@ createRoot(document.getElementById('root')!).render(
           error: { iconTheme: { primary: '#e86a47', secondary: '#f7f6f4' } },
         }}
       />
-
-      <React.Suspense fallback={null}>        
-      </React.Suspense>
     </QueryClientProvider>
   </StrictMode>
 )
