@@ -5,7 +5,16 @@ import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react({
+      // Explicitly configure JSX transformation
+      jsxImportSource: 'react',
+      jsxRuntime: 'automatic',
+      // Enable Fast Refresh
+      fastRefresh: true,
+    }),
+    tailwindcss(),
+  ],
 
   // Path aliases
   resolve: {
@@ -14,7 +23,6 @@ export default defineConfig({
       '@/components': path.resolve(__dirname, './src/components'),
       '@/features': path.resolve(__dirname, './src/features'),
       '@/lib': path.resolve(__dirname, './src/lib'),
-      '@/styles': path.resolve(__dirname, './src/styles'),
       '@/i18n': path.resolve(__dirname, './src/i18n'),
       '@/pages': path.resolve(__dirname, './src/pages'),
       '@/api': path.resolve(__dirname, './src/api'),
@@ -47,9 +55,9 @@ export default defineConfig({
       clientFiles: [
         './src/App.tsx',
         './src/main.tsx',
-        './src/components/layout/Header.tsx', // Changed from Navigation.tsx
+        './src/components/layout/Header.tsx',
         './src/components/layout/Footer.tsx',
-        './src/pages/hero.tsx', // Changed from components/home/Hero.tsx
+        './src/pages/hero.tsx',
         './src/pages/about.tsx',
         './src/pages/services.tsx',
         './src/lib/utils.ts',
@@ -104,11 +112,18 @@ export default defineConfig({
       'framer-motion',
     ],
     exclude: ['@tanstack/react-query-devtools'],
+    // Force optimize React and JSX
+    esbuildOptions: {
+      jsx: 'automatic',
+      jsxImportSource: 'react',
+    },
   },
 
-  // Performance hints
+  // Performance hints - ALSO configure esbuild JSX here!
   esbuild: {
     logOverride: { 'this-is-undefined-in-esm': 'silent' },
     legalComments: 'none',
+    jsx: 'automatic',
+    jsxImportSource: 'react',
   },
 })

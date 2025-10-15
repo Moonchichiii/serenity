@@ -9,7 +9,8 @@ import '@/i18n/config'
 // Import styles
 import '@/index.css'
 
-
+// Import App
+import App from './App'
 
 // Create Query Client
 const queryClient = new QueryClient({
