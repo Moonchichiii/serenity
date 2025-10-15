@@ -3,20 +3,11 @@ import react from '@vitejs/plugin-react-swc'
 import path from 'path'
 import { defineConfig } from 'vite'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    react({
-      // Explicitly configure JSX transformation
-      jsxImportSource: 'react',
-      jsxRuntime: 'automatic',
-      // Enable Fast Refresh
-      fastRefresh: true,
-    }),
+    react(),          // no jsxRuntime/jsxImportSource needed
     tailwindcss(),
   ],
-
-  // Path aliases
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -27,17 +18,12 @@ export default defineConfig({
       '@/pages': path.resolve(__dirname, './src/pages'),
       '@/api': path.resolve(__dirname, './src/api'),
     },
-    // Optimize resolve operations - be explicit!
     extensions: ['.tsx', '.ts', '.jsx', '.js'],
   },
-
-  // Dev server config
   server: {
     port: 5173,
     host: true,
     strictPort: false,
-
-    // Proxy API requests to Django
     proxy: {
       '/api': {
         target: process.env.VITE_API_URL || 'http://localhost:8000',
@@ -49,8 +35,6 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
-
-    // Warm up frequently used files (FIXED PATHS)
     warmup: {
       clientFiles: [
         './src/App.tsx',
@@ -64,17 +48,13 @@ export default defineConfig({
       ],
     },
   },
-
-  // Build optimizations
   build: {
     target: 'es2022',
     sourcemap: false,
     minify: 'esbuild',
     cssMinify: 'lightningcss',
-
     rollupOptions: {
       output: {
-        // Manual chunking for better caching
         manualChunks: {
           'react-vendor': ['react', 'react-dom'],
           'router-vendor': ['@tanstack/react-router'],
@@ -83,19 +63,13 @@ export default defineConfig({
           'i18n-vendor': ['i18next', 'react-i18next', 'i18next-browser-languagedetector'],
           'ui-vendor': ['framer-motion', 'lucide-react', 'react-hot-toast'],
         },
-
-        // Asset naming for better caching
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',
         assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
       },
     },
-
-    // Chunk size warning limit
     chunkSizeWarningLimit: 1000,
   },
-
-  // Dependency optimization
   optimizeDeps: {
     include: [
       'react',
@@ -112,18 +86,10 @@ export default defineConfig({
       'framer-motion',
     ],
     exclude: ['@tanstack/react-query-devtools'],
-    // Force optimize React and JSX
-    esbuildOptions: {
-      jsx: 'automatic',
-      jsxImportSource: 'react',
-    },
+    // NOTE: do not set jsx/esbuild here – Vite handles it
   },
-
-  // Performance hints - ALSO configure esbuild JSX here!
   esbuild: {
     logOverride: { 'this-is-undefined-in-esm': 'silent' },
     legalComments: 'none',
-    jsx: 'automatic',
-    jsxImportSource: 'react',
   },
 })
