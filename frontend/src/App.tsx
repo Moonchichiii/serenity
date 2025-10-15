@@ -1,34 +1,70 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { Layout } from '@/components/layout/Layout'
+import { About } from '@/pages/about'
+import { Booking } from '@/pages/booking'
+import { Hero } from '@/pages/hero'
+import { Services } from '@/pages/services'
+import {
+  createRootRoute,
+  createRoute,
+  createRouter,
+  Outlet,
+  RouterProvider,
+} from '@tanstack/react-router'
+import type { ReactElement } from 'react'
 
-function App() {
-  const [count, setCount] = useState(0)
+// Root route
+const rootRoute = createRootRoute({
+  component: () => <Outlet />,
+})
 
+// Main layout route
+const layoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: 'layout',
+  component: () => (
+    <Layout>
+      <Outlet />
+    </Layout>
+  ),
+})
+
+// Home page route (all sections in one page)
+const indexRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: '/',
+  component: HomePage,
+})
+
+// Home page component (single page with all sections)
+function HomePage() {
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Hero />
+      <About />
+      <Services />
+      <Booking />
     </>
   )
+}
+
+// Build route tree
+const routeTree = rootRoute.addChildren([layoutRoute.addChildren([indexRoute])])
+
+// Create router
+const router = createRouter({
+  routeTree,
+  defaultPreload: 'intent',
+})
+
+// Type registration
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router
+  }
+}
+
+function App(): ReactElement {
+  return <RouterProvider router={router} />
 }
 
 export default App
