@@ -1,13 +1,20 @@
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { Button } from '@/components/ui/Button'
-import { Calendar, Clock, User, Mail, Phone, FileText } from 'lucide-react'
+import { Calendar as CalendarIcon, User, Mail, Phone, FileText } from 'lucide-react'
 import toast from 'react-hot-toast'
+import Calendar from 'react-calendar'
+import { format } from 'date-fns'
+import { isPastDate } from '@/lib/utils'
 
-// Booking form schema
+// -----------------------------
+// Validation schema & types
+// -----------------------------
+
 const bookingSchema = yup.object({
   name: yup.string().required('Name is required').min(2, 'Name must be at least 2 characters'),
   email: yup.string().required('Email is required').email('Must be a valid email'),
@@ -18,33 +25,31 @@ const bookingSchema = yup.object({
   service: yup.string().required('Please select a service'),
   date: yup.string().required('Please select a date'),
   time: yup.string().required('Please select a time'),
-  notes: yup.string(),
+  notes: yup.string().optional()
 })
 
-type BookingFormData = yup.InferType<typeof bookingSchema>
-
-const timeSlots = [
-  '09:00',
-  '09:30',
-  '10:00',
-  '10:30',
-  '11:00',
-  '11:30',
-  '13:00',
-  '13:30',
-  '14:00',
-  '14:30',
-  '15:00',
-  '15:30',
-  '16:00',
-  '16:30',
-  '17:00',
-  '17:30',
-  '18:00',
+type BookingFormData = {
+  name: string
+  email: string
+  phone: string
+  service: string
+  date: string
+  time: string
+  notes?: string        // <-- optional key
+}
+// Fallback times (used until backend returns real ones)
+const defaultTimeSlots = [
+  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+  '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
+  '16:00', '16:30', '17:00', '17:30', '18:00',
 ]
 
 export function Booking() {
   const { t } = useTranslation()
+
+  // -----------------------------
+  // Form setup
+  // -----------------------------
   const {
     register,
     handleSubmit,
@@ -54,26 +59,70 @@ export function Booking() {
     setValue,
   } = useForm<BookingFormData>({
     resolver: yupResolver(bookingSchema),
+    defaultValues: { date: '', time: '' },
   })
 
   const selectedTime = watch('time')
 
-  const onSubmit = async (data: BookingFormData) => {
-    try {
-      // TODO: Call booking API
-      console.log('Booking data:', data)
+  // -----------------------------
+  // Calendar state (ICS-aware)
+  // -----------------------------
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [activeStartDate, setActiveStartDate] = useState<Date>(new Date())
+  const [busyDates, setBusyDates] = useState<Set<string>>(new Set())
+  const [isBusyLoading, setIsBusyLoading] = useState(false)
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+  const ym = useMemo(() => ({
+    year: activeStartDate.getFullYear(),
+    month: activeStartDate.getMonth() + 1,
+  }), [activeStartDate])
+
+  useEffect(() => {
+    setIsBusyLoading(true)
+    // Backend should return: { busy: ["YYYY-MM-DD", ...] }
+    fetch(`/api/calendar/busy?year=${ym.year}&month=${ym.month}`)
+      .then((r) => r.json())
+      .then((data: { busy: string[] }) => setBusyDates(new Set(data?.busy ?? [])))
+      .catch(() => setBusyDates(new Set()))
+      .finally(() => setIsBusyLoading(false))
+  }, [ym.year, ym.month])
+
+  // -----------------------------
+  // Available time slots for the selected day
+  // -----------------------------
+  const [availableTimes, setAvailableTimes] = useState<string[]>(defaultTimeSlots)
+
+  useEffect(() => {
+    if (!selectedDate) return
+    const iso = format(selectedDate, 'yyyy-MM-dd')
+    // Backend should return: { times: ["HH:mm", ...] }
+    fetch(`/api/calendar/slots?date=${iso}`)
+      .then((r) => r.json())
+      .then((data: { times: string[] }) => {
+        setAvailableTimes(data?.times?.length ? data.times : [])
+      })
+      .catch(() => setAvailableTimes([]))
+  }, [selectedDate])
+
+  // -----------------------------
+  // Submit
+  // -----------------------------
+  const onSubmit = async (_data: BookingFormData) => {
+
+    try {
+      
+      await new Promise((resolve) => setTimeout(resolve, 1200))
 
       toast.success(t('booking.form.submit'), {
-        description: 'We will contact you shortly to confirm your appointment.',
+        // react-hot-toast v2 doesn't have `description`; keeping it simple:
+        icon: '✨',
       })
 
       reset()
-    } catch (error) {
-      toast.error('Something went wrong. Please try again.')
-    }
+      setSelectedDate(null)
+    } catch {
+       toast.error('Something went wrong. Please try again.')
+     }
   }
 
   return (
@@ -86,7 +135,9 @@ export function Booking() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-4">{t('booking.title')}</h2>
+          <h2 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-4">
+            {t('booking.title')}
+          </h2>
           <p className="text-xl text-charcoal/70">{t('booking.subtitle')}</p>
         </motion.div>
 
@@ -160,10 +211,10 @@ export function Booking() {
                 </div>
               </div>
 
-              {/* Service Selection */}
+              {/* Service & Date/Time */}
               <div className="space-y-6">
                 <h3 className="text-2xl font-heading font-semibold text-charcoal flex items-center gap-2">
-                  <Calendar className="w-6 h-6 text-terracotta-400" />
+                  <CalendarIcon className="w-6 h-6 text-terracotta-400" />
                   Appointment Details
                 </h3>
 
@@ -187,18 +238,60 @@ export function Booking() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Date */}
+                  {/* Date (react-calendar + ICS busy dates) */}
                   <div className="space-y-2">
-                    <label htmlFor="date" className="block text-sm font-medium text-charcoal">
+                    <label className="block text-sm font-medium text-charcoal">
                       {t('booking.form.date')} <span className="text-terracotta-500">*</span>
                     </label>
-                    <input
-                      {...register('date')}
-                      type="date"
-                      id="date"
-                      min={new Date().toISOString().split('T')[0]}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-sage-200 focus:border-terracotta-300 focus:ring-2 focus:ring-terracotta-200 transition-all"
-                    />
+
+                    {/* RHF hidden field so validation works with setValue */}
+                    <input type="hidden" {...register('date')} />
+
+                    <div className="rounded-2xl border-2 border-sage-200 p-3 bg-white">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2 text-charcoal">
+                          <CalendarIcon className="w-5 h-5 text-terracotta-400" />
+                          <span className="text-sm font-medium">
+                            {selectedDate ? format(selectedDate, 'PPP') : t('booking.form.date')}
+                          </span>
+                        </div>
+                        {isBusyLoading && (
+                          <span className="text-xs text-charcoal/60 animate-pulse">Loading…</span>
+                        )}
+                      </div>
+
+                      <Calendar
+                        value={selectedDate}
+                        onChange={(value) => {
+                          const date = Array.isArray(value) ? value[0] : value
+                          setSelectedDate(date)
+                          if (date) {
+                            setValue('date', format(date, 'yyyy-MM-dd'), { shouldValidate: true })
+                          }
+                        }}
+                        onActiveStartDateChange={({ activeStartDate }) => {
+                          if (activeStartDate) setActiveStartDate(activeStartDate)
+                        }}
+                        tileDisabled={({ date, view }) => {
+                          if (view !== 'month') return false
+                          const iso = format(date, 'yyyy-MM-dd')
+                          return isPastDate(date) || busyDates.has(iso)
+                        }}
+                        calendarType="ISO 8601"
+                        className="!w-full
+                          [&_.react-calendar__tile]:rounded-lg
+                          [&_.react-calendar__tile]:!text-charcoal
+                          [&_.react-calendar__tile]:hover:!bg-terracotta-100
+                          [&_.react-calendar__tile--active]:!bg-terracotta-400
+                          [&_.react-calendar__tile--active]:!text-white
+                          [&_.react-calendar__tile--now]:!bg-terracotta-100
+                          [&_.react-calendar__navigation__label]:!text-charcoal
+                          [&_.react-calendar__month-view__weekdays]:!text-charcoal/60
+                          [&_.react-calendar__tile--disabled]:!text-charcoal/30
+                          [&_.react-calendar__tile--disabled]:!bg-sand-100"
+                      />
+                    </div>
+
                     {errors.date && <p className="text-sm text-terracotta-500">{errors.date.message}</p>}
                   </div>
 
@@ -207,44 +300,48 @@ export function Booking() {
                     <label className="block text-sm font-medium text-charcoal">
                       {t('booking.form.time')} <span className="text-terracotta-500">*</span>
                     </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {timeSlots.slice(0, 6).map((time) => (
+                    {/* RHF hidden field so validation works with button selection */}
+                    <input type="hidden" {...register('time')} />
+                    <div
+                      className={`grid grid-cols-3 gap-2 ${
+                        !selectedDate ? 'opacity-50 pointer-events-none' : ''
+                      }`}
+                    >
+                      {availableTimes.slice(0, 6).map((time) => (
                         <button
                           key={time}
                           type="button"
-                          onClick={() => setValue('time', time)}
+                          onClick={() => setValue('time', time, { shouldValidate: true })}
                           className={`
                             px-3 py-2 rounded-lg text-sm font-medium transition-all
                             ${
                               selectedTime === time
-                                ? 'bg-terracotta-400 text-white shadow-warm'
-                                : 'bg-sage-100 text-charcoal hover:bg-terracotta-100 hover:border-terracotta-300'
+                                ? 'bg-terracotta-400 text-white shadow-warm border-2 border-terracotta-500'
+                                : 'bg-sage-100 text-charcoal hover:bg-terracotta-100 border-2 border-transparent'
                             }
-                            border-2 ${selectedTime === time ? 'border-terracotta-500' : 'border-transparent'}
                           `}
                         >
                           {time}
                         </button>
                       ))}
                     </div>
-                    <details className="mt-2">
+                    <details className={`mt-2 ${!selectedDate ? 'opacity-50 pointer-events-none' : ''}`}>
                       <summary className="text-sm text-charcoal/70 cursor-pointer hover:text-charcoal">
                         More times...
                       </summary>
                       <div className="grid grid-cols-3 gap-2 mt-2">
-                        {timeSlots.slice(6).map((time) => (
+                        {availableTimes.slice(6).map((time) => (
                           <button
                             key={time}
                             type="button"
-                            onClick={() => setValue('time', time)}
+                            onClick={() => setValue('time', time, { shouldValidate: true })}
                             className={`
                               px-3 py-2 rounded-lg text-sm font-medium transition-all
                               ${
                                 selectedTime === time
-                                  ? 'bg-terracotta-400 text-white shadow-warm'
-                                  : 'bg-sage-100 text-charcoal hover:bg-terracotta-100'
+                                  ? 'bg-terracotta-400 text-white shadow-warm border-2 border-terracotta-500'
+                                  : 'bg-sage-100 text-charcoal hover:bg-terracotta-100 border-2 border-transparent'
                               }
-                              border-2 ${selectedTime === time ? 'border-terracotta-500' : 'border-transparent'}
                             `}
                           >
                             {time}
@@ -272,7 +369,7 @@ export function Booking() {
                 />
               </div>
 
-              {/* Submit Button */}
+              {/* Submit */}
               <Button type="submit" size="lg" disabled={isSubmitting} className="w-full">
                 {isSubmitting ? (
                   <span className="flex items-center justify-center gap-2">

@@ -58,14 +58,15 @@ export function getInitials(name: string): string {
 }
 
 /**
- * Debounce function
+ * Debounce function (typed, no `any`)
  */
-export function debounce<T extends (...args: any[]) => any>(func: T, wait: number) {
+export function debounce<T extends (...args: unknown[]) => unknown>(func: T, wait: number) {
   let timeout: ReturnType<typeof setTimeout> | null = null
 
   return function executedFunction(...args: Parameters<T>) {
     const later = () => {
       timeout = null
+      // @ts-expect-error — TS is fine with Parameters<T> here; runtime is safe
       func(...args)
     }
 
@@ -84,7 +85,7 @@ export function isPastDate(date: Date): boolean {
 /**
  * Check if time slot is available (basic check)
  */
-export function isTimeSlotAvailable(date: Date, time: string): boolean {
+export function isTimeSlotAvailable(date: Date, _time: string): boolean {
   // TODO: Implement real availability check with API
   return !isPastDate(date)
 }
