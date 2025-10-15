@@ -32,7 +32,7 @@ export function Header() {
 
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => (
-              
+              <a
                 key={item.key}
                 href={item.href}
                 className="warm-underline text-charcoal/80 hover:text-charcoal transition-colors duration-200 font-medium"
@@ -69,7 +69,7 @@ export function Header() {
           >
             <div className="container mx-auto px-4 py-4 space-y-2">
               {navItems.map((item) => (
-                
+                <a
                   key={item.key}
                   href={item.href}
                   onClick={() => setIsOpen(false)}

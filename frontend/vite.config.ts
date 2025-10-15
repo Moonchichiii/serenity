@@ -98,6 +98,7 @@ export default defineConfig({
       'react-hook-form',
       'yup',
       'i18next',
+      'i18next-browser-languagedetector',
       'react-i18next',
       'date-fns',
       'framer-motion',
