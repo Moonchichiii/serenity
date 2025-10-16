@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/Button'
 import { motion } from 'framer-motion'
 
-// If you have these files, keep the imports.
-// Otherwise, replace with your own images or move them to /public and use "/hero-1.jpg" etc.
+
 import heroImage1 from '@/assets/hero-image.jpg'
 import heroImage2 from '@/assets/hero-image-2.jpg'
 import heroImage3 from '@/assets/hero-image-3.jpg'
@@ -40,7 +39,7 @@ export function Hero() {
       id="home"
       className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-gradient-hero"
     >
-      {/* Background Images (crossfade + subtle zoom) */}
+      {/* Background images: crossfade + subtle zoom */}
       <div className="absolute inset-0 z-0">
         {heroImages.map((image, idx) => (
           <motion.img
@@ -61,7 +60,7 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-br from-sage-200/70 via-sand-100/70 to-porcelain/70" />
       </div>
 
-      {/* Animated background blobs (your original) */}
+      {/* Animated background blobs */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-20 left-10 w-72 h-72 bg-sage-300 rounded-full mix-blend-multiply filter blur-3xl animate-float" />
         <div
@@ -74,7 +73,6 @@ export function Hero() {
         />
       </div>
 
-      {/* Content */}
       <div className="relative z-10 container mx-auto px-4 lg:px-8 text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -111,7 +109,7 @@ export function Hero() {
         </motion.div>
       </div>
 
-      {/* Decorative Element */}
+      {/* Decorative element */}
       <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-porcelain to-transparent z-10" />
     </section>
   )

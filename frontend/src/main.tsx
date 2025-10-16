@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast'
 import '@/i18n/config'
 import '@/index.css'
 import App from './App'
+import { ModalProvider } from '@/shared/hooks/useModal'
 
 // Create Query Client
 const queryClient = new QueryClient({
@@ -20,7 +21,9 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
+      <ModalProvider>
       <App />
+      </ModalProvider>
 
       <Toaster
         position="top-right"

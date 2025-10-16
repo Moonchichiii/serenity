@@ -11,10 +11,6 @@ import Calendar from 'react-calendar'
 import { format } from 'date-fns'
 import { isPastDate } from '@/lib/utils'
 
-// -----------------------------
-// Validation schema & types
-// -----------------------------
-
 const bookingSchema = yup.object({
   name: yup.string().required('Name is required').min(2, 'Name must be at least 2 characters'),
   email: yup.string().required('Email is required').email('Must be a valid email'),
@@ -35,9 +31,10 @@ type BookingFormData = {
   service: string
   date: string
   time: string
-  notes?: string        // <-- optional key
+  notes?: string
 }
-// Fallback times (used until backend returns real ones)
+
+// Fallback times used until backend returns real ones
 const defaultTimeSlots = [
   '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
   '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
@@ -47,9 +44,6 @@ const defaultTimeSlots = [
 export function Booking() {
   const { t } = useTranslation()
 
-  // -----------------------------
-  // Form setup
-  // -----------------------------
   const {
     register,
     handleSubmit,
@@ -64,9 +58,6 @@ export function Booking() {
 
   const selectedTime = watch('time')
 
-  // -----------------------------
-  // Calendar state (ICS-aware)
-  // -----------------------------
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [activeStartDate, setActiveStartDate] = useState<Date>(new Date())
   const [busyDates, setBusyDates] = useState<Set<string>>(new Set())
@@ -87,9 +78,6 @@ export function Booking() {
       .finally(() => setIsBusyLoading(false))
   }, [ym.year, ym.month])
 
-  // -----------------------------
-  // Available time slots for the selected day
-  // -----------------------------
   const [availableTimes, setAvailableTimes] = useState<string[]>(defaultTimeSlots)
 
   useEffect(() => {
@@ -104,25 +92,19 @@ export function Booking() {
       .catch(() => setAvailableTimes([]))
   }, [selectedDate])
 
-  // -----------------------------
-  // Submit
-  // -----------------------------
   const onSubmit = async (_data: BookingFormData) => {
-
     try {
-      
       await new Promise((resolve) => setTimeout(resolve, 1200))
 
       toast.success(t('booking.form.submit'), {
-        // react-hot-toast v2 doesn't have `description`; keeping it simple:
         icon: '✨',
       })
 
       reset()
       setSelectedDate(null)
     } catch {
-       toast.error('Something went wrong. Please try again.')
-     }
+      toast.error('Something went wrong. Please try again.')
+    }
   }
 
   return (
@@ -150,7 +132,6 @@ export function Booking() {
         >
           <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-elevated border-2 border-sage-200/30">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-              {/* Personal Information */}
               <div className="space-y-6">
                 <h3 className="text-2xl font-heading font-semibold text-charcoal flex items-center gap-2">
                   <User className="w-6 h-6 text-terracotta-400" />
@@ -158,7 +139,6 @@ export function Booking() {
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Name */}
                   <div className="space-y-2">
                     <label htmlFor="name" className="block text-sm font-medium text-charcoal">
                       {t('booking.form.name')} <span className="text-terracotta-500">*</span>
@@ -173,7 +153,6 @@ export function Booking() {
                     {errors.name && <p className="text-sm text-terracotta-500">{errors.name.message}</p>}
                   </div>
 
-                  {/* Email */}
                   <div className="space-y-2">
                     <label htmlFor="email" className="block text-sm font-medium text-charcoal">
                       {t('booking.form.email')} <span className="text-terracotta-500">*</span>
@@ -192,7 +171,6 @@ export function Booking() {
                   </div>
                 </div>
 
-                {/* Phone */}
                 <div className="space-y-2">
                   <label htmlFor="phone" className="block text-sm font-medium text-charcoal">
                     {t('booking.form.phone')} <span className="text-terracotta-500">*</span>
@@ -211,14 +189,12 @@ export function Booking() {
                 </div>
               </div>
 
-              {/* Service & Date/Time */}
               <div className="space-y-6">
                 <h3 className="text-2xl font-heading font-semibold text-charcoal flex items-center gap-2">
                   <CalendarIcon className="w-6 h-6 text-terracotta-400" />
                   Appointment Details
                 </h3>
 
-                {/* Service */}
                 <div className="space-y-2">
                   <label htmlFor="service" className="block text-sm font-medium text-charcoal">
                     {t('booking.form.service')} <span className="text-terracotta-500">*</span>
@@ -238,7 +214,6 @@ export function Booking() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Date (react-calendar + ICS busy dates) */}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-charcoal">
                       {t('booking.form.date')} <span className="text-terracotta-500">*</span>
@@ -277,7 +252,7 @@ export function Booking() {
                           const iso = format(date, 'yyyy-MM-dd')
                           return isPastDate(date) || busyDates.has(iso)
                         }}
-                        calendarType="ISO 8601"
+                        calendarType="iso8601"
                         className="!w-full
                           [&_.react-calendar__tile]:rounded-lg
                           [&_.react-calendar__tile]:!text-charcoal
@@ -295,7 +270,6 @@ export function Booking() {
                     {errors.date && <p className="text-sm text-terracotta-500">{errors.date.message}</p>}
                   </div>
 
-                  {/* Time */}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-charcoal">
                       {t('booking.form.time')} <span className="text-terracotta-500">*</span>
@@ -354,7 +328,6 @@ export function Booking() {
                 </div>
               </div>
 
-              {/* Notes */}
               <div className="space-y-2">
                 <label htmlFor="notes" className="block text-sm font-medium text-charcoal flex items-center gap-2">
                   <FileText className="w-4 h-4 text-charcoal/40" />
@@ -369,7 +342,6 @@ export function Booking() {
                 />
               </div>
 
-              {/* Submit */}
               <Button type="submit" size="lg" disabled={isSubmitting} className="w-full">
                 {isSubmitting ? (
                   <span className="flex items-center justify-center gap-2">

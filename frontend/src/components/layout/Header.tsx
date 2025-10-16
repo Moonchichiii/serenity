@@ -3,10 +3,12 @@ import { useTranslation } from 'react-i18next'
 import { Menu, X, Globe } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useModal } from '@/shared/hooks/useModal'
 
 export function Header() {
   const { t, i18n } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
+  const { open } = useModal()
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'fr' : 'en'
@@ -17,7 +19,6 @@ export function Header() {
     { key: 'about', href: '#about' },
     { key: 'services', href: '#services' },
     { key: 'booking', href: '#booking' },
-    { key: 'contact', href: '#contact' },
   ]
 
   return (
@@ -40,6 +41,13 @@ export function Header() {
                 {t(`nav.${item.key}`)}
               </a>
             ))}
+
+            <button
+              onClick={() => open('contact')}
+              className="warm-underline text-charcoal/80 hover:text-charcoal font-medium"
+            >
+              {t('nav.contact')}
+            </button>
 
             <Button variant="ghost" size="sm" onClick={toggleLanguage} className="flex items-center space-x-2">
               <Globe className="w-4 h-4" />
@@ -78,6 +86,12 @@ export function Header() {
                   {t(`nav.${item.key}`)}
                 </a>
               ))}
+              <button
+                onClick={() => { setIsOpen(false); open('contact') }}
+                className="block w-full text-left py-3 px-4 text-charcoal/80 hover:text-charcoal hover:bg-terracotta-100 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-terracotta-400"
+              >
+                {t('nav.contact')}
+              </button>
             </div>
           </motion.div>
         )}

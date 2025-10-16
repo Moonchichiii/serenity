@@ -1,8 +1,4 @@
 import { Layout } from '@/components/layout/Layout'
-import { About } from '@/pages/about'
-import { Booking } from '@/pages/booking'
-import { Hero } from '@/pages/hero'
-import { Services } from '@/pages/services'
 import {
   createRootRoute,
   createRoute,
@@ -10,14 +6,22 @@ import {
   Outlet,
   RouterProvider,
 } from '@tanstack/react-router'
-import type { ReactElement } from 'react'
+import { Suspense, lazy } from 'react'
 
-// Root route
+// Lazy sections
+const Hero = lazy(() => import('@/pages/hero').then(m => ({ default: m.Hero })))
+const About = lazy(() => import('@/pages/about').then(m => ({ default: m.About })))
+const Services = lazy(() => import('@/pages/services').then(m => ({ default: m.Services })))
+const Booking = lazy(() => import('@/pages/booking').then(m => ({ default: m.Booking })))
+
 const rootRoute = createRootRoute({
-  component: () => <Outlet />,
+  component: () => (
+    <Suspense fallback={<div className="p-6 text-center text-charcoal/70">Loading…</div>}>
+      <Outlet />
+    </Suspense>
+  ),
 })
 
-// Main layout route
 const layoutRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: 'layout',
@@ -28,14 +32,6 @@ const layoutRoute = createRoute({
   ),
 })
 
-// Home page route (all sections in one page)
-const indexRoute = createRoute({
-  getParentRoute: () => layoutRoute,
-  path: '/',
-  component: HomePage,
-})
-
-// Home page component (single page with all sections)
 function HomePage() {
   return (
     <>
@@ -47,24 +43,21 @@ function HomePage() {
   )
 }
 
-// Build route tree
+const indexRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: '/',
+  component: HomePage,
+})
+
 const routeTree = rootRoute.addChildren([layoutRoute.addChildren([indexRoute])])
 
-// Create router
 const router = createRouter({
   routeTree,
   defaultPreload: 'intent',
 })
 
-// Type registration
-declare module '@tanstack/react-router' {
-  interface Register {
-    router: typeof router
-  }
-}
+declare module '@tanstack/react-router' { interface Register { router: typeof router } }
 
-function App(): ReactElement {
+export default function App() {
   return <RouterProvider router={router} />
 }
-
-export default App
