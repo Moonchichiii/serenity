@@ -1,0 +1,17 @@
+{
+  "name": "serenity",
+  "private": true,
+  "version": "0.0.0",
+  "workspaces": ["frontend"],
+  "scripts": {
+    "dev": "pnpm -C frontend dev",
+    "build": "pnpm -C frontend build",
+    "lint": "pnpm -C frontend lint",
+    "type-check": "pnpm -C frontend type-check",
+    "dev:backend": "python backend/manage.py runserver 0.0.0.0:8000",
+    "dev:all": "powershell -NoProfile -Command \"Start-Process -NoNewWindow pnpm -ArgumentList 'dev:backend'; pnpm dev\""
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}
