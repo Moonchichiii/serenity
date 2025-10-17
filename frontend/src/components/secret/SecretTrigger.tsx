@@ -1,9 +1,9 @@
-// src/components/secret/SecretTrigger.tsx
-import { PropsWithChildren, useCallback, useRef } from 'react'
+import type { PropsWithChildren } from 'react'  // ADD 'type'
+import { useCallback, useRef } from 'react'
 import { useModal } from '@/shared/hooks/useModal'
 
 type SecretTriggerProps = PropsWithChildren<{
-  modalId: 'cmsLogin' | 'contact' | string
+  modalId: 'cmsLogin' | 'contact'  // REMOVE | string
   times?: number
   windowMs?: number
   className?: string
@@ -36,17 +36,12 @@ export default function SecretTrigger({
     if (clicksRef.current >= times) {
       e.preventDefault()
       reset()
-      open(modalId as any)
+      open(modalId)  // REMOVE 'as any'
     }
   }, [modalId, times, windowMs, open])
 
   return (
-    <span
-      onClick={handleClick}
-      className={className}
-      // Keep it invisible to assistive tech; no affordance in UI
-      aria-hidden="true"
-    >
+    <span onClick={handleClick} className={className} aria-hidden="true">
       {children}
     </span>
   )

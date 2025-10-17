@@ -10,7 +10,7 @@ import toast from 'react-hot-toast'
 type FormData = {
     name: string
     email: string
-    phone?: string
+    phone: string
     message: string
 }
 

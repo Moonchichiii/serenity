@@ -1,4 +1,3 @@
-// src/components/modals/CMSLoginModal.tsx
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -66,8 +65,9 @@ export default function CMSLoginModal() {
       setMe(r.data)
       toast.success('Connected')
       reset({ email: data.email, password: '' })
-    } catch (err: any) {
-      const msg = err?.response?.data?.detail || 'Login failed'
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } }
+      const msg = error?.response?.data?.detail || 'Login failed'
       toast.error(msg)
     }
   }

@@ -3,6 +3,7 @@ import { Mail, Phone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import AnimatedInstagramIcon  from '@/components/ui/AnimatedInstagramIcon'
+import AnimatedFacebookIcon from '../ui/AnimatedFacebookIcon'
 
 const Footer: React.FC = () => {
   const { t } = useTranslation()
@@ -72,6 +73,16 @@ const Footer: React.FC = () => {
                   magnetic={true}
                   size={44}
                   href="https://instagram.com/yourprofile?utm_source=site&utm_medium=footer"
+                />
+              </div>
+              <div className="mt-2 flex items-center gap-3">
+                <span className="sr-only">
+                  {t('footer.follow', { defaultValue: 'Suivez-nous sur Instagram' })}
+                </span>
+                <AnimatedFacebookIcon
+                  magnetic={true}
+                  size={44}
+                  href="https://facebook.com/yourprofile?utm_source=site&utm_medium=footer"
                 />
               </div>
             </div>

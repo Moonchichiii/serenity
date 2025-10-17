@@ -2,25 +2,45 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/Button'
 import { motion } from 'framer-motion'
+import { cmsAPI } from '@/api/cms'
 
-
+// Fallback images (used if CMS has no images yet)
 import heroImage1 from '@/assets/hero-image.jpg'
 import heroImage2 from '@/assets/hero-image-2.jpg'
 import heroImage3 from '@/assets/hero-image-3.jpg'
 
+const FALLBACK_IMAGES = [
+  { src: heroImage1, alt: 'Serene spa environment with natural lighting' },
+  { src: heroImage2, alt: 'Peaceful massage therapy room with bamboo elements' },
+  { src: heroImage3, alt: 'Tranquil wellness space with organic textures' },
+]
+
 export function Hero() {
-  const { t } = useTranslation()
-
-  const heroImages = useMemo(
-    () => [
-      { src: heroImage1, alt: 'Serene spa environment with natural lighting' },
-      { src: heroImage2, alt: 'Peaceful massage therapy room with bamboo elements' },
-      { src: heroImage3, alt: 'Tranquil wellness space with organic textures' },
-    ],
-    []
-  )
-
+  const { t, i18n } = useTranslation()
+  const [cmsData, setCmsData] = useState<any>(null)
   const [active, setActive] = useState(0)
+
+  // Fetch CMS data
+  useEffect(() => {
+    cmsAPI.getHomePage()
+      .then(setCmsData)
+      .catch((err) => {
+        console.log('CMS not ready, using fallback content')
+      })
+  }, [])
+
+  // Use CMS images or fallback
+  const heroImages = useMemo(() => {
+    if (cmsData?.hero_image?.url) {
+      // CMS image available - use it (repeated 3x for carousel effect)
+      return [
+        { src: cmsData.hero_image.url, alt: cmsData.hero_image.title || 'Hero image' },
+        { src: cmsData.hero_image.url, alt: cmsData.hero_image.title || 'Hero image' },
+        { src: cmsData.hero_image.url, alt: cmsData.hero_image.title || 'Hero image' },
+      ]
+    }
+    return FALLBACK_IMAGES
+  }, [cmsData])
 
   // Auto-advance every 5s
   useEffect(() => {
@@ -33,6 +53,15 @@ export function Hero() {
   const scrollToBooking = () => {
     document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })
   }
+
+  // Get text from CMS or fallback to i18n
+  const lang = i18n.language as 'en' | 'fr'
+  const title = cmsData
+    ? (lang === 'fr' ? cmsData.hero_title_fr : cmsData.hero_title_en) || t('hero.title')
+    : t('hero.title')
+  const subtitle = cmsData
+    ? (lang === 'fr' ? cmsData.hero_subtitle_fr : cmsData.hero_subtitle_en) || t('hero.subtitle')
+    : t('hero.subtitle')
 
   return (
     <section
@@ -85,7 +114,7 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            {t('hero.title')}
+            {title}
           </motion.h1>
 
           <motion.p
@@ -94,7 +123,7 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            {t('hero.subtitle')}
+            {subtitle}
           </motion.p>
 
           <motion.div

@@ -1,4 +1,3 @@
-// src/pages/booking.tsx
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
@@ -11,7 +10,7 @@ import toast from 'react-hot-toast'
 import Calendar from 'react-calendar'
 import { format } from 'date-fns'
 import { isPastDate } from '@/lib/utils'
-import { apiClient } from '@/api/client' // for future POST /api/bookings/
+import { cmsAPI, type WagtailService } from '@/api/cms'
 
 // --- Validation schema ---
 const bookingSchema = yup.object({
@@ -34,7 +33,10 @@ const defaultTimeSlots = [
 ]
 
 export function Booking() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+
+  // CMS Services state
+  const [services, setServices] = useState<WagtailService[]>([])
 
   const {
     register,
@@ -63,6 +65,17 @@ export function Booking() {
     [activeStartDate]
   )
 
+  // Fetch CMS services
+  useEffect(() => {
+    cmsAPI
+      .getServices()
+      .then(setServices)
+      .catch(() => {
+        console.log('CMS services not ready, using fallback')
+        setServices([])
+      })
+  }, [])
+
   useEffect(() => {
     setIsBusyLoading(true)
     // Backend returns: { busy: ["YYYY-MM-DD", ...] }
@@ -89,18 +102,7 @@ export function Booking() {
 
   const onSubmit: SubmitHandler<BookingFormData> = async (data) => {
     try {
-      // TODO: when bookings API is ready, post to /api/bookings/ with your shape
-      // await apiClient.post('/api/bookings/', {
-      //   service_id: mapServiceKeyToId(data.service), // implement mapping
-      //   start_datetime: composeISO(data.date, data.time), // implement
-      //   client_name: data.name,
-      //   client_email: data.email,
-      //   client_phone: data.phone,
-      //   client_notes: data.notes || '',
-      //   preferred_language: i18n.language === 'fr' ? 'fr' : 'en',
-      // })
-
-      // For now, keep UX feedback & reset
+      // TODO: when bookings API is ready, post to /api/bookings/
       await new Promise((resolve) => setTimeout(resolve, 800))
       toast.success(t('booking.form.submit'), { icon: '✨' })
       reset()
@@ -109,6 +111,8 @@ export function Booking() {
       toast.error('Something went wrong. Please try again.')
     }
   }
+
+  const lang = i18n.language as 'en' | 'fr'
 
   return (
     <section id="booking" className="py-20 lg:py-32 bg-gradient-warm">
@@ -208,10 +212,23 @@ export function Booking() {
                     className="w-full px-4 py-3 rounded-xl border-2 border-sage-200 focus:border-terracotta-300 focus:ring-2 focus:ring-terracotta-200 transition-all"
                   >
                     <option value="">{t('booking.form.service')}</option>
-                    <option value="swedish">{t('services.swedish.title')}</option>
-                    <option value="deep">{t('services.deep.title')}</option>
-                    <option value="therapeutic">{t('services.therapeutic.title')}</option>
-                    <option value="prenatal">{t('services.prenatal.title')}</option>
+                    {services.length > 0 ? (
+                      // CMS Services
+                      services.map((service) => (
+                        <option key={service.id} value={service.id}>
+                          {lang === 'fr' ? service.title_fr : service.title_en} - {service.duration_minutes} min - €
+                          {service.price}
+                        </option>
+                      ))
+                    ) : (
+                      // Fallback to i18n
+                      <>
+                        <option value="swedish">{t('services.swedish.title')}</option>
+                        <option value="deep">{t('services.deep.title')}</option>
+                        <option value="therapeutic">{t('services.therapeutic.title')}</option>
+                        <option value="prenatal">{t('services.prenatal.title')}</option>
+                      </>
+                    )}
                   </select>
                   {errors.service && <p className="text-sm text-terracotta-500">{errors.service.message}</p>}
                 </div>
@@ -222,7 +239,6 @@ export function Booking() {
                       {t('booking.form.date')} <span className="text-terracotta-500">*</span>
                     </label>
 
-                    {/* Hidden field so RHF validation works with setValue */}
                     <input type="hidden" {...register('date')} />
 
                     <div className="rounded-2xl border-2 border-sage-200 p-3 bg-white">
@@ -277,7 +293,6 @@ export function Booking() {
                     <label className="block text-sm font-medium text-charcoal">
                       {t('booking.form.time')} <span className="text-terracotta-500">*</span>
                     </label>
-                    {/* Hidden field so RHF validation works with button selection */}
                     <input type="hidden" {...register('time')} />
                     <div className={`grid grid-cols-3 gap-2 ${!selectedDate ? 'opacity-50 pointer-events-none' : ''}`}>
                       {availableTimes.slice(0, 6).map((time) => (
