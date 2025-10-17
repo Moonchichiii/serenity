@@ -5,6 +5,10 @@ django-cors-headers==4.6.0
 django-filter
 djangorestframework-simplejwt
 
+# Cloudinary
+cloudinary
+django-cloudinary-storage
+
 # Database
 psycopg2-binary==2.9.10
 dj-database-url==2.3.0

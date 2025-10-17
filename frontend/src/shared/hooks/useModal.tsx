@@ -1,6 +1,9 @@
 import { createContext, useCallback, useContext, useState } from 'react'
 
-type ModalMap = { contact?: boolean }
+type ModalMap = {
+  contact?: boolean
+  cmsLogin?: boolean
+}
 
 type Ctx = {
   open: (id: keyof ModalMap) => void

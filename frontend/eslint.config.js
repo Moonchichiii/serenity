@@ -17,7 +17,7 @@ export default tseslint.config(
       ecmaVersion: 2022,
       sourceType: 'module',
       parserOptions: {
-        ecmaFeatures: { jsx: true }, // JSX in TSX
+        ecmaFeatures: { jsx: true },
       },
       globals: globals.browser,
     },
@@ -48,7 +48,7 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
 
-      // A11y (keep it mild; adjust to your preference)
+      // A11y rules
       'jsx-a11y/anchor-is-valid': 'warn',
       'jsx-a11y/no-autofocus': 'off',
 

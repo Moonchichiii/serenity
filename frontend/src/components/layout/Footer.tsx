@@ -69,7 +69,6 @@ const Footer: React.FC = () => {
                   {t('footer.follow', { defaultValue: 'Suivez-nous sur Instagram' })}
                 </span>
                 <AnimatedInstagramIcon
-                  floating={false}
                   magnetic={true}
                   size={44}
                   href="https://instagram.com/yourprofile?utm_source=site&utm_medium=footer"

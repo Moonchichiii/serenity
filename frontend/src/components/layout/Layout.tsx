@@ -3,6 +3,7 @@ import { Header } from './Header'
 import Footer from './Footer'
 import { Toaster } from 'react-hot-toast'
 import ContactModal from '@/components/modals/ContactModal'
+import CMSLoginModal from '@/components/modals/CMSLoginModal'
 
 export function Layout({ children }: { children: ReactNode }) {
   return (
@@ -11,7 +12,8 @@ export function Layout({ children }: { children: ReactNode }) {
       <Header />
       <main id="content" role="main" className="flex-1">{children}</main>
       <Footer />
-      <ContactModal /> {/* mounted once here */}
+      <ContactModal />
+       <CMSLoginModal />
     </div>
   )
 }

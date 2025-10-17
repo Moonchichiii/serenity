@@ -1,7 +1,8 @@
+// src/pages/booking.tsx
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import { useForm } from 'react-hook-form'
+import { useForm, type SubmitHandler } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { Button } from '@/components/ui/Button'
@@ -10,31 +11,22 @@ import toast from 'react-hot-toast'
 import Calendar from 'react-calendar'
 import { format } from 'date-fns'
 import { isPastDate } from '@/lib/utils'
+import { apiClient } from '@/api/client' // for future POST /api/bookings/
 
+// --- Validation schema ---
 const bookingSchema = yup.object({
-  name: yup.string().required('Name is required').min(2, 'Name must be at least 2 characters'),
-  email: yup.string().required('Email is required').email('Must be a valid email'),
-  phone: yup
-    .string()
-    .required('Phone is required')
-    .matches(/^\+?[0-9\s-]{10,}$/, 'Invalid phone number'),
+  name: yup.string().required('Name is required').min(2),
+  email: yup.string().required('Email is required').email(),
+  phone: yup.string().required('Phone is required').matches(/^\+?[0-9\s-]{10,}$/, 'Invalid phone number'),
   service: yup.string().required('Please select a service'),
   date: yup.string().required('Please select a date'),
   time: yup.string().required('Please select a time'),
-  notes: yup.string().optional()
+  notes: yup.string().optional(),
 })
 
-type BookingFormData = {
-  name: string
-  email: string
-  phone: string
-  service: string
-  date: string
-  time: string
-  notes?: string
-}
+type BookingFormData = yup.InferType<typeof bookingSchema>
 
-// Fallback times used until backend returns real ones
+// Fallback times until backend returns real ones
 const defaultTimeSlots = [
   '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
   '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
@@ -53,7 +45,7 @@ export function Booking() {
     setValue,
   } = useForm<BookingFormData>({
     resolver: yupResolver(bookingSchema),
-    defaultValues: { date: '', time: '' },
+    defaultValues: { date: '', time: '', notes: '' },
   })
 
   const selectedTime = watch('time')
@@ -63,14 +55,17 @@ export function Booking() {
   const [busyDates, setBusyDates] = useState<Set<string>>(new Set())
   const [isBusyLoading, setIsBusyLoading] = useState(false)
 
-  const ym = useMemo(() => ({
-    year: activeStartDate.getFullYear(),
-    month: activeStartDate.getMonth() + 1,
-  }), [activeStartDate])
+  const ym = useMemo(
+    () => ({
+      year: activeStartDate.getFullYear(),
+      month: activeStartDate.getMonth() + 1,
+    }),
+    [activeStartDate]
+  )
 
   useEffect(() => {
     setIsBusyLoading(true)
-    // Backend should return: { busy: ["YYYY-MM-DD", ...] }
+    // Backend returns: { busy: ["YYYY-MM-DD", ...] }
     fetch(`/api/calendar/busy?year=${ym.year}&month=${ym.month}`)
       .then((r) => r.json())
       .then((data: { busy: string[] }) => setBusyDates(new Set(data?.busy ?? [])))
@@ -83,7 +78,7 @@ export function Booking() {
   useEffect(() => {
     if (!selectedDate) return
     const iso = format(selectedDate, 'yyyy-MM-dd')
-    // Backend should return: { times: ["HH:mm", ...] }
+    // Backend returns: { times: ["HH:mm", ...] }
     fetch(`/api/calendar/slots?date=${iso}`)
       .then((r) => r.json())
       .then((data: { times: string[] }) => {
@@ -92,14 +87,22 @@ export function Booking() {
       .catch(() => setAvailableTimes([]))
   }, [selectedDate])
 
-  const onSubmit = async (_data: BookingFormData) => {
+  const onSubmit: SubmitHandler<BookingFormData> = async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1200))
+      // TODO: when bookings API is ready, post to /api/bookings/ with your shape
+      // await apiClient.post('/api/bookings/', {
+      //   service_id: mapServiceKeyToId(data.service), // implement mapping
+      //   start_datetime: composeISO(data.date, data.time), // implement
+      //   client_name: data.name,
+      //   client_email: data.email,
+      //   client_phone: data.phone,
+      //   client_notes: data.notes || '',
+      //   preferred_language: i18n.language === 'fr' ? 'fr' : 'en',
+      // })
 
-      toast.success(t('booking.form.submit'), {
-        icon: '✨',
-      })
-
+      // For now, keep UX feedback & reset
+      await new Promise((resolve) => setTimeout(resolve, 800))
+      toast.success(t('booking.form.submit'), { icon: '✨' })
       reset()
       setSelectedDate(null)
     } catch {
@@ -219,7 +222,7 @@ export function Booking() {
                       {t('booking.form.date')} <span className="text-terracotta-500">*</span>
                     </label>
 
-                    {/* RHF hidden field so validation works with setValue */}
+                    {/* Hidden field so RHF validation works with setValue */}
                     <input type="hidden" {...register('date')} />
 
                     <div className="rounded-2xl border-2 border-sage-200 p-3 bg-white">
@@ -274,13 +277,9 @@ export function Booking() {
                     <label className="block text-sm font-medium text-charcoal">
                       {t('booking.form.time')} <span className="text-terracotta-500">*</span>
                     </label>
-                    {/* RHF hidden field so validation works with button selection */}
+                    {/* Hidden field so RHF validation works with button selection */}
                     <input type="hidden" {...register('time')} />
-                    <div
-                      className={`grid grid-cols-3 gap-2 ${
-                        !selectedDate ? 'opacity-50 pointer-events-none' : ''
-                      }`}
-                    >
+                    <div className={`grid grid-cols-3 gap-2 ${!selectedDate ? 'opacity-50 pointer-events-none' : ''}`}>
                       {availableTimes.slice(0, 6).map((time) => (
                         <button
                           key={time}

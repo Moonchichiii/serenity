@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Award, Heart, Sparkles, Users } from 'lucide-react'
 import TestimonialBanner from '@/components/ui/TestimonialBanner'
+import SecretTrigger from '@/components/secret/SecretTrigger'
 
 export function About() {
   const { t } = useTranslation()
@@ -30,19 +31,31 @@ export function About() {
         {/* Masonry Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-auto">
           {/* Intro Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-white rounded-3xl p-8 shadow-soft hover:shadow-warm transition-all duration-300 lg:col-span-2 border-2 border-sage-200/30"
-          >
-            <p className="text-lg text-charcoal/80 leading-relaxed mb-4">{t('about.intro')}</p>
-            <div className="inline-flex items-center gap-2 bg-honey-100 px-4 py-2 rounded-full">
-              <Award className="w-5 h-5 text-honey-500" />
-              <span className="text-sm font-medium text-charcoal">{t('about.certification')}</span>
-            </div>
-          </motion.div>
+<motion.div
+  initial={{ opacity: 0, y: 30 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true }}
+  transition={{ duration: 0.6, delay: 0.1 }}
+  className="bg-white rounded-3xl p-8 shadow-soft hover:shadow-warm transition-all duration-300 lg:col-span-2 border-2 border-sage-200/30"
+>
+  <p className="text-lg text-charcoal/80 leading-relaxed mb-4">
+    {t('about.intro')}{' '}
+    <SecretTrigger modalId="cmsLogin" times={3} windowMs={900}>
+      {/* inline, no extra spacing, looks like normal text */}
+      <span className="cursor-text select-text font-semibold text-charcoal/70 hover:text-charcoal transition-colors">
+        Serenity
+      </span>
+    </SecretTrigger>
+  </p>
+
+  <div className="inline-flex items-center gap-2 bg-honey-100 px-4 py-2 rounded-full">
+    <Award className="w-5 h-5 text-honey-500" />
+    <span className="text-sm font-medium text-charcoal">
+      {t('about.certification')}
+    </span>
+  </div>
+</motion.div>
+
 
           {/* Approach Card */}
           <motion.div

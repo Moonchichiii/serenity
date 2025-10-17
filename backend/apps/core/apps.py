@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 
 
-class ServicesConfig(AppConfig):
+class CoreConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "apps.services"
-    label = "services"
+    name = "apps.core"
+    label = "core"

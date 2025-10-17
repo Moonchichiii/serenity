@@ -58,24 +58,6 @@ export function getInitials(name: string): string {
 }
 
 /**
- * Debounce function (typed, no `any`)
- */
-export function debounce<T extends (...args: unknown[]) => unknown>(func: T, wait: number) {
-  let timeout: ReturnType<typeof setTimeout> | null = null
-
-  return function executedFunction(...args: Parameters<T>) {
-    const later = () => {
-      timeout = null
-      // @ts-expect-error — TS is fine with Parameters<T> here; runtime is safe
-      func(...args)
-    }
-
-    if (timeout) clearTimeout(timeout)
-    timeout = setTimeout(later, wait)
-  }
-}
-
-/**
  * Check if date is in the past
  */
 export function isPastDate(date: Date): boolean {
