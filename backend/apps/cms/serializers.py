@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import serializers
 from wagtail.images.models import Image
 
@@ -5,17 +6,42 @@ from apps.cms.models import HomePage
 from apps.services.models import Service
 from apps.testimonials.models import Testimonial
 
+if settings.USE_CLOUDINARY:
+    from config.cloudinary_config import get_device_from_user_agent, get_responsive_url
+
 
 class WagtailImageSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
+    responsive_urls = serializers.SerializerMethodField()
 
     class Meta:
         model = Image
-        fields = ["title", "width", "height", "url"]
+        fields = ["title", "width", "height", "url", "responsive_urls"]
 
     def get_url(self, obj):
-        # Cloudinary rendition: webp & auto quality via dynamic delivery
-        return obj.file.url  # Cloudinary will serve optimized urls
+        """Default optimized URL (desktop)"""
+        url = obj.file.url
+
+        if settings.USE_CLOUDINARY:
+            request = self.context.get("request")
+            if request:
+                user_agent = request.META.get("HTTP_USER_AGENT", "")
+                device = get_device_from_user_agent(user_agent)
+                return get_responsive_url(url, device)
+
+        return url
+
+    def get_responsive_urls(self, obj):
+        """All device variants for client-side responsive images"""
+        if not settings.USE_CLOUDINARY:
+            return None
+
+        base_url = obj.file.url
+        return {
+            "mobile": get_responsive_url(base_url, "mobile"),
+            "tablet": get_responsive_url(base_url, "tablet"),
+            "desktop": get_responsive_url(base_url, "desktop"),
+        }
 
 
 class HomePageSerializer(serializers.ModelSerializer):

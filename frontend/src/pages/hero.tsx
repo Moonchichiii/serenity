@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/Button'
+import { ResponsiveImage } from '@/components/ui/ResponsiveImage'
 import { motion } from 'framer-motion'
 import { cmsAPI } from '@/api/cms'
 
@@ -22,7 +23,8 @@ export function Hero() {
 
   // Fetch CMS data
   useEffect(() => {
-    cmsAPI.getHomePage()
+    cmsAPI
+      .getHomePage()
       .then(setCmsData)
       .catch((err) => {
         console.log('CMS not ready, using fallback content')
@@ -32,11 +34,23 @@ export function Hero() {
   // Use CMS images or fallback
   const heroImages = useMemo(() => {
     if (cmsData?.hero_image?.url) {
-      // CMS image available - use it (repeated 3x for carousel effect)
+      // CMS image available - use it with responsive URLs if available
       return [
-        { src: cmsData.hero_image.url, alt: cmsData.hero_image.title || 'Hero image' },
-        { src: cmsData.hero_image.url, alt: cmsData.hero_image.title || 'Hero image' },
-        { src: cmsData.hero_image.url, alt: cmsData.hero_image.title || 'Hero image' },
+        {
+          src: cmsData.hero_image.url,
+          alt: cmsData.hero_image.title || 'Hero image',
+          responsiveUrls: cmsData.hero_image.responsive_urls,
+        },
+        {
+          src: cmsData.hero_image.url,
+          alt: cmsData.hero_image.title || 'Hero image',
+          responsiveUrls: cmsData.hero_image.responsive_urls,
+        },
+        {
+          src: cmsData.hero_image.url,
+          alt: cmsData.hero_image.title || 'Hero image',
+          responsiveUrls: cmsData.hero_image.responsive_urls,
+        },
       ]
     }
     return FALLBACK_IMAGES
@@ -71,18 +85,24 @@ export function Hero() {
       {/* Background images: crossfade + subtle zoom */}
       <div className="absolute inset-0 z-0">
         {heroImages.map((image, idx) => (
-          <motion.img
+          <motion.div
             key={idx}
-            src={image.src}
-            alt={image.alt}
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0"
             initial={false}
             animate={{
               opacity: active === idx ? 1 : 0,
               scale: active === idx ? 1.05 : 1.0,
             }}
             transition={{ duration: 1.2, ease: 'easeOut' }}
-          />
+          >
+            <ResponsiveImage
+              src={image.src}
+              alt={image.alt}
+              responsiveUrls={image.responsiveUrls}
+              className="w-full h-full"
+              priority={idx === 0}
+            />
+          </motion.div>
         ))}
 
         {/* Warm overlay gradient to keep text readable */}

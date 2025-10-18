@@ -1,7 +1,7 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios'
 
-// Vite env var or default
-const API_URL = import.meta.env['VITE_API_URL'] || 'http://localhost:8000'
+// Vite env var or default - EXPORT for use in other components
+export const API_URL = import.meta.env['VITE_API_URL'] || 'http://localhost:8000'
 
 function getCookie(name: string): string | undefined {
   const value = `; ${document.cookie}`
@@ -40,7 +40,6 @@ apiClient.interceptors.request.use(
     if (['post', 'put', 'patch', 'delete'].includes(method)) {
       const csrftoken = getCookie('csrftoken')
       if (csrftoken) {
-        // headers is guaranteed on InternalAxiosRequestConfig
         config.headers['X-CSRFToken'] = csrftoken
       }
     }

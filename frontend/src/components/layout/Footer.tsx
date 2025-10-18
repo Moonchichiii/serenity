@@ -65,7 +65,7 @@ const Footer: React.FC = () => {
                 </p>
               </div>
 
-              <div className="mt-2 flex items-center gap-3">
+              <div className="mt-2 flex items-center gap-8">
                 <span className="sr-only">
                   {t('footer.follow', { defaultValue: 'Suivez-nous sur Instagram' })}
                 </span>
@@ -74,9 +74,7 @@ const Footer: React.FC = () => {
                   size={44}
                   href="https://instagram.com/yourprofile?utm_source=site&utm_medium=footer"
                 />
-              </div>
-              <div className="mt-2 flex items-center gap-3">
-                <span className="sr-only">
+                    <span className="sr-only">
                   {t('footer.follow', { defaultValue: 'Suivez-nous sur Instagram' })}
                 </span>
                 <AnimatedFacebookIcon

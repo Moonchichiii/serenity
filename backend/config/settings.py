@@ -7,31 +7,26 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config("DJANGO_SECRET_KEY", default="unsafe")
 DEBUG = config("DJANGO_DEBUG", cast=bool, default=False)
-
-# Environment
 ENVIRONMENT = config("ENVIRONMENT", default="development")
-
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
 
-# If you want a simple toggle in .env
+# Cloudinary Configuration
 USE_CLOUDINARY = config("USE_CLOUDINARY", cast=bool, default=False)
-CLOUDINARY_URL = config("CLOUDINARY_URL", default="")  # optional: auto-detect
+CLOUDINARY_URL = config("CLOUDINARY_URL", default="")
 USE_CLOUDINARY = USE_CLOUDINARY or bool(CLOUDINARY_URL)
 
+# Installed Apps
 INSTALLED_APPS = [
-    # Django
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # Third-party
     "rest_framework",
     "django_filters",
     "corsheaders",
     "drf_spectacular",
-    # Wagtail
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
     "wagtail.embeds",
@@ -46,11 +41,6 @@ INSTALLED_APPS = [
     "modelcluster",
     "taggit",
     "wagtail_localize",
-    # "wagtailmenus",
-    # Cloudinary
-    # "cloudinary",
-    # "cloudinary_storage",
-    # Local apps
     "apps.core",
     "apps.cms",
     "apps.services",
@@ -59,16 +49,22 @@ INSTALLED_APPS = [
     "apps.bookings",
 ]
 
-# Only add Cloudinary apps if creds/toggle are present
 if USE_CLOUDINARY:
     INSTALLED_APPS += ["cloudinary", "cloudinary_storage"]
 
+# Authentication
+AUTHENTICATION_BACKENDS = [
+    "apps.core.backends.EmailOrUsernameBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+# Middleware
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.locale.LocaleMiddleware",  # i18n
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -77,10 +73,12 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+# URLs & WSGI
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
+# Database
 DATABASES = {
     "default": dj_database_url.parse(
         config("DATABASE_URL", default=f'sqlite:///{BASE_DIR / "db.sqlite3"}'),
@@ -88,23 +86,51 @@ DATABASES = {
     )
 }
 
-# --- Static / Media ---
+# Static Files
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+# Media Files & Cloudinary Storage
 MEDIA_URL = "/media/"
 
 if USE_CLOUDINARY:
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+    # Cloudinary Storage Configuration
     CLOUDINARY_STORAGE = {
-        "SECURE": True,
-        # "DEFAULTS": {"format": "webp", "quality": "auto"}  # optional
+        "CLOUD_NAME": config("CLOUD_NAME", default=""),
+        "API_KEY": config("CLOUDINARY_API_KEY", default=""),
+        "API_SECRET": config("CLOUDINARY_API_SECRET", default=""),
+        "SECURE": config("CLOUDINARY_SECURE", cast=bool, default=True),
     }
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+    # Initialize Cloudinary with optimal settings
+    import cloudinary
+
+    cloudinary.config(
+        cloud_name=CLOUDINARY_STORAGE["CLOUD_NAME"],
+        api_key=CLOUDINARY_STORAGE["API_KEY"],
+        api_secret=CLOUDINARY_STORAGE["API_SECRET"],
+        secure=CLOUDINARY_STORAGE["SECURE"],
+    )
 else:
-    # Local dev storage
     MEDIA_ROOT = BASE_DIR / "media"
-    # Do NOT set DEFAULT_FILE_STORAGE = cloudinary_* here
+
+# Email Configuration
+EMAIL_BACKEND = config(
+    "EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
+)
+EMAIL_HOST = config("EMAIL_HOST", default="smtp.gmail.com")
+EMAIL_PORT = config("EMAIL_PORT", cast=int, default=587)
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool, default=True)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+DEFAULT_FROM_EMAIL = config(
+    "DEFAULT_FROM_EMAIL",
+    default=(
+        f"Serenity <{EMAIL_HOST_USER}>" if EMAIL_HOST_USER else "webmaster@localhost"
+    ),
+)
 
 # REST Framework
 REST_FRAMEWORK = {
@@ -117,19 +143,20 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
 }
 
-# --- Rate Limiting ---
-RATELIMIT_ENABLE = False
+# Rate Limiting
+RATELIMIT_ENABLE = config("RATELIMIT_ENABLE", cast=bool, default=False)
+INSTALLED_APPS += ["django_ratelimit"] if RATELIMIT_ENABLE else []
 
-# --- CORS & CSRF ---
+# CORS & CSRF
 CORS_ALLOWED_ORIGINS = config(
     "CORS_ALLOWED_ORIGINS", cast=Csv(), default="http://localhost:5173"
 )
 CSRF_TRUSTED_ORIGINS = config(
     "CSRF_TRUSTED_ORIGINS", cast=Csv(), default="http://localhost:5173"
 )
+CORS_ALLOW_CREDENTIALS = True
 
-# Security - HTTPS / Cookie Settings
-# Tune these per ENVIRONMENT
+# Security
 if ENVIRONMENT == "production":
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
@@ -145,10 +172,10 @@ else:
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_HTTPONLY = True
-CSRF_COOKIE_HTTPONLY = False  # JS needs to read this
-SESSION_COOKIE_AGE = 86400  # 24 hours
+CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_AGE = 86400
 
-# Internationalization: EN default, FR available
+# Internationalization
 LANGUAGE_CODE = "en"
 LANGUAGES = [
     ("en", "English"),
@@ -163,8 +190,6 @@ LOCALE_PATHS = [BASE_DIR / "locale"]
 # Wagtail
 WAGTAIL_SITE_NAME = config("WAGTAIL_SITE_NAME", default="Serenity")
 WAGTAIL_I18N_ENABLED = True
-
-# Wagtail Admin Settings
 WAGTAIL_FRONTEND_LOGIN_URL = "/portal"
 WAGTAILADMIN_BASE_URL = config("WAGTAILADMIN_BASE_URL", default="http://localhost:8000")
 
@@ -187,15 +212,7 @@ TEMPLATES = [
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Rate Limiting
-# RATELIMIT_ENABLE = config("RATELIMIT_ENABLE", cast=bool, default=True)
-# RATELIMIT_USE_CACHE = "default"
-# RATELIMIT_VIEW = "apps.core.views.ratelimit_error"
-
-# Add django-ratelimit to INSTALLED_APPS if enabled
-INSTALLED_APPS += ["django_ratelimit"] if RATELIMIT_ENABLE else []
-
-# Cache for rate limiting (default local cache)
+# Cache
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.dummy.DummyCache",

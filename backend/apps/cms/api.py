@@ -18,7 +18,9 @@ def homepage(request):
     page = HomePage.objects.live().descendant_of(site.root_page).first()
     if not page:
         return Response({}, status=200)
-    data = HomePageSerializer(page).data
+
+    # Pass request context for device detection
+    data = HomePageSerializer(page, context={"request": request}).data
     return Response(data)
 
 
@@ -26,7 +28,8 @@ def homepage(request):
 @permission_classes([AllowAny])
 def services(request):
     qs = Service.objects.filter(is_available=True)
-    return Response(ServiceSerializer(qs, many=True).data)
+    # Pass request context for device detection
+    return Response(ServiceSerializer(qs, many=True, context={"request": request}).data)
 
 
 @api_view(["GET"])

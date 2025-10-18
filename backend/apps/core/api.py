@@ -1,12 +1,31 @@
 import json
 import logging
 
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpRequest, JsonResponse
 from django.utils.translation import gettext as _
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
-from django_ratelimit.decorators import ratelimit
+
+if getattr(settings, "RATELIMIT_ENABLE", True):
+    from django_ratelimit.decorators import ratelimit
+else:
+
+    def ratelimit(*args, **kwargs):
+        """
+        No-op ratelimit decorator that supports both usages:
+        - @ratelimit(...)  (returns a decorator)
+        - @ratelimit        (applied directly to a function)
+        """
+        if args and len(args) == 1 and callable(args[0]) and not kwargs:
+            return args[0]
+
+        def _decorator(func):
+            return func
+
+        return _decorator
+
 
 logger = logging.getLogger(__name__)
 

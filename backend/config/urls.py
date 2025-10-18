@@ -14,7 +14,9 @@ urlpatterns = [
     path("api/auth/logout/", core_api.logout_view),
     # Wagtail admin
     path("cms-admin/", include("wagtail.admin.urls")),
-    # DELETE THIS DUPLICATE LINE: path("cms-admin/", include("wagtail.admin.urls")),
+    path(
+        "cms-admin/settings/", include("wagtail.contrib.settings.urls")
+    ),  # ← ADD THIS LINE
     path("documents/", include("wagtail.documents.urls")),
     # DRF schema
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
