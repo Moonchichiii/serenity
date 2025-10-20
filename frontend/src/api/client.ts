@@ -1,46 +1,34 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios'
-
 // Vite env var or default - EXPORT for use in other components
-export const API_URL = import.meta.env['VITE_API_URL'] || 'http://localhost:8000'
+export const API_URL = import.meta.env['VITE_API_URL']
 
 function getCookie(name: string): string | undefined {
-  const value = `; ${document.cookie}`
-  const parts = value.split(`; ${name}=`)
-  if (parts.length === 2) return parts.pop()!.split(';').shift()
+  const match = document.cookie
+    .split('; ')
+    .find((row) => row.startsWith(`${name}=`))
+  if (!match) return undefined
+  const parts = match.split('=')
+  return parts[1] ? decodeURIComponent(parts[1]) : undefined
 }
 
 export const apiClient = axios.create({
   baseURL: API_URL,
-  withCredentials: true, // send cookies for Django session/CSRF
+  withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
   timeout: 10000,
+  // Axios built-ins for CSRF: match Django defaults
+  xsrfCookieName: 'csrftoken',
+  xsrfHeaderName: 'X-CSRFToken',
 })
 
-// Add CSRF token header when method is not GET
-apiClient.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const csrfToken = document.cookie
-      .split('; ')
-      .find((row) => row.startsWith('csrftoken='))
-      ?.split('=')[1]
-
-    const method = (config.method ?? 'get').toLowerCase()
-    if (csrfToken && method !== 'get') {
-      config.headers['X-CSRFToken'] = csrfToken
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
-
-// Attach CSRF for POST/PUT/PATCH/DELETE using getCookie
+// Single interceptor: attach CSRF for mutating verbs (belt & suspenders)
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const method = (config.method ?? 'get').toLowerCase()
     if (['post', 'put', 'patch', 'delete'].includes(method)) {
       const csrftoken = getCookie('csrftoken')
       if (csrftoken) {
-        config.headers['X-CSRFToken'] = csrftoken
+        ;(config.headers as Record<string, string>)['X-CSRFToken'] = csrftoken
       }
     }
     return config

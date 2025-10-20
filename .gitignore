@@ -24,6 +24,19 @@ htmlcov/
 .tox/
 .hypothesis/
 
+# Additional Python packaging/build dirs
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+.installed.cfg
+
 # Virtual environments
 venv/
 env/
@@ -33,6 +46,7 @@ ENV/
 # Django specific
 *.sqlite3
 db.sqlite3
+db.sqlite3-journal
 /media/
 /staticfiles/
 /static/
@@ -129,3 +143,42 @@ $RECYCLE.BIN/
 # ===== PROJECT SPECIFIC =====
 /apps/backend/locale/
 /apps/frontend/.routeTree.gen.ts
+/backend/staticfiles/
+/media/
+
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Google OAuth credentials (NEVER commit these!)
+credentials.json
+client_secret_*.json
+token_backup.txt
+token.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Django
+db.sqlite3
+*.log
+media/
+staticfiles/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+gen.py

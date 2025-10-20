@@ -10,7 +10,9 @@ import heroImage1 from '@/assets/hero-image.jpg'
 import heroImage2 from '@/assets/hero-image-2.jpg'
 import heroImage3 from '@/assets/hero-image-3.jpg'
 
-const FALLBACK_IMAGES = [
+type HeroImg = { src: string; alt: string; width?: number; height?: number }
+
+const FALLBACK_IMAGES: HeroImg[] = [
   { src: heroImage1, alt: 'Serene spa environment with natural lighting' },
   { src: heroImage2, alt: 'Peaceful massage therapy room with bamboo elements' },
   { src: heroImage3, alt: 'Tranquil wellness space with organic textures' },
@@ -26,40 +28,32 @@ export function Hero() {
     cmsAPI
       .getHomePage()
       .then(setCmsData)
-      .catch((err) => {
+      .catch((_err) => {
         console.log('CMS not ready, using fallback content')
       })
   }, [])
 
-  // Use CMS images or fallback
-  const heroImages = useMemo(() => {
+  // Use CMS image or fallbacks
+  const heroImages: HeroImg[] = useMemo(() => {
     if (cmsData?.hero_image?.url) {
-      // CMS image available - use it with responsive URLs if available
       return [
         {
           src: cmsData.hero_image.url,
           alt: cmsData.hero_image.title || 'Hero image',
-          responsiveUrls: cmsData.hero_image.responsive_urls,
-        },
-        {
-          src: cmsData.hero_image.url,
-          alt: cmsData.hero_image.title || 'Hero image',
-          responsiveUrls: cmsData.hero_image.responsive_urls,
-        },
-        {
-          src: cmsData.hero_image.url,
-          alt: cmsData.hero_image.title || 'Hero image',
-          responsiveUrls: cmsData.hero_image.responsive_urls,
+          width: cmsData.hero_image.width,
+          height: cmsData.hero_image.height,
+          // responsiveUrls intentionally omitted to avoid requesting transformed URLs
         },
       ]
     }
     return FALLBACK_IMAGES
   }, [cmsData])
 
-  // Auto-advance every 5s
+  // Auto-advance only if >1 image
   useEffect(() => {
+    if (heroImages.length < 2) return
     const id = setInterval(() => {
-      setActive((prev) => (prev + 1) % heroImages.length)
+      setActive((p) => (p + 1) % heroImages.length)
     }, 5000)
     return () => clearInterval(id)
   }, [heroImages.length])
@@ -98,7 +92,8 @@ export function Hero() {
             <ResponsiveImage
               src={image.src}
               alt={image.alt}
-              responsiveUrls={image.responsiveUrls}
+              width={image.width}
+              height={image.height}
               className="w-full h-full"
               priority={idx === 0}
             />

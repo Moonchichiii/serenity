@@ -397,3 +397,17 @@ select:focus {
     transform: rotate(360deg);
   }
 }
+
+.testimonial-card-bg{
+  box-shadow: 0 1px 0 0 rgba(255,255,255,.6) inset;
+  background-image:
+    linear-gradient(#fff,#fff),
+    linear-gradient(135deg, rgba(242,199,107,0.35), rgba(242,141,112,0.35), rgba(201,185,232,0.35));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+/* avatar conic ring */
+.conic-avatar{
+  background: conic-gradient(from 180deg, var(--color-terracotta-300), var(--color-honey-300), var(--color-lavender-300));
+}

@@ -15,7 +15,14 @@ from .serializers import HomePageSerializer, ServiceSerializer, TestimonialSeria
 @permission_classes([AllowAny])
 def homepage(request):
     site = Site.find_for_request(request)
-    page = HomePage.objects.live().descendant_of(site.root_page).first()
+
+    # Check if root page itself is HomePage
+    if isinstance(site.root_page.specific, HomePage):
+        page = site.root_page.specific
+    else:
+        # Otherwise look for HomePage as descendant
+        page = HomePage.objects.live().descendant_of(site.root_page).first()
+
     if not page:
         return Response({}, status=200)
 

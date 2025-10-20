@@ -5,6 +5,7 @@ export interface WagtailImage {
   title: string
   width: number
   height: number
+  responsive_urls?: { mobile: string; tablet: string; desktop: string }
 }
 
 export interface WagtailService {

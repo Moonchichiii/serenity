@@ -8,22 +8,37 @@ import { Button } from '@/components/ui/Button'
 import { Calendar as CalendarIcon, User, Mail, Phone, FileText } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Calendar from 'react-calendar'
-import { format } from 'date-fns'
+import { format, parse } from 'date-fns'
 import { isPastDate } from '@/lib/utils'
 import { cmsAPI, type WagtailService } from '@/api/cms'
+import { bookingsAPI } from '@/api/booking'
+import { API_URL } from '@/api/client'
+
+
+type BookingFormData = {
+  name: string
+  email: string
+  phone: string
+  service: string
+  date: string
+  time: string
+  notes?: string
+}
 
 // --- Validation schema ---
-const bookingSchema = yup.object({
-  name: yup.string().required('Name is required').min(2),
-  email: yup.string().required('Email is required').email(),
-  phone: yup.string().required('Phone is required').matches(/^\+?[0-9\s-]{10,}$/, 'Invalid phone number'),
-  service: yup.string().required('Please select a service'),
-  date: yup.string().required('Please select a date'),
-  time: yup.string().required('Please select a time'),
-  notes: yup.string().optional(),
-})
+const bookingSchema: yup.ObjectSchema<BookingFormData> = yup
+  .object({
+    name: yup.string().required('Name is required').min(2),
+    email: yup.string().required('Email is required').email(),
+    phone: yup.string().required('Phone is required').matches(/^\+?[0-9\s-]{10,}$/, 'Invalid phone number'),
+    service: yup.string().required('Please select a service'),
+    date: yup.string().required('Please select a date'),
+    time: yup.string().required('Please select a time'),
+    // keep notes truly optional; normalize empty string -> undefined
+    notes: yup.string().optional().transform(v => (v === '' ? undefined : v)),
+  })
+  .required()
 
-type BookingFormData = yup.InferType<typeof bookingSchema>
 
 // Fallback times until backend returns real ones
 const defaultTimeSlots = [
@@ -47,7 +62,8 @@ export function Booking() {
     setValue,
   } = useForm<BookingFormData>({
     resolver: yupResolver(bookingSchema),
-    defaultValues: { date: '', time: '', notes: '' },
+    defaultValues: { date: '', time: '' },
+
   })
 
   const selectedTime = watch('time')
@@ -79,7 +95,7 @@ export function Booking() {
   useEffect(() => {
     setIsBusyLoading(true)
     // Backend returns: { busy: ["YYYY-MM-DD", ...] }
-    fetch(`/api/calendar/busy?year=${ym.year}&month=${ym.month}`)
+    fetch(`${API_URL}/api/calendar/busy?year=${ym.year}&month=${ym.month}`)
       .then((r) => r.json())
       .then((data: { busy: string[] }) => setBusyDates(new Set(data?.busy ?? [])))
       .catch(() => setBusyDates(new Set()))
@@ -91,23 +107,70 @@ export function Booking() {
   useEffect(() => {
     if (!selectedDate) return
     const iso = format(selectedDate, 'yyyy-MM-dd')
+    console.log('🔍 Fetching slots for date:', iso)
     // Backend returns: { times: ["HH:mm", ...] }
-    fetch(`/api/calendar/slots?date=${iso}`)
+    fetch(`${API_URL}/api/calendar/slots?date=${iso}`)
       .then((r) => r.json())
       .then((data: { times: string[] }) => {
+        console.log('📅 Available times:', data.times)
         setAvailableTimes(data?.times?.length ? data.times : [])
       })
-      .catch(() => setAvailableTimes([]))
+      .catch((err) => {
+        console.error('❌ Error fetching slots:', err)
+        setAvailableTimes([])
+      })
   }, [selectedDate])
 
   const onSubmit: SubmitHandler<BookingFormData> = async (data) => {
     try {
-      // TODO: when bookings API is ready, post to /api/bookings/
-      await new Promise((resolve) => setTimeout(resolve, 800))
-      toast.success(t('booking.form.submit'), { icon: '✨' })
+      // Find selected service to get duration
+      const service = services.find((s) => s.id.toString() === data.service)
+      if (!service) {
+        toast.error('Service not found')
+        return
+      }
+
+      // Combine date + time into datetime
+      const dateTimeStr = `${data.date}T${data.time}:00`
+      const startDate = parse(dateTimeStr, "yyyy-MM-dd'T'HH:mm:ss", new Date())
+
+      // Calculate end time based on service duration
+      const endDate = new Date(startDate.getTime() + service.duration_minutes * 60000)
+
+      // Format as ISO strings with timezone
+      const start_datetime = startDate.toISOString()
+      const end_datetime = endDate.toISOString()
+
+      // Get current language
+      const lang = i18n.language as 'en' | 'fr'
+
+      // Call backend API
+      const booking = await bookingsAPI.create({
+        service_id: service.id,
+        start_datetime,
+        end_datetime,
+        client_name: data.name,
+        client_email: data.email,
+        client_phone: data.phone,
+        client_notes: data.notes || '',
+        preferred_language: lang,
+      })
+
+      // Show success with confirmation code
+      toast.success(
+        `${t('booking.form.submit')} 🎉\nConfirmation: ${booking.confirmation_code}`,
+        { duration: 6000 }
+      )
+
+      // Reset form
       reset()
       setSelectedDate(null)
-    } catch {
+
+      // Optional: Show booking details
+      console.log('Booking created:', booking)
+
+    } catch (error) {
+      console.error('Booking error:', error)
       toast.error('Something went wrong. Please try again.')
     }
   }

@@ -4,7 +4,10 @@ import path from 'path'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
+  envDir: '..',
+
   plugins: [react(), tailwindcss()],
+
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -17,8 +20,16 @@ export default defineConfig({
     },
     extensions: ['.tsx', '.ts', '.jsx', '.js'],
   },
+
   esbuild: {
     logOverride: { 'this-is-undefined-in-esm': 'silent' },
     legalComments: 'none',
   },
+
+  // Optional: forward /api/* to Django in dev
+  // server: {
+  //   proxy: {
+  //     '/api': 'http://localhost:8000',
+  //   },
+  // },
 })

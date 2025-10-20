@@ -73,7 +73,6 @@ const AnimatedFacebookIcon = ({
             whileHover={!prefersReduced ? { scale: 1.06 } : undefined}
             whileTap={{ scale: 0.96 }}
         >
-            {/* cool Facebook gradient + glow */}
             <motion.div
                 className="absolute inset-0 rounded-full"
                 style={{
