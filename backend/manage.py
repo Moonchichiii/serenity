@@ -7,16 +7,11 @@ from pathlib import Path
 
 def main():
     """Run administrative tasks."""
-    # Get directories
-    backend_dir = Path(__file__).resolve().parent
-    project_root = backend_dir.parent
-
-    # Add both to Python path (backend for config/apps, root for imports)
-    sys.path.insert(0, str(backend_dir))
-    sys.path.insert(0, str(project_root))
+    # Add the backend directory to Python path
+    BASE_DIR = Path(__file__).resolve().parent
+    sys.path.insert(0, str(BASE_DIR))
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
-
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
@@ -25,7 +20,6 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
-
     execute_from_command_line(sys.argv)
 
 

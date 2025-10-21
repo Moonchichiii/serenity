@@ -1,65 +1,57 @@
+# Create the file
+@"
 # Core Django
 django==5.0.10
 djangorestframework==3.15.2
 django-cors-headers==4.6.0
-django-filter
-djangorestframework-simplejwt
+django-filter==24.3
+djangorestframework-simplejwt==5.3.1
 
 # Security
 django-axes==6.1.1
 django-ratelimit==4.1.0
 
 # Cloudinary
-cloudinary
-django-cloudinary-storage
+cloudinary==1.41.0
+django-cloudinary-storage==0.3.0
 
 # Database
 psycopg2-binary==2.9.10
 dj-database-url==2.3.0
 
 # Environment & Config
-python-decouple
+python-decouple==3.8
 
 # Date & Time
-python-dateutil
-pytz
+python-dateutil==2.9.0
+pytz==2024.2
 
 # Wagtail CMS
-wagtail
-wagtail-localize
-wagtailmenus
+wagtail==6.2.2
+wagtail-localize==1.9.2
+wagtailmenus==4.0.1
 
 # Images
-Pillow
-django-imagekit
-
-# Background Tasks
-celery
-redis
-django-celery-beat
+Pillow==10.4.0
+django-imagekit==5.0.0
 
 # Email
-django-anymail
+django-anymail[sendgrid]==11.1
 
 # Calendar Integration
-ics
-google-auth
-google-auth-oauthlib
-google-auth-httplib2
-google-api-python-client
-
-# Stripe Payment (prepared)
-stripe
+ics==0.7.2
+google-auth==2.35.0
+google-auth-oauthlib==1.2.1
+google-auth-httplib2==0.2.0
+google-api-python-client==2.149.0
 
 # API Documentation
-drf-spectacular
+drf-spectacular==0.27.2
 
 # Production Server
-gunicorn
-whitenoise
+gunicorn==23.0.0
+whitenoise==6.7.0
 
 # Development Tools
-ruff
-django-debug-toolbar
-django-extensions
-ipython
+django-debug-toolbar==4.4.6
+django-extensions==3.2.3
