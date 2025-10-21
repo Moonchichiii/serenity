@@ -7,9 +7,13 @@ from pathlib import Path
 
 def main():
     """Run administrative tasks."""
-    # Add backend directory to Python path
+    # Get directories
     backend_dir = Path(__file__).resolve().parent
+    project_root = backend_dir.parent
+
+    # Add both to Python path (backend for config/apps, root for imports)
     sys.path.insert(0, str(backend_dir))
+    sys.path.insert(0, str(project_root))
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
