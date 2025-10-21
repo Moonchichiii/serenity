@@ -6,7 +6,7 @@ from decouple import Csv, config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config("DJANGO_SECRET_KEY", default="unsafe")
-DEBUG = config("DJANGO_DEBUG", cast=bool, default=False)
+DEBUG = config("DJANGO_DEBUG", cast=bool, default=True)
 ENVIRONMENT = config("ENVIRONMENT", default="development")
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
 
