@@ -124,49 +124,51 @@ export function Header() {
         </div>
       </div>
 
+
       {/* Mobile menu */}
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            id={mobileMenuId}
-            role="region"
-            aria-label="Mobile navigation"
-            initial={shouldReduceMotion ? false : { opacity: 0, height: 0 }}
-            animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, height: 'auto' }}
-            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
-            className="md:hidden border-t border-sage-200/30 bg-porcelain"
-          >
-            <div className="container mx-auto px-4 py-4 space-y-2">
-              <ul className="space-y-2">
-                {navItems.map((item, idx) => (
-                  <li key={item.key}>
-                    <a
-                      ref={idx === 0 ? firstMobileLinkRef : null}
-                      href={item.href}
-                      onClick={() => setIsOpen(false)}
-                      className="block py-3 px-4 text-charcoal/80 hover:text-charcoal hover:bg-terracotta-100 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-terracotta-400"
-                    >
-                      {t(`nav.${item.key}`)}
-                    </a>
-                  </li>
-                ))}
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsOpen(false)
-                      open('contact')
-                    }}
-                    className="block w-full text-left py-3 px-4 text-charcoal/80 hover:text-charcoal hover:bg-terracotta-100 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-terracotta-400"
-                    aria-haspopup="dialog"
-                    aria-controls="contact-modal"
-                  >
-                    {t('nav.contact')}
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </motion.div>
+<AnimatePresence initial={false}>
+  {isOpen && (
+    <motion.div
+      id={mobileMenuId}
+      aria-label="Mobile navigation"
+      initial={shouldReduceMotion ? false : { opacity: 0, height: 0 }}
+      animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, height: 'auto' }}
+      exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+      className="md:hidden border-t border-sage-200/30 bg-porcelain"
+    >
+      <div className="container mx-auto px-4 py-4 space-y-2">
+        <ul className="space-y-2">
+          {navItems.map((item, idx) => (
+            <li key={item.key}>
+              <a
+                ref={idx === 0 ? firstMobileLinkRef : null}
+                href={item.href}
+                onClick={() => {
+                  setTimeout(() => setIsOpen(false), 50)
+                }}
+                className="block py-3 px-4 text-charcoal/80 hover:text-charcoal hover:bg-terracotta-100 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-terracotta-400"
+              >
+                {t(`nav.${item.key}`)}
+              </a>
+            </li>
+          ))}
+          <li>
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false)
+                open('contact')
+              }}
+              className="block w-full text-left py-3 px-4 text-charcoal/80 hover:text-charcoal hover:bg-terracotta-100 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-terracotta-400"
+              aria-haspopup="dialog"
+              aria-controls="contact-modal"
+            >
+              {t('nav.contact')}
+            </button>
+          </li>
+        </ul>
+      </div>
+    </motion.div>
         )}
       </AnimatePresence>
     </nav>
