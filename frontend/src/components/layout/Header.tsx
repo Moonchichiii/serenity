@@ -27,19 +27,26 @@ export function Header() {
     []
   )
 
-  // Focus first item when opening the mobile menu
-  useEffect(() => {
-    if (isOpen) {
-      firstMobileLinkRef.current?.focus()
+  const handleNav = (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+    e.preventDefault()
+    const id = href.replace(/^#/, '')
+    const el = document.getElementById(id)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      // Update hash without reflow
+      history.pushState(null, '', href)
     }
+    setIsOpen(false)
+  }
+
+  useEffect(() => {
+    if (isOpen) firstMobileLinkRef.current?.focus()
   }, [isOpen])
 
-  // Close on Escape
   useEffect(() => {
     if (!isOpen) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsOpen(false)
-    }
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setIsOpen(false)
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [isOpen])
@@ -51,7 +58,12 @@ export function Header() {
     >
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          <a href="#home" className="flex items-center space-x-2 group" aria-label={t('nav.home', { defaultValue: 'Home' })}>
+          <a
+            href="#home"
+            onClick={handleNav('#home')}
+            className="flex items-center space-x-2 group"
+            aria-label={t('nav.home', { defaultValue: 'Home' })}
+          >
             <span className="text-2xl lg:text-3xl font-heading font-semibold text-charcoal group-hover:text-terracotta-500 transition-colors duration-300">
               Serenity
             </span>
@@ -64,6 +76,7 @@ export function Header() {
                 <li key={item.key}>
                   <a
                     href={item.href}
+                    onClick={handleNav(item.href)}
                     className="warm-underline text-charcoal/80 hover:text-charcoal transition-colors duration-200 font-medium"
                   >
                     {t(`nav.${item.key}`)}
@@ -124,51 +137,48 @@ export function Header() {
         </div>
       </div>
 
-
       {/* Mobile menu */}
-<AnimatePresence initial={false}>
-  {isOpen && (
-    <motion.div
-      id={mobileMenuId}
-      aria-label="Mobile navigation"
-      initial={shouldReduceMotion ? false : { opacity: 0, height: 0 }}
-      animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, height: 'auto' }}
-      exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
-      className="md:hidden border-t border-sage-200/30 bg-porcelain"
-    >
-      <div className="container mx-auto px-4 py-4 space-y-2">
-        <ul className="space-y-2">
-          {navItems.map((item, idx) => (
-            <li key={item.key}>
-              <a
-                ref={idx === 0 ? firstMobileLinkRef : null}
-                href={item.href}
-                onClick={() => {
-                  setTimeout(() => setIsOpen(false), 50)
-                }}
-                className="block py-3 px-4 text-charcoal/80 hover:text-charcoal hover:bg-terracotta-100 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-terracotta-400"
-              >
-                {t(`nav.${item.key}`)}
-              </a>
-            </li>
-          ))}
-          <li>
-            <button
-              type="button"
-              onClick={() => {
-                setIsOpen(false)
-                open('contact')
-              }}
-              className="block w-full text-left py-3 px-4 text-charcoal/80 hover:text-charcoal hover:bg-terracotta-100 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-terracotta-400"
-              aria-haspopup="dialog"
-              aria-controls="contact-modal"
-            >
-              {t('nav.contact')}
-            </button>
-          </li>
-        </ul>
-      </div>
-    </motion.div>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            id={mobileMenuId}
+            aria-label="Mobile navigation"
+            initial={shouldReduceMotion ? false : { opacity: 0, height: 0 }}
+            animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, height: 'auto' }}
+            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+            className="md:hidden border-t border-sage-200/30 bg-porcelain"
+          >
+            <div className="container mx-auto px-4 py-4 space-y-2">
+              <ul className="space-y-2">
+                {navItems.map((item, idx) => (
+                  <li key={item.key}>
+                    <a
+                      ref={idx === 0 ? firstMobileLinkRef : null}
+                      href={item.href}
+                      onClick={handleNav(item.href)}
+                      className="block py-3 px-4 text-charcoal/80 hover:text-charcoal hover:bg-terracotta-100 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-terracotta-400"
+                    >
+                      {t(`nav.${item.key}`)}
+                    </a>
+                  </li>
+                ))}
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsOpen(false)
+                      open('contact')
+                    }}
+                    className="block w-full text-left py-3 px-4 text-charcoal/80 hover:text-charcoal hover:bg-terracotta-100 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-terracotta-400"
+                    aria-haspopup="dialog"
+                    aria-controls="contact-modal"
+                  >
+                    {t('nav.contact')}
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </nav>

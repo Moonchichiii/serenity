@@ -1,413 +1,215 @@
 @import 'tailwindcss';
 @import "react-calendar/dist/Calendar.css";
+@import 'fonts.css';
+/* Theme */
+@theme{
+  --font-heading:'Playfair Display', Georgia, serif;
+  --font-sans:'Inter', system-ui, sans-serif;
 
-/* ============================================
-   CUSTOM THEME - Warm & Welcoming Spa Colors
-   ============================================ */
-@theme {
-  /* Font Families - Tailwind 4.0 format */
-  --font-heading: 'Playfair Display', Georgia, serif;
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --color-sage-50:#f6f8f7;
+  --color-sage-100:#e8ede9;
+  --color-sage-200:#dce5df;
+  --color-sage-300:#b8c9bd;
+  --color-sage-400:#92ad9a;
+  --color-sage-500:#6d9177;
+  --color-sage-600:#577460;
 
-  /* ===== BASE PALETTE (Calming) ===== */
-  --color-sage-50: #f6f8f7;
-  --color-sage-100: #e8ede9;
-  --color-sage-200: #dce5df; /* Primary brand */
-  --color-sage-300: #b8c9bd;
-  --color-sage-400: #92ad9a;
-  --color-sage-500: #6d9177;
-  --color-sage-600: #577460;
+  --color-sand-50:#faf9f7;
+  --color-sand-100:#f5f3f0;
+  --color-sand-200:#ede7e1;
+  --color-sand-300:#e0d5ca;
+  --color-sand-400:#d1c0b0;
 
-  --color-sand-50: #faf9f7;
-  --color-sand-100: #f5f3f0;
-  --color-sand-200: #ede7e1; /* Warm neutral */
-  --color-sand-300: #e0d5ca;
-  --color-sand-400: #d1c0b0;
+  --color-porcelain:#f7f6f4;
+  --color-charcoal:#2e2e2e;
+  --color-champagne:#d6c6a1;
 
-  --color-porcelain: #f7f6f4; /* Soft background */
-  --color-charcoal: #2e2e2e; /* Text */
-  --color-champagne: #d6c6a1; /* Accent */
+  --color-terracotta-50:#fef5f3;
+  --color-terracotta-100:#fde8e3;
+  --color-terracotta-200:#fbd5cb;
+  --color-terracotta-300:#f7b5a3;
+  --color-terracotta-400:#f28d70;
+  --color-terracotta-500:#e86a47;
+  --color-terracotta-600:#d4532f;
 
-  /* ===== WARM ACCENTS (Welcoming) ===== */
-  --color-terracotta-50: #fef5f3;
-  --color-terracotta-100: #fde8e3;
-  --color-terracotta-200: #fbd5cb;
-  --color-terracotta-300: #f7b5a3; /* Hover states */
-  --color-terracotta-400: #f28d70;
-  --color-terracotta-500: #e86a47; /* Primary warm accent */
-  --color-terracotta-600: #d4532f;
+  --color-honey-50:#fefbf3;
+  --color-honey-100:#fdf5e3;
+  --color-honey-200:#fbecc7;
+  --color-honey-300:#f7dc9f;
+  --color-honey-400:#f2c76b;
+  --color-honey-500:#ebb03d;
 
-  --color-honey-50: #fefbf3;
-  --color-honey-100: #fdf5e3;
-  --color-honey-200: #fbecc7;
-  --color-honey-300: #f7dc9f; /* Warm highlights */
-  --color-honey-400: #f2c76b;
-  --color-honey-500: #ebb03d; /* Golden warmth */
+  --color-lavender-50:#f9f7fc;
+  --color-lavender-100:#f0ecf8;
+  --color-lavender-200:#e4dcf3;
+  --color-lavender-300:#c9b9e8;
+  --color-lavender-400:#a990d9;
+  --color-lavender-500:#8b6bc9;
 
-  --color-lavender-50: #f9f7fc;
-  --color-lavender-100: #f0ecf8;
-  --color-lavender-200: #e4dcf3;
-  --color-lavender-300: #c9b9e8; /* Subtle accent */
-  --color-lavender-400: #a990d9;
-  --color-lavender-500: #8b6bc9;
+  --color-background:var(--color-porcelain);
+  --color-foreground:var(--color-charcoal);
 
-  /* ===== SEMANTIC COLORS ===== */
-  --color-background: var(--color-porcelain);
-  --color-foreground: var(--color-charcoal);
+  --color-primary:var(--color-sage-200);
+  --color-primary-foreground:var(--color-charcoal);
 
-  --color-primary: var(--color-sage-200);
-  --color-primary-foreground: var(--color-charcoal);
+  --color-secondary:var(--color-sand-200);
+  --color-secondary-foreground:var(--color-charcoal);
 
-  --color-secondary: var(--color-sand-200);
-  --color-secondary-foreground: var(--color-charcoal);
+  --color-accent:var(--color-terracotta-300);
+  --color-accent-foreground:var(--color-charcoal);
 
-  --color-accent: var(--color-terracotta-300); /* Warm hover color */
-  --color-accent-foreground: var(--color-charcoal);
+  --color-muted:var(--color-sand-200);
+  --color-muted-foreground:#717171;
 
-  --color-muted: var(--color-sand-200);
-  --color-muted-foreground: #717171;
+  --color-card:#ffffff;
+  --color-card-foreground:var(--color-charcoal);
 
-  --color-card: #ffffff;
-  --color-card-foreground: var(--color-charcoal);
+  --color-border:var(--color-sage-200);
+  --color-input:var(--color-sage-200);
+  --color-ring:var(--color-sage-400);
 
-  --color-border: var(--color-sage-200);
-  --color-input: var(--color-sage-200);
-  --color-ring: var(--color-sage-400);
+  --radius-sm:0.5rem;
+  --radius-md:0.75rem;
+  --radius-lg:1rem;
+  --radius-xl:1.25rem;
+  --radius-2xl:1.5rem;
+  --radius-3xl:2rem;
 
-  /* Border Radius */
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.25rem;
-  --radius-2xl: 1.5rem;
-  --radius-3xl: 2rem;
+  --shadow-soft:0 4px 20px -4px rgba(46,46,46,0.08);
+  --shadow-elevated:0 10px 40px -10px rgba(46,46,46,0.12);
+  --shadow-warm:0 8px 24px -8px rgba(232,106,71,0.15);
 
-  /* Shadows */
-  --shadow-soft: 0 4px 20px -4px rgba(46, 46, 46, 0.08);
-  --shadow-elevated: 0 10px 40px -10px rgba(46, 46, 46, 0.12);
-  --shadow-warm: 0 8px 24px -8px rgba(232, 106, 71, 0.15); /* Warm shadow for hovers */
-
-  /* Transitions */
-  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  --transition-fast:all 0.15s cubic-bezier(0.4,0,0.2,1);
 }
 
-/* ============================================
-   BASE STYLES
-   ============================================ */
-@layer base {
-  * {
-    border-color: var(--color-border);
+/* Base */
+@layer base{
+  *{border-color:var(--color-border);}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    background-color:var(--color-background);
+    color:var(--color-foreground);
+    font-family:var(--font-sans);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
   }
 
-  html {
-    scroll-behavior: smooth;
-  }
+  h1,h2,h3,h4,h5,h6{font-family:var(--font-heading);}
 
-  body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+  ::selection{background-color:var(--color-terracotta-200);color:var(--color-charcoal);}
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: var(--font-heading);
+  ::-webkit-scrollbar{width:10px;}
+  ::-webkit-scrollbar-track{background-color:var(--color-sand-100);}
+  ::-webkit-scrollbar-thumb{
+    background-color:var(--color-terracotta-300);
+    border-radius:9999px;
   }
+  ::-webkit-scrollbar-thumb:hover{background-color:var(--color-terracotta-400);}
 
-  /* Selection color - warm terracotta */
-  ::selection {
-    background-color: var(--color-terracotta-200);
-    color: var(--color-charcoal);
-  }
-
-  /* Custom scrollbar - warm tones */
-  ::-webkit-scrollbar {
-    width: 10px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background-color: var(--color-sand-100);
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: var(--color-terracotta-300);
-    border-radius: 9999px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: var(--color-terracotta-400);
-  }
-
-  /* Focus visible - warm ring */
-  *:focus-visible {
-    outline: none;
-    box-shadow:
-      0 0 0 2px var(--color-porcelain),
-      0 0 0 4px var(--color-terracotta-400);
+  *:focus-visible{
+    outline:none;
+    box-shadow:0 0 0 2px var(--color-porcelain),0 0 0 4px var(--color-terracotta-400);
   }
 }
 
-/* ============================================
-   CUSTOM UTILITIES
-   ============================================ */
-@layer utilities {
-  /* Text utilities */
-  .text-balance {
-    text-wrap: balance;
-  }
+/* Utilities */
+@layer utilities{
+  .text-balance{text-wrap:balance;}
 
-  /* Gradient backgrounds */
-  .bg-gradient-hero {
-    background: linear-gradient(
-      135deg,
-      var(--color-sage-200) 0%,
-      var(--color-sand-200) 50%,
-      var(--color-honey-100) 100%
-    );
+  .bg-gradient-hero{
+    background:linear-gradient(135deg,var(--color-sage-200) 0%,var(--color-sand-200) 50%,var(--color-honey-100) 100%);
   }
+  .bg-gradient-warm{background:linear-gradient(180deg,var(--color-porcelain) 0%,var(--color-sand-50) 100%);}
+  .bg-gradient-accent{background:linear-gradient(135deg,var(--color-terracotta-300) 0%,var(--color-honey-300) 100%);}
 
-  .bg-gradient-warm {
-    background: linear-gradient(180deg, var(--color-porcelain) 0%, var(--color-sand-50) 100%);
+  .shadow-soft{box-shadow:var(--shadow-soft);}
+  .shadow-elevated{box-shadow:var(--shadow-elevated);}
+  .shadow-warm{box-shadow:var(--shadow-warm);}
+
+  .hover-lift{transition:var(--transition-smooth);}
+  .hover-lift:hover{transform:translateY(-2px);box-shadow:var(--shadow-warm);}
+
+  .warm-underline{position:relative;display:inline-block;}
+  .warm-underline::after{
+    content:'';position:absolute;left:0;bottom:-2px;width:0;height:2px;
+    background:linear-gradient(90deg,var(--color-terracotta-400),var(--color-honey-400));
+    transition:width 0.3s cubic-bezier(0.4,0,0.2,1);
   }
+  .warm-underline:hover::after{width:100%;}
 
-  .bg-gradient-accent {
-    background: linear-gradient(
-      135deg,
-      var(--color-terracotta-300) 0%,
-      var(--color-honey-300) 100%
-    );
-  }
-
-  /* Shadows */
-  .shadow-soft {
-    box-shadow: var(--shadow-soft);
-  }
-
-  .shadow-elevated {
-    box-shadow: var(--shadow-elevated);
-  }
-
-  .shadow-warm {
-    box-shadow: var(--shadow-warm);
-  }
-
-  /* Warm hover effects */
-  .hover-lift {
-    transition: var(--transition-smooth);
-  }
-
-  .hover-lift:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-warm);
-  }
-
-  /* Warm underline animation */
-  .warm-underline {
-    position: relative;
-    display: inline-block;
-  }
-
-  .warm-underline::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -2px;
-    width: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--color-terracotta-400), var(--color-honey-400));
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .warm-underline:hover::after {
-    width: 100%;
-  }
-
-  /* Glassmorphism effect */
-  .glass {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+  .glass{
+    background:rgba(255,255,255,0.7);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   }
 }
 
-/* ============================================
-   ANIMATIONS
-   ============================================ */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+/* Animations */
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-30px);}to{opacity:1;transform:translateX(0);}}
+@keyframes slideInRight{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+@keyframes float{0%,100%{transform:translateY(0px);}50%{transform:translateY(-10px);}}
+@keyframes pulse-warm{0%,100%{opacity:1;}50%{opacity:0.7;}}
+
+.animate-fade-in{animation:fadeIn 0.6s ease-out forwards;}
+.animate-slide-up{animation:slideUp 0.6s ease-out forwards;}
+.animate-slide-in-left{animation:slideInLeft 0.5s ease-out forwards;}
+.animate-slide-in-right{animation:slideInRight 0.5s ease-out forwards;}
+.animate-float{animation:float 3s ease-in-out infinite;}
+.animate-pulse-warm{animation:pulse-warm 2s ease-in-out infinite;}
+
+/* Components */
+a{transition:color 0.2s ease-in-out;}
+a:hover{color:var(--color-terracotta-500);}
+
+.btn-primary{
+  background-color:var(--color-charcoal);
+  color:var(--color-porcelain);
+  transition:var(--transition-smooth);
+}
+.btn-primary:hover{background-color:var(--color-terracotta-500);box-shadow:var(--shadow-warm);}
+
+.btn-secondary{
+  background-color:var(--color-sage-200);
+  color:var(--color-charcoal);
+  transition:var(--transition-smooth);
+}
+.btn-secondary:hover{background-color:var(--color-terracotta-300);}
+
+.card{
+  background-color:var(--color-card);
+  border:2px solid color-mix(in oklab,var(--color-sage-200) 30%,transparent);
+  border-radius:1.5rem;
+  box-shadow:var(--shadow-soft);
+  transition:var(--transition-smooth);
+}
+.card:hover{
+  border-color:color-mix(in oklab,var(--color-terracotta-300) 50%,transparent);
+  box-shadow:var(--shadow-warm);
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+input:focus,textarea:focus,select:focus{
+  border-color:var(--color-terracotta-300);
+  box-shadow:0 0 0 2px var(--color-terracotta-200);
+  outline:none;
 }
 
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.spinner{
+  border:3px solid var(--color-sand-200);
+  border-top-color:var(--color-terracotta-400);
+  animation:spin 0.6s linear infinite;
 }
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes pulse-warm {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.6s ease-out forwards;
-}
-
-.animate-slide-up {
-  animation: slideUp 0.6s ease-out forwards;
-}
-
-.animate-slide-in-left {
-  animation: slideInLeft 0.5s ease-out forwards;
-}
-
-.animate-slide-in-right {
-  animation: slideInRight 0.5s ease-out forwards;
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.animate-pulse-warm {
-  animation: pulse-warm 2s ease-in-out infinite;
-}
-
-/* ============================================
-   COMPONENT-SPECIFIC STYLES
-   ============================================ */
-
-/* Links - warm hover effect */
-a {
-  transition: color 0.2s ease-in-out;
-}
-
-a:hover {
-  color: var(--color-terracotta-500);
-}
-
-/* Buttons - warm hover states */
-.btn-primary {
-  background-color: var(--color-charcoal);
-  color: var(--color-porcelain);
-  transition: var(--transition-smooth);
-}
-
-.btn-primary:hover {
-  background-color: var(--color-terracotta-500);
-  box-shadow: var(--shadow-warm);
-}
-
-.btn-secondary {
-  background-color: var(--color-sage-200);
-  color: var(--color-charcoal);
-  transition: var(--transition-smooth);
-}
-
-.btn-secondary:hover {
-  background-color: var(--color-terracotta-300);
-}
-
-/* Cards - warm hover effect (Tailwind v4 token-based) */
-.card {
-  background-color: var(--color-card);
-  /* For opacity, use color-mix or pick a fixed rgba like you did */
-  border: 2px solid color-mix(in oklab, var(--color-sage-200) 30%, transparent);
-  border-radius: 1.5rem;
-  box-shadow: var(--shadow-soft);
-  transition: var(--transition-smooth);
-}
-
-.card:hover {
-  border-color: color-mix(in oklab, var(--color-terracotta-300) 50%, transparent);
-  box-shadow: var(--shadow-warm);
-}
-
-/* Form inputs - warm focus states */
-input:focus,
-textarea:focus,
-select:focus {
-  border-color: var(--color-terracotta-300);
-  box-shadow: 0 0 0 2px var(--color-terracotta-200);
-  outline: none;
-}
-
-/* Loading spinner - warm colors */
-.spinner {
-  border: 3px solid var(--color-sand-200);
-  border-top-color: var(--color-terracotta-400);
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+@keyframes spin{to{transform:rotate(360deg);}}
 
 .testimonial-card-bg{
-  box-shadow: 0 1px 0 0 rgba(255,255,255,.6) inset;
-  background-image:
-    linear-gradient(#fff,#fff),
-    linear-gradient(135deg, rgba(242,199,107,0.35), rgba(242,141,112,0.35), rgba(201,185,232,0.35));
-  background-origin: border-box;
-  background-clip: padding-box, border-box;
+  box-shadow:0 1px 0 0 rgba(255,255,255,.6) inset;
+  background-image:linear-gradient(#fff,#fff),linear-gradient(135deg,rgba(242,199,107,0.35),rgba(242,141,112,0.35),rgba(201,185,232,0.35));
+  background-origin:border-box;background-clip:padding-box,border-box;
 }
 
-/* avatar conic ring */
 .conic-avatar{
-  background: conic-gradient(from 180deg, var(--color-terracotta-300), var(--color-honey-300), var(--color-lavender-300));
+  background:conic-gradient(from 180deg,var(--color-terracotta-300),var(--color-honey-300),var(--color-lavender-300));
 }

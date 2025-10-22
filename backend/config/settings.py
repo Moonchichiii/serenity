@@ -3,6 +3,7 @@ from pathlib import Path
 import dj_database_url
 from decouple import Csv, config
 
+# Core
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config("DJANGO_SECRET_KEY", default="unsafe")
@@ -10,23 +11,24 @@ DEBUG = config("DJANGO_DEBUG", cast=bool, default=True)
 ENVIRONMENT = config("ENVIRONMENT", default="development")
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
 
-# Cloudinary Configuration
-USE_CLOUDINARY = config("USE_CLOUDINARY", cast=bool, default=False)
-CLOUDINARY_URL = config("CLOUDINARY_URL", default="")
-USE_CLOUDINARY = USE_CLOUDINARY or bool(CLOUDINARY_URL)
-
-# Installed Apps
+# Installed apps
 INSTALLED_APPS = [
+    # Django
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Cloudinary
+    "cloudinary",
+    "cloudinary_storage",
+    # Third-party
     "rest_framework",
     "django_filters",
     "corsheaders",
     "drf_spectacular",
+    # Wagtail
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
     "wagtail.embeds",
@@ -41,6 +43,7 @@ INSTALLED_APPS = [
     "modelcluster",
     "taggit",
     "wagtail_localize",
+    # Local apps
     "apps.core",
     "apps.cms",
     "apps.services",
@@ -49,10 +52,12 @@ INSTALLED_APPS = [
     "apps.bookings",
 ]
 
-if USE_CLOUDINARY:
-    INSTALLED_APPS += ["cloudinary", "cloudinary_storage"]
+# Optional rate limiting app
+RATELIMIT_ENABLE = config("RATELIMIT_ENABLE", cast=bool, default=False)
+INSTALLED_APPS += ["django_ratelimit"] if RATELIMIT_ENABLE else []
 
-# Authentication
+
+# Auth
 AUTHENTICATION_BACKENDS = [
     "apps.core.backends.EmailOrUsernameBackend",
     "django.contrib.auth.backends.ModelBackend",
@@ -73,7 +78,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# URLs & WSGI
+# URLs / WSGI / ASGI
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
@@ -81,42 +86,47 @@ ASGI_APPLICATION = "config.asgi.application"
 # Database
 DATABASES = {
     "default": dj_database_url.parse(
-        config("DATABASE_URL", default=f'sqlite:///{BASE_DIR / "db.sqlite3"}'),
+        config("DATABASE_URL", default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
         conn_max_age=600,
     )
 }
 
-# Static Files
+# Static & Media
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# Media Files & Cloudinary Storage
 MEDIA_URL = "/media/"
 
-if USE_CLOUDINARY:
-    # Cloudinary Storage Configuration
-    CLOUDINARY_STORAGE = {
-        "CLOUD_NAME": config("CLOUD_NAME", default=""),
-        "API_KEY": config("CLOUDINARY_API_KEY", default=""),
-        "API_SECRET": config("CLOUDINARY_API_SECRET", default=""),
-        "SECURE": config("CLOUDINARY_SECURE", cast=bool, default=True),
-    }
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+# Django storage configuration
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
-    # Initialize Cloudinary with optimal settings
-    import cloudinary
+# Cloudinary storage configuration
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": "dbzlaawqt",
+    "API_KEY": "944755879298858",
+    "API_SECRET": "XKhGyYwKa2Elr4gq4gOnGekV7kg",
+    "SECURE": True,
+    "TRANSFORMATION": {
+        "quality": "auto",
+        "fetch_format": "auto",
+    },
+}
+import cloudinary
 
-    cloudinary.config(
-        cloud_name=CLOUDINARY_STORAGE["CLOUD_NAME"],
-        api_key=CLOUDINARY_STORAGE["API_KEY"],
-        api_secret=CLOUDINARY_STORAGE["API_SECRET"],
-        secure=CLOUDINARY_STORAGE["SECURE"],
-    )
-else:
-    MEDIA_ROOT = BASE_DIR / "media"
+cloudinary.config(
+    cloud_name=CLOUDINARY_STORAGE["CLOUD_NAME"],
+    api_key=CLOUDINARY_STORAGE["API_KEY"],
+    api_secret=CLOUDINARY_STORAGE["API_SECRET"],
+)
 
-# Email Configuration
+# Email
 EMAIL_BACKEND = config(
     "EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
 )
@@ -132,7 +142,7 @@ DEFAULT_FROM_EMAIL = config(
     ),
 )
 
-# REST Framework
+# DRF / Schema
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
@@ -143,16 +153,12 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
 }
 
-# Rate Limiting
-RATELIMIT_ENABLE = config("RATELIMIT_ENABLE", cast=bool, default=False)
-INSTALLED_APPS += ["django_ratelimit"] if RATELIMIT_ENABLE else []
-
-# CORS & CSRF
+# CORS / CSRF
 CORS_ALLOWED_ORIGINS = config(
-    "CORS_ALLOWED_ORIGINS", cast=Csv(), default="http://localhost:5173"
+    "CORS_ALLOWED_ORIGINS", cast=Csv(), default="http://localhost:4173"
 )
 CSRF_TRUSTED_ORIGINS = config(
-    "CSRF_TRUSTED_ORIGINS", cast=Csv(), default="http://localhost:5173"
+    "CSRF_TRUSTED_ORIGINS", cast=Csv(), default="http://localhost:4173"
 )
 CORS_ALLOW_CREDENTIALS = True
 
@@ -177,10 +183,7 @@ SESSION_COOKIE_AGE = 86400
 
 # Internationalization
 LANGUAGE_CODE = "en"
-LANGUAGES = [
-    ("en", "English"),
-    ("fr", "Français"),
-]
+LANGUAGES = [("en", "English"), ("fr", "Français")]
 WAGTAIL_CONTENT_LANGUAGES = LANGUAGES
 TIME_ZONE = "Europe/Paris"
 USE_I18N = True
@@ -210,9 +213,9 @@ TEMPLATES = [
     }
 ]
 
+# Defaults / Cache
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Cache
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.dummy.DummyCache",

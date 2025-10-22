@@ -1,55 +1,69 @@
+from __future__ import annotations
+
 from rest_framework import serializers
 from wagtail.images.models import Image
 
 from apps.cms.models import HomePage
 from apps.services.models import Service
 from apps.testimonials.models import Testimonial
-from config.cloudinary_config import build_responsive
 
 
 class WagtailImageSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
-    responsive_urls = serializers.SerializerMethodField()
 
     class Meta:
         model = Image
-        fields = ["title", "width", "height", "url", "responsive_urls"]
+        fields = ("title", "width", "height", "url")
 
-    def get_url(self, obj):
+    def get_url(self, obj: Image) -> str:
         return obj.file.url
 
-    def get_responsive_urls(self, obj):
-        return build_responsive(obj.file.url)
+
+class HeroSlideSerializer(serializers.Serializer):
+    title_en = serializers.CharField(required=False)
+    title_fr = serializers.CharField(required=False)
+    subtitle_en = serializers.CharField(required=False)
+    subtitle_fr = serializers.CharField(required=False)
+    image = serializers.SerializerMethodField()
+
+    def get_image(self, obj):
+        img = getattr(obj, "image", None)
+        if not img:
+            return None
+        base_url = img.file.url
+        return {
+            "title": img.title,
+            "width": img.width,
+            "height": img.height,
+            "url": base_url,
+        }
 
 
 class HomePageSerializer(serializers.ModelSerializer):
     hero_image = WagtailImageSerializer()
+    hero_slides = serializers.SerializerMethodField()
 
     class Meta:
         model = HomePage
         fields = [
-            # Hero
             "hero_title_en",
             "hero_title_fr",
             "hero_subtitle_en",
             "hero_subtitle_fr",
             "hero_image",
-            # About - Header
+            "hero_slides",
             "about_title_en",
             "about_title_fr",
             "about_subtitle_en",
             "about_subtitle_fr",
-            # About - Intro
             "about_intro_en",
             "about_intro_fr",
             "about_certification_en",
             "about_certification_fr",
-            # About - Approach
             "about_approach_title_en",
             "about_approach_title_fr",
             "about_approach_text_en",
             "about_approach_text_fr",
-            # About - Specialties
             "about_specialties_title_en",
             "about_specialties_title_fr",
             "specialty_1_en",
@@ -60,12 +74,16 @@ class HomePageSerializer(serializers.ModelSerializer):
             "specialty_3_fr",
             "specialty_4_en",
             "specialty_4_fr",
-            # Contact
             "phone",
             "email",
             "address_en",
             "address_fr",
         ]
+
+    def get_hero_slides(self, obj):
+        return HeroSlideSerializer(
+            obj.hero_slides.all().order_by("sort_order"), many=True
+        ).data
 
 
 class ServiceSerializer(serializers.ModelSerializer):

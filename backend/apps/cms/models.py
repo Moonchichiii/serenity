@@ -1,10 +1,39 @@
 from django.db import models
-from wagtail.admin.panels import FieldPanel, MultiFieldPanel
+
+# add imports
+from modelcluster.fields import ParentalKey
+from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
 from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
 from wagtail.fields import RichTextField
 from wagtail.images.models import Image
-from wagtail.models import Page
+from wagtail.models import Orderable, Page
 from wagtail.search import index
+
+
+# NEW: orderable hero slide
+class HeroSlide(Orderable):
+    page = ParentalKey(
+        "cms.HomePage", related_name="hero_slides", on_delete=models.CASCADE
+    )
+    image = models.ForeignKey(
+        Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
+    )
+    # (optional labels; keep for future UI)
+    title_en = models.CharField(max_length=200, blank=True, default="")
+    title_fr = models.CharField(max_length=200, blank=True, default="")
+    subtitle_en = models.CharField(max_length=300, blank=True, default="")
+    subtitle_fr = models.CharField(max_length=300, blank=True, default="")
+
+    panels = [
+        FieldPanel("image"),
+        FieldPanel("title_en"),
+        FieldPanel("title_fr"),
+        FieldPanel("subtitle_en"),
+        FieldPanel("subtitle_fr"),
+    ]
+
+    def __str__(self):
+        return self.title_en or self.title_fr or f"Slide {self.pk}"
 
 
 class HomePage(Page):
@@ -225,10 +254,11 @@ class HomePage(Page):
                 FieldPanel("hero_title_fr", heading="Title (Français)"),
                 FieldPanel("hero_subtitle_en", heading="Subtitle (English)"),
                 FieldPanel("hero_subtitle_fr", heading="Subtitle (Français)"),
-                FieldPanel("hero_image", heading="Background Image"),
+                FieldPanel("hero_image", heading="Background Image (fallback)"),
+                InlinePanel("hero_slides", label="Slides"),  # <-- NEW
             ],
             heading="🏠 Hero Section",
-            help_text="The first section visitors see at the top of your homepage. Choose a calming, professional image.",
+            help_text="If slides exist, frontend shows slider; else falls back to single hero image.",
             classname="collapsible",
         ),
         MultiFieldPanel(

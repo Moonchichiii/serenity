@@ -1,5 +1,4 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios'
-// Vite env var or default - EXPORT for use in other components
 export const API_URL = import.meta.env['VITE_API_URL']
 
 function getCookie(name: string): string | undefined {

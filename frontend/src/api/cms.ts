@@ -1,11 +1,19 @@
 import { apiClient } from './client'
 
+// Image from backend (matches your serializer)
 export interface WagtailImage {
   url: string
   title: string
-  width: number
-  height: number
-  responsive_urls?: { mobile: string; tablet: string; desktop: string }
+  width?: number
+  height?: number
+}
+
+export interface WagtailHeroSlide {
+  title_en?: string
+  title_fr?: string
+  subtitle_en?: string
+  subtitle_fr?: string
+  image: WagtailImage | null
 }
 
 export interface WagtailService {
@@ -26,10 +34,12 @@ export interface WagtailHomePage {
   hero_subtitle_fr: string
   hero_subtitle_en: string
   hero_image: WagtailImage | null
+  hero_slides?: WagtailHeroSlide[]
+  // other sections
   about_title_fr: string
   about_title_en: string
-  about_text_fr: string
-  about_text_en: string
+  about_text_fr?: string
+  about_text_en?: string
   phone: string
   email: string
   address_fr: string
@@ -46,14 +56,14 @@ export interface WagtailTestimonial {
 }
 
 export const cmsAPI = {
-  getHomePage: () => apiClient.get<WagtailHomePage>('/api/homepage/').then((res) => res.data),
-
-  getServices: () => apiClient.get<WagtailService[]>('/api/services/').then((res) => res.data),
-
+  getHomePage: () =>
+    apiClient.get<WagtailHomePage>('/api/homepage/').then(res => res.data),
+  getServices: () =>
+    apiClient.get<WagtailService[]>('/api/services/').then(res => res.data),
   getTestimonials: (featured?: boolean) =>
     apiClient
       .get<WagtailTestimonial[]>('/api/testimonials/', {
         params: featured ? { featured: true } : {},
       })
-      .then((res) => res.data),
+      .then(res => res.data),
 }
