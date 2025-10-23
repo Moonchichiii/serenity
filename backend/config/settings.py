@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import cloudinary  # noqa: F401
 import dj_database_url
 from decouple import Csv, config
 
@@ -90,6 +91,12 @@ DATABASES = {
         conn_max_age=600,
     )
 }
+# Cloudinary Configuration
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME", default="dt"),
+    "API_KEY": config("CLOUDINARY_API_KEY", default="57"),
+    "API_SECRET": config("CLOUDINARY_API_SECRET", default="QiE"),
+}
 
 # Static & Media
 STATIC_URL = "/static/"
@@ -106,27 +113,6 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
-
-# Cloudinary storage configuration
-CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME", default=""),
-    "API_KEY": config("CLOUDINARY_API_KEY", default=""),
-    "API_SECRET": config("CLOUDINARY_API_SECRET", default=""),
-    "SECURE": config("CLOUDINARY_SECURE", cast=bool, default=True),
-    "TRANSFORMATION": {
-        "quality": "auto",
-        "fetch_format": "auto",
-    },
-}
-
-import cloudinary
-
-cloudinary.config(
-    cloud_name=CLOUDINARY_STORAGE["CLOUD_NAME"],
-    api_key=CLOUDINARY_STORAGE["API_KEY"],
-    api_secret=CLOUDINARY_STORAGE["API_SECRET"],
-    secure=CLOUDINARY_STORAGE["SECURE"],
-)
 
 # Email
 EMAIL_BACKEND = config(

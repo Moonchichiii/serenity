@@ -16,7 +16,7 @@ class WagtailImageSerializer(serializers.ModelSerializer):
         fields = ("title", "width", "height", "url")
 
     def get_url(self, obj: Image) -> str:
-        return obj.file.url
+        return obj.file.name
 
 
 class HeroSlideSerializer(serializers.Serializer):

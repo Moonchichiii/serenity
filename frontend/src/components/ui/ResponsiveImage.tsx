@@ -1,10 +1,11 @@
 import { useState, type ImgHTMLAttributes } from "react"
 
 const WIDTHS = [640, 768, 1024, 1280, 1536, 1920, 2560]
+const CLOUDINARY_CLOUD_NAME = "dbzlaawqt"
 
 interface WagtailImage {
   id?: number
-  url: string
+  url: string  // Now this is the public_id
   title?: string
   width?: number
   height?: number
@@ -20,19 +21,14 @@ interface CloudImageProps
   onError?: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void
 }
 
-const isCloudinary = (url: string) =>
-  url.includes("cloudinary.com") && url.includes("/image/upload/")
+function buildCloudinaryUrl(publicId: string, transformations: string[] = []): string {
+  const baseUrl = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload`
+  const transforms = transformations.length > 0 ? `/${transformations.join(",")}` : ""
+  return `${baseUrl}${transforms}/${publicId}`
+}
 
-function getOptimizedUrl(url: string, width?: number): string {
-  if (!url) return ""
-  if (!isCloudinary(url)) return url
-
-  const parts = url.split("/image/upload/")
-  const base = parts[0]
-  let publicId = parts[1] || ""
-
-  publicId = publicId.replace(/^s--[A-Za-z0-9_-]{10,}--\//, "")
-  publicId = publicId.replace(/(^\/|\/$)/g, "")
+function getOptimizedUrl(publicId: string, width?: number): string {
+  if (!publicId) return ""
 
   const transforms = ["f_auto", "q_auto", "c_fill", "g_auto"]
   if (width) {
@@ -41,13 +37,11 @@ function getOptimizedUrl(url: string, width?: number): string {
     transforms.push("w_auto", "dpr_auto")
   }
 
-  const transformStr = transforms.join(",")
-
-  return `${base}/image/upload/${transformStr}/${publicId}`
+  return buildCloudinaryUrl(publicId, transforms)
 }
 
-function generateSrcSet(url: string): string {
-  return WIDTHS.map((w) => `${getOptimizedUrl(url, w)} ${w}w`).join(", ")
+function generateSrcSet(publicId: string): string {
+  return WIDTHS.map((w) => `${getOptimizedUrl(publicId, w)} ${w}w`).join(", ")
 }
 
 export const CloudImage = ({
@@ -87,17 +81,13 @@ export const CloudImage = ({
   }
 
   const objectFitClass = `object-${fit}`
-
-  const publicId = isCloudinary(image.url)
-    ? image.url.split("/image/upload/")[1] || image.url
-    : image.url
+  const publicId = image.url
 
   const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    // eslint-disable-next-line no-console
     console.error("[CloudImage] Failed to load:", {
       publicId,
       alt,
-      originalUrl: image.url,
+      generatedUrl: getOptimizedUrl(publicId),
     })
     setHasError(true)
     onError?.(e)
@@ -105,8 +95,8 @@ export const CloudImage = ({
 
   return (
     <img
-      src={getOptimizedUrl(image.url)}
-      srcSet={generateSrcSet(image.url)}
+      src={getOptimizedUrl(publicId)}
+      srcSet={generateSrcSet(publicId)}
       sizes={sizes}
       alt={alt || image.title || ""}
       loading={priority ? "eager" : "lazy"}
@@ -123,28 +113,12 @@ export const CloudImage = ({
 
 export default CloudImage
 
-export function getOptimizedBackgroundUrl(url: string, width = 1920): string {
-  return getOptimizedUrl(url, width)
+export function getOptimizedBackgroundUrl(publicId: string, width = 1920): string {
+  return getOptimizedUrl(publicId, width)
 }
 
-export function getOptimizedThumbnail(url: string, size = 200): string {
-  if (!url) return ""
-  if (!isCloudinary(url)) return url
-
-  const parts = url.split("/image/upload/")
-  const base = parts[0]
-  let publicId = parts[1] || ""
-  publicId = publicId.replace(/^\/|\/$/g, "")
-
-  const transforms = [
-    "f_auto",
-    "q_auto",
-    `w_${size}`,
-    `h_${size}`,
-    "c_fill",
-    "g_auto",
-    "dpr_auto",
-  ].join(",")
-
-  return `${base}/image/upload/${transforms}/${publicId}`
+export function getOptimizedThumbnail(publicId: string, size = 200): string {
+  if (!publicId) return ""
+  const transforms = ["f_auto", "q_auto", `w_${size}`, `h_${size}`, "c_fill", "g_auto", "dpr_auto"]
+  return buildCloudinaryUrl(publicId, transforms)
 }
