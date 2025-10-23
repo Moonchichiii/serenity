@@ -1,7 +1,56 @@
 @import 'tailwindcss';
 @import "react-calendar/dist/Calendar.css";
-@import 'fonts.css';
 /* Theme */
+/* ========== FONTS ========== */
+@font-face {
+    font-display: swap;
+    font-family: 'Playfair Display';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/playfair-display-v40-latin-regular.woff2') format('woff2');
+}
+@font-face {
+    font-display: swap;
+    font-family: 'Playfair Display';
+    font-style: normal;
+    font-weight: 600;
+    src: url('/fonts/playfair-display-v40-latin-600.woff2') format('woff2');
+}
+@font-face {
+    font-display: swap;
+    font-family: 'Playfair Display';
+    font-style: normal;
+    font-weight: 700;
+    src: url('/fonts/playfair-display-v40-latin-700.woff2') format('woff2');
+}
+@font-face {
+    font-display: swap;
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 300;
+    src: url('/fonts/inter-v20-latin-300.woff2') format('woff2');
+}
+@font-face {
+    font-display: swap;
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/inter-v20-latin-regular.woff2') format('woff2');
+}
+@font-face {
+    font-display: swap;
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 500;
+    src: url('/fonts/inter-v20-latin-500.woff2') format('woff2');
+}
+@font-face {
+    font-display: swap;
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 600;
+    src: url('/fonts/inter-v20-latin-600.woff2') format('woff2');
+}
 @theme{
   --font-heading:'Playfair Display', Georgia, serif;
   --font-sans:'Inter', system-ui, sans-serif;
