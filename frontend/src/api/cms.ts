@@ -1,6 +1,5 @@
 import { apiClient } from './client'
 
-// Image from backend (matches your serializer)
 export interface WagtailImage {
   url: string
   title: string
@@ -35,7 +34,6 @@ export interface WagtailHomePage {
   hero_subtitle_en: string
   hero_image: WagtailImage | null
   hero_slides?: WagtailHeroSlide[]
-  // other sections
   about_title_fr: string
   about_title_en: string
   about_text_fr?: string
@@ -47,23 +45,47 @@ export interface WagtailHomePage {
 }
 
 export interface WagtailTestimonial {
-  id: number
-  client_name: string
-  text_fr: string
-  text_en: string
+  id: string
+  name: string
   rating: number
-  created_at: string
+  text: string
+  date: string
+  avatar: string
+}
+
+export interface TestimonialSubmission {
+  name: string
+  email?: string
+  rating: number
+  text: string
+}
+
+export interface TestimonialSubmissionResponse {
+  success: boolean
+  message: string
+  id: string
+}
+
+export interface TestimonialStats {
+  average_rating: number
+  total_reviews: number
+  five_star_count: number
+  four_star_count: number
 }
 
 export const cmsAPI = {
   getHomePage: () =>
     apiClient.get<WagtailHomePage>('/api/homepage/').then(res => res.data),
+
   getServices: () =>
     apiClient.get<WagtailService[]>('/api/services/').then(res => res.data),
-  getTestimonials: (featured?: boolean) =>
-    apiClient
-      .get<WagtailTestimonial[]>('/api/testimonials/', {
-        params: featured ? { featured: true } : {},
-      })
-      .then(res => res.data),
+
+  getTestimonials: () =>
+    apiClient.get<WagtailTestimonial[]>('/api/testimonials/').then(res => res.data),
+
+  submitTestimonial: (data: TestimonialSubmission) =>
+    apiClient.post<TestimonialSubmissionResponse>('/api/testimonials/submit/', data).then(res => res.data),
+
+  getTestimonialStats: () =>
+    apiClient.get<TestimonialStats>('/api/testimonials/stats/').then(res => res.data),
 }

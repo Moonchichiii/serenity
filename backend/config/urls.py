@@ -25,6 +25,8 @@ urlpatterns = [
     path("api/", include("apps.cms.api")),
     path("api/calendar/", include("apps.availability.urls")),
     path("api/bookings/", include("apps.bookings.urls")),
+    path("api/testimonials/", include("apps.testimonials.urls")),
+    path("api/contact/", include("apps.contact.urls")),
     # Django admin
     path("admin/", admin.site.urls),
 ]

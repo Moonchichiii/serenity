@@ -3,23 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { motion, useAnimation } from 'framer-motion'
 import type { PanInfo } from 'framer-motion'
 import { Star } from 'lucide-react'
-
-type Testimonial = {
-  id: number
-  name: string
-  rating: number
-  text: string
-  date: string
-  avatar: string
-}
-
-const TESTIMONIALS: Testimonial[] = [
-  { id: 1, name: 'Sarah Mitchell',  rating: 5, text: 'Absolutely transformative experience! The holistic approach really helped me find balance in my life. Highly recommend to anyone seeking wellness.', date: '2025-09-08',  avatar: 'SM' },
-  { id: 2, name: 'David Chen',      rating: 5, text: 'Professional, caring, and truly gifted. The sessions have made a remarkable difference in my stress levels and overall wellbeing.', date: '2025-08-15', avatar: 'DC' },
-  { id: 3, name: 'Emily Rodriguez', rating: 5, text: 'Best decision I ever made! The mindfulness practices changed how I approach daily challenges. Incredible support!', date: '2025-09-01', avatar: 'ER' },
-  { id: 4, name: 'Michael Thompson',rating: 5, text: 'Exceptional service and genuine care. The personalized approach made all the difference. I feel centered and peaceful.', date: '2025-09-13',  avatar: 'MT' },
-  { id: 5, name: 'Lisa Anderson',   rating: 5, text: 'Life-changing! The combination of traditional and modern techniques is brilliant. Highly recommend.', date: '2025-07-22', avatar: 'LA' },
-]
+import { cmsAPI, type WagtailTestimonial } from '@/api/cms'
 
 const LABELS = {
   section: 'Client testimonials',
@@ -28,20 +12,59 @@ const LABELS = {
 }
 
 export default function TestimonialBanner() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const prefersReduced =
     typeof window !== 'undefined' &&
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
   const controls = useAnimation()
   const [paused, setPaused] = useState(false)
-  const items = useMemo(() => [...TESTIMONIALS, ...TESTIMONIALS], [])
+  const [testimonials, setTestimonials] = useState<WagtailTestimonial[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
   const containerRef = useRef<HTMLDivElement | null>(null)
   const trackRef = useRef<HTMLDivElement | null>(null)
 
+  // Duplicate testimonials for infinite scroll
+  const items = useMemo(
+    () => (testimonials.length > 0 ? [...testimonials, ...testimonials] : []),
+    [testimonials]
+  )
+
+  // Fetch testimonials from API (4-5 stars only)
+  const fetchTestimonials = async () => {
+    try {
+      setIsLoading(true)
+      const data = await cmsAPI.getTestimonials()
+      setTestimonials(data)
+      setError(null)
+    } catch (err) {
+      console.error('Error fetching testimonials:', err)
+      setError('Impossible de charger les avis')
+      setTestimonials([])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchTestimonials()
+
+    // Listen for new testimonial submissions
+    const handleNewTestimonial = () => {
+      setTimeout(fetchTestimonials, 1000)
+    }
+
+    window.addEventListener('testimonialSubmitted', handleNewTestimonial)
+    return () => window.removeEventListener('testimonialSubmitted', handleNewTestimonial)
+  }, [])
+
+  // Animation control
   useEffect(() => {
     if (prefersReduced) return
     if (!trackRef.current) return
+    if (testimonials.length === 0) return
 
     const loopWidth = trackRef.current.scrollWidth / 2
     if (paused) {
@@ -61,14 +84,64 @@ export default function TestimonialBanner() {
     return () => {
       controls.stop()
     }
-  }, [controls, paused, prefersReduced])
+  }, [controls, paused, prefersReduced, testimonials.length])
 
   const onDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, __: PanInfo) => {
     setPaused(false)
   }
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <section aria-label={LABELS.section} className="mt-16">
+        <div className="text-center mb-8">
+          <div className="animate-pulse">
+            <div className="h-8 bg-sage-200 rounded w-64 mx-auto mb-4"></div>
+            <div className="h-4 bg-sage-100 rounded w-96 mx-auto"></div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <section aria-label={LABELS.section} className="mt-16">
+        <div className="text-center">
+          <p className="text-charcoal/60">{error}</p>
+        </div>
+      </section>
+    )
+  }
+
+  // Empty state
+  if (testimonials.length === 0) {
+    return (
+      <section aria-label={LABELS.section} className="mt-16">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="text-center"
+        >
+          <h3 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
+            {t('testimonials.title', 'Nos Avis')}
+          </h3>
+          <p className="text-charcoal/70 mt-4">
+            Soyez le premier à laisser un avis !
+          </p>
+          <p className="text-sm text-sage-600 mt-2">
+            ⭐ Seuls les avis 4-5 étoiles approuvés sont affichés
+          </p>
+        </motion.div>
+      </section>
+    )
+  }
+
   return (
-    <section aria-label={LABELS.section} className="mt-16">
+    <section aria-label={LABELS.section} className="mt-16" id="testimonials">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -79,7 +152,12 @@ export default function TestimonialBanner() {
         <h3 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
           {t('testimonials.title', 'Nos Avis')}
         </h3>
-        <p className="text-charcoal/70 mt-2">{t('testimonials.subtitle', 'Ce que disent nos clients')}</p>
+        <p className="text-charcoal/70 mt-2">
+          {t('testimonials.subtitle', 'Ce que disent nos clients')}
+        </p>
+        <p className="text-sm text-sage-600 mt-2">
+          ⭐ Seuls les avis 4-5 étoiles approuvés sont affichés
+        </p>
       </motion.div>
 
       {!prefersReduced && (
@@ -91,15 +169,13 @@ export default function TestimonialBanner() {
             aria-label={paused ? LABELS.play : LABELS.pause}
             onClick={() => setPaused(p => !p)}
           >
-            {paused ? t('testimonials.play', 'Play') : t('testimonials.pause', 'Pause')}
+            {paused ? t('testimonials.play', 'Lecture') : t('testimonials.pause', 'Pause')}
           </button>
         </div>
       )}
 
       <div
-        ref={(el) => {
-          containerRef.current = el
-        }}
+        ref={containerRef}
         className="relative overflow-hidden"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
@@ -140,33 +216,38 @@ export default function TestimonialBanner() {
                 relative testimonial-card-bg
               "
             >
-              <div className="flex items-center gap-1.5 mb-3" aria-label={`${tst.rating} out of 5 stars`}>
+              {/* Star Rating */}
+              <div
+                className="flex items-center gap-1.5 mb-3"
+                aria-label={`${tst.rating} out of 5 stars`}
+              >
                 {Array.from({ length: tst.rating }).map((_, idx) => (
-                  <Star key={idx} className="w-5 h-5 text-honey-500 fill-honey-500" aria-hidden="true" />
+                  <Star
+                    key={idx}
+                    className="w-5 h-5 text-honey-500 fill-honey-500"
+                    aria-hidden="true"
+                  />
                 ))}
               </div>
 
+              {/* Review Text */}
               <p className="text-charcoal/80 leading-relaxed min-h-[88px]">
                 {tst.text}
               </p>
 
+              {/* Author Info */}
               <div className="mt-5 pt-4 border-t border-sage-200/60 flex items-center gap-3">
-                <div
-                  className="
-                    grid place-items-center w-10 h-10 rounded-full
-                    text-sm font-semibold text-charcoal
-                    ring-2 ring-white/80 conic-avatar
-                  "
+                <img
+                  src={tst.avatar}
+                  alt=""
+                  className="w-10 h-10 rounded-full"
                   aria-hidden="true"
-                >
-                  <span className="bg-white/85 w-9 h-9 rounded-full grid place-items-center">
-                    {tst.avatar}
-                  </span>
-                </div>
+                  loading="lazy"
+                />
                 <div className="flex-1">
                   <p className="font-semibold text-charcoal">{tst.name}</p>
                   <p className="text-sm text-charcoal/60">
-                    {new Date(tst.date).toLocaleDateString(i18n.language || 'fr', { year: 'numeric', month: 'short' })}
+                    <time>{tst.date}</time>
                   </p>
                 </div>
               </div>

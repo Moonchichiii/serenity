@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "apps.testimonials",
     "apps.availability",
     "apps.bookings",
+    "apps.contact",
 ]
 
 # Optional rate limiting app

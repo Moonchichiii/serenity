@@ -1,42 +1,146 @@
 <!doctype html>
 <html lang="fr">
   <head>
-    <meta charset="UTF-8" />§
-    <meta name="Referrer-Policy" content="strict-origin-when-cross-origin" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-     <!-- Preconnect to Cloudinary only -->
-    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
+    <!-- Referrer policy (HTML-standard meta) -->
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
 
-    <!-- Favicon -->
+
+
+    <!-- Preconnects -->
+<link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
+
+<!-- Preload critical fonts (same-origin -> no crossorigin needed) -->
+<link rel="preload" as="font" href="/fonts/inter-v20-latin-400.woff2" type="font/woff2" fetchpriority="high" />
+<link rel="preload" as="font" href="/fonts/inter-v20-latin-600.woff2" type="font/woff2" />
+<link rel="preload" as="font" href="/fonts/playfair-display-v40-latin-600.woff2" type="font/woff2" />
+<link rel="preload" as="font" href="/fonts/playfair-display-v40-latin-700.woff2" type="font/woff2" />
+
+
+        <!-- Favicon / Touch Icons -->
     <link rel="icon" type="image/svg+xml" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><path d="M18 12L18 52" stroke="%23f7b5a3" stroke-width="6" stroke-linecap="round"/><path d="M48 16c0-8-32-8-32 0 0 8 32 8 32 16 0 8-32 8-32 16 0 8 32 8 32 0" stroke="%23f7b5a3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>' />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
-    <!-- SEO -->
-    <title>Serenity - Massage Thérapeutique Premium | Marseille</title>
-    <meta name="description" content="Services de massage thérapeutique professionnel à Marseille. Réservez votre séance de relaxation dans un cadre serein et privé." />
-    <meta name="keywords" content="massage, thérapeutique, relaxation, bien-être, Marseille, massage suédois, tissus profonds" />
-    <meta name="author" content="Serenity Spa" />
-    <meta name="robots" content="index, follow" />
+    <!-- Primary SEO -->
+    <title>Serenity — Massages Thérapeutiques à Marseille | Californien, Drainage, Prénatal, AMMA Assis</title>
+    <meta name="description" content="Massages thérapeutiques à Marseille : Californien, drainage lymphatique, massage prénatal et AMMA assis pour entreprises et événements. Séances personnalisées dans un cadre serein." />
+    <!-- Note: meta keywords are obsolete; safe to remove -->
+    <meta name="robots" content="index,follow,max-image-preview:large" />
     <link rel="canonical" href="https://yourdomain.com/" />
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="Serenity - Massage Thérapeutique Premium" />
-    <meta property="og:description" content="Services de massage thérapeutique professionnel à Marseille" />
+    <!-- Internationalization -->
+    <link rel="alternate" href="https://yourdomain.com/" hreflang="fr" />
+    <link rel="alternate" href="https://yourdomain.com/en/" hreflang="en" />
+    <link rel="alternate" href="https://yourdomain.com/" hreflang="x-default" />
+
+    <!-- Open Graph (Facebook / LinkedIn) -->
+    <meta property="og:title" content="Serenity — Massages Thérapeutiques à Marseille" />
+    <meta property="og:description" content="Californien, drainage lymphatique, massage prénatal et AMMA assis. Séances personnalisées pour un bien-être durable." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://yourdomain.com/" />
-    <meta property="og:image" content="https://yourdomain.com/og-image.jpg" />
+    <meta property="og:image" content="https://yourdomain.com/og-image-1200x630.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Serenity" />
     <meta property="og:locale" content="fr_FR" />
-    <meta property="og:locale:alternate" content="en_FR" />
+    <meta property="og:locale:alternate" content="en_GB" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Serenity - Massage Thérapeutique Premium" />
-    <meta name="twitter:description" content="Services de massage thérapeutique professionnel à Marseille" />
-    <meta name="twitter:image" content="https://yourdomain.com/og-image.jpg" />
+    <meta name="twitter:title" content="Serenity — Massages Thérapeutiques à Marseille" />
+    <meta name="twitter:description" content="Californien, drainage lymphatique, prénatal et AMMA assis pour entreprises et événements." />
+    <meta name="twitter:image" content="https://yourdomain.com/og-image-1200x630.jpg" />
 
-    <!-- Theme -->
+    <!-- PWA (optional but nice) -->
+    <!-- <link rel="manifest" href="/manifest.webmanifest" /> -->
     <meta name="theme-color" content="#F5EDE4" />
     <meta name="msapplication-TileColor" content="#F5EDE4" />
+
+    <!-- Structured Data: Local Business + Services -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HealthAndBeautyBusiness",
+      "name": "Serenity",
+      "image": "https://yourdomain.com/og-image-1200x630.jpg",
+      "url": "https://yourdomain.com/",
+      "telephone": "+33 6 00 00 00 00",
+      "priceRange": "€€",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Marseille",
+        "addressCountry": "FR"
+      },
+      "areaServed": {
+        "@type": "City",
+        "name": "Marseille"
+      },
+      "sameAs": [
+        "https://www.instagram.com/yourhandle",
+        "https://www.facebook.com/yourpage"
+      ],
+      "makesOffer": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Massage Californien",
+            "description": "Massage doux et enveloppant pour détente profonde et libération des tensions."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Drainage Lymphatique",
+            "description": "Technique légère et rythmée pour stimuler la circulation lymphatique et réduire les gonflements."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Massage Prénatal",
+            "description": "Massage sûr et adapté aux futures mamans pour soulager les tensions et améliorer le sommeil."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "AMMA Assis (entreprises/événements)",
+            "description": "Séance sur chaise de ~20 min ciblant dos, épaules, nuque et bras — idéale en entreprise."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Réflexologie Plantaire (bientôt)",
+            "description": "Stimulation des points réflexes du pied pour rééquilibrer le corps."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Optional: WebSite SearchAction (if you have on-site search at /search?q=) -->
+    <!--
+    <script type="application/ld+json">
+    {
+      "@context":"https://schema.org",
+      "@type":"WebSite",
+      "url":"https://yourdomain.com/",
+      "potentialAction":{
+        "@type":"SearchAction",
+        "target":"https://yourdomain.com/search?q={search_term_string}",
+        "query-input":"required name=search_term_string"
+      }
+    }
+    </script>
+    -->
   </head>
   <body>
     <div id="root"></div>

@@ -12,7 +12,10 @@ import { Suspense, lazy } from 'react'
 const Hero = lazy(() => import('@/pages/hero').then(m => ({ default: m.Hero })))
 const About = lazy(() => import('@/pages/about').then(m => ({ default: m.About })))
 const Services = lazy(() => import('@/pages/services').then(m => ({ default: m.Services })))
-const Booking = lazy(() => import('@/pages/booking').then(m => ({ default: m.Booking })))
+const Contact = lazy(() => import('@/pages/Contact').then(m => ({ default: m.Contact })))
+//const Booking = lazy(() => import('@/pages/booking').then(m => ({ default: m.Booking })))
+
+const ReviewTrigger = lazy(() => import('@/components/ReviewTrigger').then(m => ({ default: m.ReviewTrigger })))
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -38,7 +41,11 @@ function HomePage() {
       <Hero />
       <About />
       <Services />
-      <Booking />
+      <Contact />
+      {/* <Booking /> */}
+
+      {/* floating review button */}
+      <ReviewTrigger targetSectionId="testimonials" />
     </>
   )
 }
