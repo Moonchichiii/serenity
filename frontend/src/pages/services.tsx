@@ -4,10 +4,8 @@ import { motion } from 'framer-motion'
 import { Clock, Euro } from 'lucide-react'
 import { cmsAPI, type WagtailService } from '@/api/cms'
 import { ServicesHero } from '@/pages/ServicesHero'
-import { CorporateServices } from '@/pages/CorporateServices'
-import { ContactCTA } from '@/pages/ContactCTA'
-// Import TestimonialBanner if you have it
-// import { TestimonialBanner } from '@/components/TestimonialBanner'
+//import { CorporateServices } from '@/pages/CorporateServices'
+import  TestimonialBanner  from '@/components/TestimonialBanner'
 
 export function Services() {
   const { t, i18n } = useTranslation()
@@ -32,9 +30,6 @@ export function Services() {
     <div className="services-page">
       {/* 1. Hero Section */}
       <ServicesHero />
-
-      {/* 2. Corporate Services Highlight */}
-      <CorporateServices />
 
       {/* 3. Individual Services Grid (Your existing component content) */}
       <section id="services" className="py-20 lg:py-32 bg-white">
@@ -112,33 +107,34 @@ export function Services() {
             </div>
           )}
         </div>
+            {/* 4. Testimonials Section */}
+<section id="testimonials" className="py-20 lg:py-32 bg-porcelain">
+  {/* Keep the trigger inside a normal container so whileInView still fires */}
+  <div className="container mx-auto px-4 lg:px-8 text-center">
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+    >
+      <h2 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-4">
+        {t('testimonials.title', 'Ce Que Disent Nos Clients')}
+      </h2>
+      <p className="text-xl text-charcoal/70">
+        {t('testimonials.subtitle', 'Découvrez les témoignages de nos clients satisfaits')}
+      </p>
+      <p className="text-sm text-sage-600 mt-2">
+        ⭐ Seuls les avis 4–5 étoiles approuvés sont affichés
+      </p>
+    </motion.div>
+  </div>
+
+  {/* Testimonial Banner */}
+  <div className="mx-[calc(50%-50vw)] w-screen">
+    <TestimonialBanner />
+  </div>
+</section>
+
       </section>
-
-      {/* 4. Testimonials Section */}
-      {/* Uncomment if you have TestimonialBanner component */}
-      {/* <section id="testimonials" className="py-20 lg:py-32 bg-porcelain">
-        <TestimonialBanner />
-      </section> */}
-
-      {/* Temporary placeholder - Remove when you add TestimonialBanner */}
-      <section id="testimonials" className="py-20 lg:py-32 bg-porcelain">
-        <div className="container mx-auto px-4 lg:px-8 text-center">
-          <h2 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-4">
-            {t('testimonials.title', 'Ce Que Disent Nos Clients')}
-          </h2>
-          <p className="text-xl text-charcoal/70">
-            {t('testimonials.subtitle', 'Découvrez les témoignages de nos clients satisfaits')}
-          </p>
-          <div className="mt-8 p-6 bg-white rounded-2xl border-2 border-dashed border-sage-200 max-w-2xl mx-auto">
-            <p className="text-sage-600 font-medium">
-              ⚠️ Add your TestimonialBanner component here
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Contact CTA */}
-      <ContactCTA />
     </div>
-  )
-}
+    )}

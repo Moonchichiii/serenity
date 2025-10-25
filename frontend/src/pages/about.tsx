@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Award, Heart, Sparkles, Users } from 'lucide-react'
-import TestimonialBanner from '@/components/ui/TestimonialBanner'
 import SecretTrigger from '@/components/secret/SecretTrigger'
 import { cmsAPI } from '@/api/cms'
 
@@ -196,7 +195,7 @@ export function About() {
           </motion.div>
         </div>
       </div>
-      <TestimonialBanner />
+
     </section>
   )
 }

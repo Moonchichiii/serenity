@@ -1,4 +1,3 @@
-// src/components/ReviewTrigger.tsx
 import { useState, useEffect } from 'react'
 import { MessageSquarePlus } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'

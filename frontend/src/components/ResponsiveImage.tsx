@@ -5,7 +5,7 @@ const CLOUDINARY_CLOUD_NAME = "dbzlaawqt"
 
 interface WagtailImage {
   id?: number
-  url: string  // Now this is the public_id
+  url: string
   title?: string
   width?: number
   height?: number

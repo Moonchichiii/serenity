@@ -6,6 +6,7 @@ import * as yup from 'yup'
 import { Button } from '@/components/ui/Button'
 import toast from 'react-hot-toast'
 import { cmsAPI } from '@/api/cms'
+import { useTranslation } from 'react-i18next'
 
 type ContactFormData = {
   name: string
@@ -26,6 +27,8 @@ const schema: yup.ObjectSchema<ContactFormData> = yup
   .required()
 
 export function Contact() {
+  const { t } = useTranslation()
+
   const {
     register,
     handleSubmit,
@@ -55,17 +58,8 @@ export function Contact() {
 
   return (
     <div>
-      <section className="container mx-auto px-4 pt-24">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="max-w-4xl mx-auto"
-        />
-      </section>
-
-      {/* Contact Form Section */}
-      <section className="container mx-auto px-4 pb-24">
+      {/* === CONTACT FORM ONLY (hero removed) === */}
+      <section className="container mx-auto px-4 pb-24 pt-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -74,14 +68,14 @@ export function Contact() {
         >
           <div className="bg-white rounded-2xl p-8 md:p-12 shadow-xl border-2 border-sage-200/30">
             <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">
-              Formulaire de contact
+              {t('contact.form.title', 'Formulaire de contact')}
             </h2>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
               {/* Name */}
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="name">
-                  Nom complet
+                  {t('contact.form.name', 'Nom complet')}
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-charcoal/40" />
@@ -123,7 +117,10 @@ export function Contact() {
               {/* Phone */}
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="phone">
-                  Téléphone <span className="text-charcoal/50 text-xs">(optionnel)</span>
+                  {t('contact.form.phone', 'Téléphone')}{' '}
+                  <span className="text-charcoal/50 text-xs">
+                    {t('contact.form.optional', '(optionnel)')}
+                  </span>
                 </label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-charcoal/40" />
@@ -144,12 +141,15 @@ export function Contact() {
               {/* Subject */}
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="subject">
-                  Sujet <span className="text-charcoal/50 text-xs">(optionnel)</span>
+                  {t('contact.form.subject', 'Sujet')}{' '}
+                  <span className="text-charcoal/50 text-xs">
+                    {t('contact.form.optional', '(optionnel)')}
+                  </span>
                 </label>
                 <input
                   id="subject"
                   type="text"
-                  placeholder="Demande de rendez-vous"
+                  placeholder={t('contact.form.subject.placeholder', 'Demande de rendez-vous')}
                   aria-invalid={!!errors.subject}
                   className="w-full px-4 py-3 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors"
                   {...register('subject')}
@@ -162,12 +162,15 @@ export function Contact() {
               {/* Message */}
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="message">
-                  Message
+                  {t('contact.form.message', 'Message')}
                 </label>
                 <textarea
                   id="message"
                   rows={5}
-                  placeholder="Décrivez vos besoins, vos préférences de date/heure, ou toute question que vous pourriez avoir..."
+                  placeholder={t(
+                    'contact.form.message.placeholder',
+                    'Décrivez vos besoins, vos préférences de date/heure, ou toute question que vous pourriez avoir...'
+                  )}
                   aria-invalid={!!errors.message}
                   className="w-full px-4 py-3 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors resize-none"
                   {...register('message')}
@@ -178,11 +181,14 @@ export function Contact() {
               </div>
 
               <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? 'Envoi en cours...' : 'Envoyer le message'}
+                {isSubmitting ? t('contact.form.sending', 'Envoi en cours...') : t('contact.form.send', 'Envoyer le message')}
               </Button>
 
               <p className="text-sm text-charcoal/60 text-center">
-                Je vous répondrai dans les plus brefs délais pendant les heures ouvrables.
+                {t(
+                  'contact.form.notice',
+                  'Je vous répondrai dans les plus brefs délais pendant les heures ouvrables.'
+                )}
               </p>
             </form>
           </div>

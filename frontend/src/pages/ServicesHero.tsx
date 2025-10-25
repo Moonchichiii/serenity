@@ -1,170 +1,123 @@
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { Check } from 'lucide-react'
 
 interface ServicesHeroProps {
   onContactClick?: () => void
-  onScrollToServices?: () => void
 }
 
-export function ServicesHero({ onContactClick, onScrollToServices }: ServicesHeroProps) {
+export function ServicesHero({ onContactClick }: ServicesHeroProps) {
   const { t } = useTranslation()
 
-  const handleScrollToServices = () => {
-    if (onScrollToServices) {
-      onScrollToServices()
-    } else {
-      const servicesSection = document.getElementById('services')
-      if (servicesSection) {
-        servicesSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
-    }
-  }
-
-  const handleContactClick = () => {
+  const handleCorporateContactClick = () => {
     if (onContactClick) {
       onContactClick()
     } else {
-      const contactEvent = new CustomEvent('openContactModal')
+      const contactEvent = new CustomEvent('openContactModal', {
+        detail: { subject: t('corporate.cta.subject', 'Demande de devis entreprise') },
+      })
       window.dispatchEvent(contactEvent)
     }
   }
 
+  const benefits = [
+    t('corporate.benefits.equipment', 'Matériel fourni (chaise de massage ergonomique)'),
+    t('corporate.benefits.group', 'Groupe minimum requis pour déplacement'),
+    t('corporate.benefits.wellbeing', 'Amélioration du bien-être de vos équipes'),
+  ]
+
   return (
     <section className="relative min-h-[70vh] flex items-center justify-center bg-gradient-to-br from-sage-400 via-honey-400 to-terracotta-400 overflow-hidden">
-      {/* Decorative background pattern */}
+      {/* Dotted background pattern */}
       <div className="absolute inset-0 opacity-[0.08]">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        }} />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}
+        />
       </div>
 
-      {/* Floating decorative elements */}
-      <div className="absolute top-[10%] left-[10%] w-[200px] h-[200px] rounded-full bg-white/5 blur-[60px]" />
-      <div className="absolute bottom-[15%] right-[15%] w-[250px] h-[250px] rounded-full bg-white/5 blur-[80px]" />
+      {/* Soft light blobs */}
+      <div className="absolute top-[10%] left-[10%] w-[220px] h-[220px] rounded-full bg-white/10 blur-[70px]" />
+      <div className="absolute bottom-[15%] right-[15%] w-[280px] h-[280px] rounded-full bg-white/10 blur-[90px]" />
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="max-w-4xl mx-auto text-center"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="max-w-5xl mx-auto text-center"
         >
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-block"
+          {/* Bigger, bolder headline */}
+          <motion.h2
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-extrabold tracking-tight text-white drop-shadow-[0_1px_0_rgba(0,0,0,0.1)]"
           >
-            <span className="px-6 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium uppercase tracking-wider mb-8 inline-block">
-              {t('services.hero.badge', "Services Professionnels")}
-            </span>
-          </motion.div>
+            {t('corporate.title', 'Services en entreprise')}
+          </motion.h2>
 
-          {/* Heading */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-5xl md:text-6xl lg:text-7xl font-heading font-bold text-white mb-6 leading-tight"
-          >
-            {t('services.hero.title', "Des Massages Sur-Mesure")}
-            <br />
-            <span className="bg-gradient-to-r from-white/90 to-white/70 bg-clip-text text-transparent">
-              {t('services.hero.subtitle', "Pour Votre Bien-Être")}
-            </span>
-          </motion.h1>
-
-          {/* Description */}
+          {/* Pricing — upsized and centered */}
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-lg md:text-xl text-white/95 leading-relaxed mb-12 max-w-3xl mx-auto"
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="mt-4 text-lg sm:text-xl md:text-2xl text-white/95"
           >
-            {t(
-              'services.hero.description',
-              "Que vous recherchiez détente, soulagement des tensions ou amélioration de vos performances sportives, nos massages thérapeutiques s'adaptent à vos besoins spécifiques."
-            )}
+            {t('corporate.pricing.description', 'Séances de massage de 20 minutes à')}{' '}
+            <span className="font-extrabold text-white">
+              {t('corporate.pricing.amount', '15€ par personne')}
+            </span>
           </motion.p>
 
-          {/* CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          {/* Benefits — no beige/white card, blend into hero */}
+          <motion.ul
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="mt-8 md:mt-10 space-y-4 md:space-y-5 max-w-3xl mx-auto text-left"
           >
-            <button
-              onClick={handleScrollToServices}
-              className="px-8 py-4 bg-white text-sage-600 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto"
-            >
-              {t('services.hero.cta.discover', "Découvrir nos services")}
-            </button>
+            {benefits.map((benefit, index) => (
+              <motion.li
+                key={index}
+                initial={{ opacity: 0, x: -16 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.35 + index * 0.12 }}
+                className="flex items-center gap-3"
+              >
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                  <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                </span>
+                <span className="text-base sm:text-lg md:text-xl text-white/95">
+                  {benefit}
+                </span>
+              </motion.li>
+            ))}
+          </motion.ul>
 
-            <button
-              onClick={handleContactClick}
-              className="px-8 py-4 bg-transparent text-white border-2 border-white rounded-full font-semibold text-lg hover:bg-white/10 transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto"
-            >
-              {t('services.hero.cta.contact', "Demander conseil")}
-            </button>
-          </motion.div>
-
-          {/* Trust Indicators */}
+          {/* CTA — green button retained, emphasized */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="mt-16 flex flex-wrap gap-8 justify-center text-white/90 text-sm"
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.55 }}
+            className="mt-8 md:mt-10"
           >
-            <div className="flex items-center gap-2">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <span>{t('services.hero.trust.certified', "Masseur Certifié")}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                />
-              </svg>
-              <span>{t('services.hero.trust.experience', "10+ Années d'Expérience")}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-                />
-              </svg>
-              <span>{t('services.hero.trust.reviews', "Avis 5 Étoiles")}</span>
-            </div>
+            <motion.button
+              whileHover={{ scale: 1.06, y: -3 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleCorporateContactClick}
+              className="px-8 md:px-12 py-4 md:py-5 bg-sage-500 hover:bg-sage-600 text-white rounded-full font-semibold text-lg md:text-xl shadow-lg hover:shadow-2xl transition-all duration-300"
+            >
+              {t('corporate.cta.text', 'Demander un devis entreprise')}
+            </motion.button>
           </motion.div>
         </motion.div>
       </div>

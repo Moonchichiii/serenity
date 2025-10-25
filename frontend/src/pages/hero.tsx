@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/Button'
 import { motion } from 'framer-motion'
 import { cmsAPI, type WagtailHomePage } from '@/api/cms'
-import { CloudImage } from '@/components/ui/ResponsiveImage'
+import { CloudImage } from '@/components/ResponsiveImage'
 
 export function Hero() {
   const { t, i18n } = useTranslation()
