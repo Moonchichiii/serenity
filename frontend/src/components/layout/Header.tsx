@@ -21,8 +21,8 @@ export function Header() {
   const navItems = useMemo(
     () => [
       { key: 'about', href: '#about' },
-      { key: 'services', href: '#services' },
-      { key: 'booking', href: '#booking' },
+      { key: 'services', href: '#services-hero' },
+      //{ key: 'booking', href: '#booking' },
     ],
     []
   )

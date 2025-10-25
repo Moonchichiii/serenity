@@ -27,7 +27,9 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
   ]
 
   return (
-    <section className="relative min-h-[70vh] flex items-center justify-center bg-gradient-to-br from-sage-400 via-honey-400 to-terracotta-400 overflow-hidden">
+    <section id="services-hero"
+      className="relative min-h-[70vh] flex items-center justify-center bg-gradient-to-br from-sage-400 via-honey-400 to-terracotta-400 overflow-hidden scroll-mt-28">
+
       {/* Dotted background pattern */}
       <div className="absolute inset-0 opacity-[0.08]">
         <div

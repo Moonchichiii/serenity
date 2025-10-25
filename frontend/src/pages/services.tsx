@@ -4,7 +4,6 @@ import { motion } from 'framer-motion'
 import { Clock, Euro } from 'lucide-react'
 import { cmsAPI, type WagtailService } from '@/api/cms'
 import { ServicesHero } from '@/pages/ServicesHero'
-//import { CorporateServices } from '@/pages/CorporateServices'
 import  TestimonialBanner  from '@/components/TestimonialBanner'
 
 export function Services() {
