@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Star, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cmsAPI } from '@/api/cms'
@@ -9,6 +10,7 @@ interface ReviewSheetProps {
 }
 
 export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
+  const { t } = useTranslation()
   const [rating, setRating] = useState(0)
   const [hoveredRating, setHoveredRating] = useState(0)
   const [name, setName] = useState('')
@@ -27,12 +29,12 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
 
     // Validation
     if (rating === 0 || !name.trim() || !text.trim()) {
-      setErrorMessage('Veuillez remplir tous les champs obligatoires')
+      setErrorMessage(t('review.validation.required'))
       return
     }
 
     if (text.trim().length < 10) {
-      setErrorMessage('Votre avis doit contenir au moins 10 caractères')
+      setErrorMessage(t('review.validation.tooShort'))
       return
     }
 
@@ -46,7 +48,7 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
         text: text.trim(),
       })
 
-      setSuccessMessage(response.message || 'Merci ! Votre avis sera publié après validation.')
+      setSuccessMessage(response.message || t('review.success'))
 
       // Reset form
       setTimeout(() => {
@@ -69,7 +71,7 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
       const errorMsg = error.response?.data?.errors?.text
         || error.response?.data?.errors?.name
         || error.response?.data?.message
-        || "Une erreur s'est produite lors de l'envoi"
+        || t('review.error')
 
       setErrorMessage(errorMsg)
     } finally {
@@ -103,16 +105,16 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
               <div className="flex items-start justify-between mb-6">
                 <div>
                   <h2 className="text-2xl font-heading font-bold text-charcoal">
-                    Laissez un avis
+                    {t('review.title')}
                   </h2>
                   <p className="text-sm text-charcoal/60 mt-1">
-                    Partagez votre expérience avec nos services
+                    {t('review.subtitle')}
                   </p>
                 </div>
                 <button
                   onClick={() => onOpenChange(false)}
                   className="text-charcoal/60 hover:text-charcoal transition-colors"
-                  aria-label="Fermer"
+                  aria-label={t('review.close')}
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -145,16 +147,16 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                 {/* Rating Stars */}
                 <div>
                   <label className="block text-sm font-medium text-charcoal mb-2">
-                    Votre note <span className="text-red-500">*</span>
+                    {t('review.rating.label')} <span className="text-red-500">{t('review.rating.required')}</span>
                   </label>
-                  <div className="flex gap-1" role="radiogroup" aria-label="Note sur 5 étoiles">
+                  <div className="flex gap-1" role="radiogroup" aria-label={t('review.rating.label')}>
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         type="button"
                         role="radio"
                         aria-checked={star === rating}
-                        aria-label={`${star} étoile${star > 1 ? 's' : ''}`}
+                        aria-label={`${star} ${star > 1 ? t('review.rating.stars') : t('review.rating.star')}`}
                         onClick={() => setRating(star)}
                         onMouseEnter={() => setHoveredRating(star)}
                         onMouseLeave={() => setHoveredRating(0)}
@@ -176,14 +178,14 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                 {/* Name Field */}
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-charcoal mb-2">
-                    Votre nom <span className="text-red-500">*</span>
+                    {t('review.form.name')} <span className="text-red-500">{t('review.rating.required')}</span>
                   </label>
                   <input
                     id="name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Marie Dupont"
+                    placeholder={t('review.form.namePlaceholder')}
                     maxLength={100}
                     required
                     disabled={isSubmitting}
@@ -194,32 +196,32 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                 {/* Email Field (Optional) */}
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-charcoal mb-2">
-                    Email (optionnel)
+                    {t('review.form.email')}
                   </label>
                   <input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="marie@example.com"
+                    placeholder={t('review.form.emailPlaceholder')}
                     disabled={isSubmitting}
                     className="w-full px-4 py-3 border-2 border-sage-200 rounded-xl focus:outline-none focus:border-sage-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   <p className="text-xs text-charcoal/60 mt-1">
-                    Pour vous recontacter si besoin
+                    {t('review.form.emailHelp')}
                   </p>
                 </div>
 
                 {/* Review Text */}
                 <div>
                   <label htmlFor="review" className="block text-sm font-medium text-charcoal mb-2">
-                    Votre avis <span className="text-red-500">*</span>
+                    {t('review.form.text')} <span className="text-red-500">{t('review.rating.required')}</span>
                   </label>
                   <textarea
                     id="review"
                     value={text}
                     onChange={(e) => setText(e.target.value)}
-                    placeholder="Parlez-nous de votre expérience..."
+                    placeholder={t('review.form.textPlaceholder')}
                     rows={5}
                     maxLength={500}
                     required
@@ -227,7 +229,7 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                     className="w-full px-4 py-3 border-2 border-sage-200 rounded-xl focus:outline-none focus:border-sage-500 transition-colors resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   <p className="text-xs text-charcoal/60 mt-1">
-                    {text.length}/500 caractères
+                    {text.length}/500 {t('review.form.characters')}
                   </p>
                 </div>
 
@@ -237,11 +239,11 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                   disabled={isSubmitting}
                   className="w-full bg-sage-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-sage-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? 'Envoi en cours...' : 'Soumettre l\'avis'}
+                  {isSubmitting ? t('review.form.submitting') : t('review.form.submit')}
                 </button>
 
                 <p className="text-xs text-center text-charcoal/60">
-                  Votre avis sera publié après validation par notre équipe
+                  {t('review.form.notice')}
                 </p>
               </form>
             </div>

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
-import { useTranslation } from 'react-i18next'
 import { Check } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface ServicesHeroProps {
   onContactClick?: () => void
@@ -14,24 +15,29 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
       onContactClick()
     } else {
       const contactEvent = new CustomEvent('openContactModal', {
-        detail: { subject: t('corporate.cta.subject', 'Demande de devis entreprise') },
+        detail: {
+          subject: t('services.corporate.ctaSubject', 'Corporate Quote Request'),
+        },
       })
       window.dispatchEvent(contactEvent)
     }
   }
 
+  // Corporate services content - using i18n translations
+  // No CMS needed for this section - it's marketing copy
   const benefits = [
-    t('corporate.benefits.equipment', 'Matériel fourni (chaise de massage ergonomique)'),
-    t('corporate.benefits.group', 'Groupe minimum requis pour déplacement'),
-    t('corporate.benefits.wellbeing', 'Amélioration du bien-être de vos équipes'),
+    t('services.corporate.benefit1', 'Professional equipment provided'),
+    t('services.corporate.benefit2', 'Flexible group sizes available'),
+    t('services.corporate.benefit3', 'Boost team wellness and morale'),
   ]
 
   return (
-    <section id="services-hero"
-      className="relative min-h-[70vh] flex items-center justify-center bg-gradient-to-br from-sage-400 via-honey-400 to-terracotta-400 overflow-hidden scroll-mt-28">
-
+    <section
+      id="services-hero"
+      className="relative min-h-[70vh] flex items-center justify-center bg-gradient-to-br from-sage-400 via-honey-400 to-terracotta-400 overflow-hidden scroll-mt-28"
+    >
       {/* Dotted background pattern */}
-      <div className="absolute inset-0 opacity-[0.08]">
+      <div className="absolute inset-0 opacity-[0.08] lg:hidden">
         <div
           className="absolute inset-0"
           style={{
@@ -52,7 +58,7 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
           transition={{ duration: 0.6 }}
           className="max-w-5xl mx-auto text-center"
         >
-          {/* Bigger, bolder headline */}
+          {/* Title */}
           <motion.h2
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -60,10 +66,10 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-extrabold tracking-tight text-white drop-shadow-[0_1px_0_rgba(0,0,0,0.1)]"
           >
-            {t('corporate.title', 'Services en entreprise')}
+            {t('services.corporate.title', 'Corporate Wellness Programs')}
           </motion.h2>
 
-          {/* Pricing — upsized and centered */}
+          {/* Pricing */}
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -71,13 +77,13 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mt-4 text-lg sm:text-xl md:text-2xl text-white/95"
           >
-            {t('corporate.pricing.description', 'Séances de massage de 20 minutes à')}{' '}
+            {t('services.corporate.pricing', 'Starting from')}{' '}
             <span className="font-extrabold text-white">
-              {t('corporate.pricing.amount', '15€ par personne')}
+              {t('services.corporate.price', '€45/person')}
             </span>
           </motion.p>
 
-          {/* Benefits — no beige/white card, blend into hero */}
+          {/* Benefits */}
           <motion.ul
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -104,7 +110,7 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
             ))}
           </motion.ul>
 
-          {/* CTA — green button retained, emphasized */}
+          {/* CTA */}
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -118,7 +124,7 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
               onClick={handleCorporateContactClick}
               className="px-8 md:px-12 py-4 md:py-5 bg-sage-500 hover:bg-sage-600 text-white rounded-full font-semibold text-lg md:text-xl shadow-lg hover:shadow-2xl transition-all duration-300"
             >
-              {t('corporate.cta.text', 'Demander un devis entreprise')}
+              {t('services.corporate.cta', 'Request a Quote')}
             </motion.button>
           </motion.div>
         </motion.div>

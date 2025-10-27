@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { MessageSquarePlus } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ReviewSheet } from './ReviewSheet'
@@ -8,6 +9,7 @@ interface ReviewTriggerProps {
 }
 
 export function ReviewTrigger({ targetSectionId }: ReviewTriggerProps) {
+  const { t } = useTranslation()
   const [isVisible, setIsVisible] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
@@ -43,10 +45,12 @@ export function ReviewTrigger({ targetSectionId }: ReviewTriggerProps) {
             <button
               onClick={() => setIsOpen(true)}
               className="flex flex-col items-center gap-1 bg-sage-600 text-white py-4 px-6 rounded-full shadow-lg hover:bg-sage-700 hover:scale-105 transition-all duration-300"
-              aria-label="Laisser un avis"
+              aria-label={t('review.trigger')}
             >
               <MessageSquarePlus className="w-6 h-6" aria-hidden="true" />
-              <span className="text-xs whitespace-nowrap font-medium">Laisser un avis</span>
+              <span className="text-xs whitespace-nowrap font-medium">
+                {t('review.trigger')}
+              </span>
             </button>
           </motion.div>
         )}
