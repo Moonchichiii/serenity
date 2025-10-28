@@ -88,6 +88,7 @@ const Footer: React.FC = () => {
           {/* bottom bar */}
           <div className="mt-10 border-t border-white/10 pt-6 text-xs opacity-75 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between text-center sm:text-left">
             <p>
+              <span className="absolute -top-2 left-0 text-xs tracking-wide opacity-80">La</span>
               © {currentYear} Serenity — {t('footer.rights', { defaultValue: 'Tous droits réservés.' })}
             </p>
             <p className="text-porcelain/70">

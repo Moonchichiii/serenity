@@ -7,8 +7,16 @@ export function Contact() {
 
   return (
     <div>
-      <section id="contact"
-      className="container mx-auto px-4 pb-24 pt-6">
+      {/* Pull section closer to previous one:
+         - drop top padding to 0 on mobile
+         - tiny top pad on md+ to breathe
+         - keep bottom padding for footer spacing
+         - optional negative margin to counter any remaining whitespace from previous section
+      */}
+      <section
+        id="contact"
+        className="container mx-auto px-4 pt-0 md:pt-2 pb-20 -mt-2 md:-mt-3 scroll-mt-28"
+      >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

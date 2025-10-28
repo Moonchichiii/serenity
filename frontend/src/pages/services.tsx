@@ -4,46 +4,45 @@ import { motion } from 'framer-motion'
 import { Clock, Euro } from 'lucide-react'
 import { cmsAPI, type WagtailService } from '@/api/cms'
 import { ServicesHero } from '@/pages/ServicesHero'
-import  TestimonialBanner  from '@/components/TestimonialBanner'
+import TestimonialBanner from '@/components/TestimonialBanner'
 
 export function Services() {
   const { t, i18n } = useTranslation()
   const [services, setServices] = useState<WagtailService[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  // Fetch services from CMS
   useEffect(() => {
     cmsAPI
       .getServices()
       .then(setServices)
-      .catch((_err) => {
-        console.log('CMS services not ready, using fallback')
-        setServices([])
-      })
+      .catch(() => setServices([]))
       .finally(() => setIsLoading(false))
   }, [])
 
-  const lang = i18n.language as 'en' | 'fr'
+  const lang = (i18n.language?.startsWith('fr') ? 'fr' : 'en') as 'en' | 'fr'
 
   return (
     <div className="services-page">
       {/* 1. Hero Section */}
       <ServicesHero />
 
-      {/* 3. Individual Services Grid (Your existing component content) */}
-      <section id="services" className="py-20 lg:py-32 bg-white">
+      {/* 3. Individual Services Grid */}
+      {/* Reduce bottom padding to avoid stacking with next section */}
+      <section id="services" className="pt-16 lg:pt-24 pb-8 lg:pb-10 bg-white">
         <div className="container mx-auto px-4 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            className="text-center mb-12 md:mb-14"
           >
-            <h2 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-4">
+            <h2 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-3 md:mb-4">
               {t('services.title')}
             </h2>
-            <p className="text-xl text-charcoal/70 max-w-2xl mx-auto">{t('services.subtitle')}</p>
+            <p className="text-lg md:text-xl text-charcoal/70 max-w-2xl mx-auto">
+              {t('services.subtitle')}
+            </p>
           </motion.div>
 
           {isLoading ? (
@@ -70,7 +69,6 @@ export function Services() {
                     whileHover={{ y: -8 }}
                     className="card hover-lift h-full p-8 group"
                   >
-                    {/* Optional: Service Image */}
                     {service.image?.url && (
                       <div className="mb-4 -mx-8 -mt-8">
                         <img
@@ -106,33 +104,34 @@ export function Services() {
             </div>
           )}
         </div>
-            {/* 4. Testimonials Section */}
-<section id="testimonials"
-  className="mt-16 lg:mt-24 py-20 lg:py-32 bg-porcelain">
-  {/* Keep the trigger inside a normal container so whileInView still fires */}
-  <div className="container mx-auto px-4 lg:px-8 text-center">
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-    >
-      <h2 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-4">
-        {t('testimonials.title', 'Ce Que Disent Nos Clients')}
-      </h2>
-      <p className="text-xl text-charcoal/70">
-        {t('testimonials.subtitle', 'Découvrez les témoignages de nos clients satisfaits')}
-      </p>
+      </section>
 
-    </motion.div>
-  </div>
+      {/* 4. Testimonials Section */}
+      {/* Remove bottom padding; keep top padding smaller; no extra margin-bottom */}
+      <section id="testimonials" className="mt-10 lg:mt-16 pt-12 lg:pt-16 pb-0 bg-porcelain">
+        <div className="container mx-auto px-4 lg:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-4">
+              {t('testimonials.title', 'Ce Que Disent Nos Clients')}
+            </h2>
+            <p className="text-xl text-charcoal/70">
+              {t('testimonials.subtitle', 'Découvrez les témoignages de nos clients satisfaits')}
+            </p>
+          </motion.div>
+        </div>
 
-  {/* Testimonial Banner */}
-  <div className="mx-[calc(50%-50vw)] w-screen">
-    <TestimonialBanner />
-  </div>
-</section>
-
+        {/* Full-bleed banner without adding extra vertical space */}
+        <div className="mx-[calc(100%-100vw)] w-screen">
+          <TestimonialBanner />
+        </div>
       </section>
     </div>
-    )}
+  )
+}
+
+export default Services
