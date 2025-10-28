@@ -16,7 +16,7 @@ class WagtailImageSerializer(serializers.ModelSerializer):
         fields = ("title", "width", "height", "url")
 
     def get_url(self, obj: Image) -> str:
-        return obj.file.url  # Changed from obj.file.name to get full URL
+        return obj.file.url
 
 
 class HeroSlideSerializer(serializers.Serializer):
@@ -30,17 +30,18 @@ class HeroSlideSerializer(serializers.Serializer):
         img = getattr(obj, "image", None)
         if not img:
             return None
+        base_url = img.file.url
         return {
             "title": img.title,
             "width": img.width,
             "height": img.height,
-            "url": img.file.url,  # Full URL instead of just name
+            "url": base_url,
         }
 
 
 class HomePageSerializer(serializers.ModelSerializer):
+    hero_slides = HeroSlideSerializer(many=True)
     hero_image = WagtailImageSerializer()
-    hero_slides = serializers.SerializerMethodField()
 
     class Meta:
         model = HomePage
@@ -77,12 +78,30 @@ class HomePageSerializer(serializers.ModelSerializer):
             "email",
             "address_en",
             "address_fr",
+            # new service hero fields
+            "services_hero_title_en",
+            "services_hero_title_fr",
+            "services_hero_pricing_label_en",
+            "services_hero_pricing_label_fr",
+            "services_hero_price_en",
+            "services_hero_price_fr",
+            "services_hero_cta_en",
+            "services_hero_cta_fr",
+            "services_hero_benefit_1_en",
+            "services_hero_benefit_1_fr",
+            "services_hero_benefit_2_en",
+            "services_hero_benefit_2_fr",
+            "services_hero_benefit_3_en",
+            "services_hero_benefit_3_fr",
         ]
 
-    def get_hero_slides(self, obj):
-        return HeroSlideSerializer(
-            obj.hero_slides.all().order_by("sort_order"), many=True
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # ensure hero_slides are ordered consistently as before
+        data["hero_slides"] = HeroSlideSerializer(
+            instance.hero_slides.all().order_by("sort_order"), many=True
         ).data
+        return data
 
 
 class ServiceSerializer(serializers.ModelSerializer):
@@ -104,71 +123,32 @@ class ServiceSerializer(serializers.ModelSerializer):
 
 
 class TestimonialSerializer(serializers.ModelSerializer):
-    """
-    Updated to match frontend expectations.
-    Maps backend fields to frontend naming convention.
-    """
+    """Serializer matching frontend expectations: name, rating, text, date, avatar."""
 
-    name = serializers.CharField(source="client_name", read_only=True)
-    text = serializers.SerializerMethodField()
-    date = serializers.SerializerMethodField()
     avatar = serializers.SerializerMethodField()
+    date = serializers.SerializerMethodField()
 
     class Meta:
         model = Testimonial
         fields = ["id", "name", "rating", "text", "date", "avatar"]
 
-    def get_text(self, obj):
-        """
-        Return language-specific text based on request language.
-        Falls back to English if language not specified.
-        """
-        request = self.context.get("request")
-        lang = "en"  # default
-
-        if request:
-            # Check Accept-Language header
-            accept_lang = request.headers.get("Accept-Language", "").lower()
-            if "fr" in accept_lang:
-                lang = "fr"
-            # Or check query parameter
-            lang = request.GET.get("lang", lang)
-
-        if lang == "fr" and obj.text_fr:
-            return obj.text_fr
-        return obj.text_en or obj.text_fr or ""
-
     def get_date(self, obj):
-        """
-        Format date for display.
-        Returns ISO format that frontend can parse.
-        """
+        """Return creation date as YYYY-MM-DD or empty string."""
         if obj.created_at:
             return obj.created_at.strftime("%Y-%m-%d")
         return ""
 
     def get_avatar(self, obj):
-        """
-        Generate avatar URL using UI Avatars service.
-        Falls back to initials-based placeholder.
-        """
-        if hasattr(obj, "avatar_image") and obj.avatar_image:
-            # If model has avatar_image field (for future use)
-            return obj.avatar_image.file.url
-
-        # Generate placeholder avatar
+        """Return avatar URL from UI Avatars using the testimonial name."""
         import urllib.parse
 
-        name = obj.client_name or "Anonymous"
+        name = obj.name or "Anonymous"
         encoded_name = urllib.parse.quote(name)
         return f"https://ui-avatars.com/api/?name={encoded_name}&background=random&size=128"
 
 
 class TestimonialStatsSerializer(serializers.Serializer):
-    """
-    Serializer for testimonial statistics.
-    Used by stats endpoint.
-    """
+    """Serializer for testimonial statistics."""
 
     average_rating = serializers.FloatField()
     total_reviews = serializers.IntegerField()

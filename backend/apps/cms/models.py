@@ -1,6 +1,4 @@
 from django.db import models
-
-# add imports
 from modelcluster.fields import ParentalKey
 from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
 from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
@@ -10,15 +8,15 @@ from wagtail.models import Orderable, Page
 from wagtail.search import index
 
 
-# NEW: orderable hero slide
 class HeroSlide(Orderable):
+    """Slide for homepage hero carousel."""
+
     page = ParentalKey(
         "cms.HomePage", related_name="hero_slides", on_delete=models.CASCADE
     )
     image = models.ForeignKey(
         Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
     )
-    # (optional labels; keep for future UI)
     title_en = models.CharField(max_length=200, blank=True, default="")
     title_fr = models.CharField(max_length=200, blank=True, default="")
     subtitle_en = models.CharField(max_length=300, blank=True, default="")
@@ -37,12 +35,8 @@ class HeroSlide(Orderable):
 
 
 class HomePage(Page):
-    """
-    Single home page for the site.
-    Multi-language content (EN/FR).
-    """
+    """Single multilingual home page."""
 
-    # Hero Section
     hero_title_en = models.CharField(
         max_length=200,
         blank=True,
@@ -76,7 +70,6 @@ class HomePage(Page):
         help_text="Background image for hero section - Choose a calming, professional spa photo",
     )
 
-    # About Section - Main
     about_title_en = models.CharField(
         max_length=200,
         blank=True,
@@ -102,7 +95,6 @@ class HomePage(Page):
         help_text="Sous-titre (ex: 'Dédiée à Votre Bien-Être')",
     )
 
-    # About - Intro
     about_intro_en = RichTextField(
         blank=True,
         default="",
@@ -126,7 +118,6 @@ class HomePage(Page):
         help_text="Votre certification principale (ex: 'Massothérapeute Professionnelle Certifiée')",
     )
 
-    # About - Approach
     about_approach_title_en = models.CharField(
         max_length=200,
         blank=True,
@@ -150,7 +141,6 @@ class HomePage(Page):
         help_text="Décrivez votre approche unique du massage thérapeutique",
     )
 
-    # About - Specialties
     about_specialties_title_en = models.CharField(
         max_length=200,
         blank=True,
@@ -212,7 +202,6 @@ class HomePage(Page):
         help_text="Quatrième spécialité (ex: 'Soins Prénatals')",
     )
 
-    # Contact Info (global - used site-wide)
     phone = models.CharField(
         max_length=64,
         blank=True,
@@ -237,7 +226,90 @@ class HomePage(Page):
         help_text="Votre adresse professionnelle en français (ex: 'Paris, France' ou adresse complète)",
     )
 
-    # Enable search on key fields
+    # --- Services Hero Section ---
+    services_hero_title_en = models.CharField(
+        max_length=255,
+        blank=True,
+        default="Corporate Wellness Programs",
+        help_text="Main title for the services hero section (English)",
+    )
+    services_hero_title_fr = models.CharField(
+        max_length=255,
+        blank=True,
+        default="Programmes de Bien-être en Entreprise",
+        help_text="Main title for the services hero section (Français)",
+    )
+
+    services_hero_price_en = models.CharField(
+        max_length=100,
+        blank=True,
+        default="€45/person",
+        help_text="Displayed price (English)",
+    )
+    services_hero_price_fr = models.CharField(
+        max_length=100,
+        blank=True,
+        default="45€/personne",
+        help_text="Displayed price (Français)",
+    )
+
+    services_hero_pricing_label_en = models.CharField(
+        max_length=100,
+        blank=True,
+        default="Starting from",
+        help_text="Label before price (English)",
+    )
+    services_hero_pricing_label_fr = models.CharField(
+        max_length=100,
+        blank=True,
+        default="À partir de",
+        help_text="Label before price (Français)",
+    )
+
+    services_hero_cta_en = models.CharField(
+        max_length=100,
+        blank=True,
+        default="Request a Quote",
+        help_text="CTA button text (English)",
+    )
+    services_hero_cta_fr = models.CharField(
+        max_length=100,
+        blank=True,
+        default="Demander un Devis",
+        help_text="CTA button text (Français)",
+    )
+
+    services_hero_benefit_1_en = models.CharField(
+        max_length=200,
+        blank=True,
+        default="Professional equipment provided",
+    )
+    services_hero_benefit_1_fr = models.CharField(
+        max_length=200,
+        blank=True,
+        default="Équipement professionnel fourni",
+    )
+    services_hero_benefit_2_en = models.CharField(
+        max_length=200,
+        blank=True,
+        default="Flexible group sizes available",
+    )
+    services_hero_benefit_2_fr = models.CharField(
+        max_length=200,
+        blank=True,
+        default="Groupes flexibles disponibles",
+    )
+    services_hero_benefit_3_en = models.CharField(
+        max_length=200,
+        blank=True,
+        default="Boost team wellness and morale",
+    )
+    services_hero_benefit_3_fr = models.CharField(
+        max_length=200,
+        blank=True,
+        default="Améliorez le bien-être et le moral de l'équipe",
+    )
+
     search_fields = Page.search_fields + [
         index.SearchField("hero_title_en"),
         index.SearchField("hero_title_fr"),
@@ -255,7 +327,7 @@ class HomePage(Page):
                 FieldPanel("hero_subtitle_en", heading="Subtitle (English)"),
                 FieldPanel("hero_subtitle_fr", heading="Subtitle (Français)"),
                 FieldPanel("hero_image", heading="Background Image (fallback)"),
-                InlinePanel("hero_slides", label="Slides"),  # <-- NEW
+                InlinePanel("hero_slides", label="Slides"),
             ],
             heading="🏠 Hero Section",
             help_text="If slides exist, frontend shows slider; else falls back to single hero image.",
@@ -284,7 +356,7 @@ class HomePage(Page):
                 ),
             ],
             heading="👤 About Section - Introduction",
-            help_text="Your professional introduction and credentials. Keep it warm and welcoming.",
+            help_text="Your professional introduction and credentials.",
             classname="collapsible",
         ),
         MultiFieldPanel(
@@ -303,7 +375,7 @@ class HomePage(Page):
                 ),
             ],
             heading="👤 About Section - Your Approach",
-            help_text="Describe your unique approach to massage therapy. What makes your style special?",
+            help_text="Describe your unique approach to massage therapy.",
             classname="collapsible",
         ),
         MultiFieldPanel(
@@ -348,7 +420,7 @@ class HomePage(Page):
                 ),
             ],
             heading="👤 About Section - Your Specialties",
-            help_text="List your 4 main specialties. These will be displayed with icons.",
+            help_text="List your 4 main specialties.",
             classname="collapsible",
         ),
         MultiFieldPanel(
@@ -359,12 +431,31 @@ class HomePage(Page):
                 FieldPanel("address_fr", heading="Address (Français)"),
             ],
             heading="📞 Contact Information",
-            help_text="Your contact details displayed in the footer and contact sections. Make sure phone includes country code (e.g., +33 6 00 00 00 00).",
+            help_text="Your contact details displayed in the footer and contact sections.",
+            classname="collapsible",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("services_hero_title_en"),
+                FieldPanel("services_hero_title_fr"),
+                FieldPanel("services_hero_pricing_label_en"),
+                FieldPanel("services_hero_pricing_label_fr"),
+                FieldPanel("services_hero_price_en"),
+                FieldPanel("services_hero_price_fr"),
+                FieldPanel("services_hero_cta_en"),
+                FieldPanel("services_hero_cta_fr"),
+                FieldPanel("services_hero_benefit_1_en"),
+                FieldPanel("services_hero_benefit_1_fr"),
+                FieldPanel("services_hero_benefit_2_en"),
+                FieldPanel("services_hero_benefit_2_fr"),
+                FieldPanel("services_hero_benefit_3_en"),
+                FieldPanel("services_hero_benefit_3_fr"),
+            ],
+            heading="💼 Services Hero Section",
             classname="collapsible",
         ),
     ]
 
-    # Only one HomePage allowed, no children
     parent_page_types = ["wagtailcore.Page"]
     subpage_types = []
     max_count = 1
@@ -375,20 +466,13 @@ class HomePage(Page):
 
 @register_setting
 class SerenitySettings(BaseSiteSetting):
-    """
-    Global site settings - brand, social media, etc.
-    Accessible via Settings menu in Wagtail admin.
-    """
+    """Global site settings."""
 
     brand = models.CharField(
         max_length=100, default="Serenity", help_text="Site brand name"
     )
-
-    # Social Media
     instagram_url = models.URLField(blank=True, help_text="Instagram profile URL")
     facebook_url = models.URLField(blank=True, help_text="Facebook page URL")
-
-    # Business Hours
     business_hours = models.CharField(
         max_length=200,
         blank=True,
@@ -398,17 +482,10 @@ class SerenitySettings(BaseSiteSetting):
 
     panels = [
         MultiFieldPanel(
-            [
-                FieldPanel("brand"),
-                FieldPanel("business_hours"),
-            ],
-            heading="Site Info",
+            [FieldPanel("brand"), FieldPanel("business_hours")], heading="Site Info"
         ),
         MultiFieldPanel(
-            [
-                FieldPanel("instagram_url"),
-                FieldPanel("facebook_url"),
-            ],
+            [FieldPanel("instagram_url"), FieldPanel("facebook_url")],
             heading="Social Media",
         ),
     ]

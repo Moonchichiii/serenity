@@ -8,12 +8,11 @@ import {
 } from '@tanstack/react-router'
 import { Suspense, lazy } from 'react'
 
-// Lazy sections
 const Hero = lazy(() => import('@/pages/hero').then(m => ({ default: m.Hero })))
 const About = lazy(() => import('@/pages/about').then(m => ({ default: m.About })))
 const Services = lazy(() => import('@/pages/services').then(m => ({ default: m.Services })))
 const Contact = lazy(() => import('@/pages/Contact').then(m => ({ default: m.Contact })))
-//const Booking = lazy(() => import('@/pages/booking').then(m => ({ default: m.Booking })))
+const VideoHero = lazy(() => import('@/pages/Videohero').then(m => ({ default: m.VideoHero })))
 
 const ReviewTrigger = lazy(() => import('@/components/ReviewTrigger').then(m => ({ default: m.ReviewTrigger })))
 
@@ -41,10 +40,9 @@ function HomePage() {
       <Hero />
       <About />
       <Services />
+      <VideoHero cloudinaryVideoId="samples/sea-turtle" />
       <Contact />
-      {/* <Booking /> */}
 
-      {/* floating review button */}
       <ReviewTrigger targetSectionId="testimonials" />
     </>
   )

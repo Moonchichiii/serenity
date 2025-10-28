@@ -23,6 +23,7 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
   return <ModalCtx.Provider value={{ open, close, isOpen }}>{children}</ModalCtx.Provider>
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useModal() {
   const ctx = useContext(ModalCtx)
   if (!ctx) throw new Error('useModal must be used within ModalProvider')

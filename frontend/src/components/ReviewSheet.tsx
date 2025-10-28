@@ -20,14 +20,30 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
   const [successMessage, setSuccessMessage] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
 
+  const getErrorMessage = (error: unknown) => {
+    type UnknownErr = {
+      response?: {
+        data?: {
+          errors?: Record<string, string>
+          message?: string
+        }
+      }
+    }
+    const err = error as UnknownErr
+    return (
+      err.response?.data?.errors?.['text'] ||
+      err.response?.data?.errors?.['name'] ||
+      err.response?.data?.message ||
+      t('review.error')
+    )
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    // Clear previous messages
     setSuccessMessage('')
     setErrorMessage('')
 
-    // Validation
     if (rating === 0 || !name.trim() || !text.trim()) {
       setErrorMessage(t('review.validation.required'))
       return
@@ -50,7 +66,6 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
 
       setSuccessMessage(response.message || t('review.success'))
 
-      // Reset form
       setTimeout(() => {
         setRating(0)
         setName('')
@@ -59,21 +74,13 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
         setSuccessMessage('')
         onOpenChange(false)
 
-        // Notify banner to refresh (only if 4-5 stars)
         if (rating >= 4) {
           window.dispatchEvent(new CustomEvent('testimonialSubmitted'))
         }
       }, 2000)
-
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Testimonial submission error:', error)
-
-      const errorMsg = error.response?.data?.errors?.text
-        || error.response?.data?.errors?.name
-        || error.response?.data?.message
-        || t('review.error')
-
-      setErrorMessage(errorMsg)
+      setErrorMessage(getErrorMessage(error))
     } finally {
       setIsSubmitting(false)
     }

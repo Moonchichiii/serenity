@@ -7,7 +7,8 @@ export function Contact() {
 
   return (
     <div>
-      <section className="container mx-auto px-4 pb-24 pt-16">
+      <section id="contact"
+      className="container mx-auto px-4 pb-24 pt-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

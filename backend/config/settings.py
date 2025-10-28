@@ -92,6 +92,8 @@ DATABASES = {
         conn_max_age=600,
     )
 }
+
+# Configure Cloudinary SDK (for cloudinary package)
 cloudinary.config(
     cloud_name=config("CLOUDINARY_CLOUD_NAME"),
     api_key=config("CLOUDINARY_API_KEY"),
@@ -99,6 +101,12 @@ cloudinary.config(
     secure=True,
 )
 
+#  Configure Cloudinary Storage (for cloudinary_storage package)
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": config("CLOUDINARY_API_KEY"),
+    "API_SECRET": config("CLOUDINARY_API_SECRET"),
+}
 
 # Static & Media
 STATIC_URL = "/static/"

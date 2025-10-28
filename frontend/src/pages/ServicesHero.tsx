@@ -1,132 +1,94 @@
 import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useEffect, useState } from 'react'
+import { cmsAPI, type WagtailHomePage } from '@/api/cms'
 
 interface ServicesHeroProps {
   onContactClick?: () => void
 }
 
 export function ServicesHero({ onContactClick }: ServicesHeroProps) {
-  const { t } = useTranslation()
+  const { i18n } = useTranslation()
+  const [page, setPage] = useState<WagtailHomePage | null>(null)
 
-  const handleCorporateContactClick = () => {
-    if (onContactClick) {
-      onContactClick()
-    } else {
-      const contactEvent = new CustomEvent('openContactModal', {
-        detail: {
-          subject: t('services.corporate.ctaSubject', 'Corporate Quote Request'),
-        },
+  useEffect(() => {
+    cmsAPI.getHomePage().then(setPage)
+  }, [])
+
+  if (!page) return null
+
+  const lang = i18n.language.startsWith('fr') ? 'fr' : 'en'
+
+  const getString = (key: keyof WagtailHomePage) => {
+    const v = page[key]
+    return typeof v === 'string' ? v : undefined
+  }
+
+  const title = getString(`services_hero_title_${lang}` as keyof WagtailHomePage) || ''
+  const priceLabel = getString(`services_hero_pricing_label_${lang}` as keyof WagtailHomePage) || ''
+  const price = getString(`services_hero_price_${lang}` as keyof WagtailHomePage) || ''
+  const cta = getString(`services_hero_cta_${lang}` as keyof WagtailHomePage) || ''
+  const benefits = [
+    getString(`services_hero_benefit_1_${lang}` as keyof WagtailHomePage),
+    getString(`services_hero_benefit_2_${lang}` as keyof WagtailHomePage),
+    getString(`services_hero_benefit_3_${lang}` as keyof WagtailHomePage),
+  ].filter(Boolean) as string[]
+
+  const handleClick = () => {
+    if (onContactClick) return onContactClick()
+
+    const contactSection = document.getElementById('contact')
+    if (contactSection) {
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      contactSection.scrollIntoView({
+        behavior: prefersReduced ? 'auto' : 'smooth',
+        block: 'start',
       })
-      window.dispatchEvent(contactEvent)
+
+      setTimeout(() => {
+        const heading = contactSection.querySelector('h2, h1')
+        if (heading instanceof HTMLElement) heading.focus()
+      }, prefersReduced ? 0 : 600)
+    } else {
+      window.dispatchEvent(new CustomEvent('openContactModal', { detail: { subject: title } }))
     }
   }
 
-  // Corporate services content - using i18n translations
-  // No CMS needed for this section - it's marketing copy
-  const benefits = [
-    t('services.corporate.benefit1', 'Professional equipment provided'),
-    t('services.corporate.benefit2', 'Flexible group sizes available'),
-    t('services.corporate.benefit3', 'Boost team wellness and morale'),
-  ]
-
   return (
-    <section
-      id="services-hero"
-      className="relative min-h-[70vh] flex items-center justify-center bg-gradient-to-br from-sage-400 via-honey-400 to-terracotta-400 overflow-hidden scroll-mt-28"
-    >
-      {/* Dotted background pattern */}
-      <div className="absolute inset-0 opacity-[0.08] lg:hidden">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}
-        />
-      </div>
-
-      {/* Soft light blobs */}
-      <div className="absolute top-[10%] left-[10%] w-[220px] h-[220px] rounded-full bg-white/10 blur-[70px]" />
-      <div className="absolute bottom-[15%] right-[15%] w-[280px] h-[280px] rounded-full bg-white/10 blur-[90px]" />
-
-      <div className="container mx-auto px-4 lg:px-8 relative z-10">
+    <section id="services-hero" className="relative min-h-[70vh] flex items-center justify-center bg-gradient-to-br from-sage-400 via-honey-400 to-terracotta-400 overflow-hidden scroll-mt-28" aria-labelledby="services-hero-title">
+      <div className="container mx-auto px-4 lg:px-8 relative z-10 text-center">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="max-w-5xl mx-auto text-center"
         >
-          {/* Title */}
-          <motion.h2
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-extrabold tracking-tight text-white drop-shadow-[0_1px_0_rgba(0,0,0,0.1)]"
-          >
-            {t('services.corporate.title', 'Corporate Wellness Programs')}
-          </motion.h2>
+          <h2 id="services-hero-title" className="text-4xl sm:text-5xl md:text-6xl font-heading font-extrabold text-white">{title}</h2>
+          <p className="mt-4 text-xl text-white/95">
+            {priceLabel} <span className="font-bold text-white">{price}</span>
+          </p>
 
-          {/* Pricing */}
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-4 text-lg sm:text-xl md:text-2xl text-white/95"
-          >
-            {t('services.corporate.pricing', 'Starting from')}{' '}
-            <span className="font-extrabold text-white">
-              {t('services.corporate.price', '€45/person')}
-            </span>
-          </motion.p>
-
-          {/* Benefits */}
-          <motion.ul
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.25 }}
-            className="mt-8 md:mt-10 space-y-4 md:space-y-5 max-w-3xl mx-auto text-left"
-          >
-            {benefits.map((benefit, index) => (
-              <motion.li
-                key={index}
-                initial={{ opacity: 0, x: -16 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.35 + index * 0.12 }}
-                className="flex items-center gap-3"
-              >
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                  <Check className="w-4 h-4 text-white" strokeWidth={3} />
+          <ul className="mt-8 space-y-4 max-w-3xl mx-auto text-left">
+            {benefits.map((b, i) => (
+              <li key={i} className="flex items-center gap-3">
+                <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                  <Check className="w-4 h-4 text-white" />
                 </span>
-                <span className="text-base sm:text-lg md:text-xl text-white/95">
-                  {benefit}
-                </span>
-              </motion.li>
+                <span className="text-lg text-white/95">{b}</span>
+              </li>
             ))}
-          </motion.ul>
+          </ul>
 
-          {/* CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.55 }}
-            className="mt-8 md:mt-10"
-          >
-            <motion.button
-              whileHover={{ scale: 1.06, y: -3 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleCorporateContactClick}
-              className="px-8 md:px-12 py-4 md:py-5 bg-sage-500 hover:bg-sage-600 text-white rounded-full font-semibold text-lg md:text-xl shadow-lg hover:shadow-2xl transition-all duration-300"
+          <div className="mt-10">
+            <button
+              onClick={handleClick}
+              className="px-8 py-4 bg-sage-500 hover:bg-sage-600 text-white rounded-full font-semibold text-lg shadow-lg hover:shadow-xl focus:outline-none focus-visible:ring-4 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-sage-500 transition-all duration-300"
+              aria-label={cta}
             >
-              {t('services.corporate.cta', 'Request a Quote')}
-            </motion.button>
-          </motion.div>
+              {cta}
+            </button>
+          </div>
         </motion.div>
       </div>
     </section>

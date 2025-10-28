@@ -14,18 +14,16 @@ urlpatterns = [
     path("api/auth/logout/", core_api.logout_view),
     # Wagtail admin
     path("cms-admin/", include("wagtail.admin.urls")),
-    path(
-        "cms-admin/settings/", include("wagtail.contrib.settings.urls")
-    ),  # ← ADD THIS LINE
+    path("cms-admin/settings/", include("wagtail.contrib.settings.urls")),
     path("documents/", include("wagtail.documents.urls")),
     # DRF schema
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema")),
     # Serenity API
     path("api/", include("apps.cms.api")),
+    path("api/", include("apps.testimonials.urls")),
     path("api/calendar/", include("apps.availability.urls")),
     path("api/bookings/", include("apps.bookings.urls")),
-    path("api/testimonials/", include("apps.testimonials.urls")),
     path("api/contact/", include("apps.contact.urls")),
     # Django admin
     path("admin/", admin.site.urls),

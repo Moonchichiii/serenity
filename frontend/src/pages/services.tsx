@@ -107,7 +107,8 @@ export function Services() {
           )}
         </div>
             {/* 4. Testimonials Section */}
-<section id="testimonials" className="py-20 lg:py-32 bg-porcelain">
+<section id="testimonials"
+  className="mt-16 lg:mt-24 py-20 lg:py-32 bg-porcelain">
   {/* Keep the trigger inside a normal container so whileInView still fires */}
   <div className="container mx-auto px-4 lg:px-8 text-center">
     <motion.div
@@ -122,9 +123,7 @@ export function Services() {
       <p className="text-xl text-charcoal/70">
         {t('testimonials.subtitle', 'Découvrez les témoignages de nos clients satisfaits')}
       </p>
-      <p className="text-sm text-sage-600 mt-2">
-        ⭐ Seuls les avis 4–5 étoiles approuvés sont affichés
-      </p>
+
     </motion.div>
   </div>
 

@@ -8,20 +8,25 @@ from .models import Testimonial
 
 
 class TestimonialSubmissionThrottle(AnonRateThrottle):
-    rate = "3/hour"  # Max 3 submissions per hour per IP
+    rate = "3/hour"
 
 
 @api_view(["GET"])
 def get_testimonials(request):
     """
-    GET /api/testimonials/
-    Returns approved testimonials with 4-5 stars only
+    GET /api/testimonials/?min_rating=4
+    Returns approved testimonials filtered by minimum rating.
     """
+    min_rating = request.GET.get("min_rating")
+    try:
+        min_rating = int(min_rating) if min_rating else 0
+    except ValueError:
+        min_rating = 0
+
     testimonials = Testimonial.objects.filter(
-        status="approved", rating__gte=4  # 🎯 ONLY 4-5 STAR REVIEWS
-    ).order_by("-created_at")[
-        :20
-    ]  # Limit to 20 most recent
+        status="approved",
+        rating__gte=min_rating,
+    ).order_by("-created_at")[:20]
 
     data = [
         {

@@ -1,8 +1,6 @@
 import { apiClient } from './client'
 
-/**
- * Wagtail Image structure returned by backend
- */
+// Wagtail Image
 export interface WagtailImage {
   url: string
   title: string
@@ -10,9 +8,7 @@ export interface WagtailImage {
   height?: number
 }
 
-/**
- * Hero slide with bilingual content and image
- */
+// Hero slide
 export interface WagtailHeroSlide {
   title_en?: string
   title_fr?: string
@@ -21,9 +17,7 @@ export interface WagtailHeroSlide {
   image: WagtailImage | null
 }
 
-/**
- * Service with bilingual content
- */
+// Service
 export interface WagtailService {
   id: number
   title_fr: string
@@ -36,10 +30,7 @@ export interface WagtailService {
   is_available: boolean
 }
 
-/**
- * Homepage content - all CMS-managed fields
- * Backend returns bilingual content for all text fields
- */
+// Homepage content
 export interface WagtailHomePage {
   hero_title_fr: string
   hero_title_en: string
@@ -69,28 +60,37 @@ export interface WagtailHomePage {
   specialty_3_en: string
   specialty_4_fr: string
   specialty_4_en: string
+  services_hero_title_en: string
+  services_hero_title_fr: string
+  services_hero_pricing_label_en: string
+  services_hero_pricing_label_fr: string
+  services_hero_price_en: string
+  services_hero_price_fr: string
+  services_hero_cta_en: string
+  services_hero_cta_fr: string
+  services_hero_benefit_1_en: string
+  services_hero_benefit_1_fr: string
+  services_hero_benefit_2_en: string
+  services_hero_benefit_2_fr: string
+  services_hero_benefit_3_en: string
+  services_hero_benefit_3_fr: string
   phone: string
   email: string
   address_fr: string
   address_en: string
 }
 
-/**
- * Testimonial structure - matches backend output
- * Backend now returns: name, text (language-aware), date, avatar
- */
+// Testimonial
 export interface WagtailTestimonial {
   id: number
   name: string
   rating: number
-  text: string  // Backend returns language-specific text based on request
-  date: string  // Formatted date string (YYYY-MM-DD)
-  avatar: string  // Generated avatar URL
+  text: string
+  date: string
+  avatar: string
 }
 
-/**
- * Testimonial submission structure
- */
+// Testimonial submission
 export interface TestimonialSubmission {
   name: string
   email?: string
@@ -98,18 +98,14 @@ export interface TestimonialSubmission {
   text: string
 }
 
-/**
- * Response from testimonial submission
- */
+// Testimonial submission response
 export interface TestimonialSubmissionResponse {
   success: boolean
   message: string
   id: string
 }
 
-/**
- * Testimonial statistics
- */
+// Testimonial statistics
 export interface TestimonialStats {
   average_rating: number
   total_reviews: number
@@ -120,9 +116,7 @@ export interface TestimonialStats {
   one_star_count: number
 }
 
-/**
- * Contact form submission structure
- */
+// Contact submission
 export interface ContactSubmission {
   name: string
   email: string
@@ -131,72 +125,49 @@ export interface ContactSubmission {
   message: string
 }
 
-/**
- * Response from contact submission
- */
+// Contact submission response
 export interface ContactSubmissionResponse {
   success: boolean
   message: string
 }
 
-/**
- * CMS API client
- * All endpoints fetch data from Wagtail CMS backend
- */
+// CMS API client
 export const cmsAPI = {
-  /**
-   * Get homepage content with all bilingual fields
-   */
+  // Get homepage content
   getHomePage: () =>
     apiClient.get<WagtailHomePage>('/api/homepage/').then(res => res.data),
 
-  /**
-   * Get all available services
-   */
+  // Get all available services
   getServices: () =>
     apiClient.get<WagtailService[]>('/api/services/').then(res => res.data),
 
-  /**
-   * Get testimonials
-   * @param featured - Optional: filter for featured testimonials only
-   */
-  getTestimonials: (featured?: boolean) => {
-    const params = featured ? '?featured=true' : ''
+  // Get testimonials (optional minRating)
+  getTestimonials: (minRating?: number) => {
+    const params = typeof minRating === 'number' ? `?min_rating=${minRating}` : ''
     return apiClient
       .get<WagtailTestimonial[]>(`/api/testimonials/${params}`)
       .then(res => res.data)
   },
 
-  /**
-   * Submit a new testimonial
-   */
+  // Submit a new testimonial
   submitTestimonial: (data: TestimonialSubmission) =>
     apiClient
       .post<TestimonialSubmissionResponse>('/api/testimonials/submit/', data)
       .then(res => res.data),
 
-  /**
-   * Get testimonial statistics (averages and counts)
-   */
+  // Get testimonial statistics
   getTestimonialStats: () =>
     apiClient.get<TestimonialStats>('/api/testimonials/stats/').then(res => res.data),
 
-  /**
-   * Submit contact form
-   */
+  // Submit contact form
   submitContact: (data: ContactSubmission) =>
     apiClient
       .post<ContactSubmissionResponse>('/api/contact/submit/', data)
       .then(res => res.data),
 }
 
-/**
- * Helper function to get language-specific text from bilingual object
- * @param obj - Object with _en and _fr suffixed properties
- * @param field - Base field name (without language suffix)
- * @param lang - Language code ('en' or 'fr')
- */
-export function getLocalizedText<T extends Record<string, any>>(
+// Helper: get language-specific text from bilingual object
+export function getLocalizedText<T extends Record<string, unknown>>(
   obj: T,
   field: string,
   lang: 'en' | 'fr'

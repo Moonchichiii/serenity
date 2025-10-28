@@ -20,10 +20,27 @@
 
 
         <!-- Favicon / Touch Icons -->
-<link rel="icon" type="image/svg+xml" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><path d="M16 12V52" stroke="%23f7b5a3" stroke-width="6" stroke-linecap="round"/><path d="M46 14C46 8 18 8 18 14S46 22 46 28 18 36 18 42 46 50 46 56" stroke="%23f7b5a3" stroke-width="6" stroke-linecap="round" fill="none"/></svg>' />
+<!-- Theme-aware SVG favicons (tiny + razor sharp) -->
+<link rel="icon" href="/lotus-light.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
+<link rel="icon" href="/lotus-dark.svg"  type="image/svg+xml" media="(prefers-color-scheme: dark)">
 
+<!-- Fallback for odd/legacy engines (includes 16/32 inside) -->
+<link rel="icon" href="/favicon.ico" sizes="any">
 
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+<!-- Apple Touch Icon (PNG for iOS home screen) -->
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<!-- Android / PWA -->
+<link rel="manifest" href="/site.webmanifest">
+
+<!-- Color scheme hints for UA -->
+<meta name="color-scheme" content="light dark">
+
+<!-- Adaptive theme colors (status bar / PWA chrome) -->
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#F5EDE4">
+<meta name="theme-color" media="(prefers-color-scheme: dark)"  content="#0B1220">
+<meta name="msapplication-TileColor" content="#F5EDE4">
+
 
     <!-- Primary SEO -->
     <title>Serenity — Massages Thérapeutiques à Marseille | Californien, Drainage, Prénatal, AMMA Assis</title>

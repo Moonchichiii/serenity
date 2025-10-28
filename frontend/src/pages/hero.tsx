@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/Button'
 import { motion } from 'framer-motion'
 import { cmsAPI, type WagtailHomePage } from '@/api/cms'
-import { CloudImage } from '@/components/ResponsiveImage'
+import CloudImage from '@/components/ResponsiveImage'
+import { getOptimizedBackgroundUrl as _getOptimizedBackgroundUrl, getOptimizedThumbnail as _getOptimizedThumbnail } from "@/utils/cloudinary";
 
 export function Hero() {
   const { t, i18n } = useTranslation()
@@ -28,10 +29,10 @@ export function Hero() {
     if (!slides || slides.length < 2) return
     const id = setInterval(() => setActive(p => (p + 1) % slides.length), 5000)
     return () => clearInterval(id)
-  }, [slides?.length])
+  }, [slides])
 
-  const scrollToBooking = () =>
-    document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })
+  const scrollToContact = () =>
+    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })
 
   const lang = (i18n.language === 'en' || i18n.language === 'fr') ? (i18n.language as 'en' | 'fr') : 'fr'
   const title = cmsData
@@ -43,7 +44,6 @@ export function Hero() {
 
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-gradient-hero">
-      {/* Background images */}
       <div className="absolute inset-0 z-0">
         {slides ? (
           slides.map((s, idx) => {
@@ -80,13 +80,11 @@ export function Hero() {
             )
           })
         ) : (
-          // No fallback images: just keep the gradient background
           <div className="absolute inset-0" aria-hidden="true" />
         )}
         <div className="absolute inset-0 bg-gradient-to-br from-sage-200/70 via-sand-100/70 to-porcelain/70" />
       </div>
 
-      {/* Foreground text */}
       <div className="relative z-10 container mx-auto px-4 lg:px-8 text-center">
         <motion.h1 className="text-5xl md:text-6xl lg:text-7xl font-heading font-bold text-charcoal mb-6 text-balance"
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: 'easeOut' }}>
@@ -99,7 +97,7 @@ export function Hero() {
         </motion.p>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }}>
-          <Button size="lg" onClick={scrollToBooking} className="shadow-elevated hover:scale-105">
+          <Button size="lg" onClick={scrollToContact} className="shadow-elevated hover:scale-105">
             {t('hero.cta')}
           </Button>
         </motion.div>

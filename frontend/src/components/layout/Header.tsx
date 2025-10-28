@@ -64,9 +64,11 @@ export function Header() {
             className="flex items-center space-x-2 group"
             aria-label={t('nav.home', { defaultValue: 'Home' })}
           >
-            <span className="text-2xl lg:text-3xl font-heading font-semibold text-charcoal group-hover:text-terracotta-500 transition-colors duration-300">
-              Serenity
-            </span>
+           <span className="text-2xl lg:text-3xl font-heading font-semibold text-charcoal group-hover:text-terracotta-500 transition-colors duration-300">
+  <span className="align-super text-sm mr-1">La</span>
+  Serenity
+</span>
+
           </a>
 
           {/* Desktop nav */}
