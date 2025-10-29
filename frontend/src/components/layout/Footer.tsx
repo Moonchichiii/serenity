@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer id="site-footer" className="bg-charcoal text-porcelain py-12 mt-16">
+    <footer id="site-footer" className="relative bg-charcoal text-porcelain py-12 mt-16">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 8 }}
@@ -95,6 +95,17 @@ const Footer: React.FC = () => {
               {t('footer.address', { defaultValue: 'Marseille, France' })}
             </p>
           </div>
+
+          {/* small hidden footnote in a corner */}
+          <a
+            href="https://www.nordiccodeworks.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="absolute bottom-2 right-2 text-[10px] text-porcelain/60 hover:text-porcelain/90 transition-opacity"
+            aria-label="Made by Nordic Code Works"
+          >
+            Made by Nordic Code Works
+          </a>
         </motion.div>
       </div>
     </footer>
