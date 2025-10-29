@@ -1,90 +1,67 @@
 <!doctype html>
 <html lang="fr">
   <head>
+    <!-- ✅ Core meta -->
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <!-- Referrer policy (HTML-standard meta) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-
-
-
-    <!-- Preconnects -->
-<link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
-
-<!-- Preload critical fonts (same-origin -> no crossorigin needed) -->
-<link rel="preload" as="font" href="/fonts/inter-v20-latin-400.woff2" type="font/woff2" fetchpriority="high" />
-<link rel="preload" as="font" href="/fonts/inter-v20-latin-600.woff2" type="font/woff2" />
-<link rel="preload" as="font" href="/fonts/playfair-display-v40-latin-600.woff2" type="font/woff2" />
-<link rel="preload" as="font" href="/fonts/playfair-display-v40-latin-700.woff2" type="font/woff2" />
-
-
-        <!-- Favicon / Touch Icons -->
-<!-- Theme-aware SVG favicons (tiny + razor sharp) -->
-<link rel="icon" href="/lotus-light.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
-<link rel="icon" href="/lotus-dark.svg"  type="image/svg+xml" media="(prefers-color-scheme: dark)">
-
-<!-- Fallback for odd/legacy engines (includes 16/32 inside) -->
-<link rel="icon" href="/favicon.ico" sizes="any">
-
-<!-- Apple Touch Icon (PNG for iOS home screen) -->
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-
-<!-- Android / PWA -->
-<link rel="manifest" href="/site.webmanifest">
-
-<!-- Color scheme hints for UA -->
-<meta name="color-scheme" content="light dark">
-
-<!-- Adaptive theme colors (status bar / PWA chrome) -->
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#F5EDE4">
-<meta name="theme-color" media="(prefers-color-scheme: dark)"  content="#0B1220">
-<meta name="msapplication-TileColor" content="#F5EDE4">
-
-
-    <!-- Primary SEO -->
-    <title>Serenity — Massages Thérapeutiques à Marseille | Californien, Drainage, Prénatal, AMMA Assis</title>
-    <meta name="description" content="Massages thérapeutiques à Marseille : Californien, drainage lymphatique, massage prénatal et AMMA assis pour entreprises et événements. Séances personnalisées dans un cadre serein." />
-    <!-- Note: meta keywords are obsolete; safe to remove -->
-    <meta name="robots" content="index,follow,max-image-preview:large" />
-    <link rel="canonical" href="https://yourdomain.com/" />
-
-    <!-- Internationalization -->
-    <link rel="alternate" href="https://yourdomain.com/" hreflang="fr" />
-    <link rel="alternate" href="https://yourdomain.com/en/" hreflang="en" />
-    <link rel="alternate" href="https://yourdomain.com/" hreflang="x-default" />
-
-    <!-- Open Graph (Facebook / LinkedIn) -->
-    <meta property="og:title" content="Serenity — Massages Thérapeutiques à Marseille" />
-    <meta property="og:description" content="Californien, drainage lymphatique, massage prénatal et AMMA assis. Séances personnalisées pour un bien-être durable." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://yourdomain.com/" />
-    <meta property="og:image" content="https://yourdomain.com/og-image-1200x630.jpg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:site_name" content="Serenity" />
-    <meta property="og:locale" content="fr_FR" />
-    <meta property="og:locale:alternate" content="en_GB" />
-
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Serenity — Massages Thérapeutiques à Marseille" />
-    <meta name="twitter:description" content="Californien, drainage lymphatique, prénatal et AMMA assis pour entreprises et événements." />
-    <meta name="twitter:image" content="https://yourdomain.com/og-image-1200x630.jpg" />
-
-    <!-- PWA (optional but nice) -->
-    <!-- <link rel="manifest" href="/manifest.webmanifest" /> -->
-    <meta name="theme-color" content="#F5EDE4" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F5EDE4" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0B1220" />
     <meta name="msapplication-TileColor" content="#F5EDE4" />
 
-    <!-- Structured Data: Local Business + Services -->
+    <!-- ✅ Performance: preconnects -->
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+
+    <!-- ✅ Preload critical fonts (only key weights) -->
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-v20-latin-regular.woff2" crossorigin>
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-v20-latin-600.woff2" crossorigin>
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/playfair-display-v40-latin-700.woff2" crossorigin>
+
+    <!-- ✅ Favicons -->
+    <link rel="icon" href="/lotus-light.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
+    <link rel="icon" href="/lotus-dark.svg"  type="image/svg+xml" media="(prefers-color-scheme: dark)">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <!-- ✅ Primary SEO -->
+    <title>Serenity — Massages Thérapeutiques à Marseille | Californien, Drainage, Prénatal, AMMA Assis</title>
+    <meta name="description" content="Massages thérapeutiques à Marseille : Californien, drainage lymphatique, massage prénatal et AMMA assis pour entreprises et événements. Séances personnalisées dans un cadre serein.">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <link rel="canonical" href="https://laserenity.fr/">
+
+    <!-- ✅ Internationalization -->
+    <link rel="alternate" href="https://laserenity.fr/" hreflang="fr">
+    <link rel="alternate" href="https://laserenity.fr/en/" hreflang="en">
+    <link rel="alternate" href="https://laserenity.fr/" hreflang="x-default">
+
+    <!-- ✅ Open Graph -->
+    <meta property="og:title" content="Serenity — Massages Thérapeutiques à Marseille">
+    <meta property="og:description" content="Californien, drainage lymphatique, massage prénatal et AMMA assis. Séances personnalisées pour un bien-être durable.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://laserenity.fr/">
+    <meta property="og:image" content="https://laserenity.fr/og-image-1200x630.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="Serenity">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:locale:alternate" content="en_GB">
+
+    <!-- ✅ Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Serenity — Massages Thérapeutiques à Marseille">
+    <meta name="twitter:description" content="Californien, drainage lymphatique, prénatal et AMMA assis pour entreprises et événements.">
+    <meta name="twitter:image" content="https://laserenity.fr/og-image-1200x630.jpg">
+
+    <!-- ✅ Structured Data -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "HealthAndBeautyBusiness",
       "name": "Serenity",
-      "image": "https://yourdomain.com/og-image-1200x630.jpg",
-      "url": "https://yourdomain.com/",
+      "image": "https://laserenity.fr/og-image-1200x630.jpg",
+      "url": "https://laserenity.fr/",
       "telephone": "+33 6 00 00 00 00",
       "priceRange": "€€",
       "address": {
@@ -92,75 +69,21 @@
         "addressLocality": "Marseille",
         "addressCountry": "FR"
       },
-      "areaServed": {
-        "@type": "City",
-        "name": "Marseille"
-      },
+      "areaServed": { "@type": "City", "name": "Marseille" },
       "sameAs": [
         "https://www.instagram.com/yourhandle",
         "https://www.facebook.com/yourpage"
       ],
       "makesOffer": [
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": "Massage Californien",
-            "description": "Massage doux et enveloppant pour détente profonde et libération des tensions."
-          }
-        },
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": "Drainage Lymphatique",
-            "description": "Technique légère et rythmée pour stimuler la circulation lymphatique et réduire les gonflements."
-          }
-        },
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": "Massage Prénatal",
-            "description": "Massage sûr et adapté aux futures mamans pour soulager les tensions et améliorer le sommeil."
-          }
-        },
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": "AMMA Assis (entreprises/événements)",
-            "description": "Séance sur chaise de ~20 min ciblant dos, épaules, nuque et bras — idéale en entreprise."
-          }
-        },
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": "Réflexologie Plantaire (bientôt)",
-            "description": "Stimulation des points réflexes du pied pour rééquilibrer le corps."
-          }
-        }
+        { "@type": "Service", "name": "Massage Californien" },
+        { "@type": "Service", "name": "Drainage Lymphatique" },
+        { "@type": "Service", "name": "Massage Prénatal" },
+        { "@type": "Service", "name": "AMMA Assis (entreprises/événements)" }
       ]
     }
     </script>
-
-    <!-- Optional: WebSite SearchAction (if you have on-site search at /search?q=) -->
-    <!--
-    <script type="application/ld+json">
-    {
-      "@context":"https://schema.org",
-      "@type":"WebSite",
-      "url":"https://yourdomain.com/",
-      "potentialAction":{
-        "@type":"SearchAction",
-        "target":"https://yourdomain.com/search?q={search_term_string}",
-        "query-input":"required name=search_term_string"
-      }
-    }
-    </script>
-    -->
   </head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

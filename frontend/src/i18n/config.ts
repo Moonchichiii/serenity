@@ -145,6 +145,10 @@ const resources = {
         success: 'Thank you! Your review will be published after validation.',
         error: 'An error occurred while sending',
       },
+      testimonials: {
+        title: 'What Our Clients Say',
+        subtitle: 'Discover testimonials from our satisfied clients',
+      },
     },
   },
   fr: {
@@ -288,6 +292,10 @@ const resources = {
         },
         success: 'Merci ! Votre avis sera publié après validation.',
         error: "Une erreur s'est produite lors de l'envoi",
+      },
+      testimonials: {
+        title: 'Ce Que Disent Nos Clients',
+        subtitle: 'Découvrez les témoignages de nos clients satisfaits',
       },
     },
   },

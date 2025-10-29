@@ -124,18 +124,21 @@ export function TestimonialBanner() {
                   />
                   <div className="flex-1">
                     <h3 className="font-semibold text-charcoal">{testimonial.name}</h3>
-                    <div className="flex gap-0.5" aria-label={`${testimonial.rating} out of 5`}>
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-4 h-4 ${
-                            i < testimonial.rating
-                              ? 'fill-honey-400 text-honey-400'
-                              : 'text-charcoal/20'
-                          }`}
-                          aria-hidden="true"
-                        />
-                      ))}
+                    <div className="flex items-center gap-0.5">
+                      <div className="flex gap-0.5" aria-hidden="true">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-4 h-4 ${
+                              i < testimonial.rating
+                                ? 'fill-honey-400 text-honey-400'
+                                : 'text-charcoal/20'
+                            }`}
+                            aria-hidden="true"
+                          />
+                        ))}
+                      </div>
+                      <span className="sr-only">{testimonial.rating} out of 5</span>
                     </div>
                   </div>
                 </div>

@@ -125,7 +125,7 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
       <div>
         <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="phone">
           {t('contact.form.phone', 'Phone')}{' '}
-          <span className="text-charcoal/50 text-xs">
+          <span className="text-charcoal/80 text-xs">
             {t('contact.form.optional', '(optional)')}
           </span>
         </label>
@@ -188,7 +188,7 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
           : t('contact.form.send', 'Send Message')}
       </Button>
 
-      <p className="text-sm text-charcoal/60 text-center">
+      <p className="text-sm text-charcoal/80 text-center">
         {t(
           'contact.form.notice',
           'I will reply as soon as possible during business hours.'

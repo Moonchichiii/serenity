@@ -1,5 +1,5 @@
 import React from 'react'
-import { Mail, Phone } from 'lucide-react'
+import { Mail } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import AnimatedInstagramIcon from '@/components/ui/AnimatedInstagramIcon'
