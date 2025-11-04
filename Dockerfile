@@ -20,4 +20,6 @@ ENV PYTHONPATH=/app/backend
 
 WORKDIR /app/backend
 
-CMD ["gunicorn", "config.asgi:application", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "60"]
+RUN python manage.py collectstatic --noinput || true
+
+CMD ["bash", "-lc", "gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8000} --workers 3 --timeout 60"]
