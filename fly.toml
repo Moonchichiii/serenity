@@ -1,19 +1,22 @@
-app = "laserenity-backend"
-primary_region = "cdg"
+app = "laserenity-api"            # <-- change to your app name
+primary_region = "fra"
 
 [build]
-  dockerfile = "Dockerfile"
+# Dockerfile lives at repo root; we're launching from /backend
+dockerfile = "../Dockerfile"
 
 [env]
-  PORT = "8080"
-  ENVIRONMENT = "production"
+PORT = "8000"
+ENVIRONMENT = "production"
+DJANGO_SETTINGS_MODULE = "config.settings"
 
-[[services]]
-  protocol = "tcp"
-  internal_port = 8080
-  [[services.ports]]
-    port = 80
-    handlers = ["http"]
-  [[services.ports]]
-    port = 443
-    handlers = ["tls", "http"]
+[http_service]
+internal_port = 8000              # gunicorn binds to 8000 in the container
+force_https = true
+auto_start_machines = true
+auto_stop_machines = true
+min_machines_running = 1
+
+# Run DB migrations on each deploy (collectstatic should be in your Dockerfile)
+[deploy]
+release_command = "python manage.py migrate"
