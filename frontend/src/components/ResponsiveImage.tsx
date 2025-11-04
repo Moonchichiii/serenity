@@ -1,10 +1,13 @@
 import { useState, type ImgHTMLAttributes } from "react";
-import {
-  getOptimizedUrl,
-  generateSrcSet,
-  extractPublicId,
-} from "@/utils/cloudinary";
-interface WagtailImage { id?: number; url: string; title?: string; width?: number; height?: number; }
+import { getOptimizedUrl, generateSrcSet, extractPublicId } from "@/utils/cloudinary";
+
+interface WagtailImage {
+  id?: number;
+  url: string;
+  title?: string;
+  width?: number;
+  height?: number;
+}
 
 interface CloudImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src" | "srcSet"> {
   image: WagtailImage | null | undefined;
@@ -16,13 +19,25 @@ interface CloudImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src
 }
 
 const CloudImage = ({
-  image, alt, priority = false, fit = "cover", sizes, className = "", onError, ...props
+  image,
+  alt,
+  priority = false,
+  fit = "cover",
+  // Heuristic default for grids/cards to avoid 100vw over-fetch
+  sizes = "(max-width: 640px) 90vw, (max-width: 1024px) 50vw, 33vw",
+  className = "",
+  onError,
+  ...props
 }: CloudImageProps) => {
   const [hasError, setHasError] = useState(false);
 
   if (!image?.url) {
     return (
-      <div className={`bg-sage-100 flex items-center justify-center text-charcoal/40 ${className}`} role="img" aria-label={alt}>
+      <div
+        className={`bg-sage-100 flex items-center justify-center text-charcoal/40 ${className}`}
+        role="img"
+        aria-label={alt}
+      >
         <span className="text-sm">{alt || "Image"}</span>
       </div>
     );
@@ -30,7 +45,11 @@ const CloudImage = ({
 
   if (hasError) {
     return (
-      <div className={`bg-sage-100 flex items-center justify-center text-charcoal/40 ${className}`} role="img" aria-label={alt}>
+      <div
+        className={`bg-sage-100 flex items-center justify-center text-charcoal/40 ${className}`}
+        role="img"
+        aria-label={alt}
+      >
         <span className="text-xs">⚠️ Image failed to load</span>
       </div>
     );
@@ -50,10 +69,22 @@ const CloudImage = ({
     onError?.(e);
   };
 
+  // Always use eco quality for optimal mobile performance
+  const quality: "eco" | "good" = "eco";
+
+  // Estimate slot width: if caller didn't override sizes (card/grid), keep modest cap
+  const vw = typeof window !== "undefined" ? Math.max(window.innerWidth || 0, 360) : 768;
+  const dprCap = 2;
+  const maxCandidate = priority
+    ? Math.max(768, Math.min(vw * dprCap, 1280)) // hero-ish
+    : Math.max(480, Math.min(vw * dprCap, 1024)); // cards/lists smaller cap
+
+  const fallbackWidth = priority ? Math.min(896, Math.floor(vw * dprCap)) : 640;
+
   return (
     <img
-      src={getOptimizedUrl(urlOrPublicId)}
-      srcSet={generateSrcSet(urlOrPublicId)}
+      src={getOptimizedUrl(urlOrPublicId, fallbackWidth, quality, /*capDpr2*/ false)}
+      srcSet={generateSrcSet(urlOrPublicId, quality, /*capDpr2*/ false, maxCandidate)}
       sizes={sizes}
       alt={alt || image.title || ""}
       loading={priority ? "eager" : "lazy"}

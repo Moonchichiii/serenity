@@ -1,91 +1,93 @@
-import { motion } from 'framer-motion'
-import { Check } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
-import { useEffect, useRef, useState } from 'react'
-import { cmsAPI, type WagtailHomePage } from '@/api/cms'
-import poster from '@/assets/poster.webp'
+import { motion } from "framer-motion";
+import { Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useEffect, useRef, useState } from "react";
+import { cmsAPI, type WagtailHomePage } from "@/api/cms";
+import { getResponsivePosterUrl } from "@/utils/cloudinary";
+import tinyFallbackPoster from "@/assets/poster.webp";
+import { Button } from '@/components/ui/Button'
 
 interface ServicesHeroProps {
-  onContactClick?: () => void
+  onContactClick?: () => void;
 }
 
 export function ServicesHero({ onContactClick }: ServicesHeroProps) {
-  const { i18n } = useTranslation()
-  const [page, setPage] = useState<WagtailHomePage | null>(null)
-  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const { i18n } = useTranslation();
+  const [page, setPage] = useState<WagtailHomePage | null>(null);
+  const [posterUrl, setPosterUrl] = useState<string | undefined>(undefined);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  const cloudName = import.meta.env['VITE_CLOUDINARY_CLOUD_NAME']
-  const videoId = import.meta.env['VITE_CLOUDINARY_VIDEO_ID']
+  const cloudName = import.meta.env["VITE_CLOUDINARY_CLOUD_NAME"];
+  const videoId = import.meta.env["VITE_CLOUDINARY_VIDEO_ID"];
+  const posterId = import.meta.env["VITE_CLOUDINARY_POSTER_ID"];
 
-  // ✅ Simple: Pick video quality based on screen width at mount
   const getVideoUrl = () => {
-    const width = typeof window !== 'undefined' ? window.innerWidth : 1920
-    const base = `https://res.cloudinary.com/${cloudName}/video/upload`
+    const width = typeof window !== "undefined" ? window.innerWidth : 1920;
+    const base = `https://res.cloudinary.com/${cloudName}/video/upload`;
+    if (width <= 640) return `${base}/f_mp4,q_auto:low,w_640,h_360,c_fill/${videoId}.mp4`;
+    if (width <= 1024) return `${base}/f_mp4,q_auto:eco,w_1024,h_576,c_fill/${videoId}.mp4`;
+    return `${base}/f_mp4,q_auto:eco,w_1920,h_1080,c_fill/${videoId}.mp4`;
+  };
 
-    if (width <= 640) {
-      return `${base}/f_mp4,q_auto:low,w_640,h_360,c_fill/${videoId}.mp4`
-    } else if (width <= 1024) {
-      return `${base}/f_mp4,q_auto:eco,w_1024,h_576,c_fill/${videoId}.mp4`
-    } else {
-      return `${base}/f_mp4,q_auto:eco,w_1920,h_1080,c_fill/${videoId}.mp4`
-    }
-  }
-
-  const VIDEO_SRC = getVideoUrl()
+  const VIDEO_SRC = getVideoUrl();
 
   const saveData =
-    typeof navigator !== 'undefined' &&
-    // @ts-expect-error navigator.connection may be missing from lib.dom types
-    navigator.connection?.saveData
+    typeof navigator !== "undefined" &&
+    // @ts-expect-error - navigator.connection is not in TypeScript types but exists in modern browsers
+    navigator.connection?.saveData;
   const prefersReducedMotion =
-    typeof window !== 'undefined' &&
-    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-  const shouldDisableVideo = !!saveData || !!prefersReducedMotion
+    typeof window !== "undefined" &&
+    window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  const shouldDisableVideo = !!saveData || !!prefersReducedMotion;
 
   useEffect(() => {
-    if (shouldDisableVideo) return
-    const v = videoRef.current
-    if (v) {
-      const tryPlay = async () => {
-        try {
-          v.load()
-          await v.play()
-        } catch {
-          // autoplay might be blocked, ignore
-        }
-      }
-      tryPlay()
+    if (!posterId) {
+      setPosterUrl(tinyFallbackPoster);
+      return;
     }
-  }, [shouldDisableVideo])
+    const compute = () => {
+      const w = typeof window !== "undefined" ? Math.max(window.innerWidth || 0, 360) : 768;
+      const publicId = `https://res.cloudinary.com/${cloudName}/image/upload/${posterId}`;
+      setPosterUrl(getResponsivePosterUrl(publicId, w, { quality: "eco", min: 480, max: 1440 }));
+    };
+    compute();
+    let t: number | undefined;
+    const onResize = () => {
+      clearTimeout(t as number);
+      t = window.setTimeout(compute, 150);
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      clearTimeout(t as number);
+    };
+  }, [cloudName, posterId]);
 
   useEffect(() => {
-    cmsAPI.getHomePage().then(setPage)
-  }, [])
-  if (!page) return null
+    cmsAPI.getHomePage().then(setPage).catch(() => setPage(null));
+  }, []);
+  if (!page) return null;
 
-  const lang = i18n.language.startsWith('fr') ? 'fr' : 'en'
+  const lang = i18n.language.startsWith("fr") ? "fr" : "en";
   const getString = (key: keyof WagtailHomePage) =>
-    typeof page[key] === 'string' ? (page[key] as string) : ''
+    typeof page[key] === "string" ? (page[key] as string) : "";
 
-  const title = getString(`services_hero_title_${lang}` as keyof WagtailHomePage)
-  const priceLabel = getString(`services_hero_pricing_label_${lang}` as keyof WagtailHomePage)
-  const price = getString(`services_hero_price_${lang}` as keyof WagtailHomePage)
-  const cta = getString(`services_hero_cta_${lang}` as keyof WagtailHomePage)
+  const title = getString(`services_hero_title_${lang}` as keyof WagtailHomePage);
+  const priceLabel = getString(`services_hero_pricing_label_${lang}` as keyof WagtailHomePage);
+  const price = getString(`services_hero_price_${lang}` as keyof WagtailHomePage);
+  const cta = getString(`services_hero_cta_${lang}` as keyof WagtailHomePage);
   const benefits = [
     getString(`services_hero_benefit_1_${lang}` as keyof WagtailHomePage),
     getString(`services_hero_benefit_2_${lang}` as keyof WagtailHomePage),
     getString(`services_hero_benefit_3_${lang}` as keyof WagtailHomePage),
-  ].filter(Boolean)
+  ].filter(Boolean);
 
   const handleClick = () => {
-    if (onContactClick) return onContactClick()
-    const section = document.getElementById('contact')
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    } else {
-      window.dispatchEvent(new CustomEvent('openContactModal', { detail: { subject: title } }))
-    }
-  }
+    if (onContactClick) return onContactClick();
+    const section = document.getElementById("contact");
+    if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+    else window.dispatchEvent(new CustomEvent("openContactModal", { detail: { subject: title } }));
+  };
 
   return (
     <section
@@ -96,7 +98,7 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
       <video
         ref={videoRef}
         className="absolute inset-0 w-full h-full object-cover object-center"
-        poster={poster}
+        poster={posterUrl ?? tinyFallbackPoster}
         autoPlay={!shouldDisableVideo}
         muted
         playsInline
@@ -126,8 +128,7 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
             </h2>
 
             <p className="mt-3 sm:mt-4 text-lg text-white/95">
-              {priceLabel}{' '}
-              <span className="font-bold text-white whitespace-nowrap">{price}</span>
+              {priceLabel} <span className="font-bold text-white whitespace-nowrap">{price}</span>
             </p>
 
             <ul className="mt-8 grid gap-4 text-left">
@@ -142,17 +143,18 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
             </ul>
 
             <div className="mt-10">
-              <button
+              <Button
                 onClick={handleClick}
-                className="inline-flex items-center justify-center rounded-full font-semibold px-8 py-4 bg-sage-600 hover:bg-sage-700 text-white text-lg shadow-lg transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-white/40"
+                size="lg"
+                className="bg-sage-600 hover:bg-sage-700 text-white shadow-lg"
                 aria-label={cta}
               >
                 {cta}
-              </button>
+              </Button>
             </div>
           </div>
         </motion.div>
       </div>
     </section>
-  )
+  );
 }

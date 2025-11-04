@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/Button'
-import { motion } from 'framer-motion'
 import { cmsAPI, type WagtailHomePage } from '@/api/cms'
 import CloudImage from '@/components/ResponsiveImage'
-import { getOptimizedBackgroundUrl as _getOptimizedBackgroundUrl, getOptimizedThumbnail as _getOptimizedThumbnail } from "@/utils/cloudinary";
 
 export function Hero() {
   const { t, i18n } = useTranslation()
@@ -12,10 +10,7 @@ export function Hero() {
   const [active, setActive] = useState(0)
 
   useEffect(() => {
-    cmsAPI.getHomePage().then(setCmsData).catch(() => {
-      // Intentionally no fallback: we want to test CMS-only flow
-      setCmsData(null)
-    })
+    cmsAPI.getHomePage().then(setCmsData).catch(() => setCmsData(null))
   }, [])
 
   const slides = useMemo(() => {
@@ -31,16 +26,13 @@ export function Hero() {
     return () => clearInterval(id)
   }, [slides])
 
-  const scrollToContact = () =>
+  const scrollToContact = () => {
     document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   const lang = (i18n.language === 'en' || i18n.language === 'fr') ? (i18n.language as 'en' | 'fr') : 'fr'
-  const title = cmsData
-    ? ((lang === 'fr' ? cmsData.hero_title_fr : cmsData.hero_title_en) ?? t('hero.title'))
-    : t('hero.title')
-  const subtitle = cmsData
-    ? ((lang === 'fr' ? cmsData.hero_subtitle_fr : cmsData.hero_subtitle_en) ?? t('hero.subtitle'))
-    : t('hero.subtitle')
+  const title = cmsData ? ((lang === 'fr' ? cmsData.hero_title_fr : cmsData.hero_title_en) ?? t('hero.title')) : t('hero.title')
+  const subtitle = cmsData ? ((lang === 'fr' ? cmsData.hero_subtitle_fr : cmsData.hero_subtitle_en) ?? t('hero.subtitle')) : t('hero.subtitle')
 
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-gradient-hero">
@@ -48,14 +40,17 @@ export function Hero() {
         {slides ? (
           slides.map((s, idx) => {
             const alt = s.image?.title || 'Hero'
+            const visible = active === idx
             return (
-              <motion.div
+              <div
                 key={idx}
                 className="absolute inset-0"
-                initial={false}
-                animate={{ opacity: active === idx ? 1 : 0, scale: active === idx ? 1.05 : 1.0 }}
-                transition={{ duration: 1.0, ease: 'easeOut' }}
                 aria-hidden="true"
+                style={{
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? 'scale(1.05)' : 'scale(1)',
+                  transition: 'opacity 1s ease-out, transform 1s ease-out',
+                }}
               >
                 <CloudImage
                   image={s.image}
@@ -65,7 +60,7 @@ export function Hero() {
                   fit="cover"
                   sizes="100vw"
                 />
-              </motion.div>
+              </div>
             )
           })
         ) : (
@@ -75,26 +70,23 @@ export function Hero() {
       </div>
 
       <div className="relative z-10 container mx-auto px-4 lg:px-8 text-center">
-        {/* ✅ Replaced motion with CSS animations - NO layout measurement */}
-        <h1
-          className="text-5xl md:text-6xl lg:text-7xl font-heading font-bold text-charcoal mb-6 text-balance animate-slide-up"
-          style={{ animationDelay: '0s', animationFillMode: 'backwards' }}
-        >
+        {/* H1: No animation to prevent render delay for LCP */}
+        <h1 className="text-5xl md:text-6xl lg:text-7xl font-heading font-bold text-charcoal mb-6">
           {title}
         </h1>
 
-        <p
-          className="text-xl md:text-2xl text-charcoal/80 mb-10 max-w-2xl mx-auto text-balance animate-slide-up"
-          style={{ animationDelay: '0.2s', animationFillMode: 'backwards' }}
-        >
+        {/* Subtitle: Subtle fade-in only on mobile, instant on desktop */}
+        <p className="text-xl md:text-2xl text-charcoal/80 mb-10 max-w-2xl mx-auto text-balance md:opacity-100 animate-fade-in md:animate-none">
           {subtitle}
         </p>
 
-        <div
-          className="animate-slide-up"
-          style={{ animationDelay: '0.4s', animationFillMode: 'backwards' }}
-        >
-          <Button size="lg" onClick={scrollToContact} className="shadow-elevated hover:scale-105">
+        {/* CTA: Subtle fade-in only on mobile, instant on desktop */}
+        <div className="md:opacity-100 animate-fade-in md:animate-none" style={{ animationDelay: '0.2s' }}>
+          <Button
+            size="lg"
+            onClick={scrollToContact}
+            className="shadow-elevated md:hover:scale-105"
+          >
             {t('hero.cta')}
           </Button>
         </div>
