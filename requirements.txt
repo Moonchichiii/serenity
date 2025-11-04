@@ -55,6 +55,7 @@ drf-spectacular
 
 # Production Server
 gunicorn
+uvicorn>=0.30,<1
 whitenoise
 
 # Development Tools
