@@ -14,23 +14,34 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
   const [page, setPage] = useState<WagtailHomePage | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
 
-  // --- Cloudinary config from .env
   const cloudName = import.meta.env['VITE_CLOUDINARY_CLOUD_NAME']
   const videoId = import.meta.env['VITE_CLOUDINARY_VIDEO_ID']
-  const transform = 'f_mp4,q_auto:eco,w_1280,h_720,c_fill'
-  const VIDEO_SRC = `https://res.cloudinary.com/${cloudName}/video/upload/${transform}/${videoId}.mp4`
 
-  // --- accessibility prefs
+  // ✅ Simple: Pick video quality based on screen width at mount
+  const getVideoUrl = () => {
+    const width = typeof window !== 'undefined' ? window.innerWidth : 1920
+    const base = `https://res.cloudinary.com/${cloudName}/video/upload`
+
+    if (width <= 640) {
+      return `${base}/f_mp4,q_auto:low,w_640,h_360,c_fill/${videoId}.mp4`
+    } else if (width <= 1024) {
+      return `${base}/f_mp4,q_auto:eco,w_1024,h_576,c_fill/${videoId}.mp4`
+    } else {
+      return `${base}/f_mp4,q_auto:eco,w_1920,h_1080,c_fill/${videoId}.mp4`
+    }
+  }
+
+  const VIDEO_SRC = getVideoUrl()
+
   const saveData =
     typeof navigator !== 'undefined' &&
-    // @ts-expect-error
+    // @ts-expect-error navigator.connection may be missing from lib.dom types
     navigator.connection?.saveData
   const prefersReducedMotion =
     typeof window !== 'undefined' &&
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   const shouldDisableVideo = !!saveData || !!prefersReducedMotion
 
-  // --- autoplay fix (force start once mounted)
   useEffect(() => {
     if (shouldDisableVideo) return
     const v = videoRef.current
@@ -47,7 +58,6 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
     }
   }, [shouldDisableVideo])
 
-  // --- CMS
   useEffect(() => {
     cmsAPI.getHomePage().then(setPage)
   }, [])
@@ -91,9 +101,10 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
         muted
         playsInline
         loop={!shouldDisableVideo}
-        preload="auto"
+        preload="metadata"
       >
         <source src={VIDEO_SRC} type="video/mp4" />
+        <track kind="captions" srcLang="fr" label="Français" />
       </video>
 
       <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
@@ -133,7 +144,7 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
             <div className="mt-10">
               <button
                 onClick={handleClick}
-                className="inline-flex items-center justify-center rounded-full font-semibold px-8 py-4 bg-sage-500 hover:bg-sage-600 text-white text-lg shadow-lg transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-white/40"
+                className="inline-flex items-center justify-center rounded-full font-semibold px-8 py-4 bg-sage-600 hover:bg-sage-700 text-white text-lg shadow-lg transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-white/40"
                 aria-label={cta}
               >
                 {cta}

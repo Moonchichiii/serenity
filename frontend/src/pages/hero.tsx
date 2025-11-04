@@ -64,17 +64,6 @@ export function Hero() {
                   className="w-full h-full"
                   fit="cover"
                   sizes="100vw"
-                  onError={(e) => {
-                    const el = e.currentTarget as HTMLImageElement
-                    console.error('[IMG ERROR]', {
-                      src: el.currentSrc || el.src,
-                      srcSet: el.srcset,
-                      sizes: el.sizes,
-                      naturalWidth: el.naturalWidth,
-                      naturalHeight: el.naturalHeight,
-                      alt,
-                    })
-                  }}
                 />
               </motion.div>
             )
@@ -86,21 +75,29 @@ export function Hero() {
       </div>
 
       <div className="relative z-10 container mx-auto px-4 lg:px-8 text-center">
-        <motion.h1 className="text-5xl md:text-6xl lg:text-7xl font-heading font-bold text-charcoal mb-6 text-balance"
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: 'easeOut' }}>
+        {/* ✅ Replaced motion with CSS animations - NO layout measurement */}
+        <h1
+          className="text-5xl md:text-6xl lg:text-7xl font-heading font-bold text-charcoal mb-6 text-balance animate-slide-up"
+          style={{ animationDelay: '0s', animationFillMode: 'backwards' }}
+        >
           {title}
-        </motion.h1>
+        </h1>
 
-        <motion.p className="text-xl md:text-2xl text-charcoal/80 mb-10 max-w-2xl mx-auto text-balance"
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }}>
+        <p
+          className="text-xl md:text-2xl text-charcoal/80 mb-10 max-w-2xl mx-auto text-balance animate-slide-up"
+          style={{ animationDelay: '0.2s', animationFillMode: 'backwards' }}
+        >
           {subtitle}
-        </motion.p>
+        </p>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }}>
+        <div
+          className="animate-slide-up"
+          style={{ animationDelay: '0.4s', animationFillMode: 'backwards' }}
+        >
           <Button size="lg" onClick={scrollToContact} className="shadow-elevated hover:scale-105">
             {t('hero.cta')}
           </Button>
-        </motion.div>
+        </div>
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-porcelain to-transparent z-10" />

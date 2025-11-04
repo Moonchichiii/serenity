@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, useAnimation } from 'framer-motion'
 import { Star } from 'lucide-react'
@@ -9,16 +9,18 @@ export function TestimonialBanner() {
   const [testimonials, setTestimonials] = useState<WagtailTestimonial[]>([])
   const [loading, setLoading] = useState(true)
 
-  // --- marquee bits ---
   const prefersReduced =
     typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   const controls = useAnimation()
   const [paused, setPaused] = useState(false)
   const trackRef = useRef<HTMLDivElement | null>(null)
-  const items = useMemo(
-    () => (testimonials.length > 0 ? [...testimonials, ...testimonials] : []),
-    [testimonials]
-  )
+
+  const items = useMemo(() => {
+    if (testimonials.length === 0) return []
+    return testimonials.length < 4
+      ? [...testimonials, ...testimonials, ...testimonials]
+      : [...testimonials, ...testimonials]
+  }, [testimonials])
 
   useEffect(() => {
     cmsAPI
@@ -27,12 +29,10 @@ export function TestimonialBanner() {
       .finally(() => setLoading(false))
   }, [])
 
-  // drive the infinite scroll
   useEffect(() => {
-    if (prefersReduced) return
-    if (!trackRef.current || testimonials.length === 0) return
+    if (prefersReduced || !trackRef.current || testimonials.length === 0) return
 
-    const loopWidth = trackRef.current.scrollWidth / 2
+    const loopWidth = trackRef.current.scrollWidth / (testimonials.length < 4 ? 3 : 2)
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
 
     if (paused) {
@@ -43,7 +43,7 @@ export function TestimonialBanner() {
     controls.start({
       x: [0, -loopWidth],
       transition: {
-        duration: isMobile ? Math.max(12, loopWidth / 80) : Math.max(18, loopWidth / 60),
+        duration: isMobile ? 25 : 30,
         ease: 'linear',
         repeat: Infinity,
       },
@@ -72,10 +72,11 @@ export function TestimonialBanner() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.4 }}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl font-serif font-bold text-charcoal mb-4">
+          <h2 className="text-4xl font-heading font-bold text-charcoal mb-4">
             {t('testimonials.title', 'What Clients Say')}
           </h2>
           <p className="text-lg text-charcoal/70">
@@ -83,7 +84,6 @@ export function TestimonialBanner() {
           </p>
         </motion.div>
 
-        {/* marquee container */}
         <div
           className="relative overflow-hidden"
           onMouseEnter={() => setPaused(true)}
@@ -94,22 +94,17 @@ export function TestimonialBanner() {
           aria-roledescription="marquee"
           aria-live="off"
         >
-          {/* soft edges */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-cream-50 to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-cream-50 to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-cream-50 to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-cream-50 to-transparent z-10" />
 
-          {/* scrolling track */}
           <motion.div
             ref={trackRef}
             className="flex gap-8 w-max px-2"
             animate={prefersReduced ? undefined : controls}
           >
             {items.map((testimonial, index) => (
-              <motion.div
+              <div
                 key={`${testimonial.id}-${index}`}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
                 className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow w-[280px] md:w-[360px] lg:w-[380px] xl:w-[440px] 2xl:w-[480px] flex-shrink-0"
                 role="article"
                 aria-label={`${testimonial.name} – ${testimonial.rating}/5`}
@@ -121,6 +116,7 @@ export function TestimonialBanner() {
                     className="w-12 h-12 rounded-full object-cover"
                     aria-hidden="true"
                     loading="lazy"
+                    decoding="async"
                   />
                   <div className="flex-1">
                     <h3 className="font-semibold text-charcoal">{testimonial.name}</h3>
@@ -146,8 +142,8 @@ export function TestimonialBanner() {
                 <p className="text-charcoal/70 leading-relaxed line-clamp-4">
                   {testimonial.text}
                 </p>
-                <p className="text-sm text-charcoal/50 mt-4">{testimonial.date}</p>
-              </motion.div>
+                <p className="text-sm text-charcoal/75 mt-4">{testimonial.date}</p>
+              </div>
             ))}
           </motion.div>
         </div>
@@ -156,4 +152,4 @@ export function TestimonialBanner() {
   )
 }
 
-export default TestimonialBanner
+export default memo(TestimonialBanner)

@@ -18,7 +18,7 @@ export function getOptimizedUrl(publicIdOrUrl: string, width?: number): string {
   if (!publicIdOrUrl) return "";
   const publicId = extractPublicId(publicIdOrUrl);
   if (!publicId) return publicIdOrUrl;
-  const transforms = ["f_auto", "q_auto", "c_fill", "g_auto"];
+  const transforms = ["f_auto", "q_auto:eco", "c_fill", "g_auto"];
   if (width) transforms.push(`w_${width}`, "dpr_auto");
   else transforms.push("w_auto", "dpr_auto");
   return buildCloudinaryUrl(publicId, transforms);
@@ -36,6 +36,6 @@ export function getOptimizedThumbnail(publicIdOrUrl: string, size = 200): string
   if (!publicIdOrUrl) return "";
   const publicId = extractPublicId(publicIdOrUrl);
   if (!publicId) return "";
-  const transforms = ["f_auto", "q_auto", `w_${size}`, `h_${size}`, "c_fill", "g_auto", "dpr_auto"];
+    const transforms = ["f_auto", "q_auto:eco", `w_${size}`, `h_${size}`, "c_fill", "g_auto", "dpr_auto"];
   return buildCloudinaryUrl(publicId, transforms);
 }
