@@ -8,9 +8,13 @@ from decouple import Csv, config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config("DJANGO_SECRET_KEY", default="unsafe")
-DEBUG = config("DJANGO_DEBUG", cast=bool, default=True)
+DEBUG = config("DJANGO_DEBUG", cast=bool, default=False)
 ENVIRONMENT = config("ENVIRONMENT", default="development")
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
+ALLOWED_HOSTS = config(
+    "ALLOWED_HOSTS",
+    default="laserenity.fr,api.laserenity.fr,.laserenity.fr,.fly.dev,localhost,127.0.0.1",
+    cast=Csv(),
+)
 
 # Installed apps
 INSTALLED_APPS = [
@@ -173,6 +177,10 @@ else:
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
 
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = "DENY"
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_HTTPONLY = True
@@ -192,7 +200,9 @@ LOCALE_PATHS = [BASE_DIR / "locale"]
 WAGTAIL_SITE_NAME = config("WAGTAIL_SITE_NAME", default="Serenity")
 WAGTAIL_I18N_ENABLED = True
 WAGTAIL_FRONTEND_LOGIN_URL = "/portal"
-WAGTAILADMIN_BASE_URL = config("WAGTAILADMIN_BASE_URL", default="http://localhost:8000")
+WAGTAILADMIN_BASE_URL = config(
+    "WAGTAILADMIN_BASE_URL", default="https://api.laserenity.fr"
+)
 
 # Templates
 TEMPLATES = [
@@ -218,4 +228,11 @@ CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.dummy.DummyCache",
     }
+}
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "root": {"handlers": ["console"], "level": "INFO"},
 }
