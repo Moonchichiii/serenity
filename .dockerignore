@@ -1,0 +1,38 @@
+# VCS / editor
+.git
+.gitignore
+.vscode
+.idea
+
+# Python local env & caches
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node/frontend build junk
+frontend/
+frontend/node_modules/
+node_modules/
+dist/
+build/
+*.log
+
+# Django build artifacts & local DB
+backend/staticfiles/
+backend/media/
+backend/db.sqlite3
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Fly / local files not needed in image
+.fly/
+*.env
+.env*
+credentials.json
