@@ -1,9 +1,10 @@
-app = "laserenity-api"            # <-- change to your app name
+# fly.toml (root)
+app = "serenity"
 primary_region = "fra"
 
 [build]
-# Dockerfile lives at repo root; we're launching from /backend
-dockerfile = "../Dockerfile"
+# Dockerfile
+dockerfile = "Dockerfile"
 
 [env]
 PORT = "8000"
@@ -11,12 +12,12 @@ ENVIRONMENT = "production"
 DJANGO_SETTINGS_MODULE = "config.settings"
 
 [http_service]
-internal_port = 8000              # gunicorn binds to 8000 in the container
+internal_port = 8000
 force_https = true
 auto_start_machines = true
 auto_stop_machines = true
 min_machines_running = 1
 
-# Run DB migrations on each deploy (collectstatic should be in your Dockerfile)
+# Run DB migrations + collectstatic
 [deploy]
-release_command = "python manage.py migrate"
+release_command = "python manage.py migrate && python manage.py collectstatic --noinput"
