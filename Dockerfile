@@ -19,4 +19,12 @@ COPY . /app
 ENV PYTHONPATH=/app/backend
 WORKDIR /app/backend
 
-CMD ["bash","-lc","gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8000} --workers 3 --timeout 60"]
+CMD ["bash","-lc","exec gunicorn config.asgi:application \
+ -k uvicorn.workers.UvicornWorker \
+ --bind 0.0.0.0:${PORT:-8000} \
+ --workers ${WEB_CONCURRENCY:-1} \
+ --timeout ${WEB_TIMEOUT:-60} \
+ --max-requests 200 \
+ --max-requests-jitter 50 \
+ --graceful-timeout 30 \
+ --keep-alive 5"]
