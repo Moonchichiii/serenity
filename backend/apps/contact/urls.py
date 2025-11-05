@@ -5,5 +5,5 @@ from . import views
 app_name = "contact"
 
 urlpatterns = [
-    path("api/contact/submit/", views.submit_contact, name="submit"),
+    path("submit/", views.submit_contact, name="submit"),
 ]

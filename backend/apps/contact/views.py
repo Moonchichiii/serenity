@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.core.mail import EmailMessage
 from rest_framework import status
 from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.response import Response
@@ -38,12 +40,11 @@ def submit_contact(request):
     if errors:
         return Response({"errors": errors}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Get client IP
-    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+    # Resolve client IP (prefer Cloudflare header, then XFF)
     ip_address = (
-        x_forwarded_for.split(",")[0]
-        if x_forwarded_for
-        else request.META.get("REMOTE_ADDR")
+        request.META.get("HTTP_CF_CONNECTING_IP")
+        or (request.META.get("HTTP_X_FORWARDED_FOR") or "").split(",")[0].strip()
+        or request.META.get("REMOTE_ADDR")
     )
 
     # Create contact submission
@@ -55,6 +56,19 @@ def submit_contact(request):
         message=message,
         ip_address=ip_address,
     )
+
+    # Email notify your inbox; replies go to the client
+    body = (
+        f"Nom: {name}\nEmail: {email}\nTéléphone: {phone}\n"
+        f"Sujet: {subject}\n\nMessage:\n{message}\n\nIP: {ip_address}\n"
+    )
+    EmailMessage(
+        subject=f"[Serenity] Nouvelle demande: {subject}",
+        body=body,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[settings.EMAIL_HOST_USER],
+        reply_to=[email],
+    ).send(fail_silently=False)
 
     return Response(
         {

@@ -2,6 +2,7 @@ from pathlib import Path
 
 import cloudinary  # noqa: F401
 import dj_database_url
+from corsheaders.defaults import default_headers
 from decouple import Csv, config
 
 # Core
@@ -10,13 +11,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("DJANGO_SECRET_KEY", default="unsafe")
 DEBUG = config("DJANGO_DEBUG", cast=bool, default=False)
 ENVIRONMENT = config("ENVIRONMENT", default="development")
+
 ALLOWED_HOSTS = config(
     "ALLOWED_HOSTS",
-    default="laserenity.fr,api.laserenity.fr,.laserenity.fr,.fly.dev,localhost,127.0.0.1",
     cast=Csv(),
+    default="localhost,127.0.0.1",
 )
 
-# Installed apps
 INSTALLED_APPS = [
     # Django
     "django.contrib.admin",
@@ -58,10 +59,9 @@ INSTALLED_APPS = [
     "apps.contact",
 ]
 
-# Optional rate limiting app
-RATELIMIT_ENABLE = config("RATELIMIT_ENABLE", cast=bool, default=False)
-INSTALLED_APPS += ["django_ratelimit"] if RATELIMIT_ENABLE else []
-
+# Optional: rate limiting
+if config("RATELIMIT_ENABLE", cast=bool, default=False):
+    INSTALLED_APPS += ["django_ratelimit"]
 
 # Auth
 AUTHENTICATION_BACKENDS = [
@@ -69,13 +69,12 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 
-# Middleware
+# ── Middleware
 MIDDLEWARE = [
-    "django.middleware.cache.UpdateCacheMiddleware",  # TOP
-    "apps.core.middleware.CacheHeaderMiddleware",  # custom cache status header (inserted at 1)
+    "django.middleware.cache.UpdateCacheMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -84,10 +83,11 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.middleware.cache.FetchFromCacheMiddleware",  # BOTTOM
+    "apps.core.middleware.CacheHeaderMiddleware",
+    "django.middleware.cache.FetchFromCacheMiddleware",
 ]
 
-# URLs / WSGI / ASGI
+
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
@@ -100,15 +100,13 @@ DATABASES = {
     )
 }
 
-# Configure Cloudinary SDK (for cloudinary package)
+# Cloudinary
 cloudinary.config(
     cloud_name=config("CLOUDINARY_CLOUD_NAME"),
     api_key=config("CLOUDINARY_API_KEY"),
     api_secret=config("CLOUDINARY_API_SECRET"),
     secure=True,
 )
-
-#  Configure Cloudinary Storage (for cloudinary_storage package)
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME"),
     "API_KEY": config("CLOUDINARY_API_KEY"),
@@ -118,54 +116,50 @@ CLOUDINARY_STORAGE = {
 # Static & Media
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
 MEDIA_URL = "/media/"
 
-# Django storage configuration
 STORAGES = {
-    "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-    },
+    "default": {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"},
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
     },
 }
 
 # Email
-EMAIL_BACKEND = config(
-    "EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
-)
-EMAIL_HOST = config("EMAIL_HOST", default="smtp.gmail.com")
-EMAIL_PORT = config("EMAIL_PORT", cast=int, default=587)
-EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool, default=True)
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+
+# The from/sender
 DEFAULT_FROM_EMAIL = config(
     "DEFAULT_FROM_EMAIL",
-    default=(
-        f"Serenity <{EMAIL_HOST_USER}>" if EMAIL_HOST_USER else "webmaster@localhost"
-    ),
+    default="Serenity <fivzserenity@gmail.com>",
 )
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+EMAIL_SUBJECT_PREFIX = "[Serenity] "
+ADMINS = [("Serenity Site", "fivzserenity@gmail.com")]
+
+EMAIL_TIMEOUT = 15
+
 
 # DRF / Schema
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
+SPECTACULAR_SETTINGS = {"TITLE": "Serenity API", "VERSION": "1.0.0"}
 
-SPECTACULAR_SETTINGS = {
-    "TITLE": "Serenity API",
-    "VERSION": "1.0.0",
-}
+# ── CORS / CSRF (env-driven, with pages.dev regex) ──
+CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", cast=Csv(), default="")
+CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", cast=Csv(), default="")
+# Allow preview sites like https://<project>.pages.dev
+CORS_ALLOWED_ORIGIN_REGEXES = [r"^https://[a-z0-9-]+\.pages\.dev$"]
 
-# CORS / CSRF
-CORS_ALLOWED_ORIGINS = config(
-    "CORS_ALLOWED_ORIGINS", cast=Csv(), default="http://localhost:4173"
-)
-CSRF_TRUSTED_ORIGINS = config(
-    "CSRF_TRUSTED_ORIGINS", cast=Csv(), default="http://localhost:4173"
-)
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = config("CORS_ALLOW_CREDENTIALS", cast=bool, default=True)
+CORS_ALLOW_HEADERS = list(default_headers) + ["cache-control"]
 
 # Security
 if ENVIRONMENT == "production":
@@ -183,20 +177,18 @@ else:
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
-
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = False
-SESSION_COOKIE_AGE = 86400
+SESSION_COOKIE_AGE = 86400  # 1 day
 
-# Internationalization
+# i18n
 LANGUAGE_CODE = "en"
 LANGUAGES = [("en", "English"), ("fr", "Français")]
 WAGTAIL_CONTENT_LANGUAGES = LANGUAGES
 TIME_ZONE = "Europe/Paris"
-USE_I18N = True
-USE_TZ = True
+USE_I18N = USE_TZ = True
 LOCALE_PATHS = [BASE_DIR / "locale"]
 
 # Wagtail
@@ -219,33 +211,27 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-            ],
+            ]
         },
     }
 ]
 
-# Defaults / Cache
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Redis Cache Configuration
+# Cache (Redis if provided, otherwise locmem)
 REDIS_URL = config("REDIS_URL", default=None)
-
 if REDIS_URL:
-    # Try to use hiredis for better performance, fall back to default
     redis_options = {
         "CLIENT_CLASS": "django_redis.client.DefaultClient",
         "CONNECTION_POOL_KWARGS": {"max_connections": 5},
         "SOCKET_CONNECT_TIMEOUT": 5,
         "SOCKET_TIMEOUT": 5,
     }
-
-    # Only add hiredis if it's available
     try:
-        import hiredis
+        import hiredis  # noqa
 
         redis_options["PARSER_CLASS"] = "redis.connection._HiredisParser"
-    except (ImportError, AttributeError):
-        # Hiredis not available or incompatible, use default parser
+    except Exception:
         pass
 
     CACHES = {
@@ -258,7 +244,6 @@ if REDIS_URL:
         }
     }
 else:
-    # Local dev fallback
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
@@ -266,11 +251,12 @@ else:
         }
     }
 
-# Cache middleware settings
+# Cache middleware config
 CACHE_MIDDLEWARE_ALIAS = "default"
-CACHE_MIDDLEWARE_SECONDS = 300  # 5 min
+CACHE_MIDDLEWARE_SECONDS = 300
 CACHE_MIDDLEWARE_KEY_PREFIX = ""
 
+# Logging
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
