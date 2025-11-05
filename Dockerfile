@@ -19,9 +19,29 @@ COPY . /app
 ENV PYTHONPATH=/app/backend
 WORKDIR /app/backend
 
-ENV DJANGO_SETTINGS_MODULE=config.settings
-RUN mkdir -p /app/backend/staticfiles
-RUN python manage.py collectstatic --noinput -v 1
+# Build args for collectstatic (dummy values OK, not used at runtime)
+ARG DJANGO_SECRET_KEY=build-secret-key-not-used-in-production
+ARG DATABASE_URL=postgresql://dummy:dummy@dummy:5432/dummy
+ARG CLOUDINARY_CLOUD_NAME=dummy
+ARG CLOUDINARY_API_KEY=dummy
+ARG CLOUDINARY_API_SECRET=dummy
+
+ENV DJANGO_SETTINGS_MODULE=config.settings \
+    DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY} \
+    DATABASE_URL=${DATABASE_URL} \
+    CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME} \
+    CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY} \
+    CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+
+RUN mkdir -p /app/backend/staticfiles && \
+    python manage.py collectstatic --noinput -v 1
+
+# Clear build-time env vars (will use Fly secrets at runtime)
+ENV DJANGO_SECRET_KEY="" \
+    DATABASE_URL="" \
+    CLOUDINARY_CLOUD_NAME="" \
+    CLOUDINARY_API_KEY="" \
+    CLOUDINARY_API_SECRET=""
 
 CMD ["bash","-lc","exec gunicorn config.asgi:application \
  -k uvicorn.workers.UvicornWorker \
