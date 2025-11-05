@@ -1,16 +1,8 @@
 from django.forms import Media
 from django.template.loader import render_to_string
-from django.templatetags.static import static
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from wagtail import hooks
-
-
-@hooks.register("insert_global_admin_css")
-def custom_admin_css():
-    return mark_safe(
-        f'<link rel="stylesheet" href="{static("admin/serenity_admin.css")}">'
-    )
 
 
 @hooks.register("construct_homepage_panels")
