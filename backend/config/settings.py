@@ -101,39 +101,32 @@ DATABASES = {
 }
 
 # STATIC & MEDIA FILES
-
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 
-# Cloudinary Configuration
+# Cloudinary SDK
 cloudinary.config(
     cloud_name=config("CLOUDINARY_CLOUD_NAME"),
     api_key=config("CLOUDINARY_API_KEY"),
     api_secret=config("CLOUDINARY_API_SECRET"),
     secure=True,
-    timeout=60,
 )
 
+# Cloudinary storage for Django
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME"),
     "API_KEY": config("CLOUDINARY_API_KEY"),
     "API_SECRET": config("CLOUDINARY_API_SECRET"),
     "SECURE": True,
-    "TIMEOUT": 60,
-    "CHUNK_SIZE": 5242880,
-    "MAX_FILE_SIZE": 10485760,
 }
 
 STORAGES = {
-    "default": {
+    "default": {  # media
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-        "OPTIONS": {
-            "timeout": 60,
-        },
     },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    "staticfiles": {  # static
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 
