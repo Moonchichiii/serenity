@@ -19,6 +19,10 @@ COPY . /app
 ENV PYTHONPATH=/app/backend
 WORKDIR /app/backend
 
+ENV DJANGO_SETTINGS_MODULE=config.settings
+RUN mkdir -p /app/backend/staticfiles
+RUN python manage.py collectstatic --noinput -v 1
+
 CMD ["bash","-lc","exec gunicorn config.asgi:application \
  -k uvicorn.workers.UvicornWorker \
  --bind 0.0.0.0:${PORT:-8000} \
