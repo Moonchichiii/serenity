@@ -231,19 +231,30 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 REDIS_URL = config("REDIS_URL", default=None)
 
 if REDIS_URL:
+    # Try to use hiredis for better performance, fall back to default
+    redis_options = {
+        "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        "CONNECTION_POOL_KWARGS": {"max_connections": 5},
+        "SOCKET_CONNECT_TIMEOUT": 5,
+        "SOCKET_TIMEOUT": 5,
+    }
+
+    # Only add hiredis if it's available
+    try:
+        import hiredis
+
+        redis_options["PARSER_CLASS"] = "redis.connection._HiredisParser"
+    except (ImportError, AttributeError):
+        # Hiredis not available or incompatible, use default parser
+        pass
+
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
             "LOCATION": REDIS_URL,
-            "OPTIONS": {
-                "CLIENT_CLASS": "django_redis.client.DefaultClient",
-                "PARSER_CLASS": "redis.connection.HiredisParser",
-                "CONNECTION_POOL_KWARGS": {"max_connections": 5},
-                "SOCKET_CONNECT_TIMEOUT": 5,
-                "SOCKET_TIMEOUT": 5,
-            },
+            "OPTIONS": redis_options,
             "KEY_PREFIX": "serenity",
-            "TIMEOUT": 300,  # 5 min default
+            "TIMEOUT": 300,
         }
     }
 else:
