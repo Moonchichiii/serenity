@@ -8,6 +8,8 @@ import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 export default defineConfig({
   envDir: '..',
 
+  publicDir: 'public',
+
   plugins: [
     react(),
     tailwindcss(),
@@ -32,6 +34,7 @@ export default defineConfig({
       jpg: { quality: 80 },
       webp: { quality: 80 },
       avif: { quality: 75 },
+      exclude: /favicon|apple-touch-icon/,
     }),
   ],
 
@@ -61,6 +64,9 @@ export default defineConfig({
     sourcemap: false,
     chunkSizeWarningLimit: 500,
 
+    // Ensure assets are copied
+    copyPublicDir: true,
+
     rollupOptions: {
       output: {
         manualChunks: {
@@ -72,7 +78,18 @@ export default defineConfig({
         },
 
         chunkFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]',
+        assetFileNames: (assetInfo) => {
+          // Keep specific assets in root
+          const rootAssets = ['favicon.ico', 'robots.txt', 'site.webmanifest',
+                             'apple-touch-icon.png', 'lotus-light.svg', 'lotus-dark.svg',
+                             'og-image-1200x630.jpg'];
+
+          if (assetInfo.name && rootAssets.includes(assetInfo.name)) {
+            return '[name][extname]';
+          }
+
+          return 'assets/[name]-[hash][extname]';
+        },
         entryFileNames: 'assets/[name]-[hash].js',
       },
     },

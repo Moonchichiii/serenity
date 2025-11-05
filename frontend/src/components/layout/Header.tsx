@@ -30,14 +30,19 @@ export function Header() {
   const handleNav = (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
     e.preventDefault()
-    const id = href.replace(/^#/, '')
-    const el = document.getElementById(id)
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      // Update hash without reflow
-      history.pushState(null, '', href)
-    }
+
+    // Close mobile menu first
     setIsOpen(false)
+
+    // Small delay to allow menu to close
+    setTimeout(() => {
+      const id = href.replace(/^#/, '')
+      const el = document.getElementById(id)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        history.pushState(null, '', href)
+      }
+    }, 100)
   }
 
   useEffect(() => {

@@ -132,8 +132,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
-
-# The from/sender
+EMAIL_TIMEOUT = 15
 DEFAULT_FROM_EMAIL = config(
     "DEFAULT_FROM_EMAIL",
     default="Serenity <fivzserenity@gmail.com>",
@@ -141,8 +140,6 @@ DEFAULT_FROM_EMAIL = config(
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 EMAIL_SUBJECT_PREFIX = "[Serenity] "
 ADMINS = [("Serenity Site", "fivzserenity@gmail.com")]
-
-EMAIL_TIMEOUT = 15
 
 
 # DRF / Schema
@@ -152,15 +149,28 @@ REST_FRAMEWORK = {
 }
 SPECTACULAR_SETTINGS = {"TITLE": "Serenity API", "VERSION": "1.0.0"}
 
-# ── CORS / CSRF (env-driven, with pages.dev regex) ──
+
+# ── CORS / CSRF Settings
 CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", cast=Csv(), default="")
 CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", cast=Csv(), default="")
-# Allow preview sites like https://<project>.pages.dev
-CORS_ALLOWED_ORIGIN_REGEXES = [r"^https://[a-z0-9-]+\.pages\.dev$"]
+
+# Allow preview sites
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://[a-z0-9-]+\.pages\.dev$",
+    r"^https://.*\.laserenity\.fr$",
+]
 
 CORS_ALLOW_CREDENTIALS = config("CORS_ALLOW_CREDENTIALS", cast=bool, default=True)
-CORS_ALLOW_HEADERS = list(default_headers) + ["cache-control"]
 
+# IMPORTANT:
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "cache-control",
+    "x-cache-status",
+    "x-requested-with",
+]
+
+# Add these to ensure preflight works
+CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours
 # Security
 if ENVIRONMENT == "production":
     SESSION_COOKIE_SECURE = True
