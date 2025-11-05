@@ -30,3 +30,13 @@ class Service(models.Model):
 
     def __str__(self):
         return self.title_en
+
+
+from django.core.cache import cache
+from django.db.models.signals import post_delete, post_save
+from django.dispatch import receiver
+
+
+@receiver([post_save, post_delete], sender=Service)
+def clear_services_cache(sender, **kwargs):
+    cache.delete("cms:services")

@@ -20,6 +20,16 @@ export const apiClient = axios.create({
   xsrfHeaderName: 'X-CSRFToken',
 })
 
+// Add cache headers
+apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  const method = (config.method ?? 'get').toLowerCase()
+  if (method === 'get') {
+    ;(config.headers as Record<string, string>)['Cache-Control'] =
+      'public, max-age=300, stale-while-revalidate=60'
+  }
+  return config
+})
+
 // Single interceptor: attach CSRF for mutating verbs (belt & suspenders)
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {

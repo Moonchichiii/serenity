@@ -1,4 +1,7 @@
+from django.core.cache import cache
 from django.db import models
+from django.db.models.signals import post_delete, post_save
+from django.dispatch import receiver
 from modelcluster.fields import ParentalKey
 from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
 from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
@@ -492,3 +495,17 @@ class SerenitySettings(BaseSiteSetting):
 
     class Meta:
         verbose_name = "Site Settings"
+
+
+# Cache invalidation signals
+@receiver([post_save, post_delete], sender=HomePage)
+def clear_homepage_cache(sender, **kwargs):
+    cache.delete("cms:homepage")
+
+
+@receiver([post_save, post_delete])
+def clear_services_cache(sender, **kwargs):
+    # Avoid import-time errors if a Service model isn't defined in this module.
+    # Match by model name to clear services cache when a Service model changes.
+    if getattr(sender, "__name__", "") == "Service":
+        cache.delete("cms:services")

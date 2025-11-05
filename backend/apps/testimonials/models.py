@@ -1,5 +1,8 @@
+from django.core.cache import cache
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from wagtail.admin.panels import FieldPanel
 from wagtail.snippets.models import register_snippet
 
@@ -76,3 +79,10 @@ class Testimonial(models.Model):
     @property
     def avatar_url(self):
         return f"https://api.dicebear.com/7.x/initials/svg?seed={self.name}"
+
+
+@receiver(post_save, sender=Testimonial)
+def clear_testimonials_cache(sender, instance, **kwargs):
+    # Clear all rating caches
+    for rating in range(0, 6):
+        cache.delete(f"testimonials:list:{rating}")

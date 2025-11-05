@@ -5,6 +5,7 @@ Booking API endpoints with Google Calendar integration
 import secrets
 from zoneinfo import ZoneInfo
 
+from django.core.cache import cache
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -66,6 +67,11 @@ def bookings(request):
             preferred_language=data["preferred_language"],
             confirmation_code=confirmation_code,
         )
+
+        # Invalidate calendar caches
+        start_date = start_dt.date()
+        cache.delete(f"calendar:busy:{start_date.year}:{start_date.month}")
+        cache.delete(f"calendar:slots:{start_date.isoformat()}")
 
         # Create Google Calendar event
         event_title = f"{service.title_en} - {data['client_name']}"
@@ -143,6 +149,11 @@ def cancel_booking(request, confirmation_code):
     # Mark as cancelled (don't actually delete for record keeping)
     booking.status = "cancelled"
     booking.save()
+
+    # Invalidate calendar caches
+    start_date = booking.start_datetime.date()
+    cache.delete(f"calendar:busy:{start_date.year}:{start_date.month}")
+    cache.delete(f"calendar:slots:{start_date.isoformat()}")
 
     return Response(
         {"detail": "Booking cancelled successfully"}, status=status.HTTP_200_OK

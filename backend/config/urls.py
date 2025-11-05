@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from django.views.decorators.cache import cache_page
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from apps.core import api as core_api
@@ -12,6 +13,8 @@ urlpatterns = [
     path("api/auth/me/", core_api.me),
     path("api/auth/login/", core_api.login_view),
     path("api/auth/logout/", core_api.logout_view),
+    # Cache test (temporary - remove in production)
+    path("api/test-cache/", cache_page(60)(core_api.test_cache)),
     # Wagtail admin
     path("cms-admin/", include("wagtail.admin.urls")),
     path("cms-admin/settings/", include("wagtail.contrib.settings.urls")),

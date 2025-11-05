@@ -1,4 +1,6 @@
+from django.core.cache import cache
 from django.db.models import Avg, Count
+from django.views.decorators.cache import cache_page
 from rest_framework import status
 from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.response import Response
@@ -12,6 +14,7 @@ class TestimonialSubmissionThrottle(AnonRateThrottle):
 
 
 @api_view(["GET"])
+@cache_page(60 * 15)  # 15 min
 def get_testimonials(request):
     """
     GET /api/testimonials/?min_rating=4
@@ -23,22 +26,27 @@ def get_testimonials(request):
     except ValueError:
         min_rating = 0
 
-    testimonials = Testimonial.objects.filter(
-        status="approved",
-        rating__gte=min_rating,
-    ).order_by("-created_at")[:20]
+    cache_key = f"testimonials:list:{min_rating}"
+    data = cache.get(cache_key)
 
-    data = [
-        {
-            "id": str(t.id),
-            "name": t.name,
-            "rating": t.rating,
-            "text": t.text,
-            "date": t.date_display,
-            "avatar": t.avatar_url,
-        }
-        for t in testimonials
-    ]
+    if not data:
+        testimonials = Testimonial.objects.filter(
+            status="approved",
+            rating__gte=min_rating,
+        ).order_by("-created_at")[:20]
+
+        data = [
+            {
+                "id": str(t.id),
+                "name": t.name,
+                "rating": t.rating,
+                "text": t.text,
+                "date": t.date_display,
+                "avatar": t.avatar_url,
+            }
+            for t in testimonials
+        ]
+        cache.set(cache_key, data, 60 * 15)
 
     return Response(data)
 

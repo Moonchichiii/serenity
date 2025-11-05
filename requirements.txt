@@ -35,7 +35,8 @@ django-imagekit
 
 # Background Tasks
 celery
-redis
+django-redis
+hiredis
 
 # Email
 django-anymail

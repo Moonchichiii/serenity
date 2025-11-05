@@ -71,6 +71,8 @@ AUTHENTICATION_BACKENDS = [
 
 # Middleware
 MIDDLEWARE = [
+    "django.middleware.cache.UpdateCacheMiddleware",  # TOP
+    "apps.core.middleware.CacheHeaderMiddleware",  # custom cache status header (inserted at 1)
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -82,6 +84,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.cache.FetchFromCacheMiddleware",  # BOTTOM
 ]
 
 # URLs / WSGI / ASGI
@@ -224,11 +227,38 @@ TEMPLATES = [
 # Defaults / Cache
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+# Redis Cache Configuration
+REDIS_URL = config("REDIS_URL", default=None)
+
+if REDIS_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "PARSER_CLASS": "redis.connection.HiredisParser",
+                "CONNECTION_POOL_KWARGS": {"max_connections": 5},
+                "SOCKET_CONNECT_TIMEOUT": 5,
+                "SOCKET_TIMEOUT": 5,
+            },
+            "KEY_PREFIX": "serenity",
+            "TIMEOUT": 300,  # 5 min default
+        }
     }
-}
+else:
+    # Local dev fallback
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "unique-serenity",
+        }
+    }
+
+# Cache middleware settings
+CACHE_MIDDLEWARE_ALIAS = "default"
+CACHE_MIDDLEWARE_SECONDS = 300  # 5 min
+CACHE_MIDDLEWARE_KEY_PREFIX = ""
 
 LOGGING = {
     "version": 1,

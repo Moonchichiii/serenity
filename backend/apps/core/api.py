@@ -3,6 +3,7 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
+from django.core.cache import cache
 from django.http import HttpRequest, JsonResponse
 from django.utils.translation import gettext as _
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
@@ -93,3 +94,19 @@ def logout_view(request: HttpRequest):
         logger.info(f"Logout: {request.user.get_username()}")
     logout(request)
     return JsonResponse({"detail": "ok"})
+
+
+def test_cache(request: HttpRequest):
+    # Test write
+    cache.set("test_key", "Hello Redis!", 60)
+
+    # Test read
+    value = cache.get("test_key")
+
+    return JsonResponse(
+        {
+            "cache_backend": str(cache.__class__),
+            "test_value": value,
+            "status": "✅ Redis working!" if value else "❌ Redis not working",
+        }
+    )
