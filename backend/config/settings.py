@@ -100,26 +100,38 @@ DATABASES = {
     )
 }
 
-# Cloudinary
+# STATIC & MEDIA FILES
+
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+MEDIA_URL = "/media/"
+
+# Cloudinary Configuration
 cloudinary.config(
     cloud_name=config("CLOUDINARY_CLOUD_NAME"),
     api_key=config("CLOUDINARY_API_KEY"),
     api_secret=config("CLOUDINARY_API_SECRET"),
     secure=True,
+    timeout=60,
 )
+
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME"),
     "API_KEY": config("CLOUDINARY_API_KEY"),
     "API_SECRET": config("CLOUDINARY_API_SECRET"),
+    "SECURE": True,
+    "TIMEOUT": 60,
+    "CHUNK_SIZE": 5242880,
+    "MAX_FILE_SIZE": 10485760,
 }
 
-# Static & Media
-STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
-MEDIA_URL = "/media/"
-
 STORAGES = {
-    "default": {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"},
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        "OPTIONS": {
+            "timeout": 60,
+        },
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
     },
@@ -201,13 +213,17 @@ TIME_ZONE = "Europe/Paris"
 USE_I18N = USE_TZ = True
 LOCALE_PATHS = [BASE_DIR / "locale"]
 
-# Wagtail
+# WAGTAIL CMS
+
+
 WAGTAIL_SITE_NAME = config("WAGTAIL_SITE_NAME", default="Serenity")
 WAGTAIL_I18N_ENABLED = True
 WAGTAIL_FRONTEND_LOGIN_URL = "/portal"
-WAGTAILADMIN_BASE_URL = config(
-    "WAGTAILADMIN_BASE_URL", default="https://api.laserenity.fr"
-)
+WAGTAILADMIN_BASE_URL = config("WAGTAILADMIN_BASE_URL", default="")
+
+# Wagtail Image Upload Settings
+WAGTAILIMAGES_MAX_UPLOAD_SIZE = 10 * 1024 * 1024
+WAGTAILIMAGES_MAX_IMAGE_PIXELS = 128000000
 
 # Templates
 TEMPLATES = [

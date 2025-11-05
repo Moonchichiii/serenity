@@ -92,6 +92,7 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
             id="name"
             type="text"
             placeholder="Jean Dupont"
+            autoComplete="name"
             aria-invalid={!!errors.name}
             className={inputClass}
             {...register('name')}
@@ -111,6 +112,7 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
           <input
             id="email"
             type="email"
+            autoComplete="email"
             placeholder="jean.dupont@example.com"
             aria-invalid={!!errors.email}
             className={inputClass}
@@ -134,6 +136,7 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
           <input
             id="phone"
             type="tel"
+            autoComplete="tel"
             placeholder="+33 6 00 00 00 00"
             aria-invalid={!!errors.phone}
             className={inputClass}
