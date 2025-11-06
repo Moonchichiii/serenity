@@ -6,6 +6,8 @@ from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
 
+from apps.cms.serializers import TestimonialSerializer
+
 from .models import Testimonial
 
 
@@ -35,17 +37,9 @@ def get_testimonials(request):
             rating__gte=min_rating,
         ).order_by("-created_at")[:20]
 
-        data = [
-            {
-                "id": str(t.id),
-                "name": t.name,
-                "rating": t.rating,
-                "text": t.text,
-                "date": t.date_display,
-                "avatar": t.avatar_url,
-            }
-            for t in testimonials
-        ]
+        # Use serializer for consistent output
+        serializer = TestimonialSerializer(testimonials, many=True)
+        data = serializer.data
         cache.set(cache_key, data, 60 * 15)
 
     return Response(data)

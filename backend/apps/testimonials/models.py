@@ -78,7 +78,12 @@ class Testimonial(models.Model):
 
     @property
     def avatar_url(self):
-        return f"https://api.dicebear.com/7.x/initials/svg?seed={self.name}"
+        """Generate avatar using UI Avatars (consistent with serializer)"""
+        import urllib.parse
+
+        name = self.name or "Anonymous"
+        encoded_name = urllib.parse.quote(name)
+        return f"https://ui-avatars.com/api/?name={encoded_name}&background=random&size=128"
 
 
 @receiver(post_save, sender=Testimonial)
