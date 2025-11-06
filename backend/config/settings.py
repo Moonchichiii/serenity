@@ -180,27 +180,34 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 # Add these to ensure preflight works
 CORS_PREFLIGHT_MAX_AGE = 86400
 
-# Strict, header-based CSP
-CSP_DEFAULT_SRC = ("'self'",)
-CSP_SCRIPT_SRC = ("'self'",)
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
-CSP_IMG_SRC = (
-    "'self'",
-    "https://res.cloudinary.com",
-    "https://ui-avatars.com",
-    "data:",
-    "blob:",
-)
-
-CSP_IMG_SRC += ("https://api.dicebear.com",)
-CSP_MEDIA_SRC = ("'self'", "https://res.cloudinary.com", "blob:")
-CSP_FONT_SRC = ("'self'", "data:")
-CSP_CONNECT_SRC = ("'self'", "https://serenity.fly.dev", "https://res.cloudinary.com")
-CSP_FRAME_SRC = ("'none'",)
-CSP_OBJECT_SRC = ("'none'",)
-CSP_BASE_URI = ("'self'",)
-CSP_FORM_ACTION = ("'self'",)
-CSP_UPGRADE_INSECURE_REQUESTS = True
+# django-csp v4 config
+CONTENT_SECURITY_POLICY = {
+    "DIRECTIVES": {
+        "default-src": ("'self'",),
+        "script-src": ("'self'",),
+        "style-src": ("'self'", "'unsafe-inline'"),
+        "img-src": (
+            "'self'",
+            "https://res.cloudinary.com",
+            "https://ui-avatars.com",
+            "https://api.dicebear.com",
+            "data:",
+            "blob:",
+        ),
+        "media-src": ("'self'", "https://res.cloudinary.com", "blob:"),
+        "font-src": ("'self'", "data:"),
+        "connect-src": (
+            "'self'",
+            "https://serenity.fly.dev",
+            "https://res.cloudinary.com",
+        ),
+        "frame-src": ("'none'",),
+        "object-src": ("'none'",),
+        "base-uri": ("'self'",),
+        "form-action": ("'self'",),
+        "upgrade-insecure-requests": True,
+    }
+}
 
 # Security
 if ENVIRONMENT == "production":
