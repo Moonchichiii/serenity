@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_filters",
     "corsheaders",
+    "csp",
     "drf_spectacular",
     # Wagtail
     "wagtail.contrib.forms",
@@ -59,6 +60,7 @@ INSTALLED_APPS = [
     "apps.contact",
 ]
 
+
 # Optional: rate limiting
 if config("RATELIMIT_ENABLE", cast=bool, default=False):
     INSTALLED_APPS += ["django_ratelimit"]
@@ -74,6 +76,7 @@ MIDDLEWARE = [
     "django.middleware.cache.UpdateCacheMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "csp.middleware.CSPMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
@@ -175,7 +178,30 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 ]
 
 # Add these to ensure preflight works
-CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours
+CORS_PREFLIGHT_MAX_AGE = 86400
+
+# Strict, header-based CSP
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
+CSP_IMG_SRC = (
+    "'self'",
+    "https://res.cloudinary.com",
+    "https://ui-avatars.com",
+    "data:",
+    "blob:",
+)
+
+CSP_IMG_SRC += ("https://api.dicebear.com",)
+CSP_MEDIA_SRC = ("'self'", "https://res.cloudinary.com", "blob:")
+CSP_FONT_SRC = ("'self'", "data:")
+CSP_CONNECT_SRC = ("'self'", "https://serenity.fly.dev", "https://res.cloudinary.com")
+CSP_FRAME_SRC = ("'none'",)
+CSP_OBJECT_SRC = ("'none'",)
+CSP_BASE_URI = ("'self'",)
+CSP_FORM_ACTION = ("'self'",)
+CSP_UPGRADE_INSECURE_REQUESTS = True
+
 # Security
 if ENVIRONMENT == "production":
     SESSION_COOKIE_SECURE = True
@@ -185,6 +211,9 @@ if ENVIRONMENT == "production":
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    # Trusted Types + COOP/COEP for stricter security
+    SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
+    SECURE_CROSS_ORIGIN_EMBEDDER_POLICY = "require-corp"
 else:
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
@@ -207,8 +236,6 @@ USE_I18N = USE_TZ = True
 LOCALE_PATHS = [BASE_DIR / "locale"]
 
 # WAGTAIL CMS
-
-
 WAGTAIL_SITE_NAME = config("WAGTAIL_SITE_NAME", default="Serenity")
 WAGTAIL_I18N_ENABLED = True
 WAGTAIL_FRONTEND_LOGIN_URL = "/portal"
@@ -237,7 +264,7 @@ TEMPLATES = [
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Cache (Redis if provided, otherwise locmem)
+# Cache Redis
 REDIS_URL = config("REDIS_URL", default=None)
 if REDIS_URL:
     redis_options = {
