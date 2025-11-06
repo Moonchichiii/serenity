@@ -5,21 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
-    <!-- Content Security Policy -->
-    <meta http-equiv="Content-Security-Policy" content="
-      default-src 'self';
-      script-src 'self' 'unsafe-inline' https://res.cloudinary.com;
-      style-src 'self' 'unsafe-inline';
-      img-src 'self' https://res.cloudinary.com https://ui-avatars.com data: blob:;
-      media-src 'self' https://res.cloudinary.com blob:;
-      font-src 'self' data:;
-      connect-src 'self' https://serenity.fly.dev https://res.cloudinary.com;
-      frame-src 'none';
-      object-src 'none';
-      base-uri 'self';
-      form-action 'self';
-      upgrade-insecure-requests;
-    ">
+    <!-- index.html (meta CSP) -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://res.cloudinary.com;
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' https://res.cloudinary.com https://ui-avatars.com https://api.dicebear.com data: blob:;
+  media-src 'self' https://res.cloudinary.com blob:;
+  font-src 'self' data:;
+  connect-src 'self' https://serenity.fly.dev https://res.cloudinary.com;
+  frame-src 'none';
+  object-src 'none';
+  base-uri 'self';
+  form-action 'self';
+  upgrade-insecure-requests;
+">
+
 
     <!-- Preconnect -->
     <link rel="preconnect" href="https://res.cloudinary.com">
