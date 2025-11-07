@@ -219,8 +219,8 @@ if ENVIRONMENT == "production":
     SECURE_HSTS_PRELOAD = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     # Trusted Types + COOP/COEP for stricter security
-    SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
-    SECURE_CROSS_ORIGIN_EMBEDDER_POLICY = "require-corp"
+    # SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
+    # SECURE_CROSS_ORIGIN_EMBEDDER_POLICY = "require-corp"
 else:
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
