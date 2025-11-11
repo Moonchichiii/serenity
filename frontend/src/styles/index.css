@@ -1,26 +1,36 @@
 @import 'tailwindcss';
 /*@import "react-calendar/dist/Calendar.css";*/
 /* Theme */
-@font-face {
-  font-family: 'Playfair Display';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/playfair-display-v40-latin-700.woff2') format('woff2');
-}
 
-/* Inter for body/UI: swap */
+/* DM Serif Display for headings */
 @font-face {
-  font-family: 'Inter';
+  font-family: 'DM Serif Display';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/inter-v20-latin-regular.woff2') format('woff2');
+  src: url('/fonts/DMSerifDisplay-Regular.woff2') format('woff2');
+}
+
+/* Plus Jakarta Sans for body/UI */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/PlusJakartaSans-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/PlusJakartaSans-Medium.woff2') format('woff2');
 }
 
 @theme{
-  --font-heading:'Playfair Display', Georgia, serif;
-  --font-sans:'Inter', system-ui, sans-serif;
+  --font-heading:'DM Serif Display', Georgia, serif;
+  --font-sans:'Plus Jakarta Sans', system-ui, sans-serif;
 
   --color-sage-50:#f6f8f7;
   --color-sage-100:#e8ede9;

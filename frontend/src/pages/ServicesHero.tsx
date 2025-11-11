@@ -66,6 +66,7 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
   useEffect(() => {
     cmsAPI.getHomePage().then(setPage).catch(() => setPage(null));
   }, []);
+
   if (!page) return null;
 
   const lang = i18n.language.startsWith("fr") ? "fr" : "en";
@@ -92,7 +93,7 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
   return (
     <section
       id="services-hero"
-      className="relative flex items-center justify-center overflow-hidden min-h-[70vh]"
+      className="relative flex items-center overflow-hidden min-h-[85vh] lg:min-h-[90vh] py-16 sm:py-20"
       aria-labelledby="services-hero-title"
     >
       <video
@@ -109,44 +110,47 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
         <track kind="captions" srcLang="fr" label="Français" />
       </video>
 
-      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
+      <div
+        className="absolute inset-0 bg-gradient-to-br from-charcoal/50 via-charcoal/40 to-charcoal/50"
+        aria-hidden="true"
+      />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 h-full flex items-center">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.55 }}
-          className="mx-auto w-full max-w-3xl"
+          transition={{ duration: 0.6 }}
+          className="w-full max-w-2xl mx-auto lg:mx-0 lg:ml-0"
         >
-          <div className="px-6 py-8 md:px-10 md:py-12 rounded-2xl bg-black/60 backdrop-blur-sm ring-1 ring-white/15 text-center shadow-xl">
+          <div className="px-6 py-6 sm:px-10 sm:py-8 md:px-12 md:py-10 lg:px-14 lg:py-12 rounded-3xl bg-white/95 backdrop-blur-lg border-2 border-white/40 shadow-elevated text-center lg:text-left">
             <h2
               id="services-hero-title"
-              className="font-heading font-extrabold text-white leading-tight tracking-tight text-4xl sm:text-5xl md:text-6xl"
+              className="font-heading font-normal text-charcoal leading-tight tracking-tight text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
             >
               {title}
             </h2>
 
-            <p className="mt-3 sm:mt-4 text-lg text-white/95">
-              {priceLabel} <span className="font-bold text-white whitespace-nowrap">{price}</span>
+            <p className="mt-3 sm:mt-4 text-base sm:text-lg text-charcoal/80">
+              {priceLabel} <span className="font-bold text-sage-700 whitespace-nowrap">{price}</span>
             </p>
 
-            <ul className="mt-8 grid gap-4 text-left">
+            <ul className="mt-5 sm:mt-6 grid gap-2.5 sm:gap-3">
               {benefits.map((b, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="mt-0.5 inline-flex w-6 h-6 shrink-0 rounded-full bg-white/20 items-center justify-center">
-                    <Check className="w-4 h-4 text-white" />
+                  <span className="mt-0.5 inline-flex w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full bg-sage-100 border-2 border-sage-400 items-center justify-center">
+                    <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sage-700 stroke-[2.5]" />
                   </span>
-                  <span className="text-base text-white/95">{b}</span>
+                  <span className="text-sm sm:text-base text-charcoal/90 leading-relaxed pt-0 font-medium">{b}</span>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-10">
+            <div className="mt-6 sm:mt-8">
               <Button
                 onClick={handleClick}
                 size="lg"
-                className="bg-sage-600 hover:bg-sage-700 text-white shadow-lg"
+                className="w-full sm:w-auto bg-sage-600 hover:bg-sage-700 text-white shadow-lg"
                 aria-label={cta}
               >
                 {cta}

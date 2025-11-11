@@ -5,14 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
-
     <!-- Preconnect -->
     <link rel="preconnect" href="https://serenity.fly.dev">
     <link rel="dns-prefetch" href="https://serenity.fly.dev">
     <link rel="preconnect" href="https://res.cloudinary.com">
     <link rel="dns-prefetch" href="https://res.cloudinary.com">
 
-    <link rel="preload" as="font" href="/fonts/playfair-display-v40-latin-700.woff2" type="font/woff2" crossorigin>
+    <!-- Preload critical fonts (new) -->
+    <link rel="preload" as="font" href="/fonts/DMSerifDisplay-Regular.woff2" type="font/woff2" crossorigin>
+<link rel="preload" as="font" href="/fonts/PlusJakartaSans-Regular.woff2" type="font/woff2" crossorigin>
+<link rel="preload" as="font" href="/fonts/PlusJakartaSans-Medium.woff2" type="font/woff2" crossorigin>
+
 
     <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -47,7 +50,6 @@
     <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="Serenity">
     <meta property="og:locale" content="fr_FR">
-
 
     <script type="application/ld+json">
     {
