@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/Button'
 import { cmsAPI, type WagtailHomePage } from '@/api/cms'
 import CloudImage from '@/components/ResponsiveImage'
+import CookieConsent from '@/components/CookieConsent'
 
 export function Hero() {
   const { t, i18n } = useTranslation()
@@ -93,6 +94,7 @@ export function Hero() {
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-porcelain to-transparent z-10" />
+       <CookieConsent />
     </section>
   )
 }

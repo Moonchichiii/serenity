@@ -149,6 +149,24 @@ const resources = {
         title: 'What Our Clients Say',
         subtitle: 'Discover testimonials from our satisfied clients',
       },
+      cookie: {
+        intro:
+          'We use essential cookies to run this site. With your consent, we can also enable:',
+        mediaTitle: 'Third-party media (Cloudinary)',
+        mediaDesc:
+          'Enables Cloudinary images/videos (may set third-party cookies).',
+        analyticsTitle: 'Analytics',
+        analyticsDesc:
+          'Loads the analytics tool if configured (none by default).',
+        learnMore: 'Learn more',
+        customize: 'Customize',
+        hideOptions: 'Hide options',
+        essentials: 'Essential',
+        alwaysOn: 'Always on',
+        decline: 'Decline non-essential',
+        acceptAll: 'Accept all',
+        save: 'Save choices',
+      },
     },
   },
   fr: {
@@ -296,6 +314,24 @@ const resources = {
       testimonials: {
         title: 'Ce Que Disent Nos Clients',
         subtitle: 'Découvrez les témoignages de nos clients satisfaits',
+      },
+      cookie: {
+        intro:
+          'Nous utilisons des cookies essentiels pour faire fonctionner ce site. Avec votre accord, nous pouvons également activer :',
+        mediaTitle: 'Médias tiers (Cloudinary)',
+        mediaDesc:
+          'Active les images/vidéos Cloudinary (peut définir des cookies tiers).',
+        analyticsTitle: 'Mesure d\'audience',
+        analyticsDesc:
+          'Chargera l\'outil d\'analyse si présent (aucun par défaut).',
+        learnMore: 'En savoir plus',
+        customize: 'Personnaliser',
+        hideOptions: 'Masquer les options',
+        essentials: 'Essentiels',
+        alwaysOn: 'Toujours actifs',
+        decline: 'Refuser non-essentiels',
+        acceptAll: 'Tout accepter',
+        save: 'Enregistrer les choix',
       },
     },
   },
