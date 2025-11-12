@@ -180,6 +180,9 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 # Add these to ensure preflight works
 CORS_PREFLIGHT_MAX_AGE = 86400
 
+# django-csp:
+CSP_NONCE_IN = ("script-src",)
+
 # django-csp v4 config
 CONTENT_SECURITY_POLICY = {
     "DIRECTIVES": {
