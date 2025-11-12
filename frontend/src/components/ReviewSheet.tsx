@@ -239,6 +239,18 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                     {text.length}/500 {t('review.form.characters')}
                   </p>
                 </div>
+                {/* GDPR Notice */}
+<div className="bg-sage-50 rounded-lg p-4 border border-sage-200">
+  <p className="text-xs text-charcoal/80 leading-relaxed">
+    <span className="font-semibold text-charcoal">
+      {t('review.form.gdpr.title', 'Privacy Notice')}:
+    </span>{' '}
+    {t(
+      'review.form.gdpr.text',
+      'Your review will be stored in our system for moderation. We only collect the information you provide (name, optional email, and review text) to display your testimonial. Your email will not be published or shared.'
+    )}
+  </p>
+</div>
 
                 {/* Submit Button */}
                 <button

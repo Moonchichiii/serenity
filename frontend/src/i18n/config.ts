@@ -5,12 +5,13 @@ import { initReactI18next } from 'react-i18next'
 const resources = {
   en: {
     translation: {
-      nav: {
-        about: 'About',
-        services: 'Services',
-        booking: 'Book Now',
-        contact: 'Contact',
-      },
+     nav: {
+  about: 'About',
+  services: 'Services',
+  corporate: 'Corporate',
+  booking: 'Book now',
+  contact: 'Contact',
+},
       hero: {
         title: 'Find Your Balance',
         subtitle: 'Premium therapeutic massage in a serene, private setting',
@@ -32,7 +33,7 @@ const resources = {
         specialty4: 'Prenatal Care',
       },
       services: {
-        title: 'Our Services',
+        title: 'Services',
         subtitle: 'Therapeutic massage tailored to your needs',
         swedish: {
           title: 'Swedish Massage',
@@ -103,6 +104,10 @@ const resources = {
             messageRequired: 'Message is required',
             messageTooShort: 'Message is too short',
           },
+          gdpr: {
+      title: 'Privacy Notice',
+      text: 'Your review will be stored in our system for moderation. We only collect the information you provide (name, optional email, and review text) to display your testimonial. Your email will not be published or shared.',
+    },
         },
       },
       footer: {
@@ -172,11 +177,12 @@ const resources = {
   fr: {
     translation: {
       nav: {
-        about: 'À Propos',
-        services: 'Services',
-        booking: 'Réserver',
-        contact: 'Contact',
-      },
+  about: 'À Propos',
+  services: 'Services',
+  corporate: 'Entreprises',
+  booking: 'Réserver',
+  contact: 'Contact',
+},
       hero: {
         title: 'Trouvez Votre Équilibre',
         subtitle: 'Massage thérapeutique premium dans un cadre serein et privé',
@@ -269,6 +275,10 @@ const resources = {
             messageRequired: 'Le message est requis',
             messageTooShort: 'Le message est trop court',
           },
+           gdpr: {
+      title: 'Avis de confidentialité',
+      text: 'Votre avis sera stocké dans notre système pour modération. Nous ne collectons que les informations que vous fournissez (nom, email optionnel et texte) pour afficher votre témoignage. Votre email ne sera pas publié ni partagé.',
+    },
         },
       },
       footer: {
@@ -342,7 +352,7 @@ i18next
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'fr', // Default to French for France
+    fallbackLng: 'fr',
     interpolation: {
       escapeValue: false,
     },

@@ -185,6 +185,19 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
         )}
       </div>
 
+      {/* GDPR Notice */}
+      <div className="bg-sage-50 rounded-lg p-4 border border-sage-200">
+        <p className="text-xs text-charcoal/80 leading-relaxed">
+          <span className="font-semibold text-charcoal">
+            {t('contact.form.gdpr.title', 'Privacy Notice')}:
+          </span>{' '}
+          {t(
+            'contact.form.gdpr.text',
+            'This contact form sends your message directly via email. We do not collect, store, or process any personal data. Your information is only used to respond to your inquiry.'
+          )}
+        </p>
+      </div>
+
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting
           ? t('contact.form.sending', 'Sending...')

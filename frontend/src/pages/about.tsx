@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import { Award } from 'lucide-react'
 import SecretTrigger from '@/components/secret/SecretTrigger'
 import { cmsAPI } from '@/api/cms'
+import { Button } from '@/components/ui/Button'
 
 export function About() {
   const { t, i18n } = useTranslation()
@@ -33,7 +33,6 @@ export function About() {
   }
   const [cmsData, setCmsData] = useState<CmsData | null>(null)
 
-  // Fetch CMS data
   useEffect(() => {
     cmsAPI
       .getHomePage()
@@ -45,7 +44,6 @@ export function About() {
 
   const lang = i18n.language as 'en' | 'fr'
 
-  // Get content from CMS or fallback to i18n
   const content = useMemo(() => {
     if (cmsData) {
       return {
@@ -64,8 +62,6 @@ export function About() {
         ],
       }
     }
-
-    // Fallback to i18n
     return {
       title: t('about.title'),
       subtitle: t('about.subtitle'),
@@ -83,16 +79,6 @@ export function About() {
     }
   }, [cmsData, lang, t])
 
-  // Placeholder images for specialties - professional massage/spa imagery
-  // Replace these URLs with your own images when ready
-  const specialtyImages = [
-    'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=400&fit=crop', // Massage hands
-    'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=400&h=400&fit=crop', // Spa stones
-    'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=400&h=400&fit=crop', // Pregnant woman
-    'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop', // Wellness/yoga
-  ]
-
-  // Helper to strip HTML tags from RichTextField content
   const stripHtml = (html?: string | null) => {
     if (!html) return ''
     const tmp = document.createElement('div')
@@ -101,130 +87,109 @@ export function About() {
   }
 
   return (
-    <section id="about" className="py-24 px-4 lg:px-8 bg-gradient-warm">
-      {/* Header - Centered with more breathing room */}
-      <div className="container mx-auto max-w-7xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16 max-w-3xl mx-auto"
-        >
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading text-charcoal mb-6">
-            {content.title}
-          </h2>
-          <p className="text-xl md:text-2xl text-charcoal/70 leading-relaxed">
-            {content.subtitle}
-          </p>
-        </motion.div>
-
-        {/* Modern Bento Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 max-w-7xl mx-auto">
-
-          {/* Left Column - Intro Card (spans 7 columns on desktop) */}
+    <section id="about" className="min-h-screen bg-accent/20 relative overflow-hidden">
+      <div className="container mx-auto px-6 lg:px-12 py-16 lg:py-24">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[85vh]">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="space-y-8 lg:pr-12"
+          >
+            {content.certification && (
+              <div className="inline-flex items-center gap-2 bg-primary/30 backdrop-blur-sm px-4 py-2 rounded-full border border-primary">
+                <span className="text-sm font-medium text-foreground">{stripHtml(content.certification)}</span>
+              </div>
+            )}
+
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight tracking-tight">
+              {content.title}
+            </h1>
+
+            <p className="text-lg md:text-xl text-foreground/70 leading-relaxed max-w-lg">
+              {stripHtml(content.intro)}{' '}
+              <SecretTrigger modalId="cmsLogin" times={3} windowMs={900}>
+                <span className="cursor-text select-text font-semibold text-sage-700 hover:text-sage-800 transition-colors">
+                  Serenity
+                </span>
+              </SecretTrigger>
+            </p>
+
+            {content.subtitle && (
+              <p className="text-base md:text-lg text-foreground/60 max-w-lg">{content.subtitle}</p>
+            )}
+
+            <Button size="lg" className="text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all">
+              {t('about.cta', { defaultValue: 'Book a Session' })}
+            </Button>
+          </motion.div>
+
+          {/* Pinterest-Style Image Masonry Grid */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="lg:col-span-7"
+            className="columns-1 sm:columns-2 lg:columns-3 gap-5 [column-fill:balance]"
           >
-            <div className="bg-white rounded-3xl p-8 md:p-10 lg:p-12 shadow-soft hover:shadow-elevated transition-all duration-300 h-full border border-sage-200/50">
-              <p className="text-lg md:text-xl text-charcoal/80 leading-relaxed mb-6">
-                {stripHtml(content.intro)}{' '}
-                <SecretTrigger modalId="cmsLogin" times={3} windowMs={900}>
-                  <span className="cursor-text select-text font-semibold text-sage-600 hover:text-sage-700 transition-colors">
-                    Serenity
-                  </span>
-                </SecretTrigger>
-              </p>
-
-              {content.certification && (
-                <div className="inline-flex items-center gap-3 bg-honey-50 px-5 py-3 rounded-2xl border border-honey-200/50">
-                  <Award className="w-5 h-5 text-honey-600" />
-                  <span className="text-sm font-medium text-charcoal">
-                    {content.certification}
-                  </span>
-                </div>
-              )}
-            </div>
-          </motion.div>
-
-          {/* Right Column - Approach Card (spans 5 columns on desktop) */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="lg:col-span-5"
-          >
-            <div className="bg-gradient-to-br from-sage-50 to-sage-100 rounded-3xl p-8 md:p-10 shadow-soft hover:shadow-elevated transition-all duration-300 h-full border border-sage-200/50">
-              <h3 className="text-2xl md:text-3xl font-heading text-charcoal mb-4">
-                {content.approachTitle}
-              </h3>
-              <p className="text-base md:text-lg text-charcoal/70 leading-relaxed">
-                {stripHtml(content.approachText)}
-              </p>
-            </div>
-          </motion.div>
-
-          {/* Full Width - Specialties Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="lg:col-span-12"
-          >
-            <div className="bg-white rounded-3xl p-8 md:p-10 lg:p-12 shadow-soft hover:shadow-elevated transition-all duration-300 border border-sage-200/50">
-              <h3 className="text-2xl md:text-3xl font-heading text-charcoal mb-8 text-center lg:text-left">
-                {content.specialtiesTitle}
-              </h3>
-
-              {/* Specialties Grid - 4 cards in a row on desktop */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {content.specialties.map((specialty, index) => {
-                  const imageUrl = specialtyImages[index] || specialtyImages[0]
-                  return (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.4, delay: 0.1 + index * 0.05 }}
-                      whileHover={{ y: -4 }}
-                      className="group"
-                    >
-                      <div className="bg-porcelain rounded-2xl overflow-hidden shadow-sm hover:shadow-warm transition-all duration-300 border border-sage-100">
-                        {/* Image Section */}
-                        <div className="relative h-48 overflow-hidden bg-sage-100">
-                          <img
-                            src={imageUrl}
-                            alt={specialty}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                            loading="lazy"
-                          />
-                          {/* Subtle overlay gradient */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-charcoal/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        </div>
-
-                        {/* Text Section */}
-                        <div className="p-5">
-                          <p className="text-base font-medium text-charcoal leading-snug text-center">
-                            {specialty}
-                          </p>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )
-                })}
+            {[
+              { src: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=900&auto=format&fit=crop', caption: 'Professional massage therapy' },
+              { src: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=900&auto=format&fit=crop', caption: 'Relaxing environment' },
+              { src: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=900&auto=format&fit=crop', caption: 'Therapeutic tools' },
+              { src: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=900&auto=format&fit=crop', caption: 'Holistic wellness care' },
+            ].map((img, i) => (
+              <div key={i} className="inline-block w-full mb-5 break-inside-avoid rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
+              <img
+                src={img.src}
+                alt={img.caption}
+                className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500"
+                loading="lazy"
+              />
+              <div className="px-4 py-3 bg-white/70 backdrop-blur-sm">
+                <p className="text-sm text-foreground/70 text-center">{img.caption}</p>
               </div>
             </div>
+            ))}
+          </motion.div>
+        </div>
+
+        <div className="mt-32 grid md:grid-cols-2 gap-12 lg:gap-16 max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="space-y-4"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">{content.approachTitle}</h2>
+            <p className="text-base md:text-lg text-foreground/70 leading-relaxed">
+              {stripHtml(content.approachText)}
+            </p>
           </motion.div>
 
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+            className="space-y-4"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">{content.specialtiesTitle}</h2>
+            <ul className="space-y-3">
+              {content.specialties.map((specialty, idx) => (
+                <li key={idx} className="flex items-start gap-3">
+                  <span className="text-accent text-xl">•</span>
+                  <span className="text-base md:text-lg text-foreground/70">{specialty}</span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
         </div>
       </div>
+
+      <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-primary/5 rounded-full blur-3xl -z-10" />
+      <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-secondary/5 rounded-full blur-3xl -z-10" />
     </section>
   )
 }

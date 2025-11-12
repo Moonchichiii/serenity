@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Menu, X, Globe } from 'lucide-react'
+import { Menu, X, Globe, Check, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { useModal } from '@/shared/hooks/useModal'
@@ -9,21 +9,24 @@ export function Header() {
   const { t, i18n } = useTranslation()
   const { open } = useModal()
   const [isOpen, setIsOpen] = useState(false)
+  const [isLangOpen, setIsLangOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const firstMobileLinkRef = useRef<HTMLAnchorElement | null>(null)
+  const langDropdownRef = useRef<HTMLDivElement | null>(null)
   const shouldReduceMotion = useReducedMotion()
   const mobileMenuId = 'primary-mobile-menu'
 
-  const toggleLanguage = () => {
-    const newLang = i18n.language === 'en' ? 'fr' : 'en'
-    i18n.changeLanguage(newLang)
+  const changeLanguage = (lang: string) => {
+    i18n.changeLanguage(lang)
+    setIsLangOpen(false)
   }
 
   const navItems = useMemo(
     () => [
-      { key: 'about', href: '#about' },
-      { key: 'services', href: '#services-hero' },
-      //{ key: 'booking', href: '#booking' },
+    { key: 'about', href: '#about' },
+    { key: 'services', href: '#services' },
+    { key: 'corporate', href: '#services-hero' },
+    //{ key: 'booking', href: '#booking' },
     ],
     []
   )
@@ -57,6 +60,20 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Close language dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
+        setIsLangOpen(false)
+      }
+    }
+
+    if (isLangOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isLangOpen])
+
   useEffect(() => {
     if (isOpen) firstMobileLinkRef.current?.focus()
   }, [isOpen])
@@ -67,6 +84,14 @@ export function Header() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [isOpen])
+
+  // Close language dropdown on Escape
+  useEffect(() => {
+    if (!isLangOpen) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setIsLangOpen(false)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isLangOpen])
 
   return (
     <nav
@@ -127,33 +152,101 @@ export function Header() {
               {t('nav.contact')}
             </button>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleLanguage}
-              aria-label={i18n.language === 'en' ? 'Afficher le site en français' : 'Show site in English'}
-              className="flex items-center space-x-2"
-            >
-              <Globe className="w-4 h-4" aria-hidden="true" />
-              <span className="text-sm font-medium" lang={i18n.language === 'en' ? 'fr' : 'en'}>
-                {i18n.language === 'en' ? 'FR' : 'EN'}
-              </span>
-            </Button>
+            {/* Desktop Language Dropdown */}
+            <div className="relative" ref={langDropdownRef}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsLangOpen(!isLangOpen)}
+                aria-label={i18n.language === 'en' ? 'Choisir la langue' : 'Choose language'}
+                aria-expanded={isLangOpen}
+                className="flex items-center space-x-2"
+              >
+                <Globe className="w-4 h-4" aria-hidden="true" />
+                <span className="text-sm font-medium">
+                  {i18n.language === 'fr' ? 'FR' : 'EN'}
+                </span>
+                <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isLangOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
+              </Button>
+
+              <AnimatePresence>
+                {isLangOpen && (
+                  <motion.div
+                    initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -10 }}
+                    animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+                    exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-xl border-2 border-sage-200/30 overflow-hidden"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => changeLanguage('fr')}
+                      className="w-full px-4 py-3 text-left text-sm text-charcoal/80 hover:bg-sage-100 transition-colors duration-200 flex items-center justify-between"
+                    >
+                      <span>Français</span>
+                      {i18n.language === 'fr' && <Check className="w-4 h-4 text-sage-600" aria-hidden="true" />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => changeLanguage('en')}
+                      className="w-full px-4 py-3 text-left text-sm text-charcoal/80 hover:bg-sage-100 transition-colors duration-200 flex items-center justify-between"
+                    >
+                      <span>English</span>
+                      {i18n.language === 'en' && <Check className="w-4 h-4 text-sage-600" aria-hidden="true" />}
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
           {/* Mobile controls */}
           <div className="flex items-center space-x-4 md:hidden">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleLanguage}
-              aria-label={i18n.language === 'en' ? 'Afficher le site en français' : 'Show site in English'}
-            >
-              <Globe className="w-4 h-4" aria-hidden="true" />
-              <span className="ml-2 text-sm" lang={i18n.language === 'en' ? 'fr' : 'en'}>
-                {i18n.language === 'en' ? 'FR' : 'EN'}
-              </span>
-            </Button>
+            {/* Mobile Language Dropdown */}
+            <div className="relative" ref={langDropdownRef}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsLangOpen(!isLangOpen)}
+                aria-label={i18n.language === 'en' ? 'Choisir la langue' : 'Choose language'}
+                aria-expanded={isLangOpen}
+              >
+                <Globe className="w-4 h-4" aria-hidden="true" />
+                <span className="ml-2 text-sm" lang={i18n.language}>
+                  {i18n.language === 'fr' ? 'FR' : 'EN'}
+                </span>
+                <ChevronDown className={`ml-1 w-3 h-3 transition-transform duration-200 ${isLangOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
+              </Button>
+
+              <AnimatePresence>
+                {isLangOpen && (
+                  <motion.div
+                    initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -10 }}
+                    animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+                    exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-xl border-2 border-sage-200/30 overflow-hidden"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => changeLanguage('fr')}
+                      className="w-full px-4 py-3 text-left text-sm text-charcoal/80 hover:bg-sage-100 transition-colors duration-200 flex items-center justify-between"
+                    >
+                      <span>Français</span>
+                      {i18n.language === 'fr' && <Check className="w-4 h-4 text-sage-600" aria-hidden="true" />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => changeLanguage('en')}
+                      className="w-full px-4 py-3 text-left text-sm text-charcoal/80 hover:bg-sage-100 transition-colors duration-200 flex items-center justify-between"
+                    >
+                      <span>English</span>
+                      {i18n.language === 'en' && <Check className="w-4 h-4 text-sage-600" aria-hidden="true" />}
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             <Button
               variant="ghost"

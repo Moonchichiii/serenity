@@ -18,12 +18,11 @@ const Footer: React.FC = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.4 }}
         >
-          {/* grid: centered on mobile, 3 cols on >= sm */}
-          <div className="grid gap-10 sm:grid-cols-3 sm:items-start text-center sm:text-left">
-            {/* Brand */}
+          {/* grid: centered on mobile, 2 cols on >= sm, pulled toward center */}
+          <div className="grid gap-10 sm:grid-cols-2 sm:items-start text-center sm:text-left max-w-5xl mx-auto sm:gap-16">
+            {/* Brand + Contact */}
             <div className="flex flex-col items-center sm:items-start">
               <h3 className="inline-block font-heading font-semibold text-2xl text-porcelain">
-                {/* small 'La' before Serenity */}
                 <span className="relative inline-block">
                   <span className="absolute -top-2 left-0 text-xs tracking-wide opacity-80">La</span>
                   <span className="ml-4">Serenity</span>
@@ -32,24 +31,23 @@ const Footer: React.FC = () => {
               <p className="mt-3 text-sm opacity-80 max-w-[28ch] sm:max-w-none">
                 {t('footer.tagline', { defaultValue: 'Massage thérapeutique professionnel' })}
               </p>
-            </div>
 
-            {/* Contact */}
-            <div className="flex flex-col items-center sm:items-start">
-              <h4 className="text-base font-semibold">
-                {t('footer.contact', { defaultValue: 'Contact' })}
-              </h4>
-              <div className="mt-3 space-y-2">
-                <a
-                  href={`mailto:${t('footer.email', { defaultValue: 'contact@example.com' })}`}
-                  className="inline-flex items-center gap-2 text-porcelain/80 hover:text-honey transition-colors"
-                  aria-label={t('footer.email', { defaultValue: 'Email' })}
-                >
-                  <Mail className="w-4 h-4" aria-hidden="true" />
-                  <span className="break-all">{t('footer.email', { defaultValue: 'contact@example.com' })}</span>
-                </a>
-
-
+              <div className="mt-6">
+                <h4 className="text-base font-semibold">
+                  {t('footer.contact', { defaultValue: 'Contact' })}
+                </h4>
+                <div className="mt-3 space-y-2">
+                  <a
+                    href={`mailto:${t('footer.email', { defaultValue: 'contact@example.com' })}`}
+                    className="inline-flex items-center gap-2 text-porcelain/80 hover:text-honey transition-colors"
+                    aria-label={t('footer.email', { defaultValue: 'Email' })}
+                  >
+                    <Mail className="w-4 h-4" aria-hidden="true" />
+                    <span className="break-all">
+                      {t('footer.email', { defaultValue: 'contact@example.com' })}
+                    </span>
+                  </a>
+                </div>
               </div>
             </div>
 
@@ -96,7 +94,6 @@ const Footer: React.FC = () => {
             </p>
           </div>
 
-          {/* small hidden footnote in a corner */}
           <a
             href="https://www.nordiccodeworks.com"
             target="_blank"
