@@ -1,7 +1,6 @@
-// src/shared/consent.ts
 export type Consent = {
   version: number
-  essential: boolean   // keep true in practice
+  essential: boolean
   media: boolean
   analytics: boolean
   ts: number

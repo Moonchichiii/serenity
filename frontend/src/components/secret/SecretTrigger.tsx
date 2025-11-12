@@ -1,9 +1,9 @@
-import type { PropsWithChildren } from 'react'  // ADD 'type'
+import type { PropsWithChildren } from 'react'
 import { useCallback, useRef } from 'react'
 import { useModal } from '@/shared/hooks/useModal'
 
 type SecretTriggerProps = PropsWithChildren<{
-  modalId: 'cmsLogin' | 'contact'  // REMOVE | string
+  modalId: 'cmsLogin' | 'contact'
   times?: number
   windowMs?: number
   className?: string
@@ -36,7 +36,7 @@ export default function SecretTrigger({
     if (clicksRef.current >= times) {
       e.preventDefault()
       reset()
-      open(modalId)  // REMOVE 'as any'
+      open(modalId)
     }
   }, [modalId, times, windowMs, open])
 
