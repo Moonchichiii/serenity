@@ -11,6 +11,13 @@ interface ServicesHeroProps {
   onContactClick?: () => void;
 }
 
+const toSentenceCase = (s?: string) => {
+  if (!s) return '';
+  const first = s.charAt(0).toLocaleUpperCase();
+  const rest = s.slice(1).toLocaleLowerCase();
+  return first + rest;
+};
+
 export function ServicesHero({ onContactClick }: ServicesHeroProps) {
   const { i18n } = useTranslation();
   const [page, setPage] = useState<WagtailHomePage | null>(null);
@@ -83,6 +90,9 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
     getString(`services_hero_benefit_3_${lang}` as keyof WagtailHomePage),
   ].filter(Boolean);
 
+  const hasPrice = Boolean(priceLabel || price);
+  const hasCTA = Boolean(cta);
+
   const handleClick = () => {
     if (onContactClick) return onContactClick();
     const section = document.getElementById("contact");
@@ -107,7 +117,6 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
         preload="metadata"
       >
         <source src={VIDEO_SRC} type="video/mp4" />
-        <track kind="captions" srcLang="fr" label="Français" />
       </video>
 
       <div
@@ -128,12 +137,14 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
               id="services-hero-title"
               className="font-heading font-normal text-charcoal leading-tight tracking-tight text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
             >
-              {title}
+              {toSentenceCase(title)}
             </h2>
 
-            <p className="mt-3 sm:mt-4 text-base sm:text-lg text-charcoal/80">
-              {priceLabel} <span className="font-bold text-sage-700 whitespace-nowrap">{price}</span>
-            </p>
+            {hasPrice && (
+              <p className="mt-3 sm:mt-4 text-base sm:text-lg text-charcoal/80">
+                {priceLabel} <span className="font-bold text-sage-700 whitespace-nowrap">{price}</span>
+              </p>
+            )}
 
             <ul className="mt-5 sm:mt-6 grid gap-2.5 sm:gap-3">
               {benefits.map((b, i) => (
@@ -146,16 +157,18 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
               ))}
             </ul>
 
-            <div className="mt-6 sm:mt-8">
-              <Button
-                onClick={handleClick}
-                size="lg"
-                className="w-full sm:w-auto bg-sage-600 hover:bg-sage-700 text-white shadow-lg"
-                aria-label={cta}
-              >
-                {cta}
-              </Button>
-            </div>
+            {hasCTA && (
+              <div className="mt-6 sm:mt-8">
+                <Button
+                  onClick={handleClick}
+                  size="lg"
+                  className="w-full sm:w-auto bg-sage-600 hover:bg-sage-700 text-white shadow-lg"
+                  aria-label={toSentenceCase(cta)}
+                >
+                  {toSentenceCase(cta)}
+                </Button>
+              </div>
+            )}
           </div>
         </motion.div>
       </div>

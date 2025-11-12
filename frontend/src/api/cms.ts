@@ -60,6 +60,8 @@ export interface WagtailHomePage {
   specialty_3_en: string
   specialty_4_fr: string
   specialty_4_en: string
+  specialty_5_fr: string
+  specialty_5_en: string
   services_hero_title_en: string
   services_hero_title_fr: string
   services_hero_pricing_label_en: string

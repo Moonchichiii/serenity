@@ -74,6 +74,8 @@ class HomePageSerializer(serializers.ModelSerializer):
             "specialty_3_fr",
             "specialty_4_en",
             "specialty_4_fr",
+            "specialty_5_en",
+            "specialty_5_fr",
             "phone",
             "email",
             "address_en",

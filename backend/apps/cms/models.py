@@ -204,6 +204,18 @@ class HomePage(Page):
         default="",
         help_text="Quatrième spécialité (ex: 'Soins Prénatals')",
     )
+    specialty_5_en = models.CharField(
+        max_length=200,
+        blank=True,
+        default="",
+        help_text="Fifth specialty (e.g., 'Reflexology')",
+    )
+    specialty_5_fr = models.CharField(
+        max_length=200,
+        blank=True,
+        default="",
+        help_text="Cinquième spécialité (ex: 'Réflexologie')",
+    )
 
     phone = models.CharField(
         max_length=64,
@@ -420,6 +432,14 @@ class HomePage(Page):
                 FieldPanel(
                     "specialty_4_fr",
                     heading="Specialty 4 (Français) - e.g., Soins Prénatals",
+                ),
+                FieldPanel(
+                    "specialty_5_en",
+                    heading="Specialty 5 (English) - e.g., Reflexology",
+                ),
+                FieldPanel(
+                    "specialty_5_fr",
+                    heading="Specialty 5 (Français) - e.g., Réflexologie",
                 ),
             ],
             heading="👤 About Section - Your Specialties",

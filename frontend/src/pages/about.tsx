@@ -30,6 +30,8 @@ export function About() {
     specialty_3_fr?: string
     specialty_4_en?: string
     specialty_4_fr?: string
+    specialty_5_en?: string
+    specialty_5_fr?: string
   }
   const [cmsData, setCmsData] = useState<CmsData | null>(null)
 
@@ -59,7 +61,8 @@ export function About() {
           lang === 'fr' ? cmsData.specialty_2_fr : cmsData.specialty_2_en || t('about.specialty2'),
           lang === 'fr' ? cmsData.specialty_3_fr : cmsData.specialty_3_en || t('about.specialty3'),
           lang === 'fr' ? cmsData.specialty_4_fr : cmsData.specialty_4_en || t('about.specialty4'),
-        ],
+          lang === 'fr' ? cmsData.specialty_5_fr : cmsData.specialty_5_en || '',
+        ].filter((s): s is string => Boolean(s)),
       }
     }
     return {
@@ -75,7 +78,7 @@ export function About() {
         t('about.specialty2'),
         t('about.specialty3'),
         t('about.specialty4'),
-      ],
+      ].filter((s): s is string => Boolean(s)),
     }
   }, [cmsData, lang, t])
 
