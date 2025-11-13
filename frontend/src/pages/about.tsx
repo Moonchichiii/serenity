@@ -96,11 +96,7 @@ export function About() {
             transition={{ duration: 0.6 }}
             className="space-y-8 lg:pr-12"
           >
-            {content.certification && (
-              <div className="inline-flex items-center gap-2 bg-primary/30 backdrop-blur-sm px-4 py-2 rounded-full border border-primary">
-                <span className="text-sm font-medium text-foreground">{stripHtml(content.certification)}</span>
-              </div>
-            )}
+
 
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight tracking-tight">
               {content.title}
@@ -119,13 +115,20 @@ export function About() {
               <p className="text-base md:text-lg text-foreground/60 max-w-lg">{content.subtitle}</p>
             )}
 
-            <Button
-              size="lg"
-              className="text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all"
-              onClick={() => open('contact', { defaultSubject: 'Appointment request' })}
-            >
-              {t('about.cta', { defaultValue: 'Book a Session' })}
-            </Button>
+            <div className="relative">
+              <Button
+                size="lg"
+                className="text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all"
+                onClick={() => open('contact', { defaultSubject: 'Appointment request' })}
+              >
+                {t('about.cta', { defaultValue: 'Book a Session' })}
+              </Button>
+              {content.certification && (
+                <div className="absolute top-full mt-3 left-8 inline-flex items-center gap-2 bg-primary/30 backdrop-blur-sm px-4 py-2 rounded-full border border-primary">
+                  <span className="text-sm font-medium text-foreground">{stripHtml(content.certification)}</span>
+                </div>
+              )}
+            </div>
           </motion.div>
 
           {/* Loading skeleton for the grid */}
@@ -176,7 +179,7 @@ export function About() {
           )}
         </div>
 
-        {/* Keep “My approach” only; remove duplicate specialties list */}
+        {/* My approach" */}
         <div className="mt-24 max-w-3xl">
           <motion.h2
             initial={{ opacity: 0, y: 12 }}
@@ -197,6 +200,7 @@ export function About() {
           >
             {stripHtml(content.approachText)}
           </motion.p>
+
         </div>
       </div>
 
