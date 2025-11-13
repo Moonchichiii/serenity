@@ -30,6 +30,12 @@ export interface WagtailService {
   is_available: boolean
 }
 
+export interface WagtailSpecialty {
+  title_en?: string;
+  title_fr?: string;
+  image?: WagtailImage | null;
+}
+
 // Homepage content
 export interface WagtailHomePage {
   hero_title_fr: string
@@ -62,6 +68,7 @@ export interface WagtailHomePage {
   specialty_4_en: string
   specialty_5_fr: string
   specialty_5_en: string
+  specialties?: WagtailSpecialty[];
   services_hero_title_en: string
   services_hero_title_fr: string
   services_hero_pricing_label_en: string

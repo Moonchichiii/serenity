@@ -1,37 +1,33 @@
 from django.core.cache import cache
 from django.db.models import Prefetch
 from django.urls import path
-from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from wagtail.models import Site
 
-from apps.cms.models import HeroSlide, HomePage
+from apps.cms.models import HeroSlide, HomePage, Specialty
 from apps.services.models import Service
 
-from .serializers import (
-    HomePageSerializer,
-    ServiceSerializer,
-)
+from .serializers import HomePageSerializer, ServiceSerializer
 
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
-@cache_page(60 * 60)  # 1 hour
 @vary_on_headers("Accept-Language")
 def homepage(request):
     """
     Get homepage content with all CMS-managed fields.
-    Returns bilingual content (EN/FR) for all text fields.
+    Uses manual caching keyed by site + language.
     """
-    cache_key = "cms:homepage"
+    site = Site.find_for_request(request)
+    site_id = getattr(site, "id", 0)
+    lang = getattr(request, "LANGUAGE_CODE", "en")
+    cache_key = f"cms:homepage:{site_id}:{lang}"
+
     data = cache.get(cache_key)
-
     if not data:
-        site = Site.find_for_request(request)
-
         if not site:
             page = HomePage.objects.live().first()
         elif isinstance(site.root_page.specific, HomePage):
@@ -40,6 +36,7 @@ def homepage(request):
             page = HomePage.objects.live().descendant_of(site.root_page).first()
 
         if not page:
+            # Still emit Vary header thanks to decorator
             return Response({}, status=200)
 
         page = (
@@ -50,11 +47,16 @@ def homepage(request):
                     queryset=HeroSlide.objects.select_related("image").order_by(
                         "sort_order"
                     ),
-                )
+                ),
+                Prefetch(
+                    "specialties",
+                    queryset=Specialty.objects.select_related("image").order_by(
+                        "sort_order"
+                    ),
+                ),
             )
             .get(pk=page.pk)
         )
-
         data = HomePageSerializer(page, context={"request": request}).data
         cache.set(cache_key, data, 60 * 60)  # 1 hour
 
@@ -63,15 +65,13 @@ def homepage(request):
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
-@cache_page(60 * 30)  # 30 min
 def services(request):
     """
-    Get all available services.
-    Returns bilingual service information.
+    Get all available services (bilingual in serializer).
+    Manual cache + model signals handle invalidation.
     """
     cache_key = "cms:services"
     data = cache.get(cache_key)
-
     if not data:
         qs = Service.objects.filter(is_available=True).select_related("image")
         data = ServiceSerializer(qs, many=True, context={"request": request}).data

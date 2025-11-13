@@ -39,9 +39,16 @@ class HeroSlideSerializer(serializers.Serializer):
         }
 
 
+class SpecialtySerializer(serializers.Serializer):
+    title_en = serializers.CharField(required=False)
+    title_fr = serializers.CharField(required=False)
+    image = WagtailImageSerializer(source="image", required=False, allow_null=True)
+
+
 class HomePageSerializer(serializers.ModelSerializer):
     hero_slides = HeroSlideSerializer(many=True)
-    hero_image = WagtailImageSerializer()
+    hero_image = WagtailImageSerializer(required=False, allow_null=True)
+    specialties = SpecialtySerializer(many=True, required=False)
 
     class Meta:
         model = HomePage
@@ -66,6 +73,7 @@ class HomePageSerializer(serializers.ModelSerializer):
             "about_approach_text_fr",
             "about_specialties_title_en",
             "about_specialties_title_fr",
+            "specialties",
             "specialty_1_en",
             "specialty_1_fr",
             "specialty_2_en",
@@ -102,6 +110,9 @@ class HomePageSerializer(serializers.ModelSerializer):
         # ensure hero_slides are ordered consistently as before
         data["hero_slides"] = HeroSlideSerializer(
             instance.hero_slides.all().order_by("sort_order"), many=True
+        ).data
+        data["specialties"] = SpecialtySerializer(
+            instance.specialties.all().order_by("sort_order"), many=True
         ).data
         return data
 

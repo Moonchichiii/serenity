@@ -11,7 +11,7 @@ import { Suspense, lazy } from 'react'
 const Hero = lazy(() => import('@/pages/hero').then(m => ({ default: m.Hero })))
 const About = lazy(() => import('@/pages/about').then(m => ({ default: m.About })))
 const Services = lazy(() => import('@/pages/services').then(m => ({ default: m.Services })))
-const Contact = lazy(() => import('@/pages/Contact').then(m => ({ default: m.Contact })))
+//const Contact = lazy(() => import('@/pages/Contact').then(m => ({ default: m.Contact })))
 
 
 const ReviewTrigger = lazy(() => import('@/components/ReviewTrigger').then(m => ({ default: m.ReviewTrigger })))
@@ -40,7 +40,7 @@ function HomePage() {
       <Hero />
       <About />
       <Services />
-      <Contact />
+      {/* <Contact /> */}
       <ReviewTrigger targetSectionId="testimonials" />
     </>
   )

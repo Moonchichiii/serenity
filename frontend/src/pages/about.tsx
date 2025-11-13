@@ -2,70 +2,24 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import SecretTrigger from '@/components/secret/SecretTrigger'
-import { cmsAPI } from '@/api/cms'
+import { cmsAPI, type WagtailHomePage, type WagtailImage, type WagtailSpecialty } from '@/api/cms'
 import { Button } from '@/components/ui/Button'
+import CloudImage from '@/components/ResponsiveImage'
+
+type GridItem = { title: string; image?: WagtailImage | null }
 
 export function About() {
   const { t, i18n } = useTranslation()
-  type CmsData = {
-    about_title_en?: string
-    about_title_fr?: string
-    about_subtitle_en?: string
-    about_subtitle_fr?: string
-    about_intro_en?: string
-    about_intro_fr?: string
-    about_certification_en?: string
-    about_certification_fr?: string
-    about_approach_title_en?: string
-    about_approach_title_fr?: string
-    about_approach_text_en?: string
-    about_approach_text_fr?: string
-    about_specialties_title_en?: string
-    about_specialties_title_fr?: string
-    specialty_1_en?: string
-    specialty_1_fr?: string
-    specialty_2_en?: string
-    specialty_2_fr?: string
-    specialty_3_en?: string
-    specialty_3_fr?: string
-    specialty_4_en?: string
-    specialty_4_fr?: string
-    specialty_5_en?: string
-    specialty_5_fr?: string
-  }
-  const [cmsData, setCmsData] = useState<CmsData | null>(null)
+  const [cmsData, setCmsData] = useState<WagtailHomePage | null>(null)
 
   useEffect(() => {
-    cmsAPI
-      .getHomePage()
-      .then(setCmsData)
-      .catch(() => {
-        console.log('CMS not ready, using fallback content')
-      })
+    cmsAPI.getHomePage().then(setCmsData).catch(() => setCmsData(null))
   }, [])
 
-  const lang = i18n.language as 'en' | 'fr'
+  const lang: 'en' | 'fr' = (i18n.language === 'en' || i18n.language === 'fr') ? i18n.language : 'fr'
 
   const content = useMemo(() => {
-    if (cmsData) {
-      return {
-        title: lang === 'fr' ? cmsData.about_title_fr : cmsData.about_title_en || t('about.title'),
-        subtitle: lang === 'fr' ? cmsData.about_subtitle_fr : cmsData.about_subtitle_en || t('about.subtitle'),
-        intro: lang === 'fr' ? cmsData.about_intro_fr : cmsData.about_intro_en || t('about.intro'),
-        certification: lang === 'fr' ? cmsData.about_certification_fr : cmsData.about_certification_en || t('about.certification'),
-        approachTitle: lang === 'fr' ? cmsData.about_approach_title_fr : cmsData.about_approach_title_en || t('about.approach'),
-        approachText: lang === 'fr' ? cmsData.about_approach_text_fr : cmsData.about_approach_text_en || t('about.approachText'),
-        specialtiesTitle: lang === 'fr' ? cmsData.about_specialties_title_fr : cmsData.about_specialties_title_en || t('about.specialties'),
-        specialties: [
-          lang === 'fr' ? cmsData.specialty_1_fr : cmsData.specialty_1_en || t('about.specialty1'),
-          lang === 'fr' ? cmsData.specialty_2_fr : cmsData.specialty_2_en || t('about.specialty2'),
-          lang === 'fr' ? cmsData.specialty_3_fr : cmsData.specialty_3_en || t('about.specialty3'),
-          lang === 'fr' ? cmsData.specialty_4_fr : cmsData.specialty_4_en || t('about.specialty4'),
-          lang === 'fr' ? cmsData.specialty_5_fr : cmsData.specialty_5_en || '',
-        ].filter((s): s is string => Boolean(s)),
-      }
-    }
-    return {
+    const base = {
       title: t('about.title'),
       subtitle: t('about.subtitle'),
       intro: t('about.intro'),
@@ -73,12 +27,41 @@ export function About() {
       approachTitle: t('about.approach'),
       approachText: t('about.approachText'),
       specialtiesTitle: t('about.specialties'),
-      specialties: [
-        t('about.specialty1'),
-        t('about.specialty2'),
-        t('about.specialty3'),
-        t('about.specialty4'),
-      ].filter((s): s is string => Boolean(s)),
+      specialtiesGrid: [] as GridItem[],
+      specialtiesList: [t('about.specialty1'), t('about.specialty2'), t('about.specialty3'), t('about.specialty4')].filter(Boolean),
+    }
+
+    if (!cmsData) return base
+
+    const specialtiesGrid =
+      (cmsData.specialties ?? [])
+        .map((sp: WagtailSpecialty): GridItem => ({
+          title: (lang === 'fr' ? sp.title_fr : sp.title_en) || '',
+          image: sp.image ?? null,
+        }))
+        .filter((s: GridItem): s is GridItem => Boolean(s.title))
+
+    const legacyList = [
+      (lang === 'fr' ? cmsData.specialty_1_fr : cmsData.specialty_1_en),
+      (lang === 'fr' ? cmsData.specialty_2_fr : cmsData.specialty_2_en),
+      (lang === 'fr' ? cmsData.specialty_3_fr : cmsData.specialty_3_en),
+      (lang === 'fr' ? cmsData.specialty_4_fr : cmsData.specialty_4_en),
+      (lang === 'fr' ? cmsData.specialty_5_fr : cmsData.specialty_5_en),
+    ].filter((v): v is string => Boolean(v))
+
+    return {
+      ...base,
+      title: (lang === 'fr' ? cmsData.about_title_fr : cmsData.about_title_en) || base.title,
+      subtitle: (lang === 'fr' ? cmsData.about_subtitle_fr : cmsData.about_subtitle_en) || base.subtitle,
+      intro: (lang === 'fr' ? cmsData.about_intro_fr : cmsData.about_intro_en) || base.intro,
+      certification: (lang === 'fr' ? cmsData.about_certification_fr : cmsData.about_certification_en) || base.certification,
+      approachTitle: (lang === 'fr' ? cmsData.about_approach_title_fr : cmsData.about_approach_title_en) || base.approachTitle,
+      approachText: (lang === 'fr' ? cmsData.about_approach_text_fr : cmsData.about_approach_text_en) || base.approachText,
+      specialtiesTitle: (lang === 'fr' ? cmsData.about_specialties_title_fr : cmsData.about_specialties_title_en) || base.specialtiesTitle,
+      specialtiesGrid,
+      specialtiesList: specialtiesGrid.length
+        ? specialtiesGrid.map((s: GridItem) => s.title)
+        : (legacyList.length ? legacyList : base.specialtiesList),
     }
   }, [cmsData, lang, t])
 
@@ -90,7 +73,7 @@ export function About() {
   }
 
   return (
-    <section id="about" className="min-h-screen bg-accent/20 relative overflow-hidden">
+    <section id="about" className="min-h-screen relative overflow-hidden">
       <div className="container mx-auto px-6 lg:px-12 py-16 lg:py-24">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[85vh]">
           <motion.div
@@ -128,33 +111,51 @@ export function About() {
             </Button>
           </motion.div>
 
-          {/* Pinterest-Style Image Masonry Grid */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="columns-1 sm:columns-2 lg:columns-3 gap-5 [column-fill:balance]"
-          >
-            {[
-              { src: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=900&auto=format&fit=crop', caption: 'Professional massage therapy' },
-              { src: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=900&auto=format&fit=crop', caption: 'Relaxing environment' },
-              { src: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=900&auto=format&fit=crop', caption: 'Therapeutic tools' },
-              { src: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=900&auto=format&fit=crop', caption: 'Holistic wellness care' },
-            ].map((img, i) => (
-              <div key={i} className="inline-block w-full mb-5 break-inside-avoid rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
-              <img
-                src={img.src}
-                alt={img.caption}
-                className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500"
-                loading="lazy"
-              />
-              <div className="px-4 py-3 bg-white/70 backdrop-blur-sm">
-                <p className="text-sm text-foreground/70 text-center">{img.caption}</p>
-              </div>
+          {/* Loading skeleton for the grid */}
+          {!cmsData && (
+            <div className="columns-1 sm:columns-2 lg:columns-3 gap-5 [column-fill:balance]">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="inline-block w-full mb-5 break-inside-avoid rounded-3xl overflow-hidden shadow-lg">
+                  <div className="aspect-[4/3] animate-pulse bg-sand-200" />
+                  <div className="h-10 bg-white/70" />
+                </div>
+              ))}
             </div>
-            ))}
-          </motion.div>
+          )}
+
+          {/* CMS-driven Specialties Masonry Grid */}
+          {cmsData && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="columns-1 sm:columns-2 lg:columns-3 gap-5 [column-fill:balance]"
+            >
+              {content.specialtiesGrid.map((sp: GridItem, i: number) => (
+                <div
+                  key={`${sp.title}-${i}`}
+                  className="inline-block w-full mb-5 break-inside-avoid rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  {sp.image?.url ? (
+                    <CloudImage
+                      image={sp.image}
+                      alt={sp.title}
+                      className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500"
+                      sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
+                    />
+                  ) : (
+                    <div className="aspect-[4/3] bg-muted grid place-items-center">
+                      <span className="text-foreground/50 text-sm">{sp.title}</span>
+                    </div>
+                  )}
+                  <div className="px-4 py-3 bg-white/70 backdrop-blur-sm">
+                    <p className="text-sm text-foreground/80 text-center">{sp.title}</p>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          )}
         </div>
 
         <div className="mt-32 grid md:grid-cols-2 gap-12 lg:gap-16 max-w-6xl mx-auto">
@@ -180,7 +181,7 @@ export function About() {
           >
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">{content.specialtiesTitle}</h2>
             <ul className="space-y-3">
-              {content.specialties.map((specialty, idx) => (
+              {content.specialtiesList.map((specialty: string, idx: number) => (
                 <li key={idx} className="flex items-start gap-3">
                   <span className="text-accent text-xl">•</span>
                   <span className="text-base md:text-lg text-foreground/70">{specialty}</span>

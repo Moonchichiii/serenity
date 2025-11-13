@@ -7,7 +7,7 @@ from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
 from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
 from wagtail.fields import RichTextField
 from wagtail.images.models import Image
-from wagtail.models import Orderable, Page
+from wagtail.models import Orderable, Page, Site
 from wagtail.search import index
 
 
@@ -35,6 +35,28 @@ class HeroSlide(Orderable):
 
     def __str__(self):
         return self.title_en or self.title_fr or f"Slide {self.pk}"
+
+
+class Specialty(Orderable):
+    """Specialty for homepage specialties section."""
+
+    page = ParentalKey(
+        "cms.HomePage", related_name="specialties", on_delete=models.CASCADE
+    )
+    title_en = models.CharField(max_length=200, blank=True, default="")
+    title_fr = models.CharField(max_length=200, blank=True, default="")
+    image = models.ForeignKey(
+        Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
+    )
+
+    panels = [
+        FieldPanel("title_en"),
+        FieldPanel("title_fr"),
+        FieldPanel("image"),
+    ]
+
+    def __str__(self):
+        return self.title_en or self.title_fr or f"Specialty {self.pk}"
 
 
 class HomePage(Page):
@@ -401,6 +423,7 @@ class HomePage(Page):
                 FieldPanel(
                     "about_specialties_title_fr", heading="Section Title (Français)"
                 ),
+                InlinePanel("specialties", label="Specialties (image + title)"),
                 FieldPanel(
                     "specialty_1_en",
                     heading="Specialty 1 (English) - e.g., Deep Tissue Therapy",
@@ -443,7 +466,7 @@ class HomePage(Page):
                 ),
             ],
             heading="👤 About Section - Your Specialties",
-            help_text="List your 4 main specialties.",
+            help_text="Order controls the display order on the site.",
             classname="collapsible",
         ),
         MultiFieldPanel(
@@ -517,15 +540,37 @@ class SerenitySettings(BaseSiteSetting):
         verbose_name = "Site Settings"
 
 
+# Cache invalidation helper function
+def _delete_homepage_cache_variants():
+    site_ids = list(Site.objects.values_list("id", flat=True)) or [0]
+    for lang in ("en", "fr"):
+        for site_id in site_ids:
+            cache.delete(f"cms:homepage:{site_id}:{lang}")
+
+
 # Cache invalidation signals
 @receiver([post_save, post_delete], sender=HomePage)
-def clear_homepage_cache(sender, **kwargs):
-    cache.delete("cms:homepage")
+def clear_homepage_cache_on_homepage(sender, **kwargs):
+    _delete_homepage_cache_variants()
 
 
-@receiver([post_save, post_delete])
-def clear_services_cache(sender, **kwargs):
-    # Avoid import-time errors if a Service model isn't defined in this module.
-    # Match by model name to clear services cache when a Service model changes.
-    if getattr(sender, "__name__", "") == "Service":
+@receiver([post_save, post_delete], sender=HeroSlide)
+def clear_homepage_cache_on_slide(sender, **kwargs):
+    _delete_homepage_cache_variants()
+
+
+@receiver([post_save, post_delete], sender=Specialty)
+def clear_homepage_cache_on_specialty(sender, **kwargs):
+    _delete_homepage_cache_variants()
+
+
+# Import Service model for cache invalidation
+try:
+    from apps.services.models import Service
+
+    @receiver([post_save, post_delete], sender=Service)
+    def clear_services_cache(sender, **kwargs):
         cache.delete("cms:services")
+
+except ImportError:
+    pass
