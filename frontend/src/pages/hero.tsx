@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/Button'
 import { cmsAPI, type WagtailHomePage } from '@/api/cms'
 import CloudImage from '@/components/ResponsiveImage'
 import CookieConsent from '@/components/CookieConsent'
+import { useModal } from '@/shared/hooks/useModal'
 
 export function Hero() {
   const { t, i18n } = useTranslation()
   const [cmsData, setCmsData] = useState<WagtailHomePage | null>(null)
   const [active, setActive] = useState(0)
+  const { open } = useModal()
 
   useEffect(() => {
     cmsAPI.getHomePage().then(setCmsData).catch(() => setCmsData(null))
@@ -27,9 +29,6 @@ export function Hero() {
     return () => clearInterval(id)
   }, [slides])
 
-  const scrollToContact = () => {
-    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })
-  }
 
   const lang = (i18n.language === 'en' || i18n.language === 'fr') ? (i18n.language as 'en' | 'fr') : 'fr'
   const title = cmsData ? ((lang === 'fr' ? cmsData.hero_title_fr : cmsData.hero_title_en) ?? t('hero.title')) : t('hero.title')
@@ -84,12 +83,12 @@ export function Hero() {
         {/* CTA: Subtle fade-in only on mobile, instant on desktop */}
         <div className="md:opacity-100 animate-fade-in md:animate-none" style={{ animationDelay: '0.2s' }}>
           <Button
-            size="lg"
-            onClick={scrollToContact}
-            className="shadow-elevated md:hover:scale-105"
-          >
-            {t('hero.cta')}
-          </Button>
+  size="lg"
+  onClick={() => open('contact', { defaultSubject: 'Appointment request' })}
+  className="shadow-elevated md:hover:scale-105"
+>
+  {t('hero.cta')}
+</Button>
         </div>
       </div>
 <CookieConsent />

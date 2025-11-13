@@ -6,10 +6,12 @@ import { cmsAPI, type WagtailHomePage } from "@/api/cms";
 import { getResponsivePosterUrl } from "@/utils/cloudinary";
 import tinyFallbackPoster from "@/assets/poster.webp";
 import { Button } from '@/components/ui/Button'
+import { useModal } from '@/shared/hooks/useModal'
 
-interface ServicesHeroProps {
-  onContactClick?: () => void;
-}
+// ❌ remove the unused prop interface
+// interface ServicesHeroProps {
+//   onContactClick?: () => void;
+// }
 
 const toSentenceCase = (s?: string) => {
   if (!s) return '';
@@ -18,11 +20,13 @@ const toSentenceCase = (s?: string) => {
   return first + rest;
 };
 
-export function ServicesHero({ onContactClick }: ServicesHeroProps) {
+// ❌ remove prop from signature
+export function ServicesHero() {
   const { i18n } = useTranslation();
   const [page, setPage] = useState<WagtailHomePage | null>(null);
   const [posterUrl, setPosterUrl] = useState<string | undefined>(undefined);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const { open } = useModal();
 
   const cloudName = import.meta.env["VITE_CLOUDINARY_CLOUD_NAME"];
   const videoId = import.meta.env["VITE_CLOUDINARY_VIDEO_ID"];
@@ -40,7 +44,7 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
 
   const saveData =
     typeof navigator !== "undefined" &&
-    // @ts-expect-error - navigator.connection is not in TypeScript types but exists in modern browsers
+    // @ts-expect-error connection property not in standard Navigator type
     navigator.connection?.saveData;
   const prefersReducedMotion =
     typeof window !== "undefined" &&
@@ -93,17 +97,10 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
   const hasPrice = Boolean(priceLabel || price);
   const hasCTA = Boolean(cta);
 
-  const handleClick = () => {
-    if (onContactClick) return onContactClick();
-    const section = document.getElementById("contact");
-    if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
-    else window.dispatchEvent(new CustomEvent("openContactModal", { detail: { subject: title } }));
-  };
-
   return (
     <section
       id="services-hero"
-      className="relative flex items-center overflow-hidden min-h-[85vh] lg:min-h-[90vh] py-16 sm:py-20"
+      className="relative flex items-center overflow-hidden min-h-[85vh] lg:minh-[90vh] py-16 sm:py-20"
       aria-labelledby="services-hero-title"
     >
       <video
@@ -119,10 +116,7 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
         <source src={VIDEO_SRC} type="video/mp4" />
       </video>
 
-      <div
-        className="absolute inset-0 bg-gradient-to-br from-charcoal/50 via-charcoal/40 to-charcoal/50"
-        aria-hidden="true"
-      />
+      <div className="absolute inset-0 bg-gradient-to-br from-charcoal/50 via-charcoal/40 to-charcoal/50" aria-hidden="true" />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 h-full flex items-center">
         <motion.div
@@ -133,10 +127,7 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
           className="w-full max-w-2xl mx-auto lg:mx-0 lg:ml-0"
         >
           <div className="px-6 py-6 sm:px-10 sm:py-8 md:px-12 md:py-10 lg:px-14 lg:py-12 rounded-3xl bg-white/95 backdrop-blur-lg border-2 border-white/40 shadow-elevated text-center lg:text-left">
-            <h2
-              id="services-hero-title"
-              className="font-heading font-normal text-charcoal leading-tight tracking-tight text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
-            >
+            <h2 id="services-hero-title" className="font-heading font-normal text-charcoal leading-tight tracking-tight text-2xl sm:text-3xl md:text-4xl lg:text-5xl">
               {toSentenceCase(title)}
             </h2>
 
@@ -160,10 +151,9 @@ export function ServicesHero({ onContactClick }: ServicesHeroProps) {
             {hasCTA && (
               <div className="mt-6 sm:mt-8">
                 <Button
-                  onClick={handleClick}
+                  onClick={() => open('corporate', { defaultEventType: 'corporate' })}
                   size="lg"
                   className="w-full sm:w-auto bg-sage-600 hover:bg-sage-700 text-white shadow-lg"
-                  aria-label={toSentenceCase(cta)}
                 >
                   {toSentenceCase(cta)}
                 </Button>

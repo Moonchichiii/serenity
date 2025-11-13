@@ -11,9 +11,6 @@ import { Suspense, lazy } from 'react'
 const Hero = lazy(() => import('@/pages/hero').then(m => ({ default: m.Hero })))
 const About = lazy(() => import('@/pages/about').then(m => ({ default: m.About })))
 const Services = lazy(() => import('@/pages/services').then(m => ({ default: m.Services })))
-//const Contact = lazy(() => import('@/pages/Contact').then(m => ({ default: m.Contact })))
-
-
 const ReviewTrigger = lazy(() => import('@/components/ReviewTrigger').then(m => ({ default: m.ReviewTrigger })))
 
 const rootRoute = createRootRoute({
@@ -40,7 +37,6 @@ function HomePage() {
       <Hero />
       <About />
       <Services />
-      {/* <Contact /> */}
       <ReviewTrigger targetSectionId="testimonials" />
     </>
   )
@@ -52,9 +48,7 @@ const indexRoute = createRoute({
   component: HomePage,
 })
 
-const routeTree = rootRoute.addChildren([
-  layoutRoute.addChildren([indexRoute]),
-])
+const routeTree = rootRoute.addChildren([layoutRoute.addChildren([indexRoute])])
 
 const router = createRouter({
   routeTree,

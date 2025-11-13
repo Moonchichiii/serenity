@@ -1,26 +1,47 @@
 import { createContext, useCallback, useContext, useState } from 'react'
 
-type ModalMap = {
-  contact?: boolean
-  cmsLogin?: boolean
+type ModalId = 'contact' | 'corporate' | 'cmsLogin'
+
+type ModalPayload = {
+  defaultSubject?: string
+  defaultEventType?: 'corporate' | 'team' | 'expo' | 'private' | 'other'
 }
 
+type StateMap = Partial<Record<ModalId, boolean>>
+type PayloadMap = Partial<Record<ModalId, ModalPayload | undefined>>
+
 type Ctx = {
-  open: (id: keyof ModalMap) => void
-  close: (id: keyof ModalMap) => void
-  isOpen: (id: keyof ModalMap) => boolean
+  open: (id: ModalId, payload?: ModalPayload) => void
+  close: (id: ModalId) => void
+  isOpen: (id: ModalId) => boolean
+  getPayload: (id: ModalId) => ModalPayload | undefined
 }
 
 const ModalCtx = createContext<Ctx | null>(null)
 
 export function ModalProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<ModalMap>({})
+  const [state, setState] = useState<StateMap>({})
+  const [payloads, setPayloads] = useState<PayloadMap>({})
 
-  const open = useCallback((id: keyof ModalMap) => setState(s => ({ ...s, [id]: true })), [])
-  const close = useCallback((id: keyof ModalMap) => setState(s => ({ ...s, [id]: false })), [])
-  const isOpen = useCallback((id: keyof ModalMap) => !!state[id], [state])
+  const open = useCallback((id: ModalId, payload?: ModalPayload) => {
+    setState(s => ({ ...s, [id]: true }))
+    if (payload) setPayloads(p => ({ ...p, [id]: payload }))
+  }, [])
 
-  return <ModalCtx.Provider value={{ open, close, isOpen }}>{children}</ModalCtx.Provider>
+  const close = useCallback((id: ModalId) => {
+    setState(s => ({ ...s, [id]: false }))
+    setPayloads(p => ({ ...p, [id]: undefined }))
+  }, [])
+
+  const isOpen = useCallback((id: ModalId) => !!state[id], [state])
+
+  const getPayload = useCallback((id: ModalId) => payloads[id], [payloads])
+
+  return (
+    <ModalCtx.Provider value={{ open, close, isOpen, getPayload }}>
+      {children}
+    </ModalCtx.Provider>
+  )
 }
 
 // eslint-disable-next-line react-refresh/only-export-components

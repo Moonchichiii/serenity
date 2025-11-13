@@ -116,13 +116,6 @@ const resources = {
             attendeesNumber: 'Enter a number',
             attendeesMin: 'At least 1 attendee',
           },
-          eventType: {
-            corporate: 'Corporate wellness',
-            team: 'Team day / offsite',
-            expo: 'Fair / expo / booth',
-            private: 'Private event',
-            other: 'Other',
-          },
         },
       },
       booking: {
@@ -348,11 +341,11 @@ const resources = {
             nameTooShort: 'Le nom est trop court',
             emailRequired: "L'email est requis",
             emailInvalid: 'Email invalide',
-            companyRequired: 'Le nom de l'entreprise est requis',
+            companyRequired: 'Le nom de l\'entreprise est requis',
             attendeesNumber: 'Entrez un nombre',
             attendeesMin: 'Au moins 1 participant',
           },
-          eventType: {
+          eventTypes: {
             corporate: 'Bien-être en entreprise',
             team: 'Journée équipe / offsite',
             expo: 'Salon / stand / expo',
@@ -362,13 +355,13 @@ const resources = {
         },
       },
       booking: {
-        title: 'Réservez votre séance',
+        title: 'Réserver votre séance',
         subtitle: 'Sélectionnez votre horaire et service préférés',
         form: {
           name: 'Nom complet',
           email: 'Adresse email',
           phone: 'Numéro de téléphone',
-          service: 'Choisir un service',
+          service: 'Sélectionner un service',
           date: 'Date souhaitée',
           time: 'Heure souhaitée',
           notes: 'Demandes spéciales (optionnel)',
@@ -483,9 +476,7 @@ i18next
   .init({
     resources,
     fallbackLng: 'fr',
-    interpolation: {
-      escapeValue: false,
-    },
+    interpolation: { escapeValue: false },
     detection: {
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],

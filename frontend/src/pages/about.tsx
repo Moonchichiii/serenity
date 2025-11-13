@@ -1,16 +1,19 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import SecretTrigger from '@/components/secret/SecretTrigger'
 import { cmsAPI, type WagtailHomePage, type WagtailImage, type WagtailSpecialty } from '@/api/cms'
 import { Button } from '@/components/ui/Button'
 import CloudImage from '@/components/ResponsiveImage'
+import { useModal } from '@/shared/hooks/useModal'
 
 type GridItem = { title: string; image?: WagtailImage | null }
 
 export function About() {
   const { t, i18n } = useTranslation()
+  const { open } = useModal()
   const [cmsData, setCmsData] = useState<WagtailHomePage | null>(null)
+  const reduceMotion = useReducedMotion()
 
   useEffect(() => {
     cmsAPI.getHomePage().then(setCmsData).catch(() => setCmsData(null))
@@ -28,7 +31,6 @@ export function About() {
       approachText: t('about.approachText'),
       specialtiesTitle: t('about.specialties'),
       specialtiesGrid: [] as GridItem[],
-      specialtiesList: [t('about.specialty1'), t('about.specialty2'), t('about.specialty3'), t('about.specialty4')].filter(Boolean),
     }
 
     if (!cmsData) return base
@@ -41,14 +43,6 @@ export function About() {
         }))
         .filter((s: GridItem): s is GridItem => Boolean(s.title))
 
-    const legacyList = [
-      (lang === 'fr' ? cmsData.specialty_1_fr : cmsData.specialty_1_en),
-      (lang === 'fr' ? cmsData.specialty_2_fr : cmsData.specialty_2_en),
-      (lang === 'fr' ? cmsData.specialty_3_fr : cmsData.specialty_3_en),
-      (lang === 'fr' ? cmsData.specialty_4_fr : cmsData.specialty_4_en),
-      (lang === 'fr' ? cmsData.specialty_5_fr : cmsData.specialty_5_en),
-    ].filter((v): v is string => Boolean(v))
-
     return {
       ...base,
       title: (lang === 'fr' ? cmsData.about_title_fr : cmsData.about_title_en) || base.title,
@@ -59,9 +53,6 @@ export function About() {
       approachText: (lang === 'fr' ? cmsData.about_approach_text_fr : cmsData.about_approach_text_en) || base.approachText,
       specialtiesTitle: (lang === 'fr' ? cmsData.about_specialties_title_fr : cmsData.about_specialties_title_en) || base.specialtiesTitle,
       specialtiesGrid,
-      specialtiesList: specialtiesGrid.length
-        ? specialtiesGrid.map((s: GridItem) => s.title)
-        : (legacyList.length ? legacyList : base.specialtiesList),
     }
   }, [cmsData, lang, t])
 
@@ -72,10 +63,32 @@ export function About() {
     return tmp.textContent || tmp.innerText || ''
   }
 
+  // Framer Motion variants (disabled if reduceMotion)
+  const gridVariants = reduceMotion
+    ? undefined
+    : {
+        hidden: {},
+        show: {
+          transition: { staggerChildren: 0.08, delayChildren: 0.12 },
+        },
+      }
+
+  const cardVariants = reduceMotion
+    ? undefined
+    : {
+        hidden: { opacity: 0, y: -24, scale: 0.98 },
+        show: {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          transition: { type: 'spring', stiffness: 220, damping: 22 },
+        },
+      }
+
   return (
     <section id="about" className="min-h-screen relative overflow-hidden">
       <div className="container mx-auto px-6 lg:px-12 py-16 lg:py-24">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[85vh]">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[70vh]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -106,7 +119,11 @@ export function About() {
               <p className="text-base md:text-lg text-foreground/60 max-w-lg">{content.subtitle}</p>
             )}
 
-            <Button size="lg" className="text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all">
+            <Button
+              size="lg"
+              className="text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all"
+              onClick={() => open('contact', { defaultSubject: 'Appointment request' })}
+            >
               {t('about.cta', { defaultValue: 'Book a Session' })}
             </Button>
           </motion.div>
@@ -126,15 +143,16 @@ export function About() {
           {/* CMS-driven Specialties Masonry Grid */}
           {cmsData && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
+              variants={gridVariants}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.2 }}
               className="columns-1 sm:columns-2 lg:columns-3 gap-5 [column-fill:balance]"
             >
               {content.specialtiesGrid.map((sp: GridItem, i: number) => (
-                <div
+                <motion.div
                   key={`${sp.title}-${i}`}
+                  variants={cardVariants}
                   className="inline-block w-full mb-5 break-inside-avoid rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   {sp.image?.url ? (
@@ -152,43 +170,33 @@ export function About() {
                   <div className="px-4 py-3 bg-white/70 backdrop-blur-sm">
                     <p className="text-sm text-foreground/80 text-center">{sp.title}</p>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </motion.div>
           )}
         </div>
 
-        <div className="mt-32 grid md:grid-cols-2 gap-12 lg:gap-16 max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
+        {/* Keep “My approach” only; remove duplicate specialties list */}
+        <div className="mt-24 max-w-3xl">
+          <motion.h2
+            initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="space-y-4"
+            transition={{ duration: 0.45 }}
+            className="text-3xl md:text-4xl font-bold text-foreground"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">{content.approachTitle}</h2>
-            <p className="text-base md:text-lg text-foreground/70 leading-relaxed">
-              {stripHtml(content.approachText)}
-            </p>
-          </motion.div>
+            {content.approachTitle}
+          </motion.h2>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-            className="space-y-4"
+            transition={{ duration: 0.45, delay: 0.05 }}
+            className="mt-4 text-base md:text-lg text-foreground/70 leading-relaxed"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">{content.specialtiesTitle}</h2>
-            <ul className="space-y-3">
-              {content.specialtiesList.map((specialty: string, idx: number) => (
-                <li key={idx} className="flex items-start gap-3">
-                  <span className="text-accent text-xl">•</span>
-                  <span className="text-base md:text-lg text-foreground/70">{specialty}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
+            {stripHtml(content.approachText)}
+          </motion.p>
         </div>
       </div>
 

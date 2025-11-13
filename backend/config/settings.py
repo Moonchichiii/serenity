@@ -180,15 +180,14 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 # Add these to ensure preflight works
 CORS_PREFLIGHT_MAX_AGE = 86400
 
-# --- django-csp v4 ---
-CSP_NONCE_IN = ("script-src",)
-CSP_EXCLUDE_URL_PREFIXES = ("/cms-admin/", "/admin/", "/documents/")
-
 CONTENT_SECURITY_POLICY = {
     "DIRECTIVES": {
         "default-src": ("'self'",),
-        "script-src": ("'self'",),
-        "style-src": ("'self'", "'unsafe-inline'"),
+        "script-src": ("'self'", "'nonce-*'"),
+        "style-src": (
+            "'self'",
+            "'unsafe-inline'",
+        ),
         "img-src": (
             "'self'",
             "https://res.cloudinary.com",
@@ -209,7 +208,8 @@ CONTENT_SECURITY_POLICY = {
         "base-uri": ("'self'",),
         "form-action": ("'self'",),
         "upgrade-insecure-requests": True,
-    }
+    },
+    "EXCLUDE_URL_PREFIXES": ("/cms-admin/", "/admin/", "/documents/"),
 }
 
 # Security
