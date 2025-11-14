@@ -50,7 +50,7 @@ class HeroSlideSerializer(serializers.Serializer):
 class SpecialtySerializer(serializers.Serializer):
     title_en = serializers.CharField(required=False)
     title_fr = serializers.CharField(required=False)
-    image = WagtailImageSerializer(source="image", required=False, allow_null=True)
+    image = WagtailImageSerializer(required=False, allow_null=True)
 
 
 class HomePageSerializer(serializers.ModelSerializer):
