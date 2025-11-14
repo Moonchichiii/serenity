@@ -188,7 +188,15 @@ class HomePage(Page):
             "(e.g. 'serenity/corporate-loop'). Do NOT include extension."
         ),
     )
-
+    services_hero_video_file = models.FileField(
+        upload_to="services/videos/",
+        blank=True,
+        null=True,
+        help_text=(
+            "Upload MP4 background video for the corporate hero section. "
+            "This is stored on Cloudinary."
+        ),
+    )
     services_hero_poster_image = models.ForeignKey(
         Image,
         null=True,
@@ -423,6 +431,10 @@ class HomePage(Page):
                 FieldPanel(
                     "services_hero_video_public_id",
                     heading="Background video (Cloudinary public ID)",
+                ),
+                FieldPanel(
+                    "services_hero_video_file",
+                    heading="Background video file (MP4, optional)",
                 ),
                 FieldPanel(
                     "services_hero_poster_image",

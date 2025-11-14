@@ -61,6 +61,7 @@ class HomePageSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True,
     )
+    services_hero_video_url = serializers.SerializerMethodField()
 
     class Meta:
         model = HomePage
@@ -112,6 +113,7 @@ class HomePageSerializer(serializers.ModelSerializer):
             "services_hero_benefit_3_en",
             "services_hero_benefit_3_fr",
             "services_hero_video_public_id",
+            "services_hero_video_url",
             "services_hero_poster_image",
         ]
 
@@ -128,6 +130,13 @@ class HomePageSerializer(serializers.ModelSerializer):
         ).data
 
         return data
+
+    def get_services_hero_video_url(self, obj):
+        f = getattr(obj, "services_hero_video_file", None)
+        try:
+            return f.url if f else None
+        except Exception:
+            return None
 
 
 class ServiceSerializer(serializers.ModelSerializer):
