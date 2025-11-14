@@ -15,8 +15,12 @@ class WagtailImageSerializer(serializers.ModelSerializer):
         model = Image
         fields = ("title", "width", "height", "url")
 
-    def get_url(self, obj: Image) -> str:
-        return obj.file.url
+    def get_url(self, obj: Image):
+        try:
+            f = getattr(obj, "file", None)
+            return getattr(f, "url", None) if f else None
+        except Exception:
+            return None
 
 
 class HeroSlideSerializer(serializers.Serializer):
@@ -30,11 +34,15 @@ class HeroSlideSerializer(serializers.Serializer):
         img = getattr(obj, "image", None)
         if not img:
             return None
-        base_url = img.file.url
+        try:
+            f = getattr(img, "file", None)
+            base_url = getattr(f, "url", None) if f else None
+        except Exception:
+            base_url = None
         return {
-            "title": img.title,
-            "width": img.width,
-            "height": img.height,
+            "title": getattr(img, "title", "") or "",
+            "width": getattr(img, "width", None),
+            "height": getattr(img, "height", None),
             "url": base_url,
         }
 
@@ -118,7 +126,7 @@ class HomePageSerializer(serializers.ModelSerializer):
 
 
 class ServiceSerializer(serializers.ModelSerializer):
-    image = WagtailImageSerializer()
+    image = WagtailImageSerializer(required=False, allow_null=True)
 
     class Meta:
         model = Service

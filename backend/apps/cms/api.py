@@ -27,7 +27,10 @@ def homepage(request):
     cache_key = f"cms:homepage:{site_id}:{lang}"
 
     data = cache.get(cache_key)
-    if not data:
+    if data:
+        return Response(data)
+
+    try:
         if not site:
             page = HomePage.objects.live().first()
         elif isinstance(site.root_page.specific, HomePage):
@@ -58,8 +61,13 @@ def homepage(request):
             .get(pk=page.pk)
         )
         data = HomePageSerializer(page, context={"request": request}).data
-        cache.set(cache_key, data, 60 * 60)  # 1 hour
+    except Exception:
+        import logging
 
+        logging.getLogger(__name__).exception("homepage API error")
+        return Response({}, status=200)
+
+    cache.set(cache_key, data, 3600)
     return Response(data)
 
 
