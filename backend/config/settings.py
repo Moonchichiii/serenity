@@ -177,13 +177,13 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
     "x-requested-with",
 ]
 
-# Add these to ensure preflight works
+# Preflight cache duration
 CORS_PREFLIGHT_MAX_AGE = 86400
 
 CONTENT_SECURITY_POLICY = {
     "DIRECTIVES": {
         "default-src": ("'self'",),
-        "script-src": ("'self'", "'nonce-*'"),
+        "script-src": ("'self'",),
         "style-src": (
             "'self'",
             "'unsafe-inline'",
@@ -197,7 +197,10 @@ CONTENT_SECURITY_POLICY = {
             "blob:",
         ),
         "media-src": ("'self'", "https://res.cloudinary.com", "blob:"),
-        "font-src": ("'self'", "data:"),
+        "font-src": (
+            "'self'",
+            "data:",
+        ),
         "connect-src": (
             "'self'",
             "https://serenity.fly.dev",
@@ -211,6 +214,7 @@ CONTENT_SECURITY_POLICY = {
     },
     "EXCLUDE_URL_PREFIXES": ("/cms-admin/", "/admin/", "/documents/"),
 }
+
 
 # Security
 if ENVIRONMENT == "production":

@@ -178,66 +178,7 @@ class HomePage(Page):
         default="",
         help_text="Titre des spécialités (ex: 'Spécialités')",
     )
-    specialty_1_en = models.CharField(
-        max_length=200,
-        blank=True,
-        default="",
-        help_text="First specialty (e.g., 'Deep Tissue Therapy')",
-    )
-    specialty_1_fr = models.CharField(
-        max_length=200,
-        blank=True,
-        default="",
-        help_text="Première spécialité (ex: 'Thérapie Tissus Profonds')",
-    )
-    specialty_2_en = models.CharField(
-        max_length=200,
-        blank=True,
-        default="",
-        help_text="Second specialty (e.g., 'Swedish Relaxation')",
-    )
-    specialty_2_fr = models.CharField(
-        max_length=200,
-        blank=True,
-        default="",
-        help_text="Deuxième spécialité (ex: 'Relaxation Suédoise')",
-    )
-    specialty_3_en = models.CharField(
-        max_length=200,
-        blank=True,
-        default="",
-        help_text="Third specialty (e.g., 'Sports Recovery')",
-    )
-    specialty_3_fr = models.CharField(
-        max_length=200,
-        blank=True,
-        default="",
-        help_text="Troisième spécialité (ex: 'Récupération Sportive')",
-    )
-    specialty_4_en = models.CharField(
-        max_length=200,
-        blank=True,
-        default="",
-        help_text="Fourth specialty (e.g., 'Prenatal Care')",
-    )
-    specialty_4_fr = models.CharField(
-        max_length=200,
-        blank=True,
-        default="",
-        help_text="Quatrième spécialité (ex: 'Soins Prénatals')",
-    )
-    specialty_5_en = models.CharField(
-        max_length=200,
-        blank=True,
-        default="",
-        help_text="Fifth specialty (e.g., 'Reflexology')",
-    )
-    specialty_5_fr = models.CharField(
-        max_length=200,
-        blank=True,
-        default="",
-        help_text="Cinquième spécialité (ex: 'Réflexologie')",
-    )
+
     services_hero_video_public_id = models.CharField(
         max_length=255,
         blank=True,
@@ -436,51 +377,16 @@ class HomePage(Page):
         MultiFieldPanel(
             [
                 FieldPanel(
-                    "about_specialties_title_en", heading="Section Title (English)"
+                    "about_specialties_title_en",
+                    heading="Section Title (English)",
                 ),
                 FieldPanel(
-                    "about_specialties_title_fr", heading="Section Title (Français)"
+                    "about_specialties_title_fr",
+                    heading="Section Title (Français)",
                 ),
-                InlinePanel("specialties", label="Specialties (image + title)"),
-                FieldPanel(
-                    "specialty_1_en",
-                    heading="Specialty 1 (English) - e.g., Deep Tissue Therapy",
-                ),
-                FieldPanel(
-                    "specialty_1_fr",
-                    heading="Specialty 1 (Français) - e.g., Thérapie Tissus Profonds",
-                ),
-                FieldPanel(
-                    "specialty_2_en",
-                    heading="Specialty 2 (English) - e.g., Swedish Relaxation",
-                ),
-                FieldPanel(
-                    "specialty_2_fr",
-                    heading="Specialty 2 (Français) - e.g., Relaxation Suédoise",
-                ),
-                FieldPanel(
-                    "specialty_3_en",
-                    heading="Specialty 3 (English) - e.g., Sports Recovery",
-                ),
-                FieldPanel(
-                    "specialty_3_fr",
-                    heading="Specialty 3 (Français) - e.g., Récupération Sportive",
-                ),
-                FieldPanel(
-                    "specialty_4_en",
-                    heading="Specialty 4 (English) - e.g., Prenatal Care",
-                ),
-                FieldPanel(
-                    "specialty_4_fr",
-                    heading="Specialty 4 (Français) - e.g., Soins Prénatals",
-                ),
-                FieldPanel(
-                    "specialty_5_en",
-                    heading="Specialty 5 (English) - e.g., Reflexology",
-                ),
-                FieldPanel(
-                    "specialty_5_fr",
-                    heading="Specialty 5 (Français) - e.g., Réflexologie",
+                InlinePanel(
+                    "specialties",
+                    label="Specialties (image + title)",
                 ),
             ],
             heading="👤 About Section - Your Specialties",

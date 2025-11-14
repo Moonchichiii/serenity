@@ -57,46 +57,46 @@ class HomePageSerializer(serializers.ModelSerializer):
     hero_slides = HeroSlideSerializer(many=True)
     hero_image = WagtailImageSerializer(required=False, allow_null=True)
     specialties = SpecialtySerializer(many=True, required=False)
+    services_hero_poster_image = WagtailImageSerializer(
+        required=False,
+        allow_null=True,
+    )
 
     class Meta:
         model = HomePage
         fields = [
+            # Hero
             "hero_title_en",
             "hero_title_fr",
             "hero_subtitle_en",
             "hero_subtitle_fr",
             "hero_image",
             "hero_slides",
+            # About – Header
             "about_title_en",
             "about_title_fr",
             "about_subtitle_en",
             "about_subtitle_fr",
+            # About – Intro
             "about_intro_en",
             "about_intro_fr",
             "about_certification_en",
             "about_certification_fr",
+            # About – Approach
             "about_approach_title_en",
             "about_approach_title_fr",
             "about_approach_text_en",
             "about_approach_text_fr",
+            # About – Specialties
             "about_specialties_title_en",
             "about_specialties_title_fr",
             "specialties",
-            "specialty_1_en",
-            "specialty_1_fr",
-            "specialty_2_en",
-            "specialty_2_fr",
-            "specialty_3_en",
-            "specialty_3_fr",
-            "specialty_4_en",
-            "specialty_4_fr",
-            "specialty_5_en",
-            "specialty_5_fr",
+            # Contact
             "phone",
             "email",
             "address_en",
             "address_fr",
-            # new service hero fields
+            # Services Hero
             "services_hero_title_en",
             "services_hero_title_fr",
             "services_hero_pricing_label_en",
@@ -111,17 +111,22 @@ class HomePageSerializer(serializers.ModelSerializer):
             "services_hero_benefit_2_fr",
             "services_hero_benefit_3_en",
             "services_hero_benefit_3_fr",
+            "services_hero_video_public_id",
+            "services_hero_poster_image",
         ]
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        # ensure hero_slides are ordered consistently as before
+
+        # Maintain consistent ordering
         data["hero_slides"] = HeroSlideSerializer(
             instance.hero_slides.all().order_by("sort_order"), many=True
         ).data
+
         data["specialties"] = SpecialtySerializer(
             instance.specialties.all().order_by("sort_order"), many=True
         ).data
+
         return data
 
 

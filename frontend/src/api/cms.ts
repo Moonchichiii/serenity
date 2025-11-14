@@ -2,8 +2,8 @@ import { apiClient } from './client'
 
 // Wagtail Image
 export interface WagtailImage {
-  url: string
   title: string
+  url: string
   width?: number
   height?: number
 }
@@ -15,6 +15,13 @@ export interface WagtailHeroSlide {
   subtitle_en?: string
   subtitle_fr?: string
   image: WagtailImage | null
+}
+
+// Specialty (image+title)
+export interface WagtailSpecialty {
+  title_en?: string
+  title_fr?: string
+  image?: WagtailImage | null
 }
 
 // Service
@@ -30,45 +37,46 @@ export interface WagtailService {
   is_available: boolean
 }
 
-export interface WagtailSpecialty {
-  title_en?: string;
-  title_fr?: string;
-  image?: WagtailImage | null;
-}
-
 // Homepage content
 export interface WagtailHomePage {
-  hero_title_fr: string
+  // Hero
   hero_title_en: string
-  hero_subtitle_fr: string
+  hero_title_fr: string
   hero_subtitle_en: string
+  hero_subtitle_fr: string
   hero_image: WagtailImage | null
   hero_slides?: WagtailHeroSlide[]
-  about_title_fr: string
+
+  // About – Header
   about_title_en: string
-  about_subtitle_fr: string
+  about_title_fr: string
   about_subtitle_en: string
-  about_intro_fr: string
+  about_subtitle_fr: string
+
+  // About – Intro
   about_intro_en: string
-  about_certification_fr: string
+  about_intro_fr: string
   about_certification_en: string
-  about_approach_title_fr: string
+  about_certification_fr: string
+
+  // About – Approach
   about_approach_title_en: string
-  about_approach_text_fr: string
+  about_approach_title_fr: string
   about_approach_text_en: string
-  about_specialties_title_fr: string
+  about_approach_text_fr: string
+
+  // About — Specialties (image + title only)
   about_specialties_title_en: string
-  specialty_1_fr: string
-  specialty_1_en: string
-  specialty_2_fr: string
-  specialty_2_en: string
-  specialty_3_fr: string
-  specialty_3_en: string
-  specialty_4_fr: string
-  specialty_4_en: string
-  specialty_5_fr: string
-  specialty_5_en: string
-  specialties?: WagtailSpecialty[];
+  about_specialties_title_fr: string
+  specialties?: WagtailSpecialty[]
+
+  // Contact info
+  phone: string
+  email: string
+  address_en: string
+  address_fr: string
+
+  // Services Hero
   services_hero_title_en: string
   services_hero_title_fr: string
   services_hero_pricing_label_en: string
@@ -83,18 +91,9 @@ export interface WagtailHomePage {
   services_hero_benefit_2_fr: string
   services_hero_benefit_3_en: string
   services_hero_benefit_3_fr: string
-   services_hero_video_public_id: string | null;
-  services_hero_poster_image: {
-    id: number;
-    title: string;
-    url: string;
-    width: number;
-    height: number;
-  } | null;
-  phone: string
-  email: string
-  address_fr: string
-  address_en: string
+
+  services_hero_video_public_id: string | null
+  services_hero_poster_image: WagtailImage | null
 }
 
 // Testimonial
