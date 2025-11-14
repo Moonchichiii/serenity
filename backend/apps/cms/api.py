@@ -18,56 +18,50 @@ from .serializers import HomePageSerializer, ServiceSerializer
 @vary_on_headers("Accept-Language")
 def homepage(request):
     """
-    Get homepage content with all CMS-managed fields.
-    Uses manual caching keyed by site + language.
+    DEBUG version – no cache, no swallowed exceptions.
     """
+
     site = Site.find_for_request(request)
-    site_id = getattr(site, "id", 0)
+    site_id = getattr(site, "id", None)
     lang = getattr(request, "LANGUAGE_CODE", "en")
-    cache_key = f"cms:homepage:{site_id}:{lang}"
 
-    data = cache.get(cache_key)
-    if data:
-        return Response(data)
+    # helpful debug prints in your runserver console
+    print("DEBUG /api/homepage/: site =", site, "site_id =", site_id, "lang =", lang)
 
-    try:
-        if not site:
-            page = HomePage.objects.live().first()
-        elif isinstance(site.root_page.specific, HomePage):
-            page = site.root_page.specific
-        else:
-            page = HomePage.objects.live().descendant_of(site.root_page).first()
+    if not site:
+        page = HomePage.objects.live().first()
+    elif isinstance(site.root_page.specific, HomePage):
+        page = site.root_page.specific
+    else:
+        page = HomePage.objects.live().descendant_of(site.root_page).first()
 
-        if not page:
-            # Still emit Vary header thanks to decorator
-            return Response({}, status=200)
+    print("DEBUG /api/homepage/: page =", page)
 
-        page = (
-            page.__class__.objects.select_related("hero_image")
-            .prefetch_related(
-                Prefetch(
-                    "hero_slides",
-                    queryset=HeroSlide.objects.select_related("image").order_by(
-                        "sort_order"
-                    ),
+    if not page:
+        # make it explicit instead of silently returning {}
+        return Response({"error": "No HomePage found"}, status=404)
+
+    # optional prefetch, same as before
+    page = (
+        page.__class__.objects.select_related("hero_image")
+        .prefetch_related(
+            Prefetch(
+                "hero_slides",
+                queryset=HeroSlide.objects.select_related("image").order_by(
+                    "sort_order"
                 ),
-                Prefetch(
-                    "specialties",
-                    queryset=Specialty.objects.select_related("image").order_by(
-                        "sort_order"
-                    ),
+            ),
+            Prefetch(
+                "specialties",
+                queryset=Specialty.objects.select_related("image").order_by(
+                    "sort_order"
                 ),
-            )
-            .get(pk=page.pk)
+            ),
         )
-        data = HomePageSerializer(page, context={"request": request}).data
-    except Exception:
-        import logging
+        .get(pk=page.pk)
+    )
 
-        logging.getLogger(__name__).exception("homepage API error")
-        return Response({}, status=200)
-
-    cache.set(cache_key, data, 3600)
+    data = HomePageSerializer(page, context={"request": request}).data
     return Response(data)
 
 
