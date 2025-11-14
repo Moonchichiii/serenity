@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion, type Variants, type Transition } from 'framer-motion'
 import SecretTrigger from '@/components/secret/SecretTrigger'
 import { cmsAPI, type WagtailHomePage, type WagtailImage, type WagtailSpecialty } from '@/api/cms'
 import { Button } from '@/components/ui/Button'
@@ -63,8 +63,11 @@ export function About() {
     return tmp.textContent || tmp.innerText || ''
   }
 
-  // Framer Motion variants (disabled if reduceMotion)
-  const gridVariants = reduceMotion
+  // Define typed spring transition to preserve literal type
+  const spring: Transition = { type: 'spring', stiffness: 220, damping: 22 }
+
+  // Framer Motion variants (typed explicitly)
+  const gridVariants: Variants | undefined = reduceMotion
     ? undefined
     : {
         hidden: {},
@@ -73,7 +76,7 @@ export function About() {
         },
       }
 
-  const cardVariants = reduceMotion
+  const cardVariants: Variants | undefined = reduceMotion
     ? undefined
     : {
         hidden: { opacity: 0, y: -24, scale: 0.98 },
@@ -81,7 +84,7 @@ export function About() {
           opacity: 1,
           y: 0,
           scale: 1,
-          transition: { type: 'spring', stiffness: 220, damping: 22 },
+          transition: spring,
         },
       }
 
@@ -96,7 +99,6 @@ export function About() {
             transition={{ duration: 0.6 }}
             className="space-y-8 lg:pr-12"
           >
-
 
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight tracking-tight">
               {content.title}
