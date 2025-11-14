@@ -183,11 +183,8 @@ CORS_PREFLIGHT_MAX_AGE = 86400
 CONTENT_SECURITY_POLICY = {
     "DIRECTIVES": {
         "default-src": ("'self'",),
-        "script-src": ("'self'",),
-        "style-src": (
-            "'self'",
-            "'unsafe-inline'",
-        ),
+        "script-src": ("'self'", "'nonce-*'"),
+        "style-src": ("'self'", "'unsafe-inline'"),
         "img-src": (
             "'self'",
             "https://res.cloudinary.com",
@@ -197,10 +194,7 @@ CONTENT_SECURITY_POLICY = {
             "blob:",
         ),
         "media-src": ("'self'", "https://res.cloudinary.com", "blob:"),
-        "font-src": (
-            "'self'",
-            "data:",
-        ),
+        "font-src": ("'self'", "data:"),
         "connect-src": (
             "'self'",
             "https://serenity.fly.dev",
