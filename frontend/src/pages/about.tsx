@@ -16,7 +16,12 @@ import {
 import { Button } from '@/components/ui/Button';
 import CloudImage from '@/components/ResponsiveImage';
 import { useModal } from '@/shared/hooks/useModal';
-// REMOVED: import { Badge } from '@/components/ui/Badge'; // Not needed if styling directly
+
+// Helper that respects empty strings from CMS
+const pick = (
+  cmsValue: string | null | undefined,
+  fallback: string
+): string => (cmsValue !== null && cmsValue !== undefined ? cmsValue : fallback);
 
 type GridItem = { title: string; image?: WagtailImage | null };
 
@@ -35,6 +40,7 @@ export function About() {
       ? i18n.language
       : 'fr';
 
+  // Always respect CMS → i18n only fills ORPHAN fields
   const content = useMemo(() => {
     const base = {
       title: t('about.title'),
@@ -49,40 +55,38 @@ export function About() {
 
     if (!cmsData) return base;
 
+    // Specialties grid
     const specialtiesGrid = (cmsData.specialties ?? [])
       .map((sp: WagtailSpecialty): GridItem => ({
-        title: (lang === 'fr' ? sp.title_fr : sp.title_en) || '',
+        title: pick(
+          lang === 'fr' ? sp.title_fr : sp.title_en,
+          ''
+        ),
         image: sp.image ?? null,
       }))
-      .filter((s: GridItem): s is GridItem => Boolean(s.title));
+      .filter((s) => s.title.trim().length > 0);
 
     return {
       ...base,
-      title:
-        (lang === 'fr' ? cmsData.about_title_fr : cmsData.about_title_en) ||
-        base.title,
-      subtitle:
-        (lang === 'fr' ? cmsData.about_subtitle_fr : cmsData.about_subtitle_en) ||
-        base.subtitle,
-      intro:
-        (lang === 'fr' ? cmsData.about_intro_fr : cmsData.about_intro_en) ||
-        base.intro,
-      certification:
-        (lang === 'fr'
-          ? cmsData.about_certification_fr
-          : cmsData.about_certification_en) || base.certification,
-      approachTitle:
-        (lang === 'fr'
-          ? cmsData.about_approach_title_fr
-          : cmsData.about_approach_title_en) || base.approachTitle,
-      approachText:
-        (lang === 'fr'
-          ? cmsData.about_approach_text_fr
-          : cmsData.about_approach_text_en) || base.approachText,
-      specialtiesTitle:
-        (lang === 'fr'
-          ? cmsData.about_specialties_title_fr
-          : cmsData.about_specialties_title_en) || base.specialtiesTitle,
+      title: pick(cmsData[`about_title_${lang}`], base.title),
+      subtitle: pick(cmsData[`about_subtitle_${lang}`], base.subtitle),
+      intro: pick(cmsData[`about_intro_${lang}`], base.intro),
+      certification: pick(
+        cmsData[`about_certification_${lang}`],
+        base.certification
+      ),
+      approachTitle: pick(
+        cmsData[`about_approach_title_${lang}`],
+        base.approachTitle
+      ),
+      approachText: pick(
+        cmsData[`about_approach_text_${lang}`],
+        base.approachText
+      ),
+      specialtiesTitle: pick(
+        cmsData[`about_specialties_title_${lang}`],
+        base.specialtiesTitle
+      ),
       specialtiesGrid,
     };
   }, [cmsData, lang, t]);
@@ -94,10 +98,8 @@ export function About() {
     return tmp.textContent || tmp.innerText || '';
   };
 
-  // Define typed spring transition to preserve literal type
+  // Animations
   const spring: Transition = { type: 'spring', stiffness: 220, damping: 22 };
-
-  // Framer Motion variants (typed explicitly)
   const gridVariants: Variants | undefined = reduceMotion
     ? undefined
     : {
@@ -106,7 +108,6 @@ export function About() {
           transition: { staggerChildren: 0.08, delayChildren: 0.12 },
         },
       };
-
   const cardVariants: Variants | undefined = reduceMotion
     ? undefined
     : {
@@ -122,15 +123,15 @@ export function About() {
   return (
     <section id="about" className="min-h-screen relative overflow-hidden">
       <div className="container mx-auto px-6 lg:px-12 py-16 lg:py-24">
-        {/* Grid for intro and specialties */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start min-h-[70vh]">
-          {/* Intro Section */}
+
+          {/* LEFT COLUMN — Intro */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="space-y-8 lg:pr-12" // Increased padding for larger screens
+            className="space-y-8 lg:pr-12"
           >
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight tracking-tight">
               {content.title}
@@ -151,7 +152,6 @@ export function About() {
               </p>
             )}
 
-            {/* CTA and Certification Badge */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <Button
                 size="lg"
@@ -164,31 +164,27 @@ export function About() {
               </Button>
 
               {content.certification && (
-                <div
-                  // Styling to mimic a badge
-                  className="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm px-4 py-2 rounded-full border border-primary text-sm font-medium text-foreground/80"
-                >
+                <div className="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm px-4 py-2 rounded-full border border-primary text-sm font-medium text-foreground/80">
                   {stripHtml(content.certification)}
                 </div>
               )}
             </div>
           </motion.div>
 
-          {/* Specialties Grid Section */}
-          <div className="mt-12 lg:mt-0"> {/* Add margin-top for mobile, remove for lg+ */}
+          {/* RIGHT COLUMN — Specialties */}
+          <div className="mt-12 lg:mt-0">
             {content.specialtiesTitle && (
               <motion.h2
                 initial={{ opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.45 }}
-                className="text-3xl md:text-4xl font-bold text-foreground mb-8 text-center lg:text-left" // Center align for mobile, left for lg+
+                className="text-3xl md:text-4xl font-bold text-foreground mb-8 text-center lg:text-left"
               >
                 {content.specialtiesTitle}
               </motion.h2>
             )}
 
-            {/* Loading skeleton */}
             {!cmsData && (
               <div className="columns-1 sm:columns-2 lg:columns-2 gap-5 [column-fill:balance]">
                 {Array.from({ length: 4 }).map((_, i) => (
@@ -203,17 +199,15 @@ export function About() {
               </div>
             )}
 
-            {/* CMS-driven Specialties Masonry Grid */}
             {cmsData && (
               <motion.div
                 variants={gridVariants}
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: true, amount: 0.2 }}
-                // Responsive columns: 1 on smallest, 2 on sm/md, 2 on lg (to match the example layout)
                 className="columns-1 sm:columns-2 lg:columns-2 gap-5 [column-fill:balance]"
               >
-                {content.specialtiesGrid.map((sp: GridItem, i: number) => (
+                {content.specialtiesGrid.map((sp, i) => (
                   <motion.div
                     key={`${sp.title}-${i}`}
                     variants={cardVariants}
@@ -224,8 +218,7 @@ export function About() {
                         image={sp.image}
                         alt={sp.title}
                         className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500"
-                        // Responsive sizes - check if these are still appropriate for 2 columns
-                        sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 45vw" // Adjusted for 2 columns
+                        sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 45vw"
                       />
                     ) : (
                       <div className="aspect-[4/3] bg-muted grid place-items-center">
@@ -246,7 +239,7 @@ export function About() {
           </div>
         </div>
 
-        {/* My approach" */}
+        {/* Approach */}
         <div className="mt-24 max-w-3xl">
           <motion.h2
             initial={{ opacity: 0, y: 12 }}
@@ -270,7 +263,7 @@ export function About() {
         </div>
       </div>
 
-      {/* Background gradients */}
+      {/* Background */}
       <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-primary/5 rounded-full blur-3xl -z-10" />
       <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-secondary/5 rounded-full blur-3xl -z-10" />
     </section>

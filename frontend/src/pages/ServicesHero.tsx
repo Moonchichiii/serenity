@@ -8,10 +8,7 @@ import tinyFallbackPoster from "@/assets/poster.webp";
 import { Button } from '@/components/ui/Button'
 import { useModal } from '@/shared/hooks/useModal'
 
-// ❌ remove the unused prop interface
-// interface ServicesHeroProps {
-//   onContactClick?: () => void;
-// }
+
 
 const toSentenceCase = (s?: string) => {
   if (!s) return '';
@@ -20,7 +17,6 @@ const toSentenceCase = (s?: string) => {
   return first + rest;
 };
 
-// ❌ remove prop from signature
 export function ServicesHero() {
   const { i18n } = useTranslation();
   const [page, setPage] = useState<WagtailHomePage | null>(null);
