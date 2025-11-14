@@ -15,19 +15,19 @@ def add_welcome_panel(request, panels):
             from apps.cms.models import HomePage
 
             homepage = HomePage.objects.first()
+
             edit_url = (
                 f"/cms-admin/pages/{homepage.id}/edit/"
                 if homepage
                 else "/cms-admin/pages/"
             )
-            return format_html(
-                "{}",
-                mark_safe(
-                    render_to_string(
-                        "admin/serenity_welcome.html", {"edit_url": edit_url}
-                    )
-                ),
-            )
+
+            context = {
+                "edit_url": edit_url,
+            }
+
+            html = render_to_string("admin/serenity_welcome.html", context)
+            return format_html("{}", mark_safe(html))
 
     panels.insert(0, WelcomePanel())
     return panels

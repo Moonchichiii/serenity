@@ -238,6 +238,24 @@ class HomePage(Page):
         default="",
         help_text="Cinquième spécialité (ex: 'Réflexologie')",
     )
+    services_hero_video_public_id = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text=(
+            "Cloudinary public ID for background video "
+            "(e.g. 'serenity/corporate-loop'). Do NOT include extension."
+        ),
+    )
+
+    services_hero_poster_image = models.ForeignKey(
+        Image,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Poster image shown before / instead of video (background still).",
+    )
 
     phone = models.CharField(
         max_length=64,
@@ -496,6 +514,14 @@ class HomePage(Page):
                 FieldPanel("services_hero_benefit_2_fr"),
                 FieldPanel("services_hero_benefit_3_en"),
                 FieldPanel("services_hero_benefit_3_fr"),
+                FieldPanel(
+                    "services_hero_video_public_id",
+                    heading="Background video (Cloudinary public ID)",
+                ),
+                FieldPanel(
+                    "services_hero_poster_image",
+                    heading="Poster image (Wagtail image)",
+                ),
             ],
             heading="💼 Services Hero Section",
             classname="collapsible",

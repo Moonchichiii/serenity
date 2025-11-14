@@ -1,4 +1,6 @@
-const CLOUDINARY_CLOUD_NAME = "dbzlaawqt";
+export const CLOUDINARY_CLOUD_NAME =
+  import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dbzlaawqt";
+
 
 const WIDTHS = [360, 480, 640, 768, 1024, 1280, 1536];
 

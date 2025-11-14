@@ -152,28 +152,32 @@ box-shadow: var(--shadow-sm); transition: transform .25s ease, box-shadow .25s e
         <a class="btn btn-ghost secondary" href="{{ admin_home }}snippets/services/service/add/">Add Service</a>
       </div>
     </div>
-    <div class="section-card animate-slide-up" style="animation-delay:210ms" data-key="servicesHero">
-      <div class="section-card-header">
-        <span class="icon" aria-hidden="true">💼</span>
-        <h3 class="title">Services Hero</h3>
-      </div>
-      <p class="desc">Edit the corporate wellness hero: title, pricing label & price, CTA, and 3 benefits.</p>
-      <ul class="field-list"></ul>
-      <div class="quick-actions">
-        <a class="btn btn-primary primary" href="{{ edit_url }}">Edit Services Hero</a>
-      </div>
-    </div>
-    <div class="section-card animate-slide-up" style="animation-delay:240ms" data-key="photos">
-      <div class="section-card-header">
-        <span class="icon" aria-hidden="true">📸</span>
-        <h3 class="title">Photos</h3>
-      </div>
-      <p class="desc">Upload and manage all images used across your website.</p>
-      <ul class="field-list"></ul>
-      <div class="quick-actions">
-        <a class="btn btn-primary primary" href="{% url 'wagtailimages:index' %}">Open Images</a>
-      </div>
-    </div>
+   <div class="section-card animate-slide-up" style="animation-delay:210ms" data-key="servicesHero">
+  <div class="section-card-header">
+    <span class="icon" aria-hidden="true">💼</span>
+    <h3 class="title">Services Hero</h3>
+  </div>
+
+  <p class="desc">
+    Edit the corporate wellness hero: title, pricing label & price, CTA, 3 benefits,
+    background video and poster image.
+  </p>
+
+  <ul class="field-list">
+    <li>Title (EN / FR)</li>
+    <li>Pricing label (EN / FR)</li>
+    <li>Price (EN / FR)</li>
+    <li>CTA text (EN / FR)</li>
+    <li>3 benefits (EN / FR)</li>
+    <li>Background video public ID</li>
+    <li>Poster image</li>
+  </ul>
+
+  <div class="quick-actions">
+    <a class="btn btn-primary primary" href="{{ edit_url }}">Edit Services Hero</a>
+  </div>
+</div>
+
     <div class="section-card animate-slide-up" style="animation-delay:300ms" data-key="testimonials">
       <div class="section-card-header">
         <span class="icon" aria-hidden="true">⭐</span>
