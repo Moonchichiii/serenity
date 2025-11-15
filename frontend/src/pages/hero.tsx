@@ -100,7 +100,7 @@ export function Hero() {
       {t('hero.ctaPrivate', { defaultValue: 'Book private session' })}
     </Button>
 
-    {/* Corporate wellness CTA – scrolls like header link */}
+    {/* Corporate wellness CTA */}
     <Button
   size="md"
   type="button"

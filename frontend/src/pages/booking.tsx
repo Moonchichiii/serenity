@@ -14,7 +14,6 @@ import { cmsAPI, type WagtailService } from '@/api/cms'
 import { bookingsAPI } from '@/api/booking'
 import { API_URL } from '@/api/client'
 
-
 type BookingFormData = {
   name: string
   email: string
@@ -25,7 +24,6 @@ type BookingFormData = {
   notes?: string
 }
 
-// --- Validation schema ---
 const bookingSchema: yup.ObjectSchema<BookingFormData> = yup
   .object({
     name: yup.string().required('Name is required').min(2),
@@ -34,13 +32,10 @@ const bookingSchema: yup.ObjectSchema<BookingFormData> = yup
     service: yup.string().required('Please select a service'),
     date: yup.string().required('Please select a date'),
     time: yup.string().required('Please select a time'),
-    // keep notes truly optional; normalize empty string -> undefined
     notes: yup.string().optional().transform(v => (v === '' ? undefined : v)),
   })
   .required()
 
-
-// Fallback times until backend returns real ones
 const defaultTimeSlots = [
   '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
   '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
@@ -49,8 +44,6 @@ const defaultTimeSlots = [
 
 export function Booking() {
   const { t, i18n } = useTranslation()
-
-  // CMS Services state
   const [services, setServices] = useState<WagtailService[]>([])
 
   const {
@@ -63,15 +56,14 @@ export function Booking() {
   } = useForm<BookingFormData>({
     resolver: yupResolver(bookingSchema),
     defaultValues: { date: '', time: '' },
-
   })
 
   const selectedTime = watch('time')
-
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [activeStartDate, setActiveStartDate] = useState<Date>(new Date())
   const [busyDates, setBusyDates] = useState<Set<string>>(new Set())
   const [isBusyLoading, setIsBusyLoading] = useState(false)
+  const [availableTimes, setAvailableTimes] = useState<string[]>(defaultTimeSlots)
 
   const ym = useMemo(
     () => ({
@@ -81,7 +73,6 @@ export function Booking() {
     [activeStartDate]
   )
 
-  // Fetch CMS services
   useEffect(() => {
     cmsAPI
       .getServices()
@@ -94,7 +85,6 @@ export function Booking() {
 
   useEffect(() => {
     setIsBusyLoading(true)
-    // Backend returns: { busy: ["YYYY-MM-DD", ...] }
     fetch(`${API_URL}/api/calendar/busy?year=${ym.year}&month=${ym.month}`)
       .then((r) => r.json())
       .then((data: { busy: string[] }) => setBusyDates(new Set(data?.busy ?? [])))
@@ -102,13 +92,12 @@ export function Booking() {
       .finally(() => setIsBusyLoading(false))
   }, [ym.year, ym.month])
 
-  const [availableTimes, setAvailableTimes] = useState<string[]>(defaultTimeSlots)
-
   useEffect(() => {
     if (!selectedDate) return
+
     const iso = format(selectedDate, 'yyyy-MM-dd')
     console.log('🔍 Fetching slots for date:', iso)
-    // Backend returns: { times: ["HH:mm", ...] }
+
     fetch(`${API_URL}/api/calendar/slots?date=${iso}`)
       .then((r) => r.json())
       .then((data: { times: string[] }) => {
@@ -123,28 +112,21 @@ export function Booking() {
 
   const onSubmit: SubmitHandler<BookingFormData> = async (data) => {
     try {
-      // Find selected service to get duration
       const service = services.find((s) => s.id.toString() === data.service)
       if (!service) {
         toast.error('Service not found')
         return
       }
 
-      // Combine date + time into datetime
+      // Combine date + time into datetime for backend
       const dateTimeStr = `${data.date}T${data.time}:00`
       const startDate = parse(dateTimeStr, "yyyy-MM-dd'T'HH:mm:ss", new Date())
-
-      // Calculate end time based on service duration
       const endDate = new Date(startDate.getTime() + service.duration_minutes * 60000)
 
-      // Format as ISO strings with timezone
       const start_datetime = startDate.toISOString()
       const end_datetime = endDate.toISOString()
-
-      // Get current language
       const lang = i18n.language as 'en' | 'fr'
 
-      // Call backend API
       const booking = await bookingsAPI.create({
         service_id: service.id,
         start_datetime,
@@ -156,17 +138,13 @@ export function Booking() {
         preferred_language: lang,
       })
 
-      // Show success with confirmation code
       toast.success(
         `${t('booking.form.submit')} 🎉\nConfirmation: ${booking.confirmation_code}`,
         { duration: 6000 }
       )
 
-      // Reset form
       reset()
       setSelectedDate(null)
-
-      // Optional: Show booking details
       console.log('Booking created:', booking)
 
     } catch (error) {
@@ -202,6 +180,8 @@ export function Booking() {
         >
           <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-elevated border-2 border-sage-200/30">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+
+              {/* Personal Information Section */}
               <div className="space-y-6">
                 <h3 className="text-2xl font-heading font-semibold text-charcoal flex items-center gap-2">
                   <User className="w-6 h-6 text-terracotta-400" />
@@ -259,6 +239,7 @@ export function Booking() {
                 </div>
               </div>
 
+              {/* Appointment Details Section */}
               <div className="space-y-6">
                 <h3 className="text-2xl font-heading font-semibold text-charcoal flex items-center gap-2">
                   <CalendarIcon className="w-6 h-6 text-terracotta-400" />
@@ -276,15 +257,12 @@ export function Booking() {
                   >
                     <option value="">{t('booking.form.service')}</option>
                     {services.length > 0 ? (
-                      // CMS Services
                       services.map((service) => (
                         <option key={service.id} value={service.id}>
-                          {lang === 'fr' ? service.title_fr : service.title_en} - {service.duration_minutes} min - €
-                          {service.price}
+                          {lang === 'fr' ? service.title_fr : service.title_en} - {service.duration_minutes} min - €{service.price}
                         </option>
                       ))
                     ) : (
-                      // Fallback to i18n
                       <>
                         <option value="swedish">{t('services.swedish.title')}</option>
                         <option value="deep">{t('services.deep.title')}</option>
