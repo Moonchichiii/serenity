@@ -80,16 +80,55 @@ export function Hero() {
           {subtitle}
         </p>
 
-        {/* CTA: Subtle fade-in only on mobile, instant on desktop */}
-        <div className="md:opacity-100 animate-fade-in md:animate-none" style={{ animationDelay: '0.2s' }}>
-          <Button
-  size="lg"
-  onClick={() => open('contact', { defaultSubject: 'Appointment request' })}
-  className="shadow-elevated md:hover:scale-105"
+    {/* CTA: Subtle fade-in only on mobile, instant on desktop */}
+<div
+  className="md:opacity-100 animate-fade-in md:animate-none"
+  style={{ animationDelay: '0.2s' }}
 >
-  {t('hero.cta')}
+  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+    {/* Private session CTA */}
+    <Button
+      size="md"
+      onClick={() =>
+        open('contact', { defaultSubject: 'Private session inquiry' })
+      }
+      className="
+        rounded-full shadow-elevated md:hover:scale-105
+        px-6 sm:px-7 text-sm sm:text-base
+      "
+    >
+      {t('hero.ctaPrivate', { defaultValue: 'Book Private Session' })}
+    </Button>
+
+    {/* Corporate wellness CTA – scrolls like header link */}
+    <Button
+  size="md"
+  type="button"
+  onClick={() => {
+    const targetId = 'services-hero'
+    const el = document.getElementById(targetId)
+
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
+      if (window.history && window.history.pushState) {
+        window.history.pushState(null, '', `#${targetId}`)
+      }
+    }
+  }}
+  className="
+    rounded-full shadow-elevated md:hover:scale-105
+    px-6 sm:px-7 text-sm sm:text-base
+  "
+>
+  {t('hero.ctaCorporate', {
+    defaultValue: 'Corporate Wellness Inquiry',
+  })}
 </Button>
-        </div>
+  </div>
+
+</div>
+
       </div>
 <CookieConsent />
       <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-porcelain to-transparent z-10" />

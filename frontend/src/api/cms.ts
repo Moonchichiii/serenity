@@ -91,8 +91,8 @@ export interface WagtailHomePage {
   services_hero_benefit_2_fr: string
   services_hero_benefit_3_en: string
   services_hero_benefit_3_fr: string
-
   services_hero_video_public_id: string | null
+  services_hero_video_url?: string | null
   services_hero_poster_image: WagtailImage | null
 }
 

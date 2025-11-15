@@ -3,7 +3,10 @@ import { Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState } from "react";
 import { cmsAPI, type WagtailHomePage } from "@/api/cms";
-import { CLOUDINARY_CLOUD_NAME, getResponsivePosterUrl } from "@/utils/cloudinary";
+import {
+  CLOUDINARY_CLOUD_NAME,
+  getResponsivePosterUrl,
+} from "@/utils/cloudinary";
 import tinyFallbackPoster from "@/assets/poster.webp";
 import { Button } from "@/components/ui/Button";
 import { useModal } from "@/shared/hooks/useModal";
@@ -85,9 +88,27 @@ export function ServicesHero() {
     };
   }, [page?.services_hero_poster_image?.url]);
 
-  // Compute video src from CMS Cloudinary public ID
+  /**
+   * Video source:
+   * 1) Prefer direct URL from CMS: services_hero_video_url
+   * 2) Fall back to building a Cloudinary URL from services_hero_video_public_id
+   */
   useEffect(() => {
+    if (shouldDisableVideo) {
+      setVideoSrc(null);
+      return;
+    }
+
+    const directUrl = page?.services_hero_video_url?.trim();
     const publicId = page?.services_hero_video_public_id?.trim();
+
+    // 1) Direct URL set in CMS (e.g. Cloudinary or other host)
+    if (directUrl) {
+      setVideoSrc(directUrl);
+      return;
+    }
+
+    // 2) Legacy public ID logic
     if (!publicId) {
       setVideoSrc(null);
       return;
@@ -110,7 +131,6 @@ export function ServicesHero() {
 
     update();
 
-    // Optional: update video on resize (throttled)
     let t: number | undefined;
     const onResize = () => {
       if (t) window.clearTimeout(t);
@@ -125,11 +145,17 @@ export function ServicesHero() {
       }
       if (t) window.clearTimeout(t);
     };
-  }, [page?.services_hero_video_public_id]);
+  }, [
+    page?.services_hero_video_url,
+    page?.services_hero_video_public_id,
+    shouldDisableVideo,
+  ]);
 
   if (!page) return null;
 
-  const title = getString(`services_hero_title_${lang}` as keyof WagtailHomePage);
+  const title = getString(
+    `services_hero_title_${lang}` as keyof WagtailHomePage
+  );
   const priceLabel = getString(
     `services_hero_pricing_label_${lang}` as keyof WagtailHomePage
   );
@@ -157,10 +183,10 @@ export function ServicesHero() {
   return (
     <section
       id="services-hero"
-      className="relative flex items-center overflow-hidden min-h-[85vh] lg:minh-[90vh] py-16 sm:py-20"
+      className="relative flex items-center overflow-hidden min-h-[85vh] lg:min-h-[90vh] py-16 sm:py-20"
       aria-labelledby="services-hero-title"
     >
-      {/* Only render video element if we actually have a video src */}
+      {/* Video / poster background */}
       {videoSrc && (
         <video
           ref={videoRef}
@@ -176,8 +202,6 @@ export function ServicesHero() {
         </video>
       )}
 
-      {/* If no video, we still want the poster as a CSS background fallback.
-          You could optionally add a div here that uses posterUrl as background-image. */}
       {!videoSrc && (
         <div
           className="absolute inset-0 w-full h-full bg-center bg-cover"
@@ -186,62 +210,86 @@ export function ServicesHero() {
         />
       )}
 
+      {/* Dark overlay */}
       <div
-        className="absolute inset-0 bg-gradient-to-br from-charcoal/50 via-charcoal/40 to-charcoal/50"
+        className="absolute inset-0 bg-gradient-to-br from-charcoal/55 via-charcoal/45 to-charcoal/60"
         aria-hidden="true"
       />
 
+      {/* Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 h-full flex items-center">
         <motion.div
           initial={{ opacity: 0, x: -30 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.6 }}
-          className="w-full max-w-2xl mx-auto lg:mx-0 lg:ml-0"
+          className="w-full max-w-5xl mx-auto"
         >
-          <div className="px-6 py-6 sm:px-10 sm:py-8 md:px-12 md:py-10 lg:px-14 lg:py-12 rounded-3xl bg-white/95 backdrop-blur-lg border-2 border-white/40 shadow-elevated text-center lg:text-left">
-            <h2
-              id="services-hero-title"
-              className="font-heading font-normal text-charcoal leading-tight tracking-tight text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
-            >
-              {toSentenceCase(title)}
-            </h2>
+          <div className="rounded-3xl bg-white/95 backdrop-blur-lg border border-white/50 shadow-elevated px-6 py-7 sm:px-10 sm:py-9 md:px-12 md:py-11 lg:px-14 lg:py-12">
+            {/* Title + price pill */}
+            <div className="space-y-4 sm:space-y-5 text-center lg:text-left">
+              <h2
+                id="services-hero-title"
+                className="font-heading font-normal text-charcoal leading-tight tracking-tight text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
+              >
+                {toSentenceCase(title)}
+              </h2>
 
-            {hasPrice && (
-              <p className="mt-3 sm:mt-4 text-base sm:text-lg text-charcoal/80">
-                {priceLabel}{" "}
-                <span className="font-bold text-sage-700 whitespace-nowrap">
-                  {price}
-                </span>
-              </p>
-            )}
+              {hasPrice && (
+                <div className="flex justify-center lg:justify-start">
+                  <div className="inline-flex items-baseline gap-2 rounded-2xl bg-porcelain px-5 py-3 border border-rose-100/70 shadow-soft">
+                    {priceLabel && (
+                      <span className="text-sm sm:text-base font-semibold text-charcoal/75">
+                        {priceLabel}
+                      </span>
+                    )}
+                    {price && (
+                      <span className="text-xl sm:text-2xl font-bold text-terracotta-400 whitespace-nowrap">
+                        {price}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
 
-            <ul className="mt-5 sm:mt-6 grid gap-2.5 sm:gap-3">
-              {benefits.map((b, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="mt-0.5 inline-flex w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full bg-sage-100 border-2 border-sage-400 items-center justify-center">
-                    <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sage-700 stroke-[2.5]" />
-                  </span>
-                  <span className="text-sm sm:text-base text-charcoal/90 leading-relaxed pt-0 font-medium">
-                    {b}
-                  </span>
-                </li>
-              ))}
-            </ul>
-
-            {hasCTA && (
-              <div className="mt-6 sm:mt-8">
-                <Button
-                  onClick={() =>
-                    open("corporate", { defaultEventType: "corporate" })
-                  }
-                  size="lg"
-                  className="w-full sm:w-auto bg-sage-600 hover:bg-sage-700 text-white shadow-lg"
-                >
-                  {toSentenceCase(cta)}
-                </Button>
+            {/* Grid: benefits + CTA, spreads content on larger screens */}
+            <div className="mt-6 sm:mt-8 grid gap-6 lg:gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] items-start">
+              {/* Benefits list */}
+              <div>
+                <ul className="grid gap-3 sm:gap-3.5">
+                  {benefits.map((b, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="mt-0.5 inline-flex w-7 h-7 shrink-0 rounded-full bg-sage-100 border-2 border-sage-400 items-center justify-center">
+                        <Check className="w-4 h-4 text-sage-700 stroke-[2.5]" />
+                      </span>
+                      <span className="text-sm sm:text-base text-charcoal/90 leading-relaxed font-medium">
+                        {b}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            )}
+
+              {/* CTA block */}
+              {hasCTA && (
+                <div className="flex flex-col items-center lg:items-start justify-center gap-4">
+                  <p className="text-sm sm:text-base text-charcoal/80 text-center lg:text-left">
+                    {/* Reuse CTA string as-is, no new text added */}
+                    {toSentenceCase(cta)}
+                  </p>
+                  <Button
+                    onClick={() =>
+                      open("corporate", { defaultEventType: "corporate" })
+                    }
+                    size="md"
+                    className="w-full sm:w-auto rounded-full shadow-elevated bg-sage-600 hover:bg-sage-700 text-white px-7 sm:px-8 text-sm sm:text-base"
+                  >
+                    {toSentenceCase(cta)}
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </motion.div>
       </div>

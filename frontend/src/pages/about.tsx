@@ -6,6 +6,8 @@ import {
   type Variants,
   type Transition,
 } from 'framer-motion';
+import { Heart, User, Award, MapPin, Phone } from 'lucide-react';
+
 import SecretTrigger from '@/components/secret/SecretTrigger';
 import {
   cmsAPI,
@@ -58,10 +60,7 @@ export function About() {
     // Specialties grid
     const specialtiesGrid = (cmsData.specialties ?? [])
       .map((sp: WagtailSpecialty): GridItem => ({
-        title: pick(
-          lang === 'fr' ? sp.title_fr : sp.title_en,
-          ''
-        ),
+        title: pick(lang === 'fr' ? sp.title_fr : sp.title_en, ''),
         image: sp.image ?? null,
       }))
       .filter((s) => s.title.trim().length > 0);
@@ -111,7 +110,7 @@ export function About() {
   const cardVariants: Variants | undefined = reduceMotion
     ? undefined
     : {
-        hidden: { opacity: 0, y: -24, scale: 0.98 },
+        hidden: { opacity: 0, y: 18, scale: 0.97 },
         show: {
           opacity: 1,
           y: 0,
@@ -121,151 +120,277 @@ export function About() {
       };
 
   return (
-    <section id="about" className="min-h-screen relative overflow-hidden">
-      <div className="container mx-auto px-6 lg:px-12 py-16 lg:py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start min-h-[70vh]">
-
-          {/* LEFT COLUMN — Intro */}
-          <motion.div
+    <section
+      id="about"
+      className="section-padding relative overflow-hidden bg-background"
+      aria-labelledby="about-heading"
+    >
+      <div className="container mx-auto px-4 sm:px-6 md:px-12 lg:px-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+          {/* LEFT COLUMN — Story & Approach */}
+          <motion.article
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="space-y-8 lg:pr-12"
+            className="space-y-8 sm:space-y-10"
           >
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight tracking-tight">
-              {content.title}
-            </h1>
+            {/* Section label */}
+            <div
+              className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-foreground/70"
+              role="presentation"
+            >
+              <Heart className="w-4 h-4" aria-hidden="true" />
+              <span>
+                {t('about.label', {
+                  defaultValue: 'About Me',
+                })}{' '}
+                / <span lang="fr">À Propos de moi</span>
+              </span>
+            </div>
 
-            <p className="text-lg md:text-xl text-foreground/70 leading-relaxed max-w-lg">
-              {stripHtml(content.intro)}{' '}
-              <SecretTrigger modalId="cmsLogin" times={3} windowMs={900}>
-                <span className="cursor-text select-text font-semibold text-sage-700 hover:text-sage-800 transition-colors">
-                  Serenity
-                </span>
-              </SecretTrigger>
-            </p>
-
-            {content.subtitle && (
-              <p className="text-base md:text-lg text-foreground/60 max-w-lg">
-                {content.subtitle}
-              </p>
-            )}
-
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-              <Button
-                size="lg"
-                className="text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all"
-                onClick={() =>
-                  open('contact', { defaultSubject: 'Appointment request' })
-                }
+            {/* Heading + intro */}
+            <div className="space-y-4 sm:space-y-6">
+              <h2
+                id="about-heading"
+                className="heading-primary"
               >
-                {t('about.cta', { defaultValue: 'Book a Session' })}
-              </Button>
+                {content.title}
+              </h2>
 
-              {content.certification && (
-                <div className="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm px-4 py-2 rounded-full border border-primary text-sm font-medium text-foreground/80">
-                  {stripHtml(content.certification)}
-                </div>
+              <p className="body-text max-w-xl">
+                {stripHtml(content.intro)}{' '}
+                <SecretTrigger modalId="cmsLogin" times={3} windowMs={900}>
+                  <span className="cursor-text select-text font-semibold text-sage-700 hover:text-sage-800 transition-colors">
+                    Serenity
+                  </span>
+                </SecretTrigger>
+              </p>
+
+              {content.subtitle && (
+                <p className="body-text text-foreground/65 max-w-xl">
+                  {content.subtitle}
+                </p>
               )}
             </div>
-          </motion.div>
 
-          {/* RIGHT COLUMN — Specialties */}
-          <div className="mt-12 lg:mt-0">
-            {content.specialtiesTitle && (
-              <motion.h2
-                initial={{ opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.45 }}
-                className="text-3xl md:text-4xl font-bold text-foreground mb-8 text-center lg:text-left"
-              >
-                {content.specialtiesTitle}
-              </motion.h2>
-            )}
+            {/* Approach card
+            <div className="mt-4 bg-primary/5 border-l-4 border-primary/80 rounded-r-2xl p-6 sm:p-7 shadow-sm">
+              <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-3">
+                {content.approachTitle || t('about.approach', { defaultValue: 'My Approach / Mon Approche' })}
+              </h3>
+              <p className="body-text text-foreground/75">
+                {stripHtml(content.approachText)}
+              </p>
+            </div> */}
 
-            {!cmsData && (
-              <div className="columns-1 sm:columns-2 lg:columns-2 gap-5 [column-fill:balance]">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="inline-block w-full mb-5 break-inside-avoid rounded-3xl overflow-hidden shadow-lg"
-                  >
-                    <div className="aspect-[4/3] animate-pulse bg-sand-200" />
-                    <div className="h-10 bg-white/70" />
+            {/* What guides me */}
+            <div className="space-y-4 pt-4">
+              <h3 className="heading-secondary">
+                {t('about.guidesTitle', { defaultValue: 'What Guides Me' })}
+              </h3>
+
+              <div className="grid gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
+                    <User className="w-5 h-5 text-primary" />
                   </div>
-                ))}
-              </div>
-            )}
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-1">
+                      {t('about.guide.clientCareTitle', {
+                        defaultValue: 'Client-Centered Care',
+                      })}
+                    </h4>
+                    <p className="text-sm text-foreground/70">
+                      {t('about.guide.clientCareBody', {
+                        defaultValue:
+                          'Your comfort, safety, and goals are my top priorities.',
+                      })}
+                    </p>
+                  </div>
+                </div>
 
-            {cmsData && (
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
+                    <Award className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-1">
+                      {t('about.guide.excellenceTitle', {
+                        defaultValue: 'Professional Excellence',
+                      })}
+                    </h4>
+                    <p className="text-sm text-foreground/70">
+                      {t('about.guide.excellenceBody', {
+                        defaultValue:
+                          'I am fully certified and committed to ongoing training.',
+                      })}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
+                    <Heart className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-1">
+                      {t('about.guide.holisticTitle', {
+                        defaultValue: 'Holistic Approach',
+                      })}
+                    </h4>
+                    <p className="text-sm text-foreground/70">
+                      {t('about.guide.holisticBody', {
+                        defaultValue:
+                          'I address the whole person—body, mind, and spirit.',
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Certification + CTA */}
+            <div className="flex flex-col md:flex-row md:items-center gap-4 pt-4">
+              {content.certification && (
+                <div className="inline-flex items-center gap-3 bg-background px-6 py-4 rounded-2xl shadow-soft border border-primary/15">
+                  <Award className="w-7 h-7 text-primary" />
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">
+                      {t('about.certificationLabel', {
+                        defaultValue: 'Certified',
+                      })}
+                    </p>
+                    <p className="text-xs text-foreground/70">
+                      {stripHtml(content.certification)}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-1">
+                <Button
+                  size="md"
+                  className="btn-primary"
+                  onClick={() =>
+                    open('contact', { defaultSubject: 'Appointment request' })
+                  }
+                >
+                  {t('about.cta', { defaultValue: 'Book a Session' })}
+                </Button>
+              </div>
+            </div>
+          </motion.article>
+
+          {/* RIGHT COLUMN — Studio & Specialties */}
+          {cmsData && (
+            <aside className="space-y-8">
+              <div className="space-y-3">
+                <h3 className="heading-secondary">
+                  {content.specialtiesTitle ||
+                    t('about.studioTitle', {
+                      defaultValue: 'My Private Studio',
+                    })}
+                </h3>
+                <p className="body-text max-w-md">
+                  {t('about.studioDescription', {
+                    defaultValue:
+                      'Experience a tranquil, safe, and nurturing environment designed for your comfort and healing.',
+                  })}
+                </p>
+              </div>
+
+              {/* Specialty cards grid */}
               <motion.div
                 variants={gridVariants}
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: true, amount: 0.2 }}
-                className="columns-1 sm:columns-2 lg:columns-2 gap-5 [column-fill:balance]"
+                className="grid grid-cols-2 gap-4 auto-rows-[190px] md:auto-rows-[220px]"
               >
                 {content.specialtiesGrid.map((sp, i) => (
                   <motion.div
                     key={`${sp.title}-${i}`}
                     variants={cardVariants}
-                    className="inline-block w-full mb-5 break-inside-avoid rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+                    className={[
+                      'relative card-specialty col-span-2 overflow-hidden',
+                      i === 0 ? 'md:col-span-1 md:row-span-2' : 'md:col-span-1',
+                    ].join(' ')}
                   >
-                    {sp.image?.url ? (
+                    {sp.image?.url && (
                       <CloudImage
                         image={sp.image}
                         alt={sp.title}
-                        className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500"
+                        className="w-full h-full object-cover"
                         sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 45vw"
                       />
-                    ) : (
-                      <div className="aspect-[4/3] bg-muted grid place-items-center">
-                        <span className="text-foreground/50 text-sm">
-                          {sp.title}
-                        </span>
-                      </div>
                     )}
-                    <div className="px-4 py-3 bg-white/70 backdrop-blur-sm">
-                      <p className="text-sm text-foreground/80 text-center">
-                        {sp.title}
-                      </p>
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent flex items-end">
+                      <div className="p-5 sm:p-6">
+                        <h4 className="text-lg sm:text-xl font-serif font-semibold text-white mb-1">
+                          {sp.title}
+                        </h4>
+                      </div>
                     </div>
                   </motion.div>
                 ))}
               </motion.div>
-            )}
-          </div>
+
+              {/* Location & contact tiles */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <div className="text-center p-4 bg-background rounded-xl border border-primary/15 shadow-soft">
+                  <MapPin className="w-6 h-6 mx-auto text-primary mb-2" />
+                  <div className="text-sm font-medium text-foreground">
+                    {t('about.studioLocationTitle', {
+                      defaultValue: 'Private Studio Location',
+                    })}
+                  </div>
+                  <div className="text-xs text-foreground/70">
+                    {t('about.byAppointment', {
+                      defaultValue: 'By Appointment Only',
+                    })}
+                  </div>
+                </div>
+                <div className="text-center p-4 bg-background rounded-xl border border-primary/15 shadow-soft">
+                  <Phone className="w-6 h-6 mx-auto text-primary mb-2" />
+                  <div className="text-sm font-medium text-foreground">
+                    {t('about.contactTitle', {
+                      defaultValue: 'Call or Text',
+                    })}
+                  </div>
+                  <div className="text-xs text-foreground/70">
+                    {t('about.byAppointment', {
+                      defaultValue: 'By Appointment Only',
+                    })}
+                  </div>
+                </div>
+              </div>
+            </aside>
+          )}
         </div>
 
-        {/* Approach */}
-        <div className="mt-24 max-w-3xl">
-          <motion.h2
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.45 }}
-            className="text-3xl md:text-4xl font-bold text-foreground"
-          >
-            {content.approachTitle}
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.45, delay: 0.05 }}
-            className="mt-4 text-base md:text-lg text-foreground/70 leading-relaxed"
-          >
+        {/* Approach / philosophy section (bottom) */}
+        <div className="mt-24 mb-24 max-w-4xl mx-auto text-center space-y-6">
+          <div className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-foreground/70">
+            <Heart className="w-4 h-4" />
+            <span>{t('about.approachLabel', { defaultValue: 'My Approach' })}</span>
+          </div>
+          <h2 className="heading-secondary">
+            {t('about.approachHeading', {
+              defaultValue: 'A Personalized Wellness Journey',
+            })}
+          </h2>
+          <p className="body-large max-w-3xl mx-auto">
             {stripHtml(content.approachText)}
-          </motion.p>
+          </p>
+
         </div>
       </div>
 
-      {/* Background */}
-      <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-primary/5 rounded-full blur-3xl -z-10" />
-      <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-secondary/5 rounded-full blur-3xl -z-10" />
+      {/* Soft background blobs — keep existing colors */}
+      <div className="pointer-events-none absolute top-0 right-0 w-1/2 h-1/2 bg-primary/5 rounded-full blur-3xl -z-10" />
+      <div className="pointer-events-none absolute bottom-0 left-0 w-1/3 h-1/3 bg-secondary/5 rounded-full blur-3xl -z-10" />
     </section>
   );
 }
