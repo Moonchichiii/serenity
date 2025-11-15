@@ -97,7 +97,7 @@ export function Hero() {
         px-6 sm:px-7 text-sm sm:text-base
       "
     >
-      {t('hero.ctaPrivate', { defaultValue: 'Book Private Session' })}
+      {t('hero.ctaPrivate', { defaultValue: 'Book private session' })}
     </Button>
 
     {/* Corporate wellness CTA – scrolls like header link */}
@@ -122,7 +122,7 @@ export function Hero() {
   "
 >
   {t('hero.ctaCorporate', {
-    defaultValue: 'Corporate Wellness Inquiry',
+    defaultValue: 'Corporate wellness inquiry',
   })}
 </Button>
   </div>
