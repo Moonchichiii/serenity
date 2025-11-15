@@ -23,10 +23,9 @@ export function Header() {
 
   const navItems = useMemo(
     () => [
-    { key: 'about', href: '#about' },
-    { key: 'services', href: '#services' },
-    { key: 'corporate', href: '#services-hero' },
-    //{ key: 'booking', href: '#booking' },
+      { key: 'about', href: '#about' },
+      { key: 'services', href: '#services' },
+      { key: 'corporate', href: '#services-hero' },
     ],
     []
   )
@@ -35,10 +34,9 @@ export function Header() {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
     e.preventDefault()
 
-    // Close mobile menu first
     setIsOpen(false)
 
-    // Small delay to allow menu to close
+    // Allow menu to close before scrolling
     setTimeout(() => {
       const id = href.replace(/^#/, '')
       const el = document.getElementById(id)
@@ -49,7 +47,6 @@ export function Header() {
     }, 100)
   }
 
-  // Scroll detection
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY
@@ -60,7 +57,6 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Close language dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
@@ -85,7 +81,6 @@ export function Header() {
     return () => window.removeEventListener('keydown', onKey)
   }, [isOpen])
 
-  // Close language dropdown on Escape
   useEffect(() => {
     if (!isLangOpen) return
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setIsLangOpen(false)
@@ -126,7 +121,6 @@ export function Header() {
             </span>
           </a>
 
-          {/* Desktop nav */}
           <div className="hidden md:flex items-center space-x-8">
             <ul className="flex items-center space-x-8">
               {navItems.map((item) => (
@@ -152,7 +146,6 @@ export function Header() {
               {t('nav.contact')}
             </button>
 
-            {/* Desktop Language Dropdown */}
             <div className="relative" ref={langDropdownRef}>
               <Button
                 variant="ghost"
@@ -200,9 +193,7 @@ export function Header() {
             </div>
           </div>
 
-          {/* Mobile controls */}
           <div className="flex items-center space-x-4 md:hidden">
-            {/* Mobile Language Dropdown */}
             <div className="relative" ref={langDropdownRef}>
               <Button
                 variant="ghost"
@@ -262,7 +253,6 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile menu */}
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div

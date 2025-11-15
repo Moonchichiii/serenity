@@ -34,17 +34,17 @@ export interface AvailableSlot {
 }
 
 export const bookingsAPI = {
-  create: (data: BookingRequest) =>
+  create: (data: BookingRequest): Promise<BookingResponse> =>
     apiClient.post<BookingResponse>('/api/bookings/', data).then((res) => res.data),
 
-  getAvailability: (serviceId: number, date: string) =>
+  getAvailability: (serviceId: number, date: string): Promise<AvailableSlot[]> =>
     apiClient
       .get<AvailableSlot[]>('/api/bookings/availability/', {
         params: { service_id: serviceId, date },
       })
       .then((res) => res.data),
 
-  getByEmail: (email: string) =>
+  getByEmail: (email: string): Promise<BookingResponse[]> =>
     apiClient
       .get<BookingResponse[]>('/api/bookings/', {
         params: { email },

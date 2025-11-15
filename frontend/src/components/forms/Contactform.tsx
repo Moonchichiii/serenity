@@ -36,7 +36,7 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
       phone: yup
         .string()
         .optional()
-        .transform((v) => (v === '' ? undefined : v)),
+        .transform((v) => (v === '' ? undefined : v)), // Convert empty string to undefined for optional field
       subject: yup
         .string()
         .required(t('contact.form.validation.subjectRequired', 'Subject is required')),
@@ -68,11 +68,12 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
         subject: data.subject,
         message: data.message,
       })
+
       toast.success(t('contact.form.success', 'Message sent successfully! ✨'))
       reset()
       onSuccess?.()
     } catch (error) {
-      console.error('Contact form error:', error)
+      console.error('Contact form submission error:', error)
       toast.error(t('contact.form.error', 'Error sending message. Please try again.'))
     }
   }
@@ -82,6 +83,7 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+      {/* Name Field */}
       <div>
         <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="name">
           {t('contact.form.name', 'Full Name')}
@@ -103,6 +105,7 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
         )}
       </div>
 
+      {/* Email Field */}
       <div>
         <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="email">
           {t('contact.form.email', 'Email')}
@@ -124,6 +127,7 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
         )}
       </div>
 
+      {/* Phone Field */}
       <div>
         <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="phone">
           {t('contact.form.phone', 'Phone')}{' '}
@@ -148,6 +152,7 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
         )}
       </div>
 
+      {/* Subject Field */}
       <div>
         <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="subject">
           {t('contact.form.subject', 'Subject')}
@@ -165,6 +170,7 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
         )}
       </div>
 
+      {/* Message Field */}
       <div>
         <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="message">
           {t('contact.form.message', 'Message')}
@@ -185,7 +191,7 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
         )}
       </div>
 
-      {/* GDPR Notice */}
+      {/* GDPR Privacy Notice */}
       <div className="bg-sage-50 rounded-lg p-4 border border-sage-200">
         <p className="text-xs text-charcoal/80 leading-relaxed">
           <span className="font-semibold text-charcoal">

@@ -1,6 +1,5 @@
 import { apiClient } from './client'
 
-// Wagtail Image
 export interface WagtailImage {
   title: string
   url: string
@@ -8,7 +7,6 @@ export interface WagtailImage {
   height?: number
 }
 
-// Hero slide
 export interface WagtailHeroSlide {
   title_en?: string
   title_fr?: string
@@ -17,14 +15,12 @@ export interface WagtailHeroSlide {
   image: WagtailImage | null
 }
 
-// Specialty (image+title)
 export interface WagtailSpecialty {
   title_en?: string
   title_fr?: string
   image?: WagtailImage | null
 }
 
-// Service
 export interface WagtailService {
   id: number
   title_fr: string
@@ -37,9 +33,8 @@ export interface WagtailService {
   is_available: boolean
 }
 
-// Homepage content
 export interface WagtailHomePage {
-  // Hero
+  // Hero section
   hero_title_en: string
   hero_title_fr: string
   hero_subtitle_en: string
@@ -47,36 +42,36 @@ export interface WagtailHomePage {
   hero_image: WagtailImage | null
   hero_slides?: WagtailHeroSlide[]
 
-  // About – Header
+  // About section headers
   about_title_en: string
   about_title_fr: string
   about_subtitle_en: string
   about_subtitle_fr: string
 
-  // About – Intro
+  // About introduction
   about_intro_en: string
   about_intro_fr: string
   about_certification_en: string
   about_certification_fr: string
 
-  // About – Approach
+  // About approach
   about_approach_title_en: string
   about_approach_title_fr: string
   about_approach_text_en: string
   about_approach_text_fr: string
 
-  // About — Specialties (image + title only)
+  // About specialties
   about_specialties_title_en: string
   about_specialties_title_fr: string
   specialties?: WagtailSpecialty[]
 
-  // Contact info
+  // Contact information
   phone: string
   email: string
   address_en: string
   address_fr: string
 
-  // Services Hero
+  // Services hero section
   services_hero_title_en: string
   services_hero_title_fr: string
   services_hero_pricing_label_en: string
@@ -96,7 +91,6 @@ export interface WagtailHomePage {
   services_hero_poster_image: WagtailImage | null
 }
 
-// Testimonial
 export interface WagtailTestimonial {
   id: number
   name: string
@@ -106,7 +100,6 @@ export interface WagtailTestimonial {
   avatar: string
 }
 
-// Testimonial submission
 export interface TestimonialSubmission {
   name: string
   email?: string
@@ -114,14 +107,12 @@ export interface TestimonialSubmission {
   text: string
 }
 
-// Testimonial submission response
 export interface TestimonialSubmissionResponse {
   success: boolean
   message: string
   id: string
 }
 
-// Testimonial statistics
 export interface TestimonialStats {
   average_rating: number
   total_reviews: number
@@ -132,7 +123,6 @@ export interface TestimonialStats {
   one_star_count: number
 }
 
-// Contact submission
 export interface ContactSubmission {
   name: string
   email: string
@@ -141,48 +131,40 @@ export interface ContactSubmission {
   message: string
 }
 
-// Contact submission response
 export interface ContactSubmissionResponse {
   success: boolean
   message: string
 }
 
-// CMS API client
 export const cmsAPI = {
-  // Get homepage content
-  getHomePage: () =>
+  getHomePage: (): Promise<WagtailHomePage> =>
     apiClient.get<WagtailHomePage>('/api/homepage/').then(res => res.data),
 
-  // Get all available services
-  getServices: () =>
+  getServices: (): Promise<WagtailService[]> =>
     apiClient.get<WagtailService[]>('/api/services/').then(res => res.data),
 
-  // Get testimonials (optional minRating)
-  getTestimonials: (minRating?: number) => {
+  getTestimonials: (minRating?: number): Promise<WagtailTestimonial[]> => {
     const params = typeof minRating === 'number' ? `?min_rating=${minRating}` : ''
     return apiClient
       .get<WagtailTestimonial[]>(`/api/testimonials/${params}`)
       .then(res => res.data)
   },
 
-  // Submit a new testimonial
-  submitTestimonial: (data: TestimonialSubmission) =>
+  submitTestimonial: (data: TestimonialSubmission): Promise<TestimonialSubmissionResponse> =>
     apiClient
       .post<TestimonialSubmissionResponse>('/api/testimonials/submit/', data)
       .then(res => res.data),
 
-  // Get testimonial statistics
-  getTestimonialStats: () =>
+  getTestimonialStats: (): Promise<TestimonialStats> =>
     apiClient.get<TestimonialStats>('/api/testimonials/stats/').then(res => res.data),
 
-  // Submit contact form
-  submitContact: (data: ContactSubmission) =>
+  submitContact: (data: ContactSubmission): Promise<ContactSubmissionResponse> =>
     apiClient
       .post<ContactSubmissionResponse>('/api/contact/submit/', data)
       .then(res => res.data),
 }
 
-// Helper: get language-specific text from bilingual object
+// Extract localized text from bilingual content objects
 export function getLocalizedText<T extends Record<string, unknown>>(
   obj: T,
   field: string,

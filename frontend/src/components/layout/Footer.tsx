@@ -18,7 +18,6 @@ const Footer: React.FC = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.4 }}
         >
-          {/* grid: centered on mobile, 2 cols on >= sm, pulled toward center */}
           <div className="grid gap-10 sm:grid-cols-2 sm:items-start text-center sm:text-left max-w-5xl mx-auto sm:gap-16">
             {/* Brand + Contact */}
             <div className="flex flex-col items-center sm:items-start">
@@ -83,7 +82,7 @@ const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* bottom bar */}
+          {/* Copyright bar */}
           <div className="mt-10 border-t border-white/10 pt-6 text-xs opacity-75 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between text-center sm:text-left">
             <p>
               <span className="absolute -top-2 left-0 text-xs tracking-wide opacity-80">La</span>

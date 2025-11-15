@@ -191,7 +191,7 @@ export function CorporateBookingForm({
         {errors.company && <p className="text-sm text-terracotta-600 mt-1.5">{errors.company.message}</p>}
       </div>
 
-      <div className="grid md:grid-cols-3 gap-4 sm:gap-5">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
         <div>
           <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="eventType">
             {t('corp.form.eventType', 'Event type')}

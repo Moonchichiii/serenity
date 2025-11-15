@@ -1,4 +1,5 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios'
+
 export const API_URL = import.meta.env['VITE_API_URL']
 
 function getCookie(name: string): string | undefined {
@@ -15,12 +16,11 @@ export const apiClient = axios.create({
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
   timeout: 10000,
-  // Axios built-ins for CSRF: match Django defaults
   xsrfCookieName: 'csrftoken',
   xsrfHeaderName: 'X-CSRFToken',
 })
 
-// Add cache headers
+// Cache GET requests for 5 minutes with 1-minute stale revalidation
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const method = (config.method ?? 'get').toLowerCase()
   if (method === 'get') {
@@ -30,7 +30,7 @@ apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config
 })
 
-// Single interceptor: attach CSRF for mutating verbs (belt & suspenders)
+// Attach CSRF token for state-changing operations
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const method = (config.method ?? 'get').toLowerCase()
@@ -45,7 +45,6 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
-// Log common response errors
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
