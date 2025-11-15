@@ -226,67 +226,63 @@ export function ServicesHero() {
           className="w-full max-w-5xl mx-auto"
         >
           <div className="rounded-3xl bg-white/95 backdrop-blur-lg border border-white/50 shadow-elevated px-6 py-7 sm:px-10 sm:py-9 md:px-12 md:py-11 lg:px-14 lg:py-12">
-            {/* Title + price pill */}
-            <div className="space-y-4 sm:space-y-5 text-center lg:text-left">
-              <h2
-                id="services-hero-title"
-                className="font-heading font-normal text-charcoal leading-tight tracking-tight text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
-              >
-                {toSentenceCase(title)}
-              </h2>
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-6 sm:gap-8 lg:gap-12">
+              {/* Left block: title + price + CTA */}
+              <div className="flex-1 space-y-4 sm:space-y-5 text-center lg:text-left">
+                <h2
+                  id="services-hero-title"
+                  className="font-heading font-normal text-charcoal leading-tight tracking-tight text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
+                >
+                  {toSentenceCase(title)}
+                </h2>
 
-              {hasPrice && (
-                <div className="flex justify-center lg:justify-start">
-                  <div className="inline-flex items-baseline gap-2 rounded-2xl bg-porcelain px-5 py-3 border border-rose-100/70 shadow-soft">
-                    {priceLabel && (
-                      <span className="text-sm sm:text-base font-semibold text-charcoal/75">
-                        {priceLabel}
-                      </span>
-                    )}
-                    {price && (
-                      <span className="text-xl sm:text-2xl font-bold text-terracotta-400 whitespace-nowrap">
-                        {price}
-                      </span>
-                    )}
+                {hasPrice && (
+                  <div className="flex justify-center lg:justify-start">
+                    <div className="inline-flex items-baseline gap-2 rounded-2xl bg-porcelain px-5 py-3 border border-sage-200/70 shadow-soft">
+                      {priceLabel && (
+                        <span className="text-sm sm:text-base font-semibold text-charcoal/75">
+                          {priceLabel}
+                        </span>
+                      )}
+                      {price && (
+                        <span className="text-xl sm:text-2xl font-bold text-sage-700 whitespace-nowrap">
+                          {price}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
 
-            {/* Grid: benefits + CTA, spreads content on larger screens */}
-            <div className="mt-6 sm:mt-8 grid gap-6 lg:gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] items-start">
-              {/* Benefits list */}
-              <div>
-                <ul className="grid gap-3 sm:gap-3.5">
-                  {benefits.map((b, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="mt-0.5 inline-flex w-7 h-7 shrink-0 rounded-full bg-sage-100 border-2 border-sage-400 items-center justify-center">
-                        <Check className="w-4 h-4 text-sage-700 stroke-[2.5]" />
-                      </span>
-                      <span className="text-sm sm:text-base text-charcoal/90 leading-relaxed font-medium">
-                        {b}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                {hasCTA && (
+                  <div className="pt-1">
+                    <Button
+                      onClick={() =>
+                        open("corporate", { defaultEventType: "corporate" })
+                      }
+                      size="md"
+                      className="w-full sm:w-auto rounded-full shadow-elevated bg-sage-600 hover:bg-sage-700 text-white px-7 sm:px-8 text-sm sm:text-base"
+                    >
+                      {toSentenceCase(cta)}
+                    </Button>
+                  </div>
+                )}
               </div>
 
-              {/* CTA block */}
-              {hasCTA && (
-                <div className="flex flex-col items-center lg:items-start justify-center gap-4">
-                  <p className="text-sm sm:text-base text-charcoal/80 text-center lg:text-left">
-                    {/* Reuse CTA string as-is, no new text added */}
-                    {toSentenceCase(cta)}
-                  </p>
-                  <Button
-                    onClick={() =>
-                      open("corporate", { defaultEventType: "corporate" })
-                    }
-                    size="md"
-                    className="w-full sm:w-auto rounded-full shadow-elevated bg-sage-600 hover:bg-sage-700 text-white px-7 sm:px-8 text-sm sm:text-base"
-                  >
-                    {toSentenceCase(cta)}
-                  </Button>
+              {/* Right block: benefits list */}
+              {benefits.length > 0 && (
+                <div className="flex-1">
+                  <ul className="grid gap-3 sm:gap-3.5">
+                    {benefits.map((b, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className="mt-0.5 inline-flex w-7 h-7 shrink-0 rounded-full bg-sage-100 border-2 border-sage-400 items-center justify-center">
+                          <Check className="w-4 h-4 text-sage-700 stroke-[2.5]" />
+                        </span>
+                        <span className="text-sm sm:text-base text-charcoal/90 leading-relaxed font-medium">
+                          {b}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
             </div>

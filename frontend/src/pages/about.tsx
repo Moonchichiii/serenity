@@ -99,6 +99,11 @@ export function About() {
 
   // Animations
   const spring: Transition = { type: 'spring', stiffness: 220, damping: 22 };
+  const cardSpring: Transition = {
+    type: 'spring',
+    damping: 20,
+    stiffness: 300,
+  };
   const gridVariants: Variants | undefined = reduceMotion
     ? undefined
     : {
@@ -173,16 +178,6 @@ export function About() {
                 </p>
               )}
             </div>
-
-            {/* Approach card
-            <div className="mt-4 bg-primary/5 border-l-4 border-primary/80 rounded-r-2xl p-6 sm:p-7 shadow-sm">
-              <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-3">
-                {content.approachTitle || t('about.approach', { defaultValue: 'My Approach / Mon Approche' })}
-              </h3>
-              <p className="body-text text-foreground/75">
-                {stripHtml(content.approachText)}
-              </p>
-            </div> */}
 
             {/* What guides me */}
             <div className="space-y-4 pt-4">
@@ -271,7 +266,7 @@ export function About() {
               <div className="pt-1">
                 <Button
                   size="md"
-                  className="btn-primary"
+                  className="shadow-warm"
                   onClick={() =>
                     open('contact', { defaultSubject: 'Appointment request' })
                   }
@@ -306,29 +301,35 @@ export function About() {
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: true, amount: 0.2 }}
-                className="grid grid-cols-2 gap-4 auto-rows-[190px] md:auto-rows-[220px]"
+                className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 auto-rows-[160px] sm:auto-rows-[200px] lg:auto-rows-[230px]"
               >
                 {content.specialtiesGrid.map((sp, i) => (
                   <motion.div
                     key={`${sp.title}-${i}`}
                     variants={cardVariants}
+                    layout
+                    transition={cardSpring}
+                    whileHover={{ y: -6, scale: 1.02 }}
+                    whileTap={{ scale: 0.99 }}
                     className={[
-                      'relative card-specialty col-span-2 overflow-hidden',
-                      i === 0 ? 'md:col-span-1 md:row-span-2' : 'md:col-span-1',
+                      'relative group overflow-hidden rounded-[26px] bg-charcoal/5 shadow-soft',
+                      'transition-shadow duration-300 ease-out hover:shadow-elevated',
+                      'col-span-1',
+                      i === 0 ? 'sm:row-span-2' : '',
                     ].join(' ')}
                   >
                     {sp.image?.url && (
                       <CloudImage
                         image={sp.image}
                         alt={sp.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                         sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 45vw"
                       />
                     )}
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent flex items-end">
-                      <div className="p-5 sm:p-6">
-                        <h4 className="text-lg sm:text-xl font-serif font-semibold text-white mb-1">
+                    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/70 via-black/35 to-black/0">
+                      <div className="p-4 sm:p-5">
+                        <h4 className="text-base sm:text-lg md:text-xl font-serif font-semibold text-white drop-shadow-sm">
                           {sp.title}
                         </h4>
                       </div>
@@ -384,7 +385,6 @@ export function About() {
           <p className="body-large max-w-3xl mx-auto">
             {stripHtml(content.approachText)}
           </p>
-
         </div>
       </div>
 
