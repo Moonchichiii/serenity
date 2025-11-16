@@ -1,10 +1,20 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
-import { Building2, CalendarDays, MapPin, Mail, Phone, User, Users } from 'lucide-react'
+import {
+  Building2,
+  CalendarDays,
+  ChevronDown,
+  ChevronUp,
+  MapPin,
+  Mail,
+  Phone,
+  User,
+  Users,
+} from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { cmsAPI } from '@/api/cms'
 
@@ -37,6 +47,7 @@ export function CorporateBookingForm({
   defaultEventType = 'corporate',
 }: CorporateBookingFormProps) {
   const { t } = useTranslation()
+  const [showMore, setShowMore] = useState(false)
 
   const schema: yup.ObjectSchema<CorporateFormData> = useMemo(
     () =>
@@ -92,6 +103,7 @@ export function CorporateBookingForm({
       eventType: defaultEventType,
     },
   })
+
   const input =
     'w-full pl-10 pr-4 py-2.5 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors'
   const inputPlain =
@@ -125,12 +137,16 @@ export function CorporateBookingForm({
         subject,
         message: lines,
       })
-      toast.success(t('corp.form.success', 'Request sent! I will get back to you shortly. ✨'))
+      toast.success(
+        t('corp.form.success', 'Request sent! I will get back to you shortly. ✨')
+      )
       reset()
       onSuccess?.()
     } catch (err) {
       console.error('Corporate booking error:', err)
-      toast.error(t('corp.form.error', 'Could not send your request. Please try again.'))
+      toast.error(
+        t('corp.form.error', 'Could not send your request. Please try again.')
+      )
     }
   }
 
@@ -179,7 +195,7 @@ export function CorporateBookingForm({
         {errors.phone && <p className="text-sm text-terracotta-600 mt-1.5">{errors.phone.message}</p>}
       </div>
 
-      {/* Company & event */}
+      {/* Company & event – core info */}
       <div>
         <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="company">
           {t('corp.form.company', 'Company/Organization')}
@@ -191,7 +207,7 @@ export function CorporateBookingForm({
         {errors.company && <p className="text-sm text-terracotta-600 mt-1.5">{errors.company.message}</p>}
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+      <div className="grid md:grid-cols-2 gap-4 sm:gap-5">
         <div>
           <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="eventType">
             {t('corp.form.eventType', 'Event type')}
@@ -214,19 +230,6 @@ export function CorporateBookingForm({
             <input id="attendees" type="number" className={input} placeholder="25" {...register('attendees')} />
           </div>
           {errors.attendees && <p className="text-sm text-terracotta-600 mt-1.5">{errors.attendees.message}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="duration">
-            {t('corp.form.duration', 'Hours / duration')}
-          </label>
-          <input
-            id="duration"
-            type="text"
-            className={inputPlain}
-            placeholder="09:00–17:00 or 3h"
-            {...register('duration')}
-          />
         </div>
       </div>
 
@@ -265,51 +268,86 @@ export function CorporateBookingForm({
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4 sm:gap-5">
-        <div>
-          <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="services">
-            {t('corp.form.services', 'Requested services')}
-          </label>
-          <input
-            id="services"
-            type="text"
-            className={inputPlain}
-            placeholder={t(
-              'corp.form.services.placeholder',
-              'Chair massage, 10-min rotations, 2 practitioners…'
-            )}
-            {...register('services')}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="budget">
-            {t('corp.form.budget', 'Budget (optional)')}
-          </label>
-          <input
-            id="budget"
-            type="text"
-            className={inputPlain}
-            placeholder="€500–€1500"
-            {...register('budget')}
-          />
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="notes">
-          {t('corp.form.notes', 'Additional notes')}
-        </label>
-        <textarea
-          id="notes"
-          rows={4}
-          className="w-full px-4 py-2.5 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors resize-none"
-          placeholder={t(
-            'corp.form.notes.placeholder',
-            'Ambiance / space available, parking, access badges, etc.'
+      {/* Optional extra details – collapsed by default */}
+      <div className="border border-sage-200 rounded-xl bg-sage-50/40">
+        <button
+          type="button"
+          onClick={() => setShowMore(v => !v)}
+          className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-charcoal"
+        >
+          <span>
+            {t('corp.form.moreDetailsLabel', 'Additional details (optional)')}
+          </span>
+          {showMore ? (
+            <ChevronUp className="w-4 h-4 text-charcoal/60" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-charcoal/60" />
           )}
-          {...register('notes')}
-        />
+        </button>
+
+        {showMore && (
+          <div className="px-4 pb-4 pt-1 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="duration">
+                {t('corp.form.duration', 'Hours / duration')}
+              </label>
+              <input
+                id="duration"
+                type="text"
+                className={inputPlain}
+                placeholder="09:00–17:00 or 3h"
+                {...register('duration')}
+              />
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4 sm:gap-5">
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="services">
+                  {t('corp.form.services', 'Requested services')}
+                </label>
+                <input
+                  id="services"
+                  type="text"
+                  className={inputPlain}
+                  placeholder={t(
+                    'corp.form.services.placeholder',
+                    'Chair massage, 10-min rotations, 2 practitioners…'
+                  )}
+                  {...register('services')}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="budget">
+                  {t('corp.form.budget', 'Budget (optional)')}
+                </label>
+                <input
+                  id="budget"
+                  type="text"
+                  className={inputPlain}
+                  placeholder="€500–€1500"
+                  {...register('budget')}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="notes">
+                {t('corp.form.notes', 'Additional notes')}
+              </label>
+              <textarea
+                id="notes"
+                rows={4}
+                className="w-full px-4 py-2.5 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors resize-none"
+                placeholder={t(
+                  'corp.form.notes.placeholder',
+                  'Ambiance / space available, parking, access badges, etc.'
+                )}
+                {...register('notes')}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* GDPR / privacy note */}
