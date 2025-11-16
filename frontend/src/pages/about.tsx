@@ -99,11 +99,6 @@ export function About() {
 
   // Animations
   const spring: Transition = { type: 'spring', stiffness: 220, damping: 22 };
-  const cardSpring: Transition = {
-    type: 'spring',
-    damping: 20,
-    stiffness: 300,
-  };
   const gridVariants: Variants | undefined = reduceMotion
     ? undefined
     : {
@@ -264,15 +259,17 @@ export function About() {
               )}
 
               <div className="pt-1">
+                {/* Uses default sage Button styles, just a soft shadow */}
                 <Button
-                  size="md"
-                  className="shadow-warm"
-                  onClick={() =>
-                    open('contact', { defaultSubject: 'Appointment request' })
-                  }
-                >
-                  {t('about.cta', { defaultValue: 'Book a Session' })}
-                </Button>
+  size="md"
+  className="shadow-warm"
+  onClick={() =>
+    open('contact', { defaultSubject: 'Appointment request' })
+  }
+>
+  {t('about.cta')}
+</Button>
+
               </div>
             </div>
           </motion.article>
@@ -307,13 +304,9 @@ export function About() {
                   <motion.div
                     key={`${sp.title}-${i}`}
                     variants={cardVariants}
-                    layout
-                    transition={cardSpring}
-                    whileHover={{ y: -6, scale: 1.02 }}
-                    whileTap={{ scale: 0.99 }}
                     className={[
                       'relative group overflow-hidden rounded-[26px] bg-charcoal/5 shadow-soft',
-                      'transition-shadow duration-300 ease-out hover:shadow-elevated',
+                      'transition-transform duration-300 ease-out hover:-translate-y-1 hover:shadow-elevated',
                       'col-span-1',
                       i === 0 ? 'sm:row-span-2' : '',
                     ].join(' ')}

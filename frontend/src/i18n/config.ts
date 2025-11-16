@@ -13,10 +13,12 @@ const resources = {
         contact: 'Contact',
       },
       hero: {
-        title: 'Find your balance',
-        subtitle: 'Premium wellness massage in a serene, private setting',
-        cta: 'Book your session',
-      },
+  title: 'Find your balance',
+  subtitle: 'Premium wellness massage in a serene, private setting',
+  cta: 'Book your session',
+  ctaPrivate: 'Book a private session',
+  ctaCorporate: 'Corporate wellness inquiry',
+},
       about: {
         title: 'About me',
         subtitle: 'Dedicated to your wellness journey',
@@ -242,10 +244,12 @@ const resources = {
         contact: 'Contact',
       },
       hero: {
-        title: 'Trouvez votre équilibre',
-        subtitle: 'Massage bien-être premium dans un cadre serein et privé',
-        cta: 'Réserver votre séance',
-      },
+  title: 'Trouvez votre équilibre',
+  subtitle: 'Massage bien-être premium dans un cadre serein et privé',
+  cta: 'Réserver votre séance',
+  ctaPrivate: 'Réserver une séance individuelle',
+  ctaCorporate: 'Demande bien-être en entreprise',
+},
       about: {
         title: 'À propos de moi',
         subtitle: 'Dédiée à votre bien-être',
@@ -260,6 +264,7 @@ const resources = {
         specialty2: 'Relaxation suédoise',
         specialty3: 'Récupération sportive',
         specialty4: 'Soins prénatals',
+        cta: 'Réserver une séance',
       },
       services: {
         title: 'Services',

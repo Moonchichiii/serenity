@@ -88,17 +88,17 @@ export function Hero() {
   <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
     {/* Private session CTA */}
     <Button
-      size="md"
-      onClick={() =>
-        open('contact', { defaultSubject: 'Private session inquiry' })
-      }
-      className="
-        rounded-full shadow-elevated md:hover:scale-105
-        px-6 sm:px-7 text-sm sm:text-base
-      "
-    >
-      {t('hero.ctaPrivate', { defaultValue: 'Book private session' })}
-    </Button>
+  size="md"
+  onClick={() =>
+    open('contact', { defaultSubject: 'Private session inquiry' })
+  }
+  className="
+    rounded-full shadow-elevated md:hover:scale-105
+    px-6 sm:px-7 text-sm sm:text-base
+  "
+>
+  {t('hero.ctaPrivate')}
+</Button>
 
     {/* Corporate wellness CTA */}
     <Button
@@ -107,10 +107,8 @@ export function Hero() {
   onClick={() => {
     const targetId = 'services-hero'
     const el = document.getElementById(targetId)
-
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-
       if (window.history && window.history.pushState) {
         window.history.pushState(null, '', `#${targetId}`)
       }
@@ -121,9 +119,7 @@ export function Hero() {
     px-6 sm:px-7 text-sm sm:text-base
   "
 >
-  {t('hero.ctaCorporate', {
-    defaultValue: 'Corporate wellness inquiry',
-  })}
+  {t('hero.ctaCorporate')}
 </Button>
   </div>
 
