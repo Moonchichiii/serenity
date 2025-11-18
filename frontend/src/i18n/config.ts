@@ -33,7 +33,9 @@ const resources = {
         specialty2: 'Swedish relaxation',
         specialty3: 'Sports recovery',
         specialty4: 'Prenatal care',
-      },
+    studioDescription:
+'Experience a tranquil, safe, and nurturing environment designed for your comfort and healing.',
+  },
       services: {
         title: 'Services',
         subtitle: 'Wellness massage tailored to your needs',
@@ -263,9 +265,11 @@ const resources = {
         specialty1: 'Thérapie tissus profonds',
         specialty2: 'Relaxation suédoise',
         specialty3: 'Récupération sportive',
-        specialty4: 'Soins prénatals',
-        cta: 'Réserver une séance',
-      },
+  specialty4: 'Soins prénatals',
+  cta: 'Réserver une séance',
+  studioDescription:
+    'Vivez un environnement calme, sécurisant et bienveillant, pensé pour votre confort et votre guérison.',
+},
       services: {
         title: 'Services',
         subtitle: 'Massage bien-être adapté à vos besoins',
