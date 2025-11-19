@@ -13,12 +13,12 @@ const resources = {
         contact: 'Contact',
       },
       hero: {
-  title: 'Find your balance',
-  subtitle: 'Premium wellness massage in a serene, private setting',
-  cta: 'Book your session',
-  ctaPrivate: 'Book a private session',
-  ctaCorporate: 'Corporate wellness inquiry',
-},
+        title: 'Find your balance',
+        subtitle: 'Premium wellness massage in a serene, private setting',
+        cta: 'Book your session',
+        ctaPrivate: 'Book a private session',
+        ctaCorporate: 'Corporate wellness inquiry',
+      },
       about: {
         title: 'About me',
         subtitle: 'Dedicated to your wellness journey',
@@ -33,9 +33,30 @@ const resources = {
         specialty2: 'Swedish relaxation',
         specialty3: 'Sports recovery',
         specialty4: 'Prenatal care',
-    studioDescription:
-'Experience a tranquil, safe, and nurturing environment designed for your comfort and healing.',
-  },
+        cta: 'Book a session',
+        studioDescription:
+          'Experience a tranquil, safe, and nurturing environment designed for your comfort and healing.',
+        label: 'About Me',
+        guidesTitle: 'What Guides Me',
+        guide: {
+          clientCareTitle: 'Client-Centered Care',
+          clientCareBody:
+            'Your comfort, safety, and goals are my top priorities.',
+          excellenceTitle: 'Professional Excellence',
+          excellenceBody:
+            'I am fully certified and committed to ongoing training.',
+          holisticTitle: 'Holistic Approach',
+          holisticBody:
+            'I address the whole person—body, mind, and spirit.',
+        },
+        certificationLabel: 'Certified',
+        studioTitle: 'My Private Studio',
+        studioLocationTitle: 'Private Studio Location',
+        byAppointment: 'By Appointment Only',
+        contactTitle: 'Call or Text',
+        approachLabel: 'My Approach',
+        approachHeading: 'A Personalized Wellness Journey',
+      },
       services: {
         title: 'Services',
         subtitle: 'Wellness massage tailored to your needs',
@@ -246,12 +267,12 @@ const resources = {
         contact: 'Contact',
       },
       hero: {
-  title: 'Trouvez votre équilibre',
-  subtitle: 'Massage bien-être premium dans un cadre serein et privé',
-  cta: 'Réserver votre séance',
-  ctaPrivate: 'Réserver une séance individuelle',
-  ctaCorporate: 'Demande bien-être en entreprise',
-},
+        title: 'Trouvez votre équilibre',
+        subtitle: 'Massage bien-être premium dans un cadre serein et privé',
+        cta: 'Réserver votre séance',
+        ctaPrivate: 'Réserver une séance individuelle',
+        ctaCorporate: 'Demande bien-être en entreprise',
+      },
       about: {
         title: 'À propos de moi',
         subtitle: 'Dédiée à votre bien-être',
@@ -265,11 +286,31 @@ const resources = {
         specialty1: 'Thérapie tissus profonds',
         specialty2: 'Relaxation suédoise',
         specialty3: 'Récupération sportive',
-  specialty4: 'Soins prénatals',
-  cta: 'Réserver une séance',
-  studioDescription:
-    'Vivez un environnement calme, sécurisant et bienveillant, pensé pour votre confort et votre guérison.',
-},
+        specialty4: 'Soins prénatals',
+        cta: 'Réserver une séance',
+        studioDescription:
+          'Vivez un environnement calme, sécurisant et bienveillant, pensé pour votre confort et votre guérison.',
+        label: 'À propos de moi',
+        guidesTitle: 'Ce qui me guide',
+        guide: {
+          clientCareTitle: 'Un accompagnement centré sur vous',
+          clientCareBody:
+            'Votre confort, votre sécurité et vos objectifs sont ma priorité.',
+          excellenceTitle: 'Excellence professionnelle',
+          excellenceBody:
+            'Je suis pleinement certifiée et engagée dans une formation continue.',
+          holisticTitle: 'Approche holistique',
+          holisticBody:
+            'Je prends en compte la personne dans sa globalité : corps, esprit et émotionnel.',
+        },
+        certificationLabel: 'Certifiée',
+        studioTitle: 'Mon cabinet privé',
+        studioLocationTitle: 'Emplacement du cabinet privé',
+        byAppointment: 'Uniquement sur rendez-vous',
+        contactTitle: 'Appeler ou envoyer un message',
+        approachLabel: 'Mon approche',
+        approachHeading: 'Un accompagnement bien-être personnalisé',
+      },
       services: {
         title: 'Services',
         subtitle: 'Massage bien-être adapté à vos besoins',
