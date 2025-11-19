@@ -16,15 +16,11 @@ const schema = yup.object({
   password: yup.string().required('Password is required').min(6, 'Minimum 6 characters'),
 })
 
-function getCookie(name: string) {
-  const value = `; ${document.cookie}`
-  const parts = value.split(`; ${name}=`)
-  if (parts.length === 2) return parts.pop()!.split(';').shift()
-}
-
 export default function CMSLoginModal() {
   const { isOpen, close } = useModal()
   const open = isOpen('cmsLogin')
+
+  const [csrfToken, setCsrfToken] = useState<string | null>(null)
 
   const [me, setMe] = useState<{
     isAuthenticated: boolean
@@ -44,9 +40,11 @@ export default function CMSLoginModal() {
     if (!open) return
     ;(async () => {
       try {
-        await apiClient.get('/api/auth/csrf/')
-        const r = await apiClient.get('/api/auth/me/')
-        setMe(r.data)
+        const csrfRes = await apiClient.get('/api/auth/csrf/')
+        setCsrfToken(csrfRes.data?.csrfToken || null)
+
+        const meRes = await apiClient.get('/api/auth/me/')
+        setMe(meRes.data)
       } catch {
         setMe({ isAuthenticated: false })
       }
@@ -55,12 +53,18 @@ export default function CMSLoginModal() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      const csrftoken = getCookie('csrftoken') || ''
+      if (!csrfToken) {
+        // Fallback: fetch CSRF token if for some reason it's missing
+        const csrfRes = await apiClient.get('/api/auth/csrf/')
+        setCsrfToken(csrfRes.data?.csrfToken || null)
+      }
+
       await apiClient.post(
         '/api/auth/login/',
         { username: data.username, password: data.password },
-        { headers: { 'X-CSRFToken': csrftoken } }
+        { headers: { 'X-CSRFToken': csrfToken || '' } }
       )
+
       const r = await apiClient.get('/api/auth/me/')
       setMe(r.data)
       toast.success('Connected successfully')

@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.cache import cache
 from django.http import HttpRequest, JsonResponse
+from django.middleware.csrf import get_token
 from django.utils.translation import gettext as _
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
@@ -35,8 +36,12 @@ __all__ = ["csrf", "me", "login_view", "logout_view"]
 
 @ensure_csrf_cookie
 def csrf(request: HttpRequest):
-    """Sets CSRF cookie."""
-    return JsonResponse({"detail": "ok"})
+    """
+    Sets CSRF cookie and returns the token so SPAs on another origin
+    can send it back via the X-CSRFToken header.
+    """
+    token = get_token(request)
+    return JsonResponse({"detail": "ok", "csrfToken": token})
 
 
 def me(request: HttpRequest):
