@@ -18,6 +18,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import CloudImage from '@/components/ResponsiveImage';
 import { useModal } from '@/shared/hooks/useModal';
+import { LocationMap } from '@/components/ui/LocationMap';
 
 // Helper that respects empty strings from CMS
 const pick = (
@@ -335,6 +336,7 @@ export function About() {
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
   <div className="text-center p-4 bg-background rounded-xl border border-primary/15 shadow-soft">
     <MapPin className="w-6 h-6 mx-auto text-primary mb-2" />
+    <LocationMap />
     <div className="text-sm font-medium text-foreground">
       {t('about.studioLocationTitle', {
         defaultValue: 'Private Studio Location',
