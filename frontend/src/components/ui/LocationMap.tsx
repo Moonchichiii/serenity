@@ -11,6 +11,9 @@ const CENTER_5_AVENUES = {
 const ZOOM_LEVEL = 14;
 const AREA_RADIUS_METERS = 300;
 
+// fixed card height
+const MAP_HEIGHT = 220;
+
 export function LocationMap() {
   const { t } = useTranslation();
 
@@ -31,32 +34,27 @@ export function LocationMap() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Mobile: expand when scrolled into view (> 50% visible)
+  // Mobile: expand while in view (> 50%), collapse when scrolled past
   useEffect(() => {
     if (!isMobile || !sectionRef.current) return;
 
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
-          if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
-            setIsExpanded(true); // expand once, stay expanded
-          }
+          const shouldExpand = entry.isIntersecting && entry.intersectionRatio > 0.5;
+          setIsExpanded(shouldExpand);
         });
       },
-      { threshold: [0.5] }
+      { threshold: [0, 0.5, 1] }
     );
 
     observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, [isMobile]);
 
-  // Heights: small by default, full when expanded
-  const collapsedHeight = isMobile ? 180 : 200;
-  const expandedHeight = 500;
-
   return (
     <div className="space-y-3 pt-2">
-      {/* Header: just the nice title */}
+      {/* Header */}
       <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-foreground/70">
         <MapPin className="w-4 h-4" aria-hidden="true" />
         <span>
@@ -66,45 +64,51 @@ export function LocationMap() {
         </span>
       </div>
 
-      {/* Map: starts small, enlarges on hover (desktop) or scroll (mobile) */}
+      {/* Map wrapper – fixed height, scale on focus */}
       <div
         ref={sectionRef}
-        className="relative w-full overflow-hidden rounded-2xl border border-primary/15 shadow-soft transition-[height] duration-700 ease-out"
+        className="relative w-full overflow-visible"
         onMouseEnter={() => !isMobile && setIsExpanded(true)}
         onMouseLeave={() => !isMobile && setIsExpanded(false)}
-        style={{
-          height: `${isExpanded ? expandedHeight : collapsedHeight}px`,
-        }}
       >
-        {isLoaded ? (
-          <GoogleMap
-            mapContainerClassName="w-full h-full"
-            center={CENTER_5_AVENUES}
-            zoom={ZOOM_LEVEL}
-            options={{
-              disableDefaultUI: true,
-              zoomControl: true,
-              gestureHandling: 'cooperative',
-            }}
-          >
-            <Circle
+        <div
+          className={[
+            'rounded-2xl border border-primary/15 shadow-soft origin-center',
+            'transition-transform duration-700 ease-out',
+            isExpanded ? 'scale-105 shadow-elevated' : 'scale-100',
+          ].join(' ')}
+          style={{ height: MAP_HEIGHT }}
+        >
+          {isLoaded ? (
+            <GoogleMap
+              mapContainerClassName="w-full h-full"
               center={CENTER_5_AVENUES}
-              radius={AREA_RADIUS_METERS}
+              zoom={ZOOM_LEVEL}
               options={{
-                strokeOpacity: 0.7,
-                strokeWeight: 1,
-                fillOpacity: 0.16,
-                clickable: false,
-                draggable: false,
-                editable: false,
+                disableDefaultUI: true,
+                zoomControl: true,
+                gestureHandling: 'cooperative',
               }}
-            />
-          </GoogleMap>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-xs text-foreground/60">
-            {t('about.mapLoading', { defaultValue: 'Loading map…' })}
-          </div>
-        )}
+            >
+              <Circle
+                center={CENTER_5_AVENUES}
+                radius={AREA_RADIUS_METERS}
+                options={{
+                  strokeOpacity: 0.7,
+                  strokeWeight: 1,
+                  fillOpacity: 0.16,
+                  clickable: false,
+                  draggable: false,
+                  editable: false,
+                }}
+              />
+            </GoogleMap>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-xs text-foreground/60">
+              {t('about.mapLoading', { defaultValue: 'Loading map…' })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
