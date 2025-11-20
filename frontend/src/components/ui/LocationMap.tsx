@@ -11,9 +11,6 @@ const CENTER_5_AVENUES = {
 const ZOOM_LEVEL = 14;
 const AREA_RADIUS_METERS = 300;
 
-// fixed card height
-const MAP_HEIGHT = 220;
-
 export function LocationMap() {
   const { t } = useTranslation();
 
@@ -41,7 +38,8 @@ export function LocationMap() {
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
-          const shouldExpand = entry.isIntersecting && entry.intersectionRatio > 0.5;
+          const shouldExpand =
+            entry.isIntersecting && entry.intersectionRatio > 0.5;
           setIsExpanded(shouldExpand);
         });
       },
@@ -51,6 +49,9 @@ export function LocationMap() {
     observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, [isMobile]);
+
+  const collapsedHeight = isMobile ? 180 : 220;
+  const expandedHeight = 500;
 
   return (
     <div className="space-y-3 pt-2">
@@ -64,51 +65,45 @@ export function LocationMap() {
         </span>
       </div>
 
-      {/* Map wrapper – fixed height, scale on focus */}
+      {/* Map card – height animates, no zooming */}
       <div
         ref={sectionRef}
-        className="relative w-full overflow-visible"
+        className="relative w-full overflow-hidden rounded-2xl border border-primary/15 shadow-soft transition-[height] duration-700 ease-out"
         onMouseEnter={() => !isMobile && setIsExpanded(true)}
         onMouseLeave={() => !isMobile && setIsExpanded(false)}
+        style={{
+          height: isExpanded ? expandedHeight : collapsedHeight,
+        }}
       >
-        <div
-          className={[
-            'rounded-2xl border border-primary/15 shadow-soft origin-center',
-            'transition-transform duration-700 ease-out',
-            isExpanded ? 'scale-105 shadow-elevated' : 'scale-100',
-          ].join(' ')}
-          style={{ height: MAP_HEIGHT }}
-        >
-          {isLoaded ? (
-            <GoogleMap
-              mapContainerClassName="w-full h-full"
+        {isLoaded ? (
+          <GoogleMap
+            mapContainerClassName="w-full h-full"
+            center={CENTER_5_AVENUES}
+            zoom={ZOOM_LEVEL}
+            options={{
+              disableDefaultUI: true,
+              zoomControl: true,
+              gestureHandling: 'cooperative',
+            }}
+          >
+            <Circle
               center={CENTER_5_AVENUES}
-              zoom={ZOOM_LEVEL}
+              radius={AREA_RADIUS_METERS}
               options={{
-                disableDefaultUI: true,
-                zoomControl: true,
-                gestureHandling: 'cooperative',
+                strokeOpacity: 0.7,
+                strokeWeight: 1,
+                fillOpacity: 0.16,
+                clickable: false,
+                draggable: false,
+                editable: false,
               }}
-            >
-              <Circle
-                center={CENTER_5_AVENUES}
-                radius={AREA_RADIUS_METERS}
-                options={{
-                  strokeOpacity: 0.7,
-                  strokeWeight: 1,
-                  fillOpacity: 0.16,
-                  clickable: false,
-                  draggable: false,
-                  editable: false,
-                }}
-              />
-            </GoogleMap>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-xs text-foreground/60">
-              {t('about.mapLoading', { defaultValue: 'Loading map…' })}
-            </div>
-          )}
-        </div>
+            />
+          </GoogleMap>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-xs text-foreground/60">
+            {t('about.mapLoading', { defaultValue: 'Loading map…' })}
+          </div>
+        )}
       </div>
     </div>
   );
