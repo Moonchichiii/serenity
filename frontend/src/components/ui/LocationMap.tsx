@@ -1,4 +1,3 @@
-// src/components/ui/LocationMap.tsx
 import { useEffect, useRef, useState } from 'react';
 import { GoogleMap, useJsApiLoader, Circle } from '@react-google-maps/api';
 import { MapPin } from 'lucide-react';
@@ -24,6 +23,7 @@ export function LocationMap() {
     googleMapsApiKey: import.meta.env['VITE_GOOGLE_MAPS_API_KEY'] as string,
   });
 
+  // Detect mobile vs desktop
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
     checkMobile();
@@ -39,7 +39,7 @@ export function LocationMap() {
       entries => {
         entries.forEach(entry => {
           if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
-            setIsExpanded(true);
+            setIsExpanded(true); // expand once, stay expanded
           }
         });
       },
@@ -49,6 +49,10 @@ export function LocationMap() {
     observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, [isMobile]);
+
+  // Heights: small by default, full when expanded
+  const collapsedHeight = isMobile ? 180 : 200;
+  const expandedHeight = 500;
 
   return (
     <div className="space-y-3 pt-2">
@@ -62,14 +66,14 @@ export function LocationMap() {
         </span>
       </div>
 
-      {/* Map: short by default, expands on hover / scroll */}
+      {/* Map: starts small, enlarges on hover (desktop) or scroll (mobile) */}
       <div
         ref={sectionRef}
-        className="relative w-full overflow-hidden transition-all duration-700 ease-out rounded-2xl border border-primary/15 shadow-soft"
+        className="relative w-full overflow-hidden rounded-2xl border border-primary/15 shadow-soft transition-[height] duration-700 ease-out"
         onMouseEnter={() => !isMobile && setIsExpanded(true)}
         onMouseLeave={() => !isMobile && setIsExpanded(false)}
         style={{
-          height: isExpanded ? '500px' : '180px',
+          height: `${isExpanded ? expandedHeight : collapsedHeight}px`,
         }}
       >
         {isLoaded ? (
