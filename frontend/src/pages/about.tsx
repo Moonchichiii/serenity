@@ -334,20 +334,14 @@ export function About() {
 
              {/* Location & contact tile */}
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+
+  {/* Location – only icon + the interactive map */}
   <div className="text-center p-4 bg-background rounded-xl border border-primary/15 shadow-soft">
     <MapPin className="w-6 h-6 mx-auto text-primary mb-2" />
     <LocationMap />
-    <div className="text-sm font-medium text-foreground">
-      {t('about.studioLocationTitle', {
-        defaultValue: 'Private Studio Location',
-      })}
-    </div>
-    <div className="text-xs text-foreground/70">
-      {t('about.byAppointment', {
-        defaultValue: 'By Appointment Only',
-      })}
-    </div>
   </div>
+
+  {/* Contact – keep as is */}
   <div className="text-center p-4 bg-background rounded-xl border border-primary/15 shadow-soft">
     <Phone className="w-6 h-6 mx-auto text-primary mb-2" />
     <div className="text-sm font-medium text-foreground">
@@ -361,7 +355,9 @@ export function About() {
       })}
     </div>
   </div>
+
 </div>
+
 
             </aside>
           )}

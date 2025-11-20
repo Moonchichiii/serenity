@@ -1,5 +1,3 @@
-// src/components/LocationMap.tsx
-
 import { useEffect, useRef, useState } from 'react';
 import { GoogleMap, useJsApiLoader, Circle } from '@react-google-maps/api';
 import { MapPin, Lock } from 'lucide-react';

@@ -1,5 +1,6 @@
 /*
-  Content-Security-Policy: default-src 'self';
+  Content-Security-Policy:
+    default-src 'self';
     script-src 'self' https://maps.googleapis.com https://maps.gstatic.com;
     style-src 'self' 'unsafe-inline';
     img-src 'self' https://res.cloudinary.com https://ui-avatars.com https://api.dicebear.com https://maps.googleapis.com https://maps.gstatic.com https://*.googleusercontent.com data: blob:;
@@ -10,7 +11,7 @@
     object-src 'none';
     base-uri 'self';
     form-action 'self';
-    upgrade-insecure-requests
+    upgrade-insecure-requests;
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
