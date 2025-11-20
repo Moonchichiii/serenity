@@ -332,15 +332,16 @@ export function About() {
                 ))}
               </motion.div>
 
-             {/* Location & contact tile */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-  <div className="text-center p-4 bg-background rounded-xl border border-primary/15 shadow-soft">
-    <MapPin className="w-6 h-6 mx-auto text-primary mb-2" />
+{/* Location & contact tile */}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 items-start">
+  {/* Location card – header + expanding map */}
+  <div className="p-4 bg-background rounded-xl border border-primary/15 shadow-soft">
+<MapPin className="w-6 h-6 mx-auto text-primary mb-2" />
     <LocationMap />
   </div>
 
-  {/* Contact  */}
-  <div className="text-center p-4 bg-background rounded-xl border border-primary/15 shadow-soft">
+  {/* Contact card – fixed visual height */}
+  <div className="text-center p-4 bg-background rounded-xl border border-primary/15 shadow-soft h-[220px] flex flex-col justify-center">
     <Phone className="w-6 h-6 mx-auto text-primary mb-2" />
     <div className="text-sm font-medium text-foreground">
       {t('about.contactTitle', {
@@ -353,8 +354,8 @@ export function About() {
       })}
     </div>
   </div>
-
 </div>
+
 
 
             </aside>
