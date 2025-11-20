@@ -53,9 +53,18 @@ const resources = {
         studioTitle: 'My Private Studio',
         studioLocationTitle: 'Private Studio Location',
         byAppointment: 'By Appointment Only',
-        contactTitle: 'Call or Text',
+        contactTitle: 'Contact via email through the booking form',
         approachLabel: 'My Approach',
         approachHeading: 'A Personalized Wellness Journey',
+
+  mapTitle: 'Studio Area – 5 Avenues, 13004 Marseille',
+  mapDescription:
+  'The map shows the general 5 Avenues area in the 4th arrondissement of Marseille.',
+  mapPrivacy: 'Client privacy and discretion are always respected.',
+  mapCollapsedTitle: 'Private Studio Location',
+  mapCollapsedSubtitle: 'By Appointment Only',
+  mapHintHover: 'Hover to enlarge the map',
+  mapHintScroll: 'Scroll to view the map',
       },
       services: {
         title: 'Services',
@@ -307,9 +316,18 @@ const resources = {
         studioTitle: 'Mon cabinet privé',
         studioLocationTitle: 'Emplacement du cabinet privé',
         byAppointment: 'Uniquement sur rendez-vous',
-        contactTitle: 'Appeler ou envoyer un message',
+         contactTitle: 'Contact par e-mail via le formulaire de réservation',
         approachLabel: 'Mon approche',
         approachHeading: 'Un accompagnement bien-être personnalisé',
+           mapTitle: 'Zone du cabinet – 5 Avenues, 13004 Marseille',
+  mapDescription:
+  'La carte indique la zone des 5 Avenues dans le 4ᵉ arrondissement de Marseille.',
+    mapPrivacy:
+    'La confidentialité et la discrétion de la clientèle sont toujours respectées.',
+  mapCollapsedTitle: 'Emplacement du cabinet privé',
+  mapCollapsedSubtitle: 'Uniquement sur rendez-vous',
+  mapHintHover: 'Survolez pour agrandir la carte',
+  mapHintScroll: 'Faites défiler pour afficher la carte',
       },
       services: {
         title: 'Services',

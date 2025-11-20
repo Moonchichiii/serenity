@@ -331,35 +331,36 @@ export function About() {
                 ))}
               </motion.div>
 
-              {/* Location & contact tile */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                <div className="text-center p-4 bg-background rounded-xl border border-primary/15 shadow-soft">
-                  <MapPin className="w-6 h-6 mx-auto text-primary mb-2" />
-                  <div className="text-sm font-medium text-foreground">
-                    {t('about.studioLocationTitle', {
-                      defaultValue: 'Private Studio Location',
-                    })}
-                  </div>
-                  <div className="text-xs text-foreground/70">
-                    {t('about.byAppointment', {
-                      defaultValue: 'By Appointment Only',
-                    })}
-                  </div>
-                </div>
-                <div className="text-center p-4 bg-background rounded-xl border border-primary/15 shadow-soft">
-                  <Phone className="w-6 h-6 mx-auto text-primary mb-2" />
-                  <div className="text-sm font-medium text-foreground">
-                    {t('about.contactTitle', {
-                      defaultValue: 'Call or Text',
-                    })}
-                  </div>
-                  <div className="text-xs text-foreground/70">
-                    {t('about.byAppointment', {
-                      defaultValue: 'By Appointment Only',
-                    })}
-                  </div>
-                </div>
-              </div>
+             {/* Location & contact tile */}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+  <div className="text-center p-4 bg-background rounded-xl border border-primary/15 shadow-soft">
+    <MapPin className="w-6 h-6 mx-auto text-primary mb-2" />
+    <div className="text-sm font-medium text-foreground">
+      {t('about.studioLocationTitle', {
+        defaultValue: 'Private Studio Location',
+      })}
+    </div>
+    <div className="text-xs text-foreground/70">
+      {t('about.byAppointment', {
+        defaultValue: 'By Appointment Only',
+      })}
+    </div>
+  </div>
+  <div className="text-center p-4 bg-background rounded-xl border border-primary/15 shadow-soft">
+    <Phone className="w-6 h-6 mx-auto text-primary mb-2" />
+    <div className="text-sm font-medium text-foreground">
+      {t('about.contactTitle', {
+        defaultValue: 'Contact via email through the booking form',
+      })}
+    </div>
+    <div className="text-xs text-foreground/70">
+      {t('about.byAppointment', {
+        defaultValue: 'By Appointment Only',
+      })}
+    </div>
+  </div>
+</div>
+
             </aside>
           )}
         </div>
