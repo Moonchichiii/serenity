@@ -97,7 +97,7 @@ export function TestimonialBanner() {
   const renderCard = (testimonial: WagtailTestimonial, index: number) => (
     <article
       key={`${testimonial.id}-${index}`}
-      className="bg-white/95 border border-sage-100 rounded-3xl px-5 py-5 sm:px-6 sm:py-6 shadow-soft hover:shadow-elevated transition-shadow duration-300 w-[260px] sm:w-[300px] lg:w-[340px] flex-shrink-0"
+      className="bg-white/95 border border-sage-100 rounded-3xl px-5 py-5 sm:px-6 sm:py-6 shadow-soft hover:shadow-elevated transition-shadow duration-300 w-[300px] sm:w-[350px] lg:w-[400px] flex-shrink-0"
       aria-label={`${testimonial.name} – ${testimonial.rating}/5`}
     >
       <div className="flex items-start gap-3 mb-3">
@@ -138,7 +138,7 @@ export function TestimonialBanner() {
         </div>
       </div>
 
-      <p className="text-sm text-charcoal/75 leading-relaxed line-clamp-4">
+      <p className="text-sm text-charcoal/75 leading-relaxed line-clamp-6">
         {testimonial.text}
       </p>
 
