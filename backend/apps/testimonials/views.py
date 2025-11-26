@@ -8,7 +8,7 @@ from rest_framework.throttling import AnonRateThrottle
 
 from apps.cms.serializers import TestimonialSerializer
 
-from .models import Testimonial
+from .models import Testimonial, TestimonialReply
 
 
 class TestimonialSubmissionThrottle(AnonRateThrottle):
@@ -16,12 +16,9 @@ class TestimonialSubmissionThrottle(AnonRateThrottle):
 
 
 @api_view(["GET"])
-@cache_page(60 * 15)  # 15 min
+@cache_page(60 * 15)
 def get_testimonials(request):
-    """
-    GET /api/testimonials/?min_rating=4
-    Returns approved testimonials filtered by minimum rating.
-    """
+    """Return approved testimonials filtered by optional min_rating."""
     min_rating = request.GET.get("min_rating")
     try:
         min_rating = int(min_rating) if min_rating else 0
@@ -37,7 +34,6 @@ def get_testimonials(request):
             rating__gte=min_rating,
         ).order_by("-created_at")[:20]
 
-        # Use serializer for consistent output
         serializer = TestimonialSerializer(testimonials, many=True)
         data = serializer.data
         cache.set(cache_key, data, 60 * 15)
@@ -48,17 +44,12 @@ def get_testimonials(request):
 @api_view(["POST"])
 @throttle_classes([TestimonialSubmissionThrottle])
 def submit_testimonial(request):
-    """
-    POST /api/testimonials/submit/
-    Submit new testimonial (requires moderation)
-    """
-    # Validate required fields
+    """Submit a new testimonial for moderation."""
     name = request.data.get("name", "").strip()
     email = request.data.get("email", "").strip()
     rating = request.data.get("rating")
     text = request.data.get("text", "").strip()
 
-    # Validation
     errors = {}
     if not name or len(name) < 2:
         errors["name"] = "Le nom doit contenir au moins 2 caractères"
@@ -70,7 +61,6 @@ def submit_testimonial(request):
     if errors:
         return Response({"errors": errors}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Get client IP
     x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
     ip_address = (
         x_forwarded_for.split(",")[0]
@@ -78,7 +68,6 @@ def submit_testimonial(request):
         else request.META.get("REMOTE_ADDR")
     )
 
-    # Create testimonial (pending approval)
     testimonial = Testimonial.objects.create(
         name=name,
         email=email,
@@ -98,12 +87,61 @@ def submit_testimonial(request):
     )
 
 
+@api_view(["POST"])
+@throttle_classes([TestimonialSubmissionThrottle])
+def submit_reply(request, testimonial_id):
+    """Submit a reply to a testimonial for moderation."""
+    try:
+        parent = Testimonial.objects.get(id=testimonial_id)
+    except Testimonial.DoesNotExist:
+        return Response(
+            {"error": "Témoignage introuvable"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    name = request.data.get("name", "").strip()
+    email = request.data.get("email", "").strip()
+    text = request.data.get("text", "").strip()
+
+    errors = {}
+    if not name or len(name) < 2:
+        errors["name"] = "Le nom est requis"
+    if not email:
+        errors["email"] = "L'email est requis"
+    if not text or len(text) < 2:
+        errors["text"] = "Le message est requis"
+
+    if errors:
+        return Response({"errors": errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+    ip_address = (
+        x_forwarded_for.split(",")[0]
+        if x_forwarded_for
+        else request.META.get("REMOTE_ADDR")
+    )
+
+    TestimonialReply.objects.create(
+        parent=parent,
+        name=name,
+        email=email,
+        text=text,
+        status="pending",
+        ip_address=ip_address,
+    )
+
+    return Response(
+        {
+            "success": True,
+            "message": "Réponse envoyée pour modération.",
+        },
+        status=status.HTTP_201_CREATED,
+    )
+
+
 @api_view(["GET"])
 def get_testimonial_stats(request):
-    """
-    GET /api/testimonials/stats/
-    Returns aggregate statistics
-    """
+    """Return aggregate statistics for approved testimonials."""
     approved = Testimonial.objects.filter(status="approved")
 
     stats = approved.aggregate(average=Avg("rating"), total=Count("id"))

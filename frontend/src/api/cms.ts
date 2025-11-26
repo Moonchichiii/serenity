@@ -91,6 +91,21 @@ export interface WagtailHomePage {
   services_hero_poster_image: WagtailImage | null
 }
 
+// --- NEW REPLY INTERFACES ---
+export interface WagtailReply {
+  id: number
+  name: string
+  text: string
+  created_at: string
+}
+
+export interface ReplySubmission {
+  name: string
+  email: string
+  text: string
+}
+// -----------------------------
+
 export interface WagtailTestimonial {
   id: number
   name: string
@@ -98,6 +113,8 @@ export interface WagtailTestimonial {
   text: string
   date: string
   avatar: string
+  // Added replies property
+  replies: WagtailReply[]
 }
 
 export interface TestimonialSubmission {
@@ -138,30 +155,50 @@ export interface ContactSubmissionResponse {
 
 export const cmsAPI = {
   getHomePage: (): Promise<WagtailHomePage> =>
-    apiClient.get<WagtailHomePage>('/api/homepage/').then(res => res.data),
+    apiClient.get<WagtailHomePage>('/api/homepage/').then((res) => res.data),
 
   getServices: (): Promise<WagtailService[]> =>
-    apiClient.get<WagtailService[]>('/api/services/').then(res => res.data),
+    apiClient.get<WagtailService[]>('/api/services/').then((res) => res.data),
 
   getTestimonials: (minRating?: number): Promise<WagtailTestimonial[]> => {
-    const params = typeof minRating === 'number' ? `?min_rating=${minRating}` : ''
+    const params =
+      typeof minRating === 'number' ? `?min_rating=${minRating}` : ''
     return apiClient
       .get<WagtailTestimonial[]>(`/api/testimonials/${params}`)
-      .then(res => res.data)
+      .then((res) => res.data)
   },
 
-  submitTestimonial: (data: TestimonialSubmission): Promise<TestimonialSubmissionResponse> =>
+  submitTestimonial: (
+    data: TestimonialSubmission
+  ): Promise<TestimonialSubmissionResponse> =>
     apiClient
       .post<TestimonialSubmissionResponse>('/api/testimonials/submit/', data)
-      .then(res => res.data),
+      .then((res) => res.data),
+
+  // --- NEW REPLY METHOD ---
+  submitReply: (
+    id: number,
+    data: ReplySubmission
+  ): Promise<{ success: boolean; message: string }> =>
+    apiClient
+      .post<{ success: boolean; message: string }>(
+        `/api/testimonials/${id}/reply/`,
+        data
+      )
+      .then((res) => res.data),
+  // ------------------------
 
   getTestimonialStats: (): Promise<TestimonialStats> =>
-    apiClient.get<TestimonialStats>('/api/testimonials/stats/').then(res => res.data),
+    apiClient
+      .get<TestimonialStats>('/api/testimonials/stats/')
+      .then((res) => res.data),
 
-  submitContact: (data: ContactSubmission): Promise<ContactSubmissionResponse> =>
+  submitContact: (
+    data: ContactSubmission
+  ): Promise<ContactSubmissionResponse> =>
     apiClient
       .post<ContactSubmissionResponse>('/api/contact/submit/', data)
-      .then(res => res.data),
+      .then((res) => res.data),
 }
 
 // Extract localized text from bilingual content objects

@@ -168,22 +168,11 @@ box-shadow: var(--shadow-sm); transition: transform .25s ease, box-shadow .25s e
         <span class="icon" aria-hidden="true">💼</span>
         <h3 class="title">Services Hero</h3>
       </div>
-
       <p class="desc">
         Edit the corporate wellness hero: title, pricing label & price, CTA, 3 benefits,
         background video and poster image.
       </p>
-
-      <ul class="field-list">
-        <li>Title (EN / FR)</li>
-        <li>Pricing label (EN / FR)</li>
-        <li>Price (EN / FR)</li>
-        <li>CTA text (EN / FR)</li>
-        <li>3 benefits (EN / FR)</li>
-        <li>Background video (Cloudinary ID or uploaded file)</li>
-        <li>Poster image (fallback still)</li>
-      </ul>
-
+      <ul class="field-list"></ul>
       <div class="quick-actions">
         <a class="btn btn-primary primary" href="{{ edit_url }}">Edit Services Hero</a>
       </div>
@@ -198,8 +187,22 @@ box-shadow: var(--shadow-sm); transition: transform .25s ease, box-shadow .25s e
       <p class="desc">Manage client reviews and ratings shown on your site.</p>
       <ul class="field-list"></ul>
       <div class="quick-actions">
-        <a class="btn btn-primary primary" href="{{ admin_home }}snippets/testimonials/testimonial/">Manage Reviews</a>
-        <a class="btn btn-ghost secondary" href="{{ admin_home }}snippets/testimonials/testimonial/add/">Add Review</a>
+        <a class="btn btn-primary primary" href="{{ admin_home }}snippets/cms/testimonial/">Manage Reviews</a>
+        <a class="btn btn-ghost secondary" href="{{ admin_home }}snippets/cms/testimonial/add/">Add Review</a>
+      </div>
+    </div>
+
+    <!-- Testimonial Replies (NEW) -->
+    <div class="section-card animate-slide-up" style="animation-delay:330ms" data-key="replies">
+      <div class="section-card-header">
+        <span class="icon" aria-hidden="true">💬</span>
+        <h3 class="title">Review Replies</h3>
+      </div>
+      <p class="desc">Approve or reject replies to testimonials.</p>
+      <ul class="field-list"></ul>
+      <div class="quick-actions">
+        <!-- Assuming app name is 'cms' in Wagtail snippets url structure -->
+        <a class="btn btn-primary primary" href="{{ admin_home }}snippets/cms/testimonialreply/">Manage Replies</a>
       </div>
     </div>
 
@@ -279,16 +282,6 @@ const SERENITY_COPY = {
         ],
         primary: "Edit Services Hero"
       },
-      photos: {
-        title: "Photos",
-        desc: "Upload and manage all images used across your website.",
-        fields: [
-          "Hero backgrounds",
-          "Service photos",
-          "About images"
-        ],
-        primary: "Open Images"
-      },
       testimonials: {
         title: "Testimonials",
         desc: "Manage client reviews and ratings shown on your site.",
@@ -299,6 +292,16 @@ const SERENITY_COPY = {
         ],
         primary: "Manage Reviews",
         secondary: "Add Review"
+      },
+      replies: {
+        title: "Review Replies",
+        desc: "Approve or reject community replies to testimonials.",
+        fields: [
+          "View pending replies",
+          "Approve / Reject",
+          "Delete spam"
+        ],
+        primary: "Manage Replies"
       },
       contact: {
         title: "Contact Info",
@@ -369,16 +372,6 @@ const SERENITY_COPY = {
         ],
         primary: "Modifier Héro Services"
       },
-      photos: {
-        title: "Photos",
-        desc: "Téléchargez et gérez toutes les images utilisées sur votre site web.",
-        fields: [
-          "Arrière-plans héros",
-          "Photos de services",
-          "Images À propos"
-        ],
-        primary: "Ouvrir Images"
-      },
       testimonials: {
         title: "Témoignages",
         desc: "Gérez les avis et notes des clients affichés sur votre site.",
@@ -389,6 +382,16 @@ const SERENITY_COPY = {
         ],
         primary: "Gérer Avis",
         secondary: "Ajouter Avis"
+      },
+      replies: {
+        title: "Réponses aux Avis",
+        desc: "Approuvez ou rejetez les réponses de la communauté.",
+        fields: [
+          "Voir en attente",
+          "Approuver / Rejeter",
+          "Supprimer spam"
+        ],
+        primary: "Gérer Réponses"
       },
       contact: {
         title: "Info Contact",

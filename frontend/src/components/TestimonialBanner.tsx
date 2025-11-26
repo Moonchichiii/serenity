@@ -1,13 +1,18 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, useAnimation } from 'framer-motion'
-import { Star } from 'lucide-react'
+import { Star, MessageCircle } from 'lucide-react'
 import { cmsAPI, type WagtailTestimonial } from '@/api/cms'
+import { TestimonialModal } from '@/components/modals/TestimonialModal'
 
 export function TestimonialBanner() {
   const { t } = useTranslation()
   const [testimonials, setTestimonials] = useState<WagtailTestimonial[]>([])
   const [loading, setLoading] = useState(true)
+
+  // Modal State
+  const [selectedTestimonial, setSelectedTestimonial] =
+    useState<WagtailTestimonial | null>(null)
 
   const prefersReduced =
     typeof window !== 'undefined' &&
@@ -38,9 +43,12 @@ export function TestimonialBanner() {
     if (prefersReduced || !trackTopRef.current || items.length === 0) return
 
     // Calculate scroll distance and animation duration
-    const loopWidth = trackTopRef.current.scrollWidth / (testimonials.length < 4 ? 3 : 2)
+    const loopWidth =
+      trackTopRef.current.scrollWidth / (testimonials.length < 4 ? 3 : 2)
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
-    const duration = isMobile ? 24 : 30
+
+    // HIGHER NUMBER = SLOWER SPEED
+    const duration = isMobile ? 50 : 60
 
     if (paused) {
       controlsTop.stop()
@@ -80,6 +88,16 @@ export function TestimonialBanner() {
     testimonials.length,
   ])
 
+  const handleCardClick = (testimonial: WagtailTestimonial) => {
+    setPaused(true)
+    setSelectedTestimonial(testimonial)
+  }
+
+  const handleModalClose = () => {
+    setSelectedTestimonial(null)
+    setPaused(false)
+  }
+
   if (loading) {
     return (
       <section className="py-16 bg-cream-50">
@@ -97,9 +115,16 @@ export function TestimonialBanner() {
   const renderCard = (testimonial: WagtailTestimonial, index: number) => (
     <article
       key={`${testimonial.id}-${index}`}
-      className="bg-white/95 border border-sage-100 rounded-3xl px-5 py-5 sm:px-6 sm:py-6 shadow-soft hover:shadow-elevated transition-shadow duration-300 w-[300px] sm:w-[350px] lg:w-[400px] flex-shrink-0"
+      onClick={() => handleCardClick(testimonial)}
+      className="bg-white/95 border border-sage-100 rounded-3xl px-5 py-5 sm:px-6 sm:py-6 shadow-soft hover:shadow-elevated transition-shadow duration-300 w-[300px] sm:w-[350px] lg:w-[400px] flex-shrink-0 cursor-pointer group relative"
       aria-label={`${testimonial.name} – ${testimonial.rating}/5`}
     >
+      {/* Reply Hover Badge */}
+      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-sage-50 text-sage-700 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 shadow-sm border border-sage-200">
+        <MessageCircle className="w-3 h-3" />
+        {t('testimonials.reply', 'Reply')}
+      </div>
+
       <div className="flex items-start gap-3 mb-3">
         {testimonial.avatar ? (
           <img
@@ -142,9 +167,18 @@ export function TestimonialBanner() {
         {testimonial.text}
       </p>
 
-      <p className="text-[11px] sm:text-xs text-charcoal/60 mt-4">
-        {testimonial.date}
-      </p>
+      <div className="flex justify-between items-center mt-4">
+        <p className="text-[11px] sm:text-xs text-charcoal/60">
+          {testimonial.date}
+        </p>
+        {/* Optional: Show existing reply count if any */}
+        {testimonial.replies && testimonial.replies.length > 0 && (
+          <p className="text-[10px] sm:text-xs text-sage-600 font-medium flex items-center gap-1">
+            <MessageCircle className="w-3 h-3" />
+            {testimonial.replies.length}
+          </p>
+        )}
+      </div>
     </article>
   )
 
@@ -175,9 +209,13 @@ export function TestimonialBanner() {
         <div
           className="relative overflow-hidden space-y-5 sm:space-y-6"
           onMouseEnter={() => setPaused(true)}
-          onMouseLeave={() => setPaused(false)}
+          onMouseLeave={() => {
+            if (!selectedTestimonial) setPaused(false)
+          }}
           onFocus={() => setPaused(true)}
-          onBlur={() => setPaused(false)}
+          onBlur={() => {
+            if (!selectedTestimonial) setPaused(false)
+          }}
           role="region"
           aria-roledescription="marquee"
           aria-live="off"
@@ -202,6 +240,12 @@ export function TestimonialBanner() {
           </motion.div>
         </div>
       </div>
+
+      <TestimonialModal
+        isOpen={!!selectedTestimonial}
+        testimonial={selectedTestimonial}
+        onClose={handleModalClose}
+      />
     </section>
   )
 }
