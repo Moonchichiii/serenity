@@ -1,6 +1,7 @@
 from django.core.cache import cache
 from django.db.models import Avg, Count
-from django.views.decorators.cache import cache_page
+
+# REMOVED: from django.views.decorators.cache import cache_page (Not needed anymore)
 from rest_framework import status
 from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.response import Response
@@ -16,18 +17,23 @@ class TestimonialSubmissionThrottle(AnonRateThrottle):
 
 
 @api_view(["GET"])
-@cache_page(60 * 15)
+# REMOVED: @cache_page(60 * 15) <-- This was the cause of the issue!
 def get_testimonials(request):
-    """Return approved testimonials filtered by optional min_rating."""
+    """
+    Return approved testimonials filtered by optional min_rating.
+    Relies on manual caching handled by signals in models.py.
+    """
     min_rating = request.GET.get("min_rating")
     try:
         min_rating = int(min_rating) if min_rating else 0
     except ValueError:
         min_rating = 0
 
+    # 1. Check manual cache (fast)
     cache_key = f"testimonials:list:{min_rating}"
     data = cache.get(cache_key)
 
+    # 2. If not in cache, get from DB (fresh data)
     if not data:
         testimonials = Testimonial.objects.filter(
             status="approved",
@@ -36,6 +42,8 @@ def get_testimonials(request):
 
         serializer = TestimonialSerializer(testimonials, many=True)
         data = serializer.data
+
+        # 3. Store in cache until a signal clears it
         cache.set(cache_key, data, 60 * 15)
 
     return Response(data)
