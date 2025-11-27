@@ -3,12 +3,14 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from wagtail.admin.panels import FieldPanel
+from modelcluster.fields import ParentalKey
+from modelcluster.models import ClusterableModel
+from wagtail.admin.panels import FieldPanel, InlinePanel
 from wagtail.snippets.models import register_snippet
 
 
 @register_snippet
-class Testimonial(models.Model):
+class Testimonial(ClusterableModel):
     """Customer testimonial with moderation support."""
 
     STATUS_CHOICES = [
@@ -44,6 +46,7 @@ class Testimonial(models.Model):
         FieldPanel("text"),
         FieldPanel("status"),
         FieldPanel("admin_notes"),
+        InlinePanel("replies", label="Réponses / Replies"),
     ]
 
     class Meta:
@@ -76,7 +79,7 @@ class Testimonial(models.Model):
 class TestimonialReply(models.Model):
     """Reply to a testimonial."""
 
-    parent = models.ForeignKey(
+    parent = ParentalKey(
         Testimonial,
         on_delete=models.CASCADE,
         related_name="replies",
@@ -101,7 +104,6 @@ class TestimonialReply(models.Model):
     ip_address = models.GenericIPAddressField(null=True, blank=True)
 
     panels = [
-        FieldPanel("parent"),
         FieldPanel("name"),
         FieldPanel("email"),
         FieldPanel("text"),
@@ -126,6 +128,6 @@ def clear_testimonials_cache(sender, instance, **kwargs):
 
 @receiver(post_save, sender=TestimonialReply)
 def clear_cache_on_reply(sender, instance, **kwargs):
-    """Invalidate testimonials list cache when reply is saved."""
+    """Invalidate testimonials list cache on reply save."""
     for rating in range(0, 6):
         cache.delete(f"testimonials:list:{rating}")
