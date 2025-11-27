@@ -1,6 +1,15 @@
-{% load static %}
+{% load static wagtailadmin_tags %}
 {% url 'wagtailadmin_home' as admin_home %}
+{# START: Check valid URLs for snippets #}
+{% url 'wagtailsnippets:list' 'cms' 'testimonial' as testimonial_list_url %}
+{% url 'wagtailsnippets:add' 'cms' 'testimonial' as testimonial_add_url %}
+{% url 'wagtailsnippets:list' 'cms' 'testimonialreply' as reply_list_url %}
+{% url 'wagtailsnippets:list' 'cms' 'service' as service_list_url %}
+{% url 'wagtailsnippets:add' 'cms' 'service' as service_add_url %}
+{# END: Check valid URLs #}
+
 <style>
+/* ... (Your existing CSS remains exactly the same) ... */
 :root{
 --bg: hsl(0 0% 99%);
 --fg: hsl(0 0% 13%);
@@ -157,8 +166,9 @@ box-shadow: var(--shadow-sm); transition: transform .25s ease, box-shadow .25s e
       <p class="desc">Add, edit, or remove massage services.</p>
       <ul class="field-list"></ul>
       <div class="quick-actions">
-        <a class="btn btn-primary primary" href="{{ admin_home }}snippets/services/service/">View & Edit Services</a>
-        <a class="btn btn-ghost secondary" href="{{ admin_home }}snippets/services/service/add/">Add Service</a>
+        <!-- FIXED URLs using Django Variables -->
+        <a class="btn btn-primary primary" href="{{ service_list_url }}">View & Edit Services</a>
+        <a class="btn btn-ghost secondary" href="{{ service_add_url }}">Add Service</a>
       </div>
     </div>
 
@@ -187,12 +197,13 @@ box-shadow: var(--shadow-sm); transition: transform .25s ease, box-shadow .25s e
       <p class="desc">Manage client reviews and ratings shown on your site.</p>
       <ul class="field-list"></ul>
       <div class="quick-actions">
-        <a class="btn btn-primary primary" href="{{ admin_home }}snippets/cms/testimonial/">Manage Reviews</a>
-        <a class="btn btn-ghost secondary" href="{{ admin_home }}snippets/cms/testimonial/add/">Add Review</a>
+        <!-- FIXED URLs using Django Variables -->
+        <a class="btn btn-primary primary" href="{{ testimonial_list_url }}">Manage Reviews</a>
+        <a class="btn btn-ghost secondary" href="{{ testimonial_add_url }}">Add Review</a>
       </div>
     </div>
 
-    <!-- Testimonial Replies (NEW) -->
+    <!-- Testimonial Replies (NEW - FIXED URL) -->
     <div class="section-card animate-slide-up" style="animation-delay:330ms" data-key="replies">
       <div class="section-card-header">
         <span class="icon" aria-hidden="true">💬</span>
@@ -201,8 +212,8 @@ box-shadow: var(--shadow-sm); transition: transform .25s ease, box-shadow .25s e
       <p class="desc">Approve or reject replies to testimonials.</p>
       <ul class="field-list"></ul>
       <div class="quick-actions">
-        <!-- Assuming app name is 'cms' in Wagtail snippets url structure -->
-        <a class="btn btn-primary primary" href="{{ admin_home }}snippets/cms/testimonialreply/">Manage Replies</a>
+        <!-- FIXED URL: Using variable instead of hardcoded string -->
+        <a class="btn btn-primary primary" href="{{ reply_list_url }}">Manage Replies</a>
       </div>
     </div>
 
