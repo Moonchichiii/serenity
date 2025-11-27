@@ -9,7 +9,7 @@ from wagtail.snippets.models import register_snippet
 
 @register_snippet
 class Testimonial(models.Model):
-    """Customer testimonials with moderation."""
+    """Customer testimonial with moderation support."""
 
     STATUS_CHOICES = [
         ("pending", "En attente"),
@@ -119,13 +119,13 @@ class TestimonialReply(models.Model):
 
 @receiver(post_save, sender=Testimonial)
 def clear_testimonials_cache(sender, instance, **kwargs):
-    """Clear testimonials cache on save."""
+    """Invalidate testimonials list cache on save."""
     for rating in range(0, 6):
         cache.delete(f"testimonials:list:{rating}")
 
 
 @receiver(post_save, sender=TestimonialReply)
 def clear_cache_on_reply(sender, instance, **kwargs):
-    """Clear testimonials cache when reply is saved."""
+    """Invalidate testimonials list cache when reply is saved."""
     for rating in range(0, 6):
         cache.delete(f"testimonials:list:{rating}")

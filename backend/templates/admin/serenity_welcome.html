@@ -1,16 +1,18 @@
 {% load static wagtailadmin_tags %}
 {% url 'wagtailadmin_home' as admin_home %}
 
-{# --- START: Dynamic URL Generation --- #}
-{# These lines ask Wagtail for the correct URL for each snippet model #}
-{# App Label: 'cms', Model Names: 'testimonial', 'testimonialreply', 'service' #}
+{# --- DYNAMIC URL GENERATION (FIXED) --- #}
+{# We use 'testimonials' as the app label because of apps.testimonials.apps.py #}
 
-{% url 'wagtailsnippets:list' 'cms' 'testimonial' as testimonial_list_url %}
-{% url 'wagtailsnippets:add' 'cms' 'testimonial' as testimonial_add_url %}
-{% url 'wagtailsnippets:list' 'cms' 'testimonialreply' as reply_list_url %}
-{% url 'wagtailsnippets:list' 'cms' 'service' as service_list_url %}
-{% url 'wagtailsnippets:add' 'cms' 'service' as service_add_url %}
-{# --- END: Dynamic URL Generation --- #}
+{% url 'wagtailsnippets:list' 'testimonials' 'testimonial' as testimonial_list_url %}
+{% url 'wagtailsnippets:add' 'testimonials' 'testimonial' as testimonial_add_url %}
+{% url 'wagtailsnippets:list' 'testimonials' 'testimonialreply' as reply_list_url %}
+
+{# Services are likely in 'services' app, check apps/services/apps.py label #}
+{% url 'wagtailsnippets:list' 'services' 'service' as service_list_url %}
+{% url 'wagtailsnippets:add' 'services' 'service' as service_add_url %}
+
+{# --- END --- #}
 
 <style>
 :root{

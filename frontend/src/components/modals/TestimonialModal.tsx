@@ -128,6 +128,9 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <input
                         type="text"
+                        name="author_name"
+                        id="reply_name"
+                        autoComplete="name"
                         required
                         placeholder="Your Name"
                         className="bg-white px-4 py-2 rounded-xl border border-sage-200 text-sm focus:outline-none focus:border-sage-400"
@@ -136,6 +139,9 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
                       />
                       <input
                         type="email"
+                        name="author_email"
+                        id="reply_email"
+                        autoComplete="email"
                         required
                         placeholder="Email (Private)"
                         className="bg-white px-4 py-2 rounded-xl border border-sage-200 text-sm focus:outline-none focus:border-sage-400"
@@ -144,6 +150,8 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
                       />
                     </div>
                     <textarea
+                      name="reply_text"
+                      id="reply_text"
                       required
                       placeholder="Write your response..."
                       rows={3}
