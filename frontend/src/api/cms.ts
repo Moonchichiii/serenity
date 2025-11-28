@@ -91,12 +91,11 @@ export interface WagtailHomePage {
   services_hero_poster_image: WagtailImage | null
 }
 
-// --- NEW REPLY INTERFACES ---
 export interface WagtailReply {
   id: number
   name: string
   text: string
-  created_at: string
+  date: string
 }
 
 export interface ReplySubmission {
