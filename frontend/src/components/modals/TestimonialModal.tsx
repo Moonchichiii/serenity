@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next' // <-- Import this
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, MessageCircle, Send, Star } from 'lucide-react'
 import { cmsAPI, type WagtailTestimonial } from '@/api/cms'
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
+  const { t } = useTranslation() // <-- Initialize hook
   const [replyText, setReplyText] = useState('')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -27,7 +29,7 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
     } catch (err) {
       console.error(err)
       setStatus('idle')
-      alert("Error submitting reply")
+      alert(t('testimonials.modal.error', 'Error submitting reply'))
     }
   }
 
@@ -56,7 +58,6 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
                   {testimonial.avatar ? (
                     <img
                       src={testimonial.avatar}
-                      // FIX: Added alt text
                       alt={`${testimonial.name}'s avatar`}
                       className="w-12 h-12 rounded-full object-cover"
                     />
@@ -74,10 +75,10 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
                     </div>
                   </div>
                 </div>
-                {/* FIX: Added aria-label */}
+
                 <button
                   onClick={onClose}
-                  aria-label="Close modal"
+                  aria-label={t('testimonials.modal.close', 'Close modal')}
                   className="p-2 hover:bg-black/5 rounded-full transition-colors"
                 >
                   <X className="w-5 h-5 text-charcoal/60" />
@@ -94,7 +95,7 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
             <div className="flex-1 overflow-y-auto bg-white p-6 sm:p-8">
               <h4 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-charcoal/50 mb-6">
                 <MessageCircle className="w-4 h-4" />
-                Discussion
+                {t('testimonials.modal.discussion', 'Discussion')}
               </h4>
 
               {/* Existing Replies */}
@@ -104,13 +105,17 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
                     <div key={reply.id} className="pl-4 border-l-2 border-sage-200">
                       <div className="flex justify-between items-baseline mb-1">
                         <span className="font-semibold text-charcoal text-sm">{reply.name}</span>
-                        <span className="text-xs text-charcoal/40">Earlier</span>
+                        <span className="text-xs text-charcoal/40">
+                          {reply.date || t('testimonials.modal.earlier', 'Earlier')}
+                        </span>
                       </div>
                       <p className="text-charcoal/70 text-sm leading-relaxed">{reply.text}</p>
                     </div>
                    ))
                 ) : (
-                  <p className="text-charcoal/40 text-sm italic text-center py-4">No replies yet. Be the first to respond!</p>
+                  <p className="text-charcoal/40 text-sm italic text-center py-4">
+                    {t('testimonials.modal.empty', 'No replies yet. Be the first to respond!')}
+                  </p>
                 )}
               </div>
 
@@ -118,13 +123,21 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
               <div className="bg-cream-50/50 rounded-2xl p-5 border border-sage-100">
                 {status === 'success' ? (
                   <div className="text-center py-4 text-sage-600">
-                    <p className="font-medium">Thank you for your reply!</p>
-                    <p className="text-sm">It has been sent for moderation.</p>
-                    <button onClick={() => setStatus('idle')} className="mt-3 text-xs underline">Write another</button>
+                    <p className="font-medium">
+                      {t('testimonials.modal.successTitle', 'Thank you for your reply!')}
+                    </p>
+                    <p className="text-sm">
+                      {t('testimonials.modal.successMessage', 'It has been sent for moderation.')}
+                    </p>
+                    <button onClick={() => setStatus('idle')} className="mt-3 text-xs underline">
+                      {t('testimonials.modal.writeAnother', 'Write another')}
+                    </button>
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-3">
-                    <p className="text-sm font-semibold text-charcoal/80 mb-2">Join the conversation</p>
+                    <p className="text-sm font-semibold text-charcoal/80 mb-2">
+                      {t('testimonials.modal.form.title', 'Join the conversation')}
+                    </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <input
                         type="text"
@@ -132,7 +145,7 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
                         id="reply_name"
                         autoComplete="name"
                         required
-                        placeholder="Your Name"
+                        placeholder={t('testimonials.modal.form.namePlaceholder', 'Your Name')}
                         className="bg-white px-4 py-2 rounded-xl border border-sage-200 text-sm focus:outline-none focus:border-sage-400"
                         value={name}
                         onChange={e => setName(e.target.value)}
@@ -143,7 +156,7 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
                         id="reply_email"
                         autoComplete="email"
                         required
-                        placeholder="Email (Private)"
+                        placeholder={t('testimonials.modal.form.emailPlaceholder', 'Email (Private)')}
                         className="bg-white px-4 py-2 rounded-xl border border-sage-200 text-sm focus:outline-none focus:border-sage-400"
                         value={email}
                         onChange={e => setEmail(e.target.value)}
@@ -153,7 +166,7 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
                       name="reply_text"
                       id="reply_text"
                       required
-                      placeholder="Write your response..."
+                      placeholder={t('testimonials.modal.form.textPlaceholder', 'Write your response...')}
                       rows={3}
                       className="w-full bg-white px-4 py-2 rounded-xl border border-sage-200 text-sm focus:outline-none focus:border-sage-400 resize-none"
                       value={replyText}
@@ -165,7 +178,10 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
                         type="submit"
                         className="flex items-center gap-2 bg-charcoal text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-charcoal/80 transition-colors disabled:opacity-50"
                       >
-                        {status === 'submitting' ? 'Sending...' : 'Post Reply'}
+                        {status === 'submitting'
+                          ? t('testimonials.modal.form.submitting', 'Sending...')
+                          : t('testimonials.modal.form.submit', 'Post Reply')
+                        }
                         <Send className="w-3.5 h-3.5" />
                       </button>
                     </div>

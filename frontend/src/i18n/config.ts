@@ -245,6 +245,25 @@ const resources = {
       testimonials: {
         title: 'What our clients say',
         subtitle: 'Discover testimonials from our satisfied clients',
+        reply: 'Reply',
+        modal: {
+          close: 'Close modal',
+          discussion: 'Discussion',
+          earlier: 'Earlier',
+          empty: 'No replies yet. Be the first to respond!',
+          error: 'Error submitting reply',
+          successTitle: 'Thank you for your reply!',
+          successMessage: 'It has been sent for moderation.',
+          writeAnother: 'Write another',
+          form: {
+            title: 'Join the conversation',
+            namePlaceholder: 'Your Name',
+            emailPlaceholder: 'Email (Private)',
+            textPlaceholder: 'Write your response...',
+            submit: 'Post Reply',
+            submitting: 'Sending...',
+          },
+        },
       },
       cookie: {
         intro:
@@ -515,6 +534,25 @@ const resources = {
       testimonials: {
         title: 'Ce que disent nos clients',
         subtitle: 'Découvrez les témoignages de nos clients satisfaits',
+        reply: 'Répondre',
+        modal: {
+          close: 'Fermer',
+          discussion: 'Discussion',
+          earlier: 'Précédemment',
+          empty: 'Aucune réponse pour le moment. Soyez le premier à répondre !',
+          error: "Erreur lors de l'envoi de la réponse",
+          successTitle: 'Merci pour votre réponse !',
+          successMessage: 'Elle a été envoyée pour modération.',
+          writeAnother: 'En écrire une autre',
+          form: {
+            title: 'Rejoindre la conversation',
+            namePlaceholder: 'Votre nom',
+            emailPlaceholder: 'Email (Privé)',
+            textPlaceholder: 'Écrivez votre réponse...',
+            submit: 'Publier',
+            submitting: 'Envoi...',
+          },
+        },
       },
       cookie: {
         intro:
