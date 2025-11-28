@@ -5,7 +5,7 @@ from wagtail.images.models import Image
 
 from apps.cms.models import HomePage
 from apps.services.models import Service
-from apps.testimonials.models import Testimonial
+from apps.testimonials.models import Testimonial, TestimonialReply
 
 
 class WagtailImageSerializer(serializers.ModelSerializer):
@@ -157,15 +157,30 @@ class ServiceSerializer(serializers.ModelSerializer):
         ]
 
 
-class TestimonialSerializer(serializers.ModelSerializer):
-    """Serializer matching frontend expectations: name, rating, text, date, avatar."""
-
-    avatar = serializers.SerializerMethodField()
+class ReplySerializer(serializers.ModelSerializer):
     date = serializers.SerializerMethodField()
 
     class Meta:
+        model = TestimonialReply
+        fields = ["id", "name", "text", "date"]
+
+    def get_date(self, obj):
+        if obj.created_at:
+            return obj.created_at.strftime("%Y-%m-%d")
+        return ""
+
+
+class TestimonialSerializer(serializers.ModelSerializer):
+    """Serializer matching frontend expectations: name, rating, text, date, avatar, replies."""
+
+    avatar = serializers.SerializerMethodField()
+    date = serializers.SerializerMethodField()
+    # NEW: Include replies
+    replies = serializers.SerializerMethodField()
+
+    class Meta:
         model = Testimonial
-        fields = ["id", "name", "rating", "text", "date", "avatar"]
+        fields = ["id", "name", "rating", "text", "date", "avatar", "replies"]
 
     def get_date(self, obj):
         """Return creation date as YYYY-MM-DD or empty string."""
@@ -180,6 +195,10 @@ class TestimonialSerializer(serializers.ModelSerializer):
         name = obj.name or "Anonymous"
         encoded_name = urllib.parse.quote(name)
         return f"https://ui-avatars.com/api/?name={encoded_name}&background=random&size=128"
+
+    def get_replies(self, obj):
+        approved_replies = obj.replies.filter(status='approved').order_by('created_at')
+        return ReplySerializer(approved_replies, many=True).data
 
 
 class TestimonialStatsSerializer(serializers.Serializer):
