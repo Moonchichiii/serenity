@@ -243,3 +243,14 @@ input:focus,textarea:focus,select:focus{
 .conic-avatar{
   background:conic-gradient(from 180deg,var(--color-terracotta-300),var(--color-honey-300),var(--color-lavender-300));
 }
+
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+*/

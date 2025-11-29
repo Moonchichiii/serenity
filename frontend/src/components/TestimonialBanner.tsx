@@ -1,84 +1,78 @@
-import { memo, useEffect, useMemo, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { motion, useAnimation } from 'framer-motion'
-import { Star, MessageCircle } from 'lucide-react'
-import { cmsAPI, type WagtailTestimonial } from '@/api/cms'
-import { TestimonialModal } from '@/components/modals/TestimonialModal'
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { motion, useAnimation } from 'framer-motion';
+import { Star, MessageCircle } from 'lucide-react';
+import { cmsAPI, type WagtailTestimonial } from '@/api/cms';
+import { TestimonialModal } from '@/components/modals/TestimonialModal';
 
 export function TestimonialBanner() {
-  const { t } = useTranslation()
-  const [testimonials, setTestimonials] = useState<WagtailTestimonial[]>([])
-  const [loading, setLoading] = useState(true)
-
-  // Modal State
+  const { t } = useTranslation();
+  const [testimonials, setTestimonials] = useState<WagtailTestimonial[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedTestimonial, setSelectedTestimonial] =
-    useState<WagtailTestimonial | null>(null)
+    useState<WagtailTestimonial | null>(null);
 
   const prefersReduced =
     typeof window !== 'undefined' &&
-    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-  const controlsTop = useAnimation()
-  const controlsBottom = useAnimation()
-  const [paused, setPaused] = useState(false)
-  const trackTopRef = useRef<HTMLDivElement | null>(null)
+  const controlsTop = useAnimation();
+  const controlsBottom = useAnimation();
+  const [paused, setPaused] = useState(false);
+  const trackTopRef = useRef<HTMLDivElement | null>(null);
 
   const items = useMemo(() => {
-    if (testimonials.length === 0) return []
-
-    // Duplicate items to ensure smooth infinite scroll
+    if (testimonials.length === 0) return [];
     return testimonials.length < 4
       ? [...testimonials, ...testimonials, ...testimonials]
-      : [...testimonials, ...testimonials]
-  }, [testimonials])
+      : [...testimonials, ...testimonials];
+  }, [testimonials]);
 
   useEffect(() => {
     cmsAPI
       .getTestimonials(4)
       .then((data) => setTestimonials(data))
-      .finally(() => setLoading(false))
-  }, [])
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
-    if (prefersReduced || !trackTopRef.current || items.length === 0) return
+    if (prefersReduced || !trackTopRef.current || items.length === 0) return;
 
-    // Calculate scroll distance and animation duration
     const loopWidth =
-      trackTopRef.current.scrollWidth / (testimonials.length < 4 ? 3 : 2)
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
-
-    // HIGHER NUMBER = SLOWER SPEED
-    const duration = isMobile ? 50 : 60
+      trackTopRef.current.scrollWidth / (testimonials.length < 4 ? 3 : 2);
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const duration = isMobile ? 50 : 60;
 
     if (paused) {
-      controlsTop.stop()
-      controlsBottom.stop()
-      return
+      controlsTop.stop();
+      controlsBottom.stop();
+      return;
     }
 
-    controlsTop.start({
-      x: [0, -loopWidth],
-      transition: {
-        duration,
-        ease: 'linear',
-        repeat: Infinity,
-      },
-    })
+    if (!paused) {
+      controlsTop.start({
+        x: [0, -loopWidth],
+        transition: {
+          duration,
+          ease: 'linear',
+          repeat: Infinity,
+        },
+      });
 
-    // Offset second row for visual variety
-    controlsBottom.start({
-      x: [-loopWidth / 2, -loopWidth - loopWidth / 2],
-      transition: {
-        duration,
-        ease: 'linear',
-        repeat: Infinity,
-      },
-    })
+      controlsBottom.start({
+        x: [-loopWidth / 2, -loopWidth - loopWidth / 2],
+        transition: {
+          duration,
+          ease: 'linear',
+          repeat: Infinity,
+        },
+      });
+    }
 
     return () => {
-      controlsTop.stop()
-      controlsBottom.stop()
-    }
+      controlsTop.stop();
+      controlsBottom.stop();
+    };
   }, [
     controlsTop,
     controlsBottom,
@@ -86,17 +80,17 @@ export function TestimonialBanner() {
     prefersReduced,
     items.length,
     testimonials.length,
-  ])
+  ]);
 
   const handleCardClick = (testimonial: WagtailTestimonial) => {
-    setPaused(true)
-    setSelectedTestimonial(testimonial)
-  }
+    setPaused(true);
+    setSelectedTestimonial(testimonial);
+  };
 
   const handleModalClose = () => {
-    setSelectedTestimonial(null)
-    setPaused(false)
-  }
+    setSelectedTestimonial(null);
+    setPaused(false);
+  };
 
   if (loading) {
     return (
@@ -107,19 +101,18 @@ export function TestimonialBanner() {
           </div>
         </div>
       </section>
-    )
+    );
   }
 
-  if (testimonials.length === 0) return null
+  if (testimonials.length === 0) return null;
 
   const renderCard = (testimonial: WagtailTestimonial, index: number) => (
     <article
       key={`${testimonial.id}-${index}`}
       onClick={() => handleCardClick(testimonial)}
-      className="bg-white/95 border border-sage-100 rounded-3xl px-5 py-5 sm:px-6 sm:py-6 shadow-soft hover:shadow-elevated transition-shadow duration-300 w-[300px] sm:w-[350px] lg:w-[400px] flex-shrink-0 cursor-pointer group relative"
+      className="bg-white/95 border border-sage-100 rounded-3xl px-5 py-5 sm:px-6 sm:py-6 shadow-soft hover:shadow-elevated transition-shadow duration-300 w-[300px] sm:w-[350px] lg:w-[400px] flex-shrink-0 cursor-pointer group relative snap-center"
       aria-label={`${testimonial.name} – ${testimonial.rating}/5`}
     >
-      {/* Reply Hover Badge */}
       <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-sage-50 text-sage-700 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 shadow-sm border border-sage-200">
         <MessageCircle className="w-3 h-3" />
         {t('testimonials.reply', 'Reply')}
@@ -171,7 +164,6 @@ export function TestimonialBanner() {
         <p className="text-[11px] sm:text-xs text-charcoal/60">
           {testimonial.date}
         </p>
-        {/* Optional: Show existing reply count if any */}
         {testimonial.replies && testimonial.replies.length > 0 && (
           <p className="text-[10px] sm:text-xs text-sage-600 font-medium flex items-center gap-1">
             <MessageCircle className="w-3 h-3" />
@@ -180,7 +172,7 @@ export function TestimonialBanner() {
         )}
       </div>
     </article>
-  )
+  );
 
   return (
     <section className="py-16 sm:py-20 bg-cream-50" id="testimonials">
@@ -210,34 +202,55 @@ export function TestimonialBanner() {
           className="relative overflow-hidden space-y-5 sm:space-y-6"
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => {
-            if (!selectedTestimonial) setPaused(false)
+            if (!selectedTestimonial) setPaused(false);
           }}
           onFocus={() => setPaused(true)}
           onBlur={() => {
-            if (!selectedTestimonial) setPaused(false)
+            if (!selectedTestimonial) setPaused(false);
           }}
           role="region"
           aria-roledescription="marquee"
           aria-live="off"
         >
-          {/* Edge fade effects */}
           <div className="pointer-events-none absolute inset-y-0 left-0 w-10 sm:w-16 bg-gradient-to-r from-cream-50 to-transparent z-10" />
           <div className="pointer-events-none absolute inset-y-0 right-0 w-10 sm:w-16 bg-gradient-to-l from-cream-50 to-transparent z-10" />
 
-          <motion.div
-            ref={trackTopRef}
-            className="flex gap-4 sm:gap-6 w-max px-2"
-            animate={prefersReduced ? undefined : controlsTop}
+          <div
+            className="flex gap-4 sm:gap-6 w-full overflow-x-auto snap-x snap-mandatory py-2 scroll-smooth no-scrollbar"
+            onScroll={() => setPaused(true)}
+            onTouchStart={() => setPaused(true)}
+            onTouchEnd={() => {
+              if (!selectedTestimonial) setPaused(false);
+            }}
           >
-            {items.map((tst, index) => renderCard(tst, index))}
-          </motion.div>
+            <motion.div
+              ref={trackTopRef}
+              className="flex gap-4 sm:gap-6 w-max"
+              animate={prefersReduced ? undefined : controlsTop}
+            >
+              <div className="w-[calc(50vw_-_150px)] sm:w-[calc(50vw_-_175px)] lg:w-[calc(50vw_-_200px)] flex-shrink-0 snap-center" />
+              {items.map((tst, index) => renderCard(tst, index))}
+              <div className="w-[calc(50vw_-_150px)] sm:w-[calc(50vw_-_175px)] lg:w-[calc(50vw_-_200px)] flex-shrink-0 snap-center" />
+            </motion.div>
+          </div>
 
-          <motion.div
-            className="flex gap-4 sm:gap-6 w-max px-2"
-            animate={prefersReduced ? undefined : controlsBottom}
+          <div
+            className="flex gap-4 sm:gap-6 w-full overflow-x-auto snap-x snap-mandatory py-2 scroll-smooth no-scrollbar"
+            onScroll={() => setPaused(true)}
+            onTouchStart={() => setPaused(true)}
+            onTouchEnd={() => {
+              if (!selectedTestimonial) setPaused(false);
+            }}
           >
-            {items.map((tst, index) => renderCard(tst, index))}
-          </motion.div>
+            <motion.div
+              className="flex gap-4 sm:gap-6 w-max"
+              animate={prefersReduced ? undefined : controlsBottom}
+            >
+              <div className="w-[calc(50vw_-_150px)] sm:w-[calc(50vw_-_175px)] lg:w-[calc(50vw_-_200px)] flex-shrink-0 snap-center" />
+              {items.map((tst, index) => renderCard(tst, index))}
+              <div className="w-[calc(50vw_-_150px)] sm:w-[calc(50vw_-_175px)] lg:w-[calc(50vw_-_200px)] flex-shrink-0 snap-center" />
+            </motion.div>
+          </div>
         </div>
       </div>
 
@@ -247,7 +260,7 @@ export function TestimonialBanner() {
         onClose={handleModalClose}
       />
     </section>
-  )
+  );
 }
 
-export default memo(TestimonialBanner)
+export default memo(TestimonialBanner);

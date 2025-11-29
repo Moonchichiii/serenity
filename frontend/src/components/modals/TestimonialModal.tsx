@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next' // <-- Import this
+import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, MessageCircle, Send, Star } from 'lucide-react'
 import { cmsAPI, type WagtailTestimonial } from '@/api/cms'
@@ -11,7 +11,7 @@ interface Props {
 }
 
 export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
-  const { t } = useTranslation() // <-- Initialize hook
+  const { t } = useTranslation()
   const [replyText, setReplyText] = useState('')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
