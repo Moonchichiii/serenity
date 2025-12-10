@@ -8,16 +8,17 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from wagtail.models import Site
 
-from apps.cms.models import HeroSlide, HomePage, Specialty
+from apps.cms.models import GiftSettings, HeroSlide, HomePage, Specialty
 from apps.services.models import Service
 
-from .serializers import HomePageSerializer, ServiceSerializer
+from .serializers import GiftSettingsSerializer, HomePageSerializer, ServiceSerializer
 
 logger = logging.getLogger(__name__)
 
 # Cache TTL settings
 HOMEPAGE_CACHE_TTL = 60 * 60      # 1 hour
 SERVICES_CACHE_TTL = 60 * 30      # 30 minutes
+
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
@@ -101,4 +102,19 @@ def services_view(request):
     else:
         logger.debug("Services cache HIT: %s", cache_key)
 
+    return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def globals_view(request):
+    """
+    Get global site settings (Gift config, etc).
+    """
+    site = Site.find_for_request(request)
+    gift_settings = GiftSettings.for_site(site)
+
+    data = {
+        "gift": GiftSettingsSerializer(gift_settings).data
+    }
     return Response(data)

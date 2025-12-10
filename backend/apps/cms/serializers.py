@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import cloudinary.utils
 from rest_framework import serializers
 from wagtail.images.models import Image
 
-from apps.cms.models import HomePage
+from apps.cms.models import GiftSettings, HomePage
 from apps.services.models import Service
 from apps.testimonials.models import Testimonial, TestimonialReply
 
@@ -197,7 +198,7 @@ class TestimonialSerializer(serializers.ModelSerializer):
         return f"https://ui-avatars.com/api/?name={encoded_name}&background=random&size=128"
 
     def get_replies(self, obj):
-        approved_replies = obj.replies.filter(status='approved').order_by('created_at')
+        approved_replies = obj.replies.filter(status="approved").order_by("created_at")
         return ReplySerializer(approved_replies, many=True).data
 
 
@@ -211,3 +212,48 @@ class TestimonialStatsSerializer(serializers.Serializer):
     three_star_count = serializers.IntegerField()
     two_star_count = serializers.IntegerField()
     one_star_count = serializers.IntegerField()
+
+
+# --- CLOUDINARY-OPTIMIZED GIFT SETTINGS ---
+class GiftSettingsSerializer(serializers.ModelSerializer):
+    # Override floating_icon to return the custom optimized object
+    floating_icon = serializers.SerializerMethodField()
+
+    class Meta:
+        model = GiftSettings
+        fields = [
+            "is_enabled",
+            "floating_icon",
+            "modal_title_en",
+            "modal_title_fr",
+        ]
+
+    def get_floating_icon(self, obj):
+        """
+        Generates a Cloudinary optimized URL (w_150, q_auto, f_auto)
+        """
+        if not obj.floating_icon:
+            return None
+
+        try:
+            # In Django-Cloudinary-Storage, file.name is usually the Public ID
+            public_id = obj.floating_icon.file.name
+
+            # Generate the URL using Cloudinary SDK
+            url, _ = cloudinary.utils.cloudinary_url(
+                public_id,
+                width=150,
+                crop="scale",
+                quality="auto",
+                fetch_format="auto",
+                secure=True,
+            )
+
+            return {
+                "url": url,
+                "width": 150,
+                "height": 150,
+                "title": obj.floating_icon.title,
+            }
+        except Exception:
+            return None

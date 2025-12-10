@@ -16,25 +16,23 @@ from .serializers import GiftVoucherSerializer
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def create_voucher(request):
+    """
+    Creates a gift voucher and sends notification emails.
+    """
     serializer = GiftVoucherSerializer(data=request.data)
     if serializer.is_valid():
         voucher = serializer.save()
 
-        # 1. Fetch Wagtail Settings for content
-        #    (Safe fallback if no site is found, though unlikely)
         try:
             site = Site.find_for_request(request)
             gift_settings = GiftSettings.for_site(site)
         except Exception:
             gift_settings = GiftSettings.objects.first()
 
-        # 2. Prepare Image URL (Cloudinary)
         image_url = ""
         if gift_settings and gift_settings.voucher_image:
-            # Depending on storage, .url is usually the full Cloudinary URL
             image_url = gift_settings.voucher_image.file.url
 
-        # 3. Prepare Context
         context = {
             "voucher": voucher,
             "settings": gift_settings,
@@ -42,8 +40,6 @@ def create_voucher(request):
             "site_name": getattr(site, "site_name", "Serenity"),
         }
 
-        # 4. Email to Recipient
-        # Determine subject based on a heuristic or default to dual language
         subject = f"{gift_settings.email_subject_en} / {gift_settings.email_subject_fr}"
 
         html_content = render_to_string("vouchers/email_recipient.html", context)
@@ -58,14 +54,12 @@ def create_voucher(request):
         msg_recipient.attach_alternative(html_content, "text/html")
         msg_recipient.send()
 
-        # 5. Email to Admin/Client
         html_admin = render_to_string("vouchers/email_admin.html", context)
         text_admin = strip_tags(html_admin)
 
-        # Get admin email from settings, or fallback
-        admin_email = "salon@example.com" # Default fallback
+        admin_email = "salon@example.com"
         if settings.ADMINS:
-             admin_email = settings.ADMINS[0][1]
+            admin_email = settings.ADMINS[0][1]
 
         msg_admin = EmailMultiAlternatives(
             subject=f"New Gift Voucher Sold: {voucher.code}",

@@ -487,42 +487,80 @@ class SerenitySettings(BaseSiteSetting):
 class GiftSettings(BaseSiteSetting):
     is_enabled = models.BooleanField(
         default=True,
-        help_text="Check this to show the Gift Voucher floating icon on the site."
+        help_text="Check this to show the Gift Voucher floating icon on the site.",
     )
 
-    # Floating Icon / Modal Content
-    modal_title_en = models.CharField(max_length=100, default="Give the Gift of Relaxation")
-    modal_title_fr = models.CharField(max_length=100, default="Offrez le Cadeau de la Détente")
-
-    modal_text_en = models.TextField(default="Fill out the details below to send a massage voucher.")
-    modal_text_fr = models.TextField(default="Remplissez les détails ci-dessous pour envoyer un bon cadeau.")
-
-    # Email Content
-    voucher_image = models.ForeignKey(
-        'wagtailimages.Image',
+    # --- NEW FIELD: The Floating Icon ---
+    floating_icon = models.ForeignKey(
+        "wagtailimages.Image",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name='+',
-        help_text="The decorative image that appears at the top of the email sent to the recipient."
+        related_name="+",
+        help_text=(
+            "The small floating button icon (e.g. gift box, heart). "
+            "Best size: around 150x150px WebP/PNG."
+        ),
     )
 
-    email_subject_en = models.CharField(max_length=255, default="You've received a gift!")
-    email_subject_fr = models.CharField(max_length=255, default="Vous avez reçu un cadeau !")
+    # Floating Icon / Modal Content
+    modal_title_en = models.CharField(
+        max_length=100,
+        default="Give the Gift of Relaxation",
+    )
+    modal_title_fr = models.CharField(
+        max_length=100,
+        default="Offrez le Cadeau de la Détente",
+    )
+
+    modal_text_en = models.TextField(
+        default="Fill out the details below to send a massage voucher."
+    )
+    modal_text_fr = models.TextField(
+        default="Remplissez les détails ci-dessous pour envoyer un bon cadeau."
+    )
+
+    # Email Content
+    voucher_image = models.ForeignKey(
+        "wagtailimages.Image",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="The decorative image inside the email sent to the recipient.",
+    )
+
+    email_subject_en = models.CharField(
+        max_length=255,
+        default="You've received a gift!",
+    )
+    email_subject_fr = models.CharField(
+        max_length=255,
+        default="Vous avez reçu un cadeau !",
+    )
 
     panels = [
         FieldPanel("is_enabled"),
-        MultiFieldPanel([
-            FieldPanel("modal_title_en"),
-            FieldPanel("modal_title_fr"),
-            FieldPanel("modal_text_en"),
-            FieldPanel("modal_text_fr"),
-        ], heading="Website Popup Settings"),
-        MultiFieldPanel([
-            FieldPanel("voucher_image"),
-            FieldPanel("email_subject_en"),
-            FieldPanel("email_subject_fr"),
-        ], heading="Email Settings"),
+        # New icon picker directly under the toggle
+        FieldPanel("floating_icon"),
+
+        MultiFieldPanel(
+            [
+                FieldPanel("modal_title_en"),
+                FieldPanel("modal_title_fr"),
+                FieldPanel("modal_text_en"),
+                FieldPanel("modal_text_fr"),
+            ],
+            heading="Website Popup Settings",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("voucher_image"),
+                FieldPanel("email_subject_en"),
+                FieldPanel("email_subject_fr"),
+            ],
+            heading="Email Settings",
+        ),
     ]
 
     class Meta:

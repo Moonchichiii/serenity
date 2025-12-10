@@ -153,6 +153,21 @@ export interface ContactSubmissionResponse {
   message: string
 }
 
+// --- NEW SETTINGS INTERFACE ---
+export interface GlobalSettings {
+  gift: {
+    is_enabled: boolean
+    floating_icon: {
+      url: string
+      width: number
+      height: number
+      title: string
+    } | null
+    modal_title_en: string
+    modal_title_fr: string
+  }
+}
+
 // --- NEW GIFT VOUCHER INTERFACES ---
 export interface GiftVoucherSubmission {
   purchaserName: string
@@ -214,6 +229,10 @@ export const cmsAPI = {
     apiClient
       .post<ContactSubmissionResponse>('/api/contact/submit/', data)
       .then((res) => res.data),
+
+  // --- NEW: FETCH GLOBAL SETTINGS (Dynamic Icon) ---
+  getGlobals: (): Promise<GlobalSettings> =>
+    apiClient.get<GlobalSettings>('/api/globals/').then((res) => res.data),
 
   // --- NEW GIFT VOUCHER METHOD (Fixed) ---
   submitVoucher: (data: GiftVoucherSubmission): Promise<GiftVoucherResponse> => {
