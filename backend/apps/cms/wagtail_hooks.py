@@ -4,8 +4,8 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from wagtail import hooks
+from wagtail.models import Site
 
-# Import CMS models (including GiftSettings)
 try:
     from apps.cms.models import GiftSettings, HomePage
 except ImportError:
@@ -30,11 +30,14 @@ except ImportError:
 
 
 def get_snippet_url(model, action="list"):
+    """Generate Wagtail 7.x snippet URL, returning '#' on failure."""
     if not model:
         return "#"
+
     app_label = model._meta.app_label
     model_name = model._meta.model_name
     url_name = f"wagtailsnippets_{app_label}_{model_name}:{action}"
+
     try:
         return reverse(url_name)
     except NoReverseMatch:
@@ -43,27 +46,45 @@ def get_snippet_url(model, action="list"):
 
 @hooks.register("construct_homepage_panels")
 def add_welcome_panel(request, panels):
+    """Add custom welcome panel to Wagtail admin homepage."""
+
     class WelcomePanel:
         order = 0
         media = Media()
 
         def render(self):
+            # --- HomePage edit URL ---
             edit_url = "/cms-admin/pages/"
             if HomePage:
                 homepage_obj = HomePage.objects.first()
                 if homepage_obj:
                     edit_url = f"/cms-admin/pages/{homepage_obj.id}/edit/"
 
-            # --- GENERATE SETTINGS URL (Robust) ---
+            # --- GiftSettings URL (with site id) ---
+            # Default to '#', so UI doesn't blow up if something's off
             gift_settings_url = "#"
+
             if GiftSettings is not None:
+                app_label = GiftSettings._meta.app_label
+                model_name = GiftSettings._meta.model_name
+
+                # Try to get the current site
+                site = Site.find_for_request(request)
+                site_id = getattr(site, "id", None)
+
                 try:
-                    app_label = GiftSettings._meta.app_label
-                    model_name = GiftSettings._meta.model_name
-                    gift_settings_url = reverse(
-                        "wagtailsettings:edit",
-                        args=[app_label, model_name],
-                    )
+                    if site_id is not None:
+                        # Most Wagtail versions: wagtailsettings:edit(app_label, model_name, site_id)
+                        gift_settings_url = reverse(
+                            "wagtailsettings:edit",
+                            args=[app_label, model_name, site_id],
+                        )
+                    else:
+                        # Fallback: older pattern without site id
+                        gift_settings_url = reverse(
+                            "wagtailsettings:edit",
+                            args=[app_label, model_name],
+                        )
                 except NoReverseMatch:
                     gift_settings_url = "#"
 
@@ -75,7 +96,6 @@ def add_welcome_panel(request, panels):
                 "service_list_url": get_snippet_url(Service, "list"),
                 "service_add_url": get_snippet_url(Service, "add"),
                 "voucher_list_url": get_snippet_url(GiftVoucher, "list"),
-                # Pass the new URL to template
                 "gift_settings_url": gift_settings_url,
             }
 
