@@ -5,11 +5,12 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from wagtail import hooks
 
-# ... existing imports (HomePage, Testimonial, Service) ...
+# Import CMS models (including GiftSettings)
 try:
-    from apps.cms.models import HomePage
+    from apps.cms.models import GiftSettings, HomePage
 except ImportError:
     HomePage = None
+    GiftSettings = None
 
 try:
     from apps.testimonials.models import Testimonial, TestimonialReply
@@ -53,15 +54,18 @@ def add_welcome_panel(request, panels):
                 if homepage_obj:
                     edit_url = f"/cms-admin/pages/{homepage_obj.id}/edit/"
 
-            # --- GENERATE SETTINGS URL (Fixing the 404) ---
-            # With apps.py label="cms", this args list is correct:
-            try:
-                gift_settings_url = reverse(
-                    "wagtailsettings:edit",
-                    args=["cms", "giftsettings"],
-                )
-            except NoReverseMatch:
-                gift_settings_url = "#"
+            # --- GENERATE SETTINGS URL (Robust) ---
+            gift_settings_url = "#"
+            if GiftSettings is not None:
+                try:
+                    app_label = GiftSettings._meta.app_label
+                    model_name = GiftSettings._meta.model_name
+                    gift_settings_url = reverse(
+                        "wagtailsettings:edit",
+                        args=[app_label, model_name],
+                    )
+                except NoReverseMatch:
+                    gift_settings_url = "#"
 
             context = {
                 "edit_url": edit_url,
