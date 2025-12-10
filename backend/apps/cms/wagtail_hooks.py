@@ -45,6 +45,7 @@ def get_snippet_url(model, action="list"):
 @hooks.register("construct_homepage_panels")
 def add_welcome_panel(request, panels):
     """Add custom welcome panel to Wagtail admin homepage."""
+
     class WelcomePanel:
         order = 0
         media = Media()
@@ -56,6 +57,16 @@ def add_welcome_panel(request, panels):
                 if homepage_obj:
                     edit_url = f"/cms-admin/pages/{homepage_obj.id}/edit/"
 
+            # --- GENERATE SETTINGS URL ---
+            # This links directly to the GiftSettings form
+            try:
+                gift_settings_url = reverse(
+                    "wagtailsettings:edit",
+                    args=["cms", "giftsettings"],
+                )
+            except NoReverseMatch:
+                gift_settings_url = "#"
+
             context = {
                 "edit_url": edit_url,
                 "testimonial_list_url": get_snippet_url(Testimonial, "list"),
@@ -64,6 +75,7 @@ def add_welcome_panel(request, panels):
                 "service_list_url": get_snippet_url(Service, "list"),
                 "service_add_url": get_snippet_url(Service, "add"),
                 "voucher_list_url": get_snippet_url(GiftVoucher, "list"),
+                "gift_settings_url": gift_settings_url,
             }
 
             html = render_to_string("admin/serenity_welcome.html", context)

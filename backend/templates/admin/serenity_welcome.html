@@ -189,6 +189,8 @@ box-shadow: var(--shadow-sm); transition: transform .25s ease, box-shadow .25s e
       <ul class="field-list"></ul>
       <div class="quick-actions">
         <a class="btn btn-primary primary" href="{{ voucher_list_url }}">Manage Vouchers</a>
+        <!-- Added Secondary Button -->
+        <a class="btn btn-ghost secondary" href="{{ gift_settings_url }}">Configure Popup</a>
       </div>
     </div>
 
@@ -299,13 +301,14 @@ const SERENITY_COPY = {
       },
       vouchers: {
         title: "Gift Vouchers",
-        desc: "View sold vouchers, check codes, and mark them as redeemed.",
+        desc: "View sold vouchers, verify codes, or change the popup text/icon.",
         fields: [
           "Purchaser & recipient",
           "Voucher code",
           "Redemption status"
         ],
-        primary: "Manage Vouchers"
+        primary: "View Sold Vouchers",   // Changed for clarity
+        secondary: "Settings & Icon"     // New button text
       },
       testimonials: {
         title: "Testimonials",
@@ -399,13 +402,14 @@ const SERENITY_COPY = {
       },
       vouchers: {
         title: "Cartes Cadeaux",
-        desc: "Consultez les bons vendus, vérifiez les codes et marquez-les comme utilisés.",
+        desc: "Consultez les bons vendus ou modifiez le texte et l'icône du popup.",
         fields: [
           "Acheteur et destinataire",
           "Code du bon",
           "Statut d'utilisation"
         ],
-        primary: "Gérer Cartes Cadeaux"
+        primary: "Voir les Ventes",      // Changed for clarity
+        secondary: "Réglages & Icône"    // New button text
       },
       testimonials: {
         title: "Témoignages",
