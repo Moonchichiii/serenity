@@ -9,7 +9,7 @@ type Props = {
   title?: string
   children: React.ReactNode
   className?: string
-  scrollable?: boolean // Add this new prop
+  scrollable?: boolean
 }
 
 export function Modal({ isOpen, onClose, title, children, className, scrollable = false }: Props) {

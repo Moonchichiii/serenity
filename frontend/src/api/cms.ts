@@ -153,7 +153,8 @@ export interface ContactSubmissionResponse {
   message: string
 }
 
-// --- NEW SETTINGS INTERFACE ---
+// --- GLOBAL SETTINGS INTERFACE --- //
+
 export interface GlobalSettings {
   gift: {
     is_enabled: boolean
@@ -165,6 +166,8 @@ export interface GlobalSettings {
     } | null
     modal_title_en: string
     modal_title_fr: string
+    modal_text_en: string
+    modal_text_fr: string
   }
 }
 

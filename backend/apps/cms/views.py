@@ -2,6 +2,7 @@ import logging
 
 from django.core.cache import cache
 from django.db.models import Prefetch
+from django.views.decorators.cache import never_cache
 from django.views.decorators.vary import vary_on_headers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -107,6 +108,7 @@ def services_view(request):
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
+@never_cache
 def globals_view(request):
     """
     Get global site settings (Gift config, etc).

@@ -226,6 +226,8 @@ class GiftSettingsSerializer(serializers.ModelSerializer):
             "floating_icon",
             "modal_title_en",
             "modal_title_fr",
+            "modal_text_en",
+            "modal_text_fr",
         ]
 
     def get_floating_icon(self, obj):

@@ -11,7 +11,6 @@ DJANGO_SETTINGS_MODULE = "config.settings"
 WEB_CONCURRENCY = "1"
 WEB_TIMEOUT = "60"
 
-
 [http_service]
 internal_port = 8000
 force_https = true
@@ -21,3 +20,7 @@ min_machines_running = 1
 
 [deploy]
 release_command = "bash -lc 'cd /app/backend && python manage.py migrate --noinput -v 2'"
+
+[[vm]]
+memory = "512mb"
+cpus = 1
