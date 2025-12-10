@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { Button } from '@/components/ui/Button'
-import { Mail, Phone, User, Heading1 } from 'lucide-react' // Added Heading1 just in case, removed useless ones
+import { Mail, Phone, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 import { cmsAPI } from '@/api/cms'
