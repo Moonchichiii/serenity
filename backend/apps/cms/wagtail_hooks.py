@@ -5,6 +5,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from wagtail import hooks
 
+# ... existing imports (HomePage, Testimonial, Service) ...
 try:
     from apps.cms.models import HomePage
 except ImportError:
@@ -52,6 +53,8 @@ def add_welcome_panel(request, panels):
                 if homepage_obj:
                     edit_url = f"/cms-admin/pages/{homepage_obj.id}/edit/"
 
+            # --- GENERATE SETTINGS URL (Fixing the 404) ---
+            # With apps.py label="cms", this args list is correct:
             try:
                 gift_settings_url = reverse(
                     "wagtailsettings:edit",
@@ -68,6 +71,7 @@ def add_welcome_panel(request, panels):
                 "service_list_url": get_snippet_url(Service, "list"),
                 "service_add_url": get_snippet_url(Service, "add"),
                 "voucher_list_url": get_snippet_url(GiftVoucher, "list"),
+                # Pass the new URL to template
                 "gift_settings_url": gift_settings_url,
             }
 
