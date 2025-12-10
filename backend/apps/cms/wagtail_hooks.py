@@ -21,6 +21,11 @@ try:
 except ImportError:
     Service = None
 
+try:
+    from apps.vouchers.models import GiftVoucher
+except ImportError:
+    GiftVoucher = None
+
 
 def get_snippet_url(model, action="list"):
     """Generate Wagtail 7.x snippet URL, returning '#' on failure."""
@@ -58,6 +63,7 @@ def add_welcome_panel(request, panels):
                 "reply_list_url": get_snippet_url(TestimonialReply, "list"),
                 "service_list_url": get_snippet_url(Service, "list"),
                 "service_add_url": get_snippet_url(Service, "add"),
+                "voucher_list_url": get_snippet_url(GiftVoucher, "list"),
             }
 
             html = render_to_string("admin/serenity_welcome.html", context)

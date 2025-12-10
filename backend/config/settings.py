@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "apps.availability",
     "apps.bookings",
     "apps.contact",
+    "apps.vouchers",
 ]
 
 
@@ -134,20 +135,23 @@ STORAGES = {
 }
 
 # Email
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+EMAIL_BACKEND = config("EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
+EMAIL_HOST = config("EMAIL_HOST", default="smtp.gmail.com")
+EMAIL_PORT = config("EMAIL_PORT", cast=int, default=587)
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool, default=True)
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 EMAIL_TIMEOUT = 15
+
 DEFAULT_FROM_EMAIL = config(
     "DEFAULT_FROM_EMAIL",
-    default="Serenity <fivzserenity@gmail.com>",
+    default=f"Serenity <{EMAIL_HOST_USER}>"
 )
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 EMAIL_SUBJECT_PREFIX = "[Serenity] "
-ADMINS = [("Serenity Site", "fivzserenity@gmail.com")]
+
+ADMINS = [("Serenity Admin", EMAIL_HOST_USER)]
+MANAGERS = ADMINS
 
 
 # DRF / Schema

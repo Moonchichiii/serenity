@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useState } from 'react'
 
-type ModalId = 'contact' | 'corporate' | 'cmsLogin'
+type ModalId = 'contact' | 'corporate' | 'cmsLogin' | 'gift'
 
 type ModalPayload = {
   defaultSubject?: string

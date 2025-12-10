@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <p><strong>New Voucher Sold!</strong></p>
+    <ul>
+        <li><strong>Code:</strong> {{ voucher.code }}</li>
+        <li><strong>Purchaser:</strong> {{ voucher.purchaser_name }} ({{ voucher.purchaser_email }})</li>
+        <li><strong>Recipient:</strong> {{ voucher.recipient_name }} ({{ voucher.recipient_email }})</li>
+        <li><strong>Preferred Date:</strong> {{ voucher.preferred_date|default:"None" }}</li>
+    </ul>
+    {% if voucher.message %}
+    <p><strong>Message:</strong><br>
+    {{ voucher.message }}</p>
+    {% endif %}
+    <p><a href="mailto:{{ voucher.recipient_email }}">Click here to email recipient manually if needed</a></p>
+</body>
+</html>

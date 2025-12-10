@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { Button } from '@/components/ui/Button'
-import { Mail, Phone, User } from 'lucide-react'
+import { Mail, Phone, User, Heading1 } from 'lucide-react' // Added Heading1 just in case, removed useless ones
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 import { cmsAPI } from '@/api/cms'
@@ -36,7 +36,7 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
       phone: yup
         .string()
         .optional()
-        .transform((v) => (v === '' ? undefined : v)), // Convert empty string to undefined for optional field
+        .transform((v) => (v === '' ? undefined : v)),
       subject: yup
         .string()
         .required(t('contact.form.validation.subjectRequired', 'Subject is required')),
@@ -78,65 +78,70 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
     }
   }
 
+  // Optimized Input Class: text-base prevents iOS zoom, py-2.5 is better for mobile vertical space
   const inputClass =
-    'w-full pl-10 pr-4 py-3 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors'
+    'w-full pl-10 pr-4 py-2.5 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors text-base text-charcoal'
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
-      {/* Name Field */}
-      <div>
-        <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="name">
-          {t('contact.form.name', 'Full Name')}
-        </label>
-        <div className="relative">
-          <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-charcoal/40" />
-          <input
-            id="name"
-            type="text"
-            placeholder="Jean Dupont"
-            autoComplete="name"
-            aria-invalid={!!errors.name}
-            className={inputClass}
-            {...register('name')}
-          />
-        </div>
-        {errors.name && (
-          <p className="text-sm text-terracotta-600 mt-1.5">{errors.name.message}</p>
-        )}
-      </div>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
 
-      {/* Email Field */}
-      <div>
-        <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="email">
-          {t('contact.form.email', 'Email')}
-        </label>
-        <div className="relative">
-          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-charcoal/40" />
-          <input
-            id="email"
-            type="email"
-            autoComplete="email"
-            placeholder="jean.dupont@example.com"
-            aria-invalid={!!errors.email}
-            className={inputClass}
-            {...register('email')}
-          />
+      {/* Group Name & Email on larger screens to save vertical space */}
+      <div className="grid md:grid-cols-2 gap-4">
+        {/* Name Field */}
+        <div>
+          <label className="block text-sm font-medium text-charcoal mb-1.5" htmlFor="name">
+            {t('contact.form.name', 'Full Name')}
+          </label>
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40" />
+            <input
+              id="name"
+              type="text"
+              placeholder="Jean Dupont"
+              autoComplete="name"
+              aria-invalid={!!errors.name}
+              className={inputClass}
+              {...register('name')}
+            />
+          </div>
+          {errors.name && (
+            <p className="text-xs text-terracotta-600 mt-1">{errors.name.message}</p>
+          )}
         </div>
-        {errors.email && (
-          <p className="text-sm text-terracotta-600 mt-1.5">{errors.email.message}</p>
-        )}
+
+        {/* Email Field */}
+        <div>
+          <label className="block text-sm font-medium text-charcoal mb-1.5" htmlFor="email">
+            {t('contact.form.email', 'Email')}
+          </label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40" />
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              placeholder="jean@example.com"
+              aria-invalid={!!errors.email}
+              className={inputClass}
+              {...register('email')}
+            />
+          </div>
+          {errors.email && (
+            <p className="text-xs text-terracotta-600 mt-1">{errors.email.message}</p>
+          )}
+        </div>
       </div>
 
       {/* Phone Field */}
       <div>
-        <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="phone">
+        <label className="block text-sm font-medium text-charcoal mb-1.5" htmlFor="phone">
           {t('contact.form.phone', 'Phone')}{' '}
           <span className="text-charcoal/80 text-xs">
             {t('contact.form.optional', '(optional)')}
           </span>
         </label>
         <div className="relative">
-          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-charcoal/40" />
+          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40" />
           <input
             id="phone"
             type="tel"
@@ -148,13 +153,13 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
           />
         </div>
         {errors.phone && (
-          <p className="text-sm text-terracotta-600 mt-1.5">{errors.phone.message}</p>
+          <p className="text-xs text-terracotta-600 mt-1">{errors.phone.message}</p>
         )}
       </div>
 
       {/* Subject Field */}
       <div>
-        <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="subject">
+        <label className="block text-sm font-medium text-charcoal mb-1.5" htmlFor="subject">
           {t('contact.form.subject', 'Subject')}
         </label>
         <input
@@ -162,44 +167,44 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
           type="text"
           placeholder={t('contact.form.subject.placeholder', 'Appointment request')}
           aria-invalid={!!errors.subject}
-          className="w-full px-4 py-3 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors"
+          className="w-full px-4 py-2.5 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors text-base text-charcoal"
           {...register('subject')}
         />
         {errors.subject && (
-          <p className="text-sm text-terracotta-600 mt-1.5">{errors.subject.message}</p>
+          <p className="text-xs text-terracotta-600 mt-1">{errors.subject.message}</p>
         )}
       </div>
 
       {/* Message Field */}
       <div>
-        <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="message">
+        <label className="block text-sm font-medium text-charcoal mb-1.5" htmlFor="message">
           {t('contact.form.message', 'Message')}
         </label>
         <textarea
           id="message"
-          rows={5}
+          rows={4}
           placeholder={t(
             'contact.form.message.placeholder',
-            'Describe your needs, your preferred date/time, or any questions you may have...'
+            'Describe your needs...'
           )}
           aria-invalid={!!errors.message}
-          className="w-full px-4 py-3 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors resize-none"
+          className="w-full px-4 py-2.5 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors resize-none text-base text-charcoal"
           {...register('message')}
         />
         {errors.message && (
-          <p className="text-sm text-terracotta-600 mt-1.5">{errors.message.message}</p>
+          <p className="text-xs text-terracotta-600 mt-1">{errors.message.message}</p>
         )}
       </div>
 
-      {/* GDPR Privacy Notice */}
-      <div className="bg-sage-50 rounded-lg p-4 border border-sage-200">
-        <p className="text-xs text-charcoal/80 leading-relaxed">
+      {/* GDPR Privacy Notice - Compact */}
+      <div className="bg-sage-50 rounded-lg p-3 border border-sage-200">
+        <p className="text-[10px] sm:text-xs text-charcoal/80 leading-relaxed">
           <span className="font-semibold text-charcoal">
             {t('contact.form.gdpr.title', 'Privacy Notice')}:
           </span>{' '}
           {t(
             'contact.form.gdpr.text',
-            'This contact form sends your message directly via email. We do not collect, store, or process any personal data. Your information is only used to respond to your inquiry.'
+            'We do not store your data; it is used only to respond to your inquiry.'
           )}
         </p>
       </div>
@@ -209,13 +214,6 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
           ? t('contact.form.sending', 'Sending...')
           : t('contact.form.send', 'Send Message')}
       </Button>
-
-      <p className="text-sm text-charcoal/80 text-center">
-        {t(
-          'contact.form.notice',
-          'I will reply as soon as possible during business hours.'
-        )}
-      </p>
     </form>
   )
 }

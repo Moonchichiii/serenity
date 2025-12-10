@@ -152,6 +152,21 @@ export interface ContactSubmissionResponse {
   message: string
 }
 
+// --- NEW GIFT VOUCHER INTERFACES ---
+export interface GiftVoucherSubmission {
+  purchaserName: string
+  purchaserEmail: string
+  recipientName: string
+  recipientEmail: string
+  message?: string
+  preferredDate?: string
+}
+
+export interface GiftVoucherResponse {
+  ok: boolean
+  code: string
+}
+
 export const cmsAPI = {
   getHomePage: (): Promise<WagtailHomePage> =>
     apiClient.get<WagtailHomePage>('/api/homepage/').then((res) => res.data),
@@ -197,6 +212,12 @@ export const cmsAPI = {
   ): Promise<ContactSubmissionResponse> =>
     apiClient
       .post<ContactSubmissionResponse>('/api/contact/submit/', data)
+      .then((res) => res.data),
+
+  // --- NEW GIFT VOUCHER METHOD ---
+  submitVoucher: (data: GiftVoucherSubmission): Promise<GiftVoucherResponse> =>
+    apiClient
+      .post<GiftVoucherResponse>('/api/vouchers/create/', data)
       .then((res) => res.data),
 }
 

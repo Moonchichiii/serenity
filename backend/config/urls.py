@@ -4,31 +4,31 @@ from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
-from apps.core import api as core_api
-
 urlpatterns = [
-    # Auth API
-    path("api/auth/csrf/", core_api.csrf),
-    path("api/auth/me/", core_api.me),
-    path("api/auth/login/", core_api.login_view),
-    path("api/auth/logout/", core_api.logout_view),
-    # Wagtail admin
+    # 1. Auth / Core
+    path("api/", include("apps.core.urls")),
+
+    # 2. Wagtail Admin
     path("cms-admin/", include("wagtail.admin.urls")),
     path("cms-admin/settings/", include("wagtail.contrib.settings.urls")),
     path("documents/", include("wagtail.documents.urls")),
-    # DRF OpenAPI schema (always available)
+
+    # 3. Documentation (Schema)
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
-    # Serenity API
-    path("api/", include("apps.cms.api")),
+
+    # 4. Serenity Apps
+    path("api/", include("apps.cms.urls")),
     path("api/", include("apps.testimonials.urls")),
     path("api/calendar/", include("apps.availability.urls")),
     path("api/bookings/", include("apps.bookings.urls")),
     path("api/contact/", include("apps.contact.urls")),
-    # Django admin
+    path("api/vouchers/", include("apps.vouchers.urls")),
+
+    # 5. Django Admin
     path("admin/", admin.site.urls),
 ]
 
-# Swagger UI only in DEBUG (optional but recommended)
+# Swagger UI only in DEBUG
 if settings.DEBUG:
     urlpatterns += [
         path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema")),

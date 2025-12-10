@@ -2,7 +2,6 @@ import logging
 
 from django.core.cache import cache
 from django.db.models import Prefetch
-from django.urls import path
 from django.views.decorators.vary import vary_on_headers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -20,11 +19,10 @@ logger = logging.getLogger(__name__)
 HOMEPAGE_CACHE_TTL = 60 * 60      # 1 hour
 SERVICES_CACHE_TTL = 60 * 30      # 30 minutes
 
-
 @api_view(["GET"])
 @permission_classes([AllowAny])
 @vary_on_headers("Accept-Language")
-def homepage(request):
+def homepage_view(request):
     """
     Get homepage content with all CMS-managed fields.
     Uses manual caching keyed by site and language.
@@ -86,7 +84,7 @@ def homepage(request):
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
-def services(request):
+def services_view(request):
     """
     Get all available services (bilingual support in serializer).
     Uses manual caching with model signals handling invalidation.
@@ -94,7 +92,7 @@ def services(request):
     cache_key = "cms:services"
     data = cache.get(cache_key)
 
-    # Check if data exists in cache (use `is None` to cache empty lists correctly)
+    # Check if data exists in cache
     if data is None:
         logger.debug("Services cache MISS: %s", cache_key)
         qs = Service.objects.filter(is_available=True).select_related("image")
@@ -104,9 +102,3 @@ def services(request):
         logger.debug("Services cache HIT: %s", cache_key)
 
     return Response(data)
-
-
-urlpatterns = [
-    path("homepage/", homepage, name="api_homepage"),
-    path("services/", services, name="api_services"),
-]

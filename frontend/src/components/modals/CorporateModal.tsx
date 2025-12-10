@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next'
 export default function CorporateModal() {
   const { isOpen, close, getPayload } = useModal()
   const { t } = useTranslation()
-
   const corporatePayload = getPayload('corporate')
 
   return (
@@ -15,12 +14,7 @@ export default function CorporateModal() {
       onClose={() => close('corporate')}
       title={t('corp.form.title', 'Corporate / Event Booking')}
       scrollable
-      className="
-        w-[96vw]
-        max-w-3xl md:max-w-4xl
-        p-6 sm:p-7 md:p-8
-        rounded-3xl
-      "
+      className="w-[96vw] max-w-3xl md:max-w-4xl p-5 sm:p-8"
     >
       <CorporateBookingForm
         onSuccess={() => close('corporate')}
