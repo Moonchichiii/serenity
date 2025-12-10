@@ -4,7 +4,6 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from wagtail import hooks
-from wagtail.models import Site
 
 try:
     from apps.cms.models import GiftSettings, HomePage
@@ -60,31 +59,18 @@ def add_welcome_panel(request, panels):
                 if homepage_obj:
                     edit_url = f"/cms-admin/pages/{homepage_obj.id}/edit/"
 
-            # --- GiftSettings URL (with site id) ---
-            # Default to '#', so UI doesn't blow up if something's off
+            # --- GiftSettings URL ---
             gift_settings_url = "#"
 
             if GiftSettings is not None:
                 app_label = GiftSettings._meta.app_label
                 model_name = GiftSettings._meta.model_name
 
-                # Try to get the current site
-                site = Site.find_for_request(request)
-                site_id = getattr(site, "id", None)
-
                 try:
-                    if site_id is not None:
-                        # Most Wagtail versions: wagtailsettings:edit(app_label, model_name, site_id)
-                        gift_settings_url = reverse(
-                            "wagtailsettings:edit",
-                            args=[app_label, model_name, site_id],
-                        )
-                    else:
-                        # Fallback: older pattern without site id
-                        gift_settings_url = reverse(
-                            "wagtailsettings:edit",
-                            args=[app_label, model_name],
-                        )
+                    gift_settings_url = reverse(
+                        "wagtailsettings:edit",
+                        args=[app_label, model_name],
+                    )
                 except NoReverseMatch:
                     gift_settings_url = "#"
 
