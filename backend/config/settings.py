@@ -52,13 +52,13 @@ INSTALLED_APPS = [
     "wagtail_localize",
     # Local apps
     "apps.core",
-    "apps.cms",
+    "apps.cms.apps.CmsConfig",
     "apps.services",
     "apps.testimonials",
     "apps.availability",
     "apps.bookings",
     "apps.contact",
-    "apps.vouchers",
+    "apps.vouchers.apps.VouchersConfig",
 ]
 
 
