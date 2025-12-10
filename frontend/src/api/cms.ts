@@ -103,6 +103,7 @@ export interface ReplySubmission {
   email: string
   text: string
 }
+
 // -----------------------------
 
 export interface WagtailTestimonial {
@@ -214,11 +215,23 @@ export const cmsAPI = {
       .post<ContactSubmissionResponse>('/api/contact/submit/', data)
       .then((res) => res.data),
 
-  // --- NEW GIFT VOUCHER METHOD ---
-  submitVoucher: (data: GiftVoucherSubmission): Promise<GiftVoucherResponse> =>
-    apiClient
-      .post<GiftVoucherResponse>('/api/vouchers/create/', data)
-      .then((res) => res.data),
+  // --- NEW GIFT VOUCHER METHOD (Fixed) ---
+  submitVoucher: (data: GiftVoucherSubmission): Promise<GiftVoucherResponse> => {
+    // Convert camelCase to snake_case for Django / DRF
+    const payload = {
+      purchaser_name: data.purchaserName,
+      purchaser_email: data.purchaserEmail,
+      recipient_name: data.recipientName,
+      recipient_email: data.recipientEmail,
+      message: data.message || '',
+      // Send null if date is empty string, otherwise backend may reject it
+      preferred_date: data.preferredDate ? data.preferredDate : null,
+    }
+
+    return apiClient
+      .post<GiftVoucherResponse>('/api/vouchers/create/', payload)
+      .then((res) => res.data)
+  },
 }
 
 // Extract localized text from bilingual content objects
