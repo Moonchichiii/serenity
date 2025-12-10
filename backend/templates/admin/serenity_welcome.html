@@ -157,13 +157,12 @@ box-shadow: var(--shadow-sm); transition: transform .25s ease, box-shadow .25s e
       <p class="desc">Add, edit, or remove massage services.</p>
       <ul class="field-list"></ul>
       <div class="quick-actions">
-        <!-- FIXED: Using dynamic URLs -->
         <a class="btn btn-primary primary" href="{{ service_list_url }}">View & Edit Services</a>
         <a class="btn btn-ghost secondary" href="{{ service_add_url }}">Add Service</a>
       </div>
     </div>
 
-    <!-- Services Hero (corporate) -->
+    <!-- Services Hero -->
     <div class="section-card animate-slide-up" style="animation-delay:210ms" data-key="servicesHero">
       <div class="section-card-header">
         <span class="icon" aria-hidden="true">💼</span>
@@ -189,7 +188,7 @@ box-shadow: var(--shadow-sm); transition: transform .25s ease, box-shadow .25s e
       <ul class="field-list"></ul>
       <div class="quick-actions">
         <a class="btn btn-primary primary" href="{{ voucher_list_url }}">Manage Vouchers</a>
-        <!-- Added Secondary Button -->
+        <!-- Secondary Button added here -->
         <a class="btn btn-ghost secondary" href="{{ gift_settings_url }}">Configure Popup</a>
       </div>
     </div>
@@ -203,13 +202,12 @@ box-shadow: var(--shadow-sm); transition: transform .25s ease, box-shadow .25s e
       <p class="desc">Manage client reviews and ratings shown on your site.</p>
       <ul class="field-list"></ul>
       <div class="quick-actions">
-        <!-- FIXED: Using dynamic URLs -->
         <a class="btn btn-primary primary" href="{{ testimonial_list_url }}">Manage Reviews</a>
         <a class="btn btn-ghost secondary" href="{{ testimonial_add_url }}">Add Review</a>
       </div>
     </div>
 
-    <!-- Testimonial Replies -->
+    <!-- Replies -->
     <div class="section-card animate-slide-up" style="animation-delay:330ms" data-key="replies">
       <div class="section-card-header">
         <span class="icon" aria-hidden="true">💬</span>
@@ -218,7 +216,6 @@ box-shadow: var(--shadow-sm); transition: transform .25s ease, box-shadow .25s e
       <p class="desc">Approve or reject replies to testimonials.</p>
       <ul class="field-list"></ul>
       <div class="quick-actions">
-        <!-- FIXED: Using dynamic URLs -->
         <a class="btn btn-primary primary" href="{{ reply_list_url }}">Manage Replies</a>
       </div>
     </div>
@@ -307,8 +304,8 @@ const SERENITY_COPY = {
           "Voucher code",
           "Redemption status"
         ],
-        primary: "View Sold Vouchers",   // Changed for clarity
-        secondary: "Settings & Icon"     // New button text
+        primary: "View Sold Vouchers",
+        secondary: "Popup Settings & Icon"
       },
       testimonials: {
         title: "Testimonials",
@@ -408,8 +405,8 @@ const SERENITY_COPY = {
           "Code du bon",
           "Statut d'utilisation"
         ],
-        primary: "Voir les Ventes",      // Changed for clarity
-        secondary: "Réglages & Icône"    // New button text
+        primary: "Voir les Ventes",
+        secondary: "Réglages & Icône"
       },
       testimonials: {
         title: "Témoignages",

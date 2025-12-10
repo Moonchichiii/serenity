@@ -28,14 +28,11 @@ except ImportError:
 
 
 def get_snippet_url(model, action="list"):
-    """Generate Wagtail 7.x snippet URL, returning '#' on failure."""
     if not model:
         return "#"
-
     app_label = model._meta.app_label
     model_name = model._meta.model_name
     url_name = f"wagtailsnippets_{app_label}_{model_name}:{action}"
-
     try:
         return reverse(url_name)
     except NoReverseMatch:
@@ -44,8 +41,6 @@ def get_snippet_url(model, action="list"):
 
 @hooks.register("construct_homepage_panels")
 def add_welcome_panel(request, panels):
-    """Add custom welcome panel to Wagtail admin homepage."""
-
     class WelcomePanel:
         order = 0
         media = Media()
@@ -57,8 +52,6 @@ def add_welcome_panel(request, panels):
                 if homepage_obj:
                     edit_url = f"/cms-admin/pages/{homepage_obj.id}/edit/"
 
-            # --- GENERATE SETTINGS URL ---
-            # This links directly to the GiftSettings form
             try:
                 gift_settings_url = reverse(
                     "wagtailsettings:edit",
