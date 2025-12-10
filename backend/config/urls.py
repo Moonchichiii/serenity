@@ -10,7 +10,7 @@ urlpatterns = [
 
     # 2. Wagtail Admin
     path("cms-admin/", include("wagtail.admin.urls")),
-    path("cms-admin/settings/", include("wagtail.contrib.settings.urls")),
+    #path("cms-admin/settings/", include("wagtail.contrib.settings.urls")),
     path("documents/", include("wagtail.documents.urls")),
 
     # 3. Documentation (Schema)
