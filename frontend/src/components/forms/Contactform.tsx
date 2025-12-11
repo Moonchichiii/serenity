@@ -79,8 +79,7 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
   }
 
   // Optimized Input Class: text-base prevents iOS zoom, py-2.5 is better for mobile vertical space
-  const inputClass =
-    'w-full pl-10 pr-4 py-2.5 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors text-base text-charcoal'
+  const inputClass = 'w-full pl-10 pr-4 py-3 sm:py-2.5 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors text-base text-charcoal appearance-none'
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
