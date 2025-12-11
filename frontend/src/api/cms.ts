@@ -168,8 +168,23 @@ export interface GlobalSettings {
     modal_title_fr: string
     modal_text_en: string
     modal_text_fr: string
+
+    // NEW: optional form overrides
+    form_message_placeholder_en: string
+    form_message_placeholder_fr: string
+    form_submit_label_en: string
+    form_submit_label_fr: string
+    form_sending_label_en: string
+    form_sending_label_fr: string
+    form_success_title_en: string
+    form_success_title_fr: string
+    form_success_message_en: string
+    form_success_message_fr: string
+    form_code_label_en: string
+    form_code_label_fr: string
   }
 }
+
 
 // --- NEW GIFT VOUCHER INTERFACES ---
 export interface GiftVoucherSubmission {

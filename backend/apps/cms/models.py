@@ -539,6 +539,86 @@ class GiftSettings(BaseSiteSetting):
         default="Vous avez reçu un cadeau !",
     )
 
+    # --- Form copy overrides (optional, per campaign) ---
+
+    form_message_placeholder_en = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Optional: override the message placeholder (English).",
+    )
+    form_message_placeholder_fr = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Optionnel : texte du message personnalisé (Français).",
+    )
+
+    form_submit_label_en = models.CharField(
+        max_length=100,
+        blank=True,
+        default="",
+        help_text="Optional: override the submit button label (English).",
+    )
+    form_submit_label_fr = models.CharField(
+        max_length=100,
+        blank=True,
+        default="",
+        help_text="Optionnel : texte du bouton d’envoi (Français).",
+    )
+
+    form_sending_label_en = models.CharField(
+        max_length=100,
+        blank=True,
+        default="",
+        help_text="Optional: override the loading label (English).",
+    )
+    form_sending_label_fr = models.CharField(
+        max_length=100,
+        blank=True,
+        default="",
+        help_text="Optionnel : texte du bouton en cours d’envoi (Français).",
+    )
+
+    form_success_title_en = models.CharField(
+        max_length=150,
+        blank=True,
+        default="",
+        help_text="Optional: override success title shown after sending (English).",
+    )
+    form_success_title_fr = models.CharField(
+        max_length=150,
+        blank=True,
+        default="",
+        help_text="Optionnel : titre de succès après l’envoi (Français).",
+    )
+
+    form_success_message_en = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Optional: override success message body (English).",
+    )
+    form_success_message_fr = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Optionnel : texte de succès (Français).",
+    )
+
+    form_code_label_en = models.CharField(
+        max_length=100,
+        blank=True,
+        default="",
+        help_text="Optional: override 'Voucher Code' label (English).",
+    )
+    form_code_label_fr = models.CharField(
+        max_length=100,
+        blank=True,
+        default="",
+        help_text="Optionnel : libellé pour 'Code du bon' (Français).",
+    )
+
     panels = [
         FieldPanel("is_enabled"),
         # New icon picker directly under the toggle
@@ -560,6 +640,23 @@ class GiftSettings(BaseSiteSetting):
                 FieldPanel("email_subject_fr"),
             ],
             heading="Email Settings",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("form_message_placeholder_en"),
+                FieldPanel("form_message_placeholder_fr"),
+                FieldPanel("form_submit_label_en"),
+                FieldPanel("form_submit_label_fr"),
+                FieldPanel("form_sending_label_en"),
+                FieldPanel("form_sending_label_fr"),
+                FieldPanel("form_success_title_en"),
+                FieldPanel("form_success_title_fr"),
+                FieldPanel("form_success_message_en"),
+                FieldPanel("form_success_message_fr"),
+                FieldPanel("form_code_label_en"),
+                FieldPanel("form_code_label_fr"),
+            ],
+            heading="Gift Form Text (Optional Overrides)",
         ),
     ]
 

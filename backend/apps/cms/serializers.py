@@ -214,7 +214,7 @@ class TestimonialStatsSerializer(serializers.Serializer):
     one_star_count = serializers.IntegerField()
 
 
-# --- CLOUDINARY-OPTIMIZED GIFT SETTINGS ---
+
 class GiftSettingsSerializer(serializers.ModelSerializer):
     # Override floating_icon to return the custom optimized object
     floating_icon = serializers.SerializerMethodField()
@@ -228,6 +228,19 @@ class GiftSettingsSerializer(serializers.ModelSerializer):
             "modal_title_fr",
             "modal_text_en",
             "modal_text_fr",
+            # NEW: form copy overrides
+            "form_message_placeholder_en",
+            "form_message_placeholder_fr",
+            "form_submit_label_en",
+            "form_submit_label_fr",
+            "form_sending_label_en",
+            "form_sending_label_fr",
+            "form_success_title_en",
+            "form_success_title_fr",
+            "form_success_message_en",
+            "form_success_message_fr",
+            "form_code_label_en",
+            "form_code_label_fr",
         ]
 
     def get_floating_icon(self, obj):

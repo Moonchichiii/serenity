@@ -40,7 +40,10 @@ export default function GiftVoucherModal() {
           {body}
         </p>
 
-        <GiftForm onSuccess={() => close('gift')} />
+        <GiftForm
+          onSuccess={() => close('gift')}
+          settings={giftSettings}
+        />
       </div>
     </Modal>
   )
