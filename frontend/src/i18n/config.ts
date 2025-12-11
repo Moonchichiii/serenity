@@ -243,6 +243,7 @@ const resources = {
         error: 'An error occurred while sending',
       },
       testimonials: {
+        label: 'Client stories',
         title: 'What our clients say',
         subtitle: 'Discover testimonials from our satisfied clients',
         reply: 'Reply',
@@ -557,6 +558,7 @@ const resources = {
         error: "Une erreur s'est produite lors de l'envoi",
       },
       testimonials: {
+        label: 'Témoignages clients',
         title: 'Ce que disent nos clients',
         subtitle: 'Découvrez les témoignages de nos clients satisfaits',
         reply: 'Répondre',
