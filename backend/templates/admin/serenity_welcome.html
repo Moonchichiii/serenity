@@ -178,20 +178,23 @@ box-shadow: var(--shadow-sm); transition: transform .25s ease, box-shadow .25s e
       </div>
     </div>
 
-    <!-- Gift Vouchers -->
+        <!-- Gift Vouchers -->
     <div class="section-card animate-slide-up" style="animation-delay:240ms" data-key="vouchers">
       <div class="section-card-header">
         <span class="icon" aria-hidden="true">🎁</span>
         <h3 class="title">Gift Vouchers</h3>
       </div>
-      <p class="desc">View sold vouchers, check codes, and mark them as redeemed.</p>
+      <p class="desc">
+        View sold vouchers, check codes, mark them as redeemed, and adjust the popup & gift form text for campaigns.
+      </p>
       <ul class="field-list"></ul>
       <div class="quick-actions">
         <a class="btn btn-primary primary" href="{{ voucher_list_url }}">Manage Vouchers</a>
-        <!-- Secondary Button added here -->
-        <a class="btn btn-ghost secondary" href="{{ gift_settings_url }}">Configure Popup</a>
+        <!-- Secondary Button: popup, icon & form text -->
+        <a class="btn btn-ghost secondary" href="{{ gift_settings_url }}">Popup & Form Text</a>
       </div>
     </div>
+
 
     <!-- Testimonials -->
     <div class="section-card animate-slide-up" style="animation-delay:300ms" data-key="testimonials">
@@ -296,16 +299,18 @@ const SERENITY_COPY = {
         ],
         primary: "Edit Services Hero"
       },
-      vouchers: {
+            vouchers: {
         title: "Gift Vouchers",
-        desc: "View sold vouchers, verify codes, or change the popup text/icon.",
+        desc: "View sold vouchers, verify codes, or adjust the popup icon and gift form text for seasonal campaigns.",
         fields: [
-          "Purchaser & recipient",
-          "Voucher code",
-          "Redemption status"
+          "Purchaser & recipient details",
+          "Voucher code & redemption status",
+          "Popup title & text (EN/FR)",
+          "Floating icon",
+          "Gift form labels & success messages"
         ],
         primary: "View Sold Vouchers",
-        secondary: "Popup Settings & Icon"
+        secondary: "Popup & Form Settings"
       },
       testimonials: {
         title: "Testimonials",
@@ -399,14 +404,16 @@ const SERENITY_COPY = {
       },
       vouchers: {
         title: "Cartes Cadeaux",
-        desc: "Consultez les bons vendus ou modifiez le texte et l'icône du popup.",
+        desc: "Consultez les bons vendus ou modifiez le texte, l'icône et les textes du formulaire pour vos campagnes (Noël, Saint-Valentin, etc.).",
         fields: [
           "Acheteur et destinataire",
-          "Code du bon",
-          "Statut d'utilisation"
+          "Code du bon & statut d'utilisation",
+          "Titre et texte du popup (FR/EN)",
+          "Icône flottante",
+          "Libellés et messages de succès du formulaire"
         ],
         primary: "Voir les Ventes",
-        secondary: "Réglages & Icône"
+        secondary: "Réglages Popup & Formulaire"
       },
       testimonials: {
         title: "Témoignages",
