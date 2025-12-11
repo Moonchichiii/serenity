@@ -20,7 +20,6 @@ export default function GiftVoucherModal() {
 
   const lang = i18n.language.startsWith('fr') ? 'fr' : 'en'
 
-  // Resolve title and body text:
   const title = giftSettings
     ? (lang === 'fr' ? giftSettings.modal_title_fr : giftSettings.modal_title_en)
     : t('gift.title')
@@ -34,16 +33,15 @@ export default function GiftVoucherModal() {
       isOpen={isOpen('gift')}
       onClose={() => close('gift')}
       title={title}
-      scrollable
-      className="w-[96vw] max-w-lg"
+      className="max-w-lg"
     >
-      <div className="mb-6">
+      <div className="space-y-4">
         <p className="text-charcoal/70 whitespace-pre-line">
           {body}
         </p>
-      </div>
 
-      <GiftForm onSuccess={() => close('gift')} />
+        <GiftForm onSuccess={() => close('gift')} />
+      </div>
     </Modal>
   )
 }

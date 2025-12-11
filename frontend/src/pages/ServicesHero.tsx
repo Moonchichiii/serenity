@@ -256,11 +256,12 @@ export function ServicesHero() {
                 {hasCTA && (
                   <div className="pt-1">
                     <Button
+                      variant="default"
+                      size="md"
+                      className="w-full sm:w-auto rounded-full shadow-elevated px-7 sm:px-8 text-sm sm:text-base"
                       onClick={() =>
                         open("corporate", { defaultEventType: "corporate" })
                       }
-                      size="md"
-                      className="w-full sm:w-auto rounded-full shadow-elevated bg-sage-600 hover:bg-sage-700 text-white px-7 sm:px-8 text-sm sm:text-base"
                     >
                       {toSentenceCase(cta)}
                     </Button>
