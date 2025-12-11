@@ -238,6 +238,10 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
+
+  .pb-safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+  }
 }
 
 /* Animations */

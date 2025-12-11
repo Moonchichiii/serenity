@@ -13,8 +13,7 @@ export default function CorporateModal() {
       isOpen={isOpen('corporate')}
       onClose={() => close('corporate')}
       title={t('corp.form.title', 'Corporate / Event Booking')}
-      scrollable
-      className="w-[96vw] max-w-3xl md:max-w-4xl p-5 sm:p-8"
+      className="max-w-3xl md:max-w-4xl"
     >
       <CorporateBookingForm
         onSuccess={() => close('corporate')}
