@@ -206,6 +206,7 @@ const resources = {
         email: 'contact@serenity-massage.fr',
         phone: '+33 6 00 00 00 00',
         rights: 'All rights reserved',
+        madeBy: 'Website by Nordic Code Works',
       },
       review: {
         trigger: 'Leave a review',
@@ -521,6 +522,7 @@ const resources = {
         email: 'contact@serenity-massage.fr',
         phone: '+33 6 00 00 00 00',
         rights: 'Tous droits réservés',
+        madeBy: 'Site réalisé par Nordic Code Works',
       },
       review: {
         trigger: 'Laisser un avis',

@@ -84,26 +84,32 @@ const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Copyright bar */}
-          <div className="mt-10 border-t border-white/10 pt-6 text-xs opacity-75 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between text-center sm:text-left">
-            <p>
-              © {currentYear} Serenity —{' '}
-              {t('footer.rights', { defaultValue: 'Tous droits réservés.' })}
-            </p>
-            <p className="text-porcelain/70">
-              {t('footer.address', { defaultValue: 'Marseille, France' })}
+          {/* Copyright + credits bar */}
+          <div className="mt-10 border-t border-white/10 pt-6 text-xs text-porcelain/75 space-y-2">
+            <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between text-center sm:text-left">
+              <p>
+                © {currentYear} Serenity —{' '}
+                {t('footer.rights', { defaultValue: 'Tous droits réservés.' })}
+              </p>
+              <p className="text-porcelain/70">
+                {t('footer.address', { defaultValue: 'Marseille, France' })}
+              </p>
+            </div>
+
+            <p className="text-[11px] text-center sm:text-right text-porcelain/70">
+              <a
+                href="https://www.nordiccodeworks.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-honey-300 underline-offset-2 hover:underline transition-colors"
+                aria-label="Made by Nordic Code Works"
+              >
+                {t('footer.madeBy', {
+                  defaultValue: 'Website by Nordic Code Works',
+                })}
+              </a>
             </p>
           </div>
-
-          <a
-            href="https://www.nordiccodeworks.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="absolute bottom-2 right-2 text-[10px] text-porcelain/60 hover:text-porcelain/90 transition-opacity"
-            aria-label="Made by Nordic Code Works"
-          >
-            Made by Nordic Code Works
-          </a>
         </motion.div>
       </div>
     </footer>
