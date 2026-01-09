@@ -184,7 +184,10 @@ export function About() {
               <div className="grid gap-4">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
-                    <User className="w-5 h-5 text-primary" />
+                    <User
+                      className="w-5 h-5"
+                      style={{ color: 'hsl(160 55% 45%)' }}
+                    />
                   </div>
                   <div>
                     <h4 className="font-semibold text-foreground mb-1">
@@ -203,7 +206,10 @@ export function About() {
 
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
-                    <Award className="w-5 h-5 text-primary" />
+                    <Award
+                      className="w-5 h-5"
+                      style={{ color: 'hsl(35 90% 55%)' }}
+                    />
                   </div>
                   <div>
                     <h4 className="font-semibold text-foreground mb-1">
@@ -222,7 +228,10 @@ export function About() {
 
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
-                    <Heart className="w-5 h-5 text-primary" />
+                    <Heart
+                      className="w-5 h-5"
+                      style={{ color: 'hsl(340 80% 60%)' }}
+                    />
                   </div>
                   <div>
                     <h4 className="font-semibold text-foreground mb-1">
@@ -262,14 +271,14 @@ export function About() {
               <div className="pt-1">
                 {/* Uses default sage Button styles, just a soft shadow */}
                 <Button
-  size="md"
-  className="shadow-warm"
-  onClick={() =>
-    open('contact', { defaultSubject: 'Appointment request' })
-  }
->
-  {t('about.cta')}
-</Button>
+                  size="md"
+                  className="shadow-warm"
+                  onClick={() =>
+                    open('contact', { defaultSubject: 'Appointment request' })
+                  }
+                >
+                  {t('about.cta')}
+                </Button>
 
               </div>
             </div>
@@ -332,31 +341,35 @@ export function About() {
                 ))}
               </motion.div>
 
-{/* Location & contact tile */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 items-start">
-  {/* Location card – header + expanding map */}
-  <div className="p-4 bg-background rounded-xl border border-primary/15 shadow-soft">
-<MapPin className="w-6 h-6 mx-auto text-primary mb-2" />
-    <LocationMap />
-  </div>
+              {/* Location & contact tile */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 items-start">
+                {/* Location card – header + expanding map */}
+                <div className="p-4 bg-background rounded-xl border border-primary/15 shadow-soft">
+                  <MapPin
+                    className="w-6 h-6 mx-auto mb-2"
+                    style={{ color: 'hsl(210 80% 60%)' }}
+                  />
+                  <LocationMap />
+                </div>
 
-  {/* Contact card – fixed visual height */}
-  <div className="text-center p-4 bg-background rounded-xl border border-primary/15 shadow-soft h-[220px] flex flex-col justify-center">
-    <Phone className="w-6 h-6 mx-auto text-primary mb-2" />
-    <div className="text-sm font-medium text-foreground">
-      {t('about.contactTitle', {
-        defaultValue: 'Contact via email through the booking form',
-      })}
-    </div>
-    <div className="text-xs text-foreground/70">
-      {t('about.byAppointment', {
-        defaultValue: 'By Appointment Only',
-      })}
-    </div>
-  </div>
-</div>
-
-
+                {/* Contact card – fixed visual height */}
+                <div className="text-center p-4 bg-background rounded-xl border border-primary/15 shadow-soft h-[220px] flex flex-col justify-center">
+                  <Phone
+                    className="w-6 h-6 mx-auto mb-2"
+                    style={{ color: 'hsl(210 80% 60%)' }}
+                  />
+                  <div className="text-sm font-medium text-foreground">
+                    {t('about.contactTitle', {
+                      defaultValue: 'Contact via email through the booking form',
+                    })}
+                  </div>
+                  <div className="text-xs text-foreground/70">
+                    {t('about.byAppointment', {
+                      defaultValue: 'By Appointment Only',
+                    })}
+                  </div>
+                </div>
+              </div>
 
             </aside>
           )}
