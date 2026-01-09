@@ -308,8 +308,8 @@ export function About() {
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: true, amount: 0.2 }}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 auto-rows-[160px] sm:auto-rows-[200px] lg:auto-rows-[230px]"
-              >
+                className="hidden sm:grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 auto-rows-[160px] sm:auto-rows-[200px] lg:auto-rows-[230px]"
+>
                 {content.specialtiesGrid.map((sp, i) => (
                   <motion.div
                     key={`${sp.title}-${i}`}
