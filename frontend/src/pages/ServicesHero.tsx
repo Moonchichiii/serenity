@@ -7,9 +7,12 @@ import {
   CLOUDINARY_CLOUD_NAME,
   getResponsivePosterUrl,
 } from "@/utils/cloudinary";
-import tinyFallbackPoster from "@/assets/poster.webp";
+// REMOVED local import that was causing the build failure
 import { Button } from "@/components/ui/Button";
 import { useModal } from "@/shared/hooks/useModal";
+
+// Fixed Cloudinary Fallback
+const FALLBACK_POSTER = "https://res.cloudinary.com/dbzlaawqt/image/upload/v1762274193/poster_zbbwz5.webp";
 
 const toSentenceCase = (s?: string) => {
   if (!s) return "";
@@ -53,7 +56,7 @@ export function ServicesHero() {
   useEffect(() => {
     const baseUrl = page?.services_hero_poster_image?.url;
     if (!baseUrl) {
-      setPosterUrl(tinyFallbackPoster);
+      setPosterUrl(FALLBACK_POSTER);
       return;
     }
 
@@ -195,7 +198,7 @@ export function ServicesHero() {
         <video
           ref={videoRef}
           className="absolute inset-0 w-full h-full object-cover object-center"
-          poster={posterUrl ?? tinyFallbackPoster}
+          poster={posterUrl ?? FALLBACK_POSTER}
           autoPlay={!shouldDisableVideo}
           muted
           playsInline
@@ -208,7 +211,7 @@ export function ServicesHero() {
 
       {!videoSrc && (
         <img
-          src={posterUrl ?? tinyFallbackPoster}
+          src={posterUrl ?? FALLBACK_POSTER}
           alt=""
           aria-hidden="true"
           className="absolute inset-0 h-full w-full object-cover object-center"
