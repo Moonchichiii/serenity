@@ -213,7 +213,6 @@ export function ServicesHero() {
           aria-hidden="true"
           className="absolute inset-0 h-full w-full object-cover object-center"
           loading="eager"
-          // @ts-expect-error fetchPriority is strictly standard but React types lag behind
           fetchPriority="high"
         />
       )}
