@@ -4,14 +4,13 @@ import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState } from "react";
 import { cmsAPI, type WagtailHomePage } from "@/api/cms";
 import {
-  CLOUDINARY_CLOUD_NAME,
   getResponsivePosterUrl,
+  getOptimizedVideoUrl,
 } from "@/utils/cloudinary";
-// REMOVED local import that was causing the build failure
 import { Button } from "@/components/ui/Button";
 import { useModal } from "@/shared/hooks/useModal";
 
-// Fixed Cloudinary Fallback
+// Cloudinary Fallback
 const FALLBACK_POSTER = "https://res.cloudinary.com/dbzlaawqt/image/upload/v1762274193/poster_zbbwz5.webp";
 
 const toSentenceCase = (s?: string) => {
@@ -92,9 +91,7 @@ export function ServicesHero() {
   }, [page?.services_hero_poster_image?.url]);
 
   /**
-   * Video source:
-   * 1) Prefer direct URL from CMS: services_hero_video_url
-   * 2) Fall back to building a Cloudinary URL from services_hero_video_public_id
+   * Video source
    */
   useEffect(() => {
     if (shouldDisableVideo) {
@@ -105,13 +102,13 @@ export function ServicesHero() {
     const directUrl = page?.services_hero_video_url?.trim();
     const publicId = page?.services_hero_video_public_id?.trim();
 
-    // 1) Direct URL set in CMS (e.g. Cloudinary or other host)
+    // 1) Direct URL
     if (directUrl) {
       setVideoSrc(directUrl);
       return;
     }
 
-    // 2) Legacy public ID logic
+    // 2) Public ID logic
     if (!publicId) {
       setVideoSrc(null);
       return;
@@ -120,18 +117,10 @@ export function ServicesHero() {
     const buildVideoUrl = () => {
       const width =
         typeof window !== "undefined" ? window.innerWidth || 1920 : 1920;
-      const base = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/video/upload`;
 
-      // Safety: remove existing .mp4 extension if present to avoid .mp4.mp4
-      const cleanId = publicId.replace(/\.mp4$/i, "");
-
-      if (width <= 640) {
-        return `${base}/f_mp4,q_auto:low,w_640,h_360,c_fill/${cleanId}.mp4`;
-      }
-      if (width <= 1024) {
-        return `${base}/f_mp4,q_auto:eco,w_1024,h_576,c_fill/${cleanId}.mp4`;
-      }
-      return `${base}/f_mp4,q_auto:eco,w_1920,h_1080,c_fill/${cleanId}.mp4`;
+      if (width <= 640) return getOptimizedVideoUrl(publicId, 640, "eco");
+      if (width <= 1024) return getOptimizedVideoUrl(publicId, 1024, "eco");
+      return getOptimizedVideoUrl(publicId, 1920, "eco");
     };
 
     const update = () => setVideoSrc(buildVideoUrl());
@@ -206,6 +195,14 @@ export function ServicesHero() {
           preload="metadata"
         >
           <source src={videoSrc} type="video/mp4" />
+          {/* Accessibility Track: Fixed 'srclang' -> 'srcLang' */}
+          <track
+            kind="captions"
+            src="data:text/vtt;base64,V0VCVlRVCg=="
+            srcLang="en"
+            label="No captions"
+            default
+          />
         </video>
       )}
 

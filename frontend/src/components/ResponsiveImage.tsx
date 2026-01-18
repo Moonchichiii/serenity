@@ -72,19 +72,19 @@ const CloudImage = ({
   // Always use eco quality for optimal mobile performance
   const quality: "eco" | "good" = "eco";
 
-  // Estimate slot width: if caller didn't override sizes (card/grid), keep modest cap
+
   const vw = typeof window !== "undefined" ? Math.max(window.innerWidth || 0, 360) : 768;
   const dprCap = 2;
   const maxCandidate = priority
-    ? Math.max(768, Math.min(vw * dprCap, 1280)) // hero-ish
-    : Math.max(480, Math.min(vw * dprCap, 1024)); // cards/lists smaller cap
+    ? Math.max(768, Math.min(vw * dprCap, 1280))
+    : Math.max(480, Math.min(vw * dprCap, 1024));
 
   const fallbackWidth = priority ? Math.min(896, Math.floor(vw * dprCap)) : 640;
 
   return (
     <img
-      src={getOptimizedUrl(urlOrPublicId, fallbackWidth, quality, /*capDpr2*/ false)}
-      srcSet={generateSrcSet(urlOrPublicId, quality, /*capDpr2*/ false, maxCandidate)}
+      src={getOptimizedUrl(urlOrPublicId, fallbackWidth, quality)}
+      srcSet={generateSrcSet(urlOrPublicId, quality, undefined, maxCandidate)}
       sizes={sizes}
       alt={alt || image.title || ""}
       loading={priority ? "eager" : "lazy"}

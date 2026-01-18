@@ -16,11 +16,16 @@ export function LocationMap() {
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  // FACADE STATE: Only load heavy scripts on interaction
+  const [shouldLoadMap, setShouldLoadMap] = useState(false);
+
   const sectionRef = useRef<HTMLDivElement | null>(null);
 
   const { isLoaded } = useJsApiLoader({
     id: 'location-map',
-    googleMapsApiKey: import.meta.env['VITE_GOOGLE_MAPS_API_KEY'] as string,
+    // Only pass API key if we decided to load, otherwise hook does nothing
+    googleMapsApiKey: shouldLoadMap ? (import.meta.env['VITE_GOOGLE_MAPS_API_KEY'] as string) : "",
   });
 
   // Detect mobile vs desktop
@@ -30,6 +35,12 @@ export function LocationMap() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Interaction Handler: Load map on hover or touch
+  const handleInteraction = () => {
+    if (!shouldLoadMap) setShouldLoadMap(true);
+    if (!isMobile) setIsExpanded(true);
+  };
 
   // Mobile: expand while in view (> 50%), collapse when scrolled past
   useEffect(() => {
@@ -41,6 +52,8 @@ export function LocationMap() {
           const shouldExpand =
             entry.isIntersecting && entry.intersectionRatio > 0.5;
           setIsExpanded(shouldExpand);
+          // If it expands on mobile, we must load the map
+          if (shouldExpand && !shouldLoadMap) setShouldLoadMap(true);
         });
       },
       { threshold: [0, 0.5, 1] }
@@ -48,13 +61,12 @@ export function LocationMap() {
 
     observer.observe(sectionRef.current);
     return () => observer.disconnect();
-  }, [isMobile]);
+  }, [isMobile, shouldLoadMap]);
 
+  // Reduced mobile expanded height to 300px per request
   const heightClass = isExpanded
-  ? "h-[500px]"
-  : isMobile
-    ? "h-[180px]"
-    : "h-[220px]";
+    ? isMobile ? "h-[300px]" : "h-[500px]"
+    : isMobile ? "h-[180px]" : "h-[220px]";
 
   return (
     <div className="space-y-3 pt-2">
@@ -70,16 +82,18 @@ export function LocationMap() {
 
       {/* Map card – height animates, no zooming */}
       <div
-  ref={sectionRef}
-  className={[
-    "relative w-full overflow-hidden rounded-2xl border border-primary/15 shadow-soft",
-    "transition-[height] duration-700 ease-out",
-    heightClass,
-  ].join(" ")}
-  onMouseEnter={() => !isMobile && setIsExpanded(true)}
-  onMouseLeave={() => !isMobile && setIsExpanded(false)}
->
-        {isLoaded ? (
+        ref={sectionRef}
+        className={[
+          "relative w-full overflow-hidden rounded-2xl border border-primary/15 shadow-soft",
+          "transition-[height] duration-700 ease-out bg-sage-50",
+          heightClass,
+        ].join(" ")}
+        onMouseEnter={handleInteraction}
+        onMouseLeave={() => !isMobile && setIsExpanded(false)}
+        onTouchStart={handleInteraction} // Force load on touch
+        onClick={handleInteraction}
+      >
+        {isLoaded && shouldLoadMap ? (
           <GoogleMap
             mapContainerClassName="w-full h-full"
             center={CENTER_5_AVENUES}
@@ -104,8 +118,12 @@ export function LocationMap() {
             />
           </GoogleMap>
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-xs text-foreground/60">
-            {t('about.mapLoading', { defaultValue: 'Loading map…' })}
+          /* Lightweight Facade Placeholder */
+          <div className="w-full h-full flex flex-col items-center justify-center text-foreground/60 cursor-pointer">
+            <MapPin className="w-8 h-8 mb-2 opacity-50 text-sage-600" />
+            <p className="text-xs font-medium">
+              {t('about.mapPreview', { defaultValue: 'View Map' })}
+            </p>
           </div>
         )}
       </div>
