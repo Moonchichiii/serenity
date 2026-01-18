@@ -13,7 +13,7 @@ const Footer: React.FC = () => {
     <footer id="site-footer" className="relative mt-16">
       {/* Blend strip: makes the footer melt into the site */}
       <div
-        className="h-16 bg-gradient-to-b from-porcelain to-charcoal"
+        className="h-6 bg-gradient-to-b from-porcelain to-charcoal"
         aria-hidden="true"
       />
 
