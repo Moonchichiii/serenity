@@ -17,7 +17,7 @@ const Footer: React.FC = () => {
     <footer id="site-footer" className="relative mt-24 contain-content">
       {/* Blend strip */}
       <div
-        className={`h-2 bg-gradient-to-b from-porcelain ${gradientColor}`}
+        className={`h-1 bg-gradient-to-b from-porcelain ${gradientColor}`}
         aria-hidden="true"
       />
 
@@ -129,7 +129,7 @@ const Footer: React.FC = () => {
               </div>
 
               {/* Socials */}
-              <div className="pt-4 flex items-center gap-6">
+              <div className="pl-4 pt-4 flex items-center gap-6">
                 <div className="text-white/80 hover:text-honey-200 transition-colors">
                   <AnimatedInstagramIcon
                     magnetic
