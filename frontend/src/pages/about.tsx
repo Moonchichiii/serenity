@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   motion,
@@ -18,7 +18,9 @@ import {
 import { Button } from '@/components/ui/Button';
 import CloudImage from '@/components/ResponsiveImage';
 import { useModal } from '@/shared/hooks/useModal';
-import { LocationMap } from '@/components/ui/LocationMap';
+
+// Lazy load Map to save ~800ms TBT and remove Google Font bloat from LCP
+const LocationMap = lazy(() => import('@/components/ui/LocationMap').then(m => ({ default: m.LocationMap })));
 
 // Helper that respects empty strings from CMS
 const pick = (
@@ -349,7 +351,9 @@ export function About() {
                     className="w-6 h-6 mx-auto mb-2"
                     style={{ color: 'hsl(210 80% 60%)' }}
                   />
-                  <LocationMap />
+                  <Suspense fallback={<div className="w-full h-[180px] bg-sage-50 rounded-xl animate-pulse" />}>
+                    <LocationMap />
+                  </Suspense>
                 </div>
 
                 {/* Contact card – fixed visual height */}

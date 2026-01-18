@@ -126,7 +126,7 @@ export function Services() {
                             <div className="absolute top-3 right-3 inline-flex items-center rounded-full bg-white/95 px-3 py-1 shadow-soft text-[11px] font-semibold text-charcoal">
                               <Euro className="w-3 h-3 text-honey-500 mr-1" />
                               <span className="mr-1">{service.price}</span>
-                              <span className="text-charcoal/60">
+                              <span className="text-charcoal/80">
                                 • {service.duration_minutes} min
                               </span>
                             </div>
