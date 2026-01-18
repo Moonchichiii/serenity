@@ -22,7 +22,7 @@ const Footer: React.FC = () => {
       />
 
       {/* Footer body */}
-      <div className={`${footerBgColor} text-white pt-2 pb-24 sm:pb-12`}>
+      <div className={`${footerBgColor} text-white pt-12 pb-24 sm:pb-12`}>
         {/* pb-24 on mobile ensures the floating review button doesn't cover the credits */}
         <div className="container mx-auto px-4">
           <div className="grid gap-10 sm:grid-cols-2 sm:items-start text-center sm:text-left max-w-5xl mx-auto sm:gap-16">
