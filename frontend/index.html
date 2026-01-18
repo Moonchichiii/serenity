@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
-    <!-- CSP: Whitelisted ui-avatars.com for testimonials -->
+    <!-- CSP -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://serenity.fly.dev https://res.cloudinary.com; script-src 'self' 'unsafe-inline' https://maps.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' https://res.cloudinary.com https://maps.googleapis.com https://maps.gstatic.com https://ui-avatars.com data:; media-src 'self' https://res.cloudinary.com blob: data:; connect-src 'self' https://serenity.fly.dev https://maps.googleapis.com;">
 
     <!-- Preconnect -->
@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://ui-avatars.com">
     <link rel="dns-prefetch" href="https://ui-avatars.com">
 
-    <!-- Preload critical fonts (Only preload the Heading font for LCP) -->
+    <!-- Preload only Critical Heading Font -->
     <link rel="preload" as="font" href="/fonts/DMSerifDisplay-Regular.woff2" type="font/woff2" crossorigin>
 
     <!-- Favicons -->
@@ -53,6 +53,7 @@
     <meta property="og:site_name" content="Serenity">
     <meta property="og:locale" content="fr_FR">
 
+    <!-- UPDATED SCHEMA FOR GOOGLE -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -62,14 +63,26 @@
       "url": "https://laserenity.fr/",
       "telephone": "+33 6 00 00 00 00",
       "priceRange": "€€",
-      "address": { "@type": "PostalAddress", "addressLocality": "Marseille", "addressCountry": "FR" },
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Marseille",
+        "postalCode": "13004",
+        "addressCountry": "FR"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 43.30135,
+        "longitude": 5.39362
+      },
       "areaServed": { "@type": "City", "name": "Marseille" },
-      "sameAs": ["https://www.instagram.com/laserenity_marseille","https://www.facebook.com/profile.php?id=61586637427139"],
+      "sameAs": [
+        "https://www.instagram.com/laserenity_marseille"
+      ],
       "makesOffer": [
         { "@type": "Service", "name": "Massage Californien" },
         { "@type": "Service", "name": "Drainage Lymphatique" },
         { "@type": "Service", "name": "Massage Prénatal" },
-        { "@type": "Service", "name": "AMMA Assis (entreprises/événements)" }
+        { "@type": "Service", "name": "AMMA Assis" }
       ]
     }
     </script>
