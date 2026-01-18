@@ -241,6 +241,14 @@ class GiftSettingsSerializer(serializers.ModelSerializer):
             "form_success_message_fr",
             "form_code_label_en",
             "form_code_label_fr",
+            "email_heading_en",
+            "email_heading_fr",
+            "email_intro_en",
+            "email_intro_fr",
+            "email_redeem_en",
+            "email_redeem_fr",
+            "email_closing_en",
+            "email_closing_fr",
         ]
 
     def get_floating_icon(self, obj):

@@ -72,7 +72,7 @@
           border-top: 1px solid #eee;
           background: #fafafa;
         }
-        .xmas-line {
+        .closing-line {
           margin-top: 16px;
           font-size: 13px;
           color: #666;
@@ -82,20 +82,27 @@
 <body>
     <div class="container">
         {% if image_url %}
-        <img src="{{ image_url }}" alt="Christmas Gift" class="header-image">
+        <img src="{{ image_url }}" alt="Gift Voucher" class="header-image">
         {% endif %}
 
         <div class="content">
+            <!-- Heading: CMS email_heading_en -> fallback to modal_title_en -> fallback to hardcoded -->
             <h1 class="h1">
-              {{ settings.modal_title_en|default:"Christmas Massage Gift Vouchers" }}
+              {{ settings.email_heading_en|default:settings.modal_title_en|default:"Massage Gift Voucher" }}
             </h1>
 
             <p class="intro">
               Dear <strong>{{ voucher.recipient_name }}</strong>,
             </p>
+
+            <!-- Intro line: CMS email_intro_en (note: cannot .format purchaser_name in template) -->
             <p class="intro">
-              You have received a special Christmas massage gift voucher from
-              <strong>{{ voucher.purchaser_name }}</strong> 🎄
+              {% if settings.email_intro_en %}
+                {{ settings.email_intro_en|safe }}
+              {% else %}
+                You have received a massage gift voucher from
+                <strong>{{ voucher.purchaser_name }}</strong> 🎁
+              {% endif %}
             </p>
 
             {% if voucher.message %}
@@ -113,20 +120,26 @@
               </p>
             {% endif %}
 
+            <!-- Redeem line: CMS email_redeem_en OR fallback -->
             <p class="intro" style="margin-top: 22px;">
-              To redeem your Christmas gift, simply present this code when you arrive at
-              <strong>{{ site_name }}</strong>.
+              {% if settings.email_redeem_en %}
+                {{ settings.email_redeem_en|safe }}
+              {% else %}
+                To redeem your gift, simply present this code when you arrive at
+                <strong>{{ site_name }}</strong>.
+              {% endif %}
             </p>
 
-            <p class="xmas-line">
-              Wishing you a peaceful, relaxing holiday season. ✨
+            <!-- Closing line: CMS email_closing_en OR fallback -->
+            <p class="closing-line">
+              {{ settings.email_closing_en|default:"Wishing you a relaxing and restorative experience. ✨" }}
             </p>
         </div>
 
         <div class="footer">
-            <p>{{ site_name }} &mdash; Christmas Gift Voucher</p>
+            <p>{{ site_name }} &mdash; Gift Voucher</p>
             <p style="margin-top:4px;">
-              FR: Vous avez reçu un bon cadeau de Noël pour un massage. Présentez simplement ce code lors de votre rendez-vous.
+              FR: Vous avez reçu un bon cadeau massage. Présentez simplement ce code lors de votre rendez-vous.
             </p>
         </div>
     </div>

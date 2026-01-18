@@ -503,7 +503,7 @@ class GiftSettings(BaseSiteSetting):
         ),
     )
 
-    # Floating Icon / Modal Content
+    # --- Floating Icon / Modal Content ---
     modal_title_en = models.CharField(
         max_length=100,
         default="Give the Gift of Relaxation",
@@ -520,7 +520,7 @@ class GiftSettings(BaseSiteSetting):
         default="Remplissez les détails ci-dessous pour envoyer un bon cadeau."
     )
 
-    # Email Content
+    # --- Email Content ---
     voucher_image = models.ForeignKey(
         "wagtailimages.Image",
         null=True,
@@ -537,6 +537,59 @@ class GiftSettings(BaseSiteSetting):
     email_subject_fr = models.CharField(
         max_length=255,
         default="Vous avez reçu un cadeau !",
+    )
+
+    # -- New Extended Email Fields --
+    email_heading_en = models.CharField(
+        max_length=120,
+        blank=True,
+        default="",
+        help_text="Optional: heading shown inside the voucher email (English).",
+    )
+    email_heading_fr = models.CharField(
+        max_length=120,
+        blank=True,
+        default="",
+        help_text="Optionnel : titre dans l’email bon cadeau (Français).",
+    )
+
+    email_intro_en = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Optional: intro sentence for recipient email (English). Use {purchaser_name}.",
+    )
+    email_intro_fr = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Optionnel : phrase d’intro (Français). Utilisez {purchaser_name}.",
+    )
+
+    email_redeem_en = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Optional: redemption instructions (English). Use {site_name}.",
+    )
+    email_redeem_fr = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Optionnel : instructions (Français). Utilisez {site_name}.",
+    )
+
+    email_closing_en = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Optional: closing line (English).",
+    )
+    email_closing_fr = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Optionnel : phrase de fin (Français).",
     )
 
     # --- Form copy overrides (optional, per campaign) ---
@@ -638,6 +691,14 @@ class GiftSettings(BaseSiteSetting):
                 FieldPanel("voucher_image"),
                 FieldPanel("email_subject_en"),
                 FieldPanel("email_subject_fr"),
+                FieldPanel("email_heading_en"),
+                FieldPanel("email_heading_fr"),
+                FieldPanel("email_intro_en"),
+                FieldPanel("email_intro_fr"),
+                FieldPanel("email_redeem_en"),
+                FieldPanel("email_redeem_fr"),
+                FieldPanel("email_closing_en"),
+                FieldPanel("email_closing_fr"),
             ],
             heading="Email Settings",
         ),
