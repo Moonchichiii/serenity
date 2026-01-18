@@ -17,7 +17,7 @@ const Footer: React.FC = () => {
     <footer id="site-footer" className="relative mt-16 contain-content">
       {/* Blend strip: Smooth transition from page background to Dark Forest Green */}
       <div
-        className={`h-5 bg-gradient-to-b from-porcelain ${gradientColor}`}
+        className={`h-2 bg-gradient-to-b from-porcelain ${gradientColor}`}
         aria-hidden="true"
       />
 
