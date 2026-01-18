@@ -8,12 +8,13 @@ const Footer: React.FC = () => {
   const { t } = useTranslation()
   const currentYear = new Date().getFullYear()
 
-
-  const footerBgColor = 'bg-[#354a3d]'
-  const gradientColor = 'to-[#354a3d]'
+  // Deep Forest Green: Dark enough for good contrast with the floating button
+  const footerBgColor = 'bg-[#2a3c30]'
+  const gradientColor = 'to-[#2a3c30]'
 
   return (
-    <footer id="site-footer" className="relative mt-16">
+    // 'contain-content' helps performance by separating footer painting from the main page
+    <footer id="site-footer" className="relative mt-16 contain-content">
       {/* Blend strip: Smooth transition from page background to Dark Forest Green */}
       <div
         className={`h-5 bg-gradient-to-b from-porcelain ${gradientColor}`}
@@ -21,22 +22,23 @@ const Footer: React.FC = () => {
       />
 
       {/* Footer body */}
-      <div className={`${footerBgColor} text-white pt-6 pb-24 sm:pb-12`}>
-        {/* Added pb-24 on mobile to give space for the floating button so it doesn't cover text */}
+      <div className={`${footerBgColor} text-white pt-2 pb-24 sm:pb-12`}>
+        {/* pb-24 on mobile ensures the floating review button doesn't cover the credits */}
         <div className="container mx-auto px-4">
           <div className="grid gap-10 sm:grid-cols-2 sm:items-start text-center sm:text-left max-w-5xl mx-auto sm:gap-16">
+
             {/* Brand + Contact */}
             <div className="flex flex-col items-center sm:items-start">
               <h3 className="inline-block font-heading font-semibold text-2xl text-white">
                 <span className="relative inline-block">
-                  <span className="absolute -top-2 left-0 text-xs tracking-wide text-white/80">
+                  <span className="absolute -top-2 left-0 text-xs tracking-wide text-white/70">
                     La
                   </span>
                   <span className="ml-4">Serenity</span>
                 </span>
               </h3>
 
-              <p className="mt-3 text-sm text-white/90 max-w-[28ch] sm:max-w-none font-medium">
+              <p className="mt-3 text-sm text-white/80 max-w-[28ch] sm:max-w-none font-medium">
                 {t('footer.tagline', {
                   defaultValue: 'Massage thérapeutique professionnel',
                 })}
@@ -70,7 +72,7 @@ const Footer: React.FC = () => {
                 <h4 className="text-base font-semibold text-white">
                   {t('footer.hours', { defaultValue: 'Heures' })}
                 </h4>
-                <p className="mt-2 text-sm text-white/90">
+                <p className="mt-2 text-sm text-white/80">
                   {t('footer.hoursValue', { defaultValue: 'Lun–Sam: 9:00–19:00' })}
                 </p>
               </div>
@@ -105,23 +107,24 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Copyright + credits bar */}
-          <div className="mt-12 border-t border-white/20 pt-6 text-xs space-y-2">
+          <div className="mt-12 border-t border-white/10 pt-6 text-xs space-y-2">
             <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between text-center sm:text-left">
-              <p className="text-white/80">
+              <p className="text-white/60">
                 © {currentYear} Serenity —{' '}
                 {t('footer.rights', { defaultValue: 'Tous droits réservés.' })}
               </p>
-              <p className="text-white/80">
+              <p className="text-white/60">
                 {t('footer.address', { defaultValue: 'Marseille, France' })}
               </p>
             </div>
 
-            <p className="text-[11px] text-center sm:text-right text-white/60">
+            {/* GOLD CREDITS - "POPS" OUT */}
+            <p className="text-[11px] text-center sm:text-right">
               <a
                 href="https://www.nordiccodeworks.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-honey-200 underline-offset-2 hover:underline transition-colors"
+                className="text-honey-200 hover:text-white font-medium underline-offset-2 hover:underline transition-colors"
                 aria-label="Made by Nordic Code Works"
               >
                 {t('footer.madeBy', {
