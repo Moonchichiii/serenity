@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
+    <!-- CSP: Allow blob: for media (video captions) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://serenity.fly.dev https://res.cloudinary.com; script-src 'self' 'unsafe-inline' https://maps.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' https://res.cloudinary.com https://maps.googleapis.com https://maps.gstatic.com data:; media-src 'self' https://res.cloudinary.com blob: data:; connect-src 'self' https://serenity.fly.dev https://maps.googleapis.com;">
+
     <!-- Preconnect -->
     <link rel="preconnect" href="https://serenity.fly.dev">
     <link rel="dns-prefetch" href="https://serenity.fly.dev">
@@ -28,7 +31,7 @@
 
     <!-- SEO -->
     <title>Serenity — Massages Thérapeutiques à Marseille</title>
-       <meta name="description" content="Massages bien-être à Marseille : Californien, drainage lymphatique, soins prénatals et AMMA assis pour entreprises et événements.">
+    <meta name="description" content="Massages bien-être à Marseille : Californien, drainage lymphatique, soins prénatals et AMMA assis pour entreprises et événements.">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <link rel="canonical" href="https://www.laserenity.fr/">
 

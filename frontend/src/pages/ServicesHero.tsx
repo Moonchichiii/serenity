@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { cmsAPI, type WagtailHomePage } from "@/api/cms";
 import {
   getResponsivePosterUrl,
@@ -10,7 +10,6 @@ import {
 import { Button } from "@/components/ui/Button";
 import { useModal } from "@/shared/hooks/useModal";
 
-// Cloudinary Fallback
 const FALLBACK_POSTER = "https://res.cloudinary.com/dbzlaawqt/image/upload/v1762274193/poster_zbbwz5.webp";
 
 const toSentenceCase = (s?: string) => {
@@ -28,7 +27,20 @@ export function ServicesHero() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const { open } = useModal();
 
-  // Data saver / reduced motion
+  // FIX CSP ERROR: Generate a Blob URL for the captions instead of data: URI
+  const captionsUrl = useMemo(() => {
+    if (typeof window === 'undefined') return undefined;
+    const blob = new Blob(["WEBVTT\n\n"], { type: 'text/vtt' });
+    return URL.createObjectURL(blob);
+  }, []);
+
+  // Cleanup Blob URL on unmount
+  useEffect(() => {
+    return () => {
+      if (captionsUrl) URL.revokeObjectURL(captionsUrl);
+    };
+  }, [captionsUrl]);
+
   const saveData =
     typeof navigator !== "undefined" &&
     // @ts-expect-error connection property not in standard Navigator type
@@ -38,151 +50,77 @@ export function ServicesHero() {
     window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
   const shouldDisableVideo = !!saveData || !!prefersReducedMotion;
 
-  // Fetch homepage once
   useEffect(() => {
-    cmsAPI
-      .getHomePage()
-      .then(setPage)
-      .catch(() => setPage(null));
+    cmsAPI.getHomePage().then(setPage).catch(() => setPage(null));
   }, []);
 
-  // Derive language + strings safely
   const lang = i18n.language.startsWith("fr") ? "fr" : "en";
   const getString = (key: keyof WagtailHomePage) =>
     page && typeof page[key] === "string" ? (page[key] as string) : "";
 
-  // Compute poster URL responsive from Wagtail image
   useEffect(() => {
     const baseUrl = page?.services_hero_poster_image?.url;
     if (!baseUrl) {
       setPosterUrl(FALLBACK_POSTER);
       return;
     }
-
     const compute = () => {
-      const w =
-        typeof window !== "undefined"
-          ? Math.max(window.innerWidth || 0, 360)
-          : 768;
-      setPosterUrl(
-        getResponsivePosterUrl(baseUrl, w, {
-          quality: "eco",
-          min: 480,
-          max: 1440,
-        })
-      );
+      const w = typeof window !== "undefined" ? Math.max(window.innerWidth || 0, 360) : 768;
+      setPosterUrl(getResponsivePosterUrl(baseUrl, w, { quality: "eco", min: 480, max: 1440 }));
     };
-
     compute();
     let t: number | undefined;
     const onResize = () => {
       if (t) window.clearTimeout(t);
       t = window.setTimeout(compute, 150);
     };
-    if (typeof window !== "undefined") {
-      window.addEventListener("resize", onResize);
-    }
-    return () => {
-      if (typeof window !== "undefined") {
-        window.removeEventListener("resize", onResize);
-      }
-      if (t) window.clearTimeout(t);
-    };
+    if (typeof window !== "undefined") window.addEventListener("resize", onResize);
+    return () => { if (typeof window !== "undefined") window.removeEventListener("resize", onResize); };
   }, [page?.services_hero_poster_image?.url]);
 
-  /**
-   * Video source
-   */
   useEffect(() => {
-    if (shouldDisableVideo) {
-      setVideoSrc(null);
-      return;
-    }
-
+    if (shouldDisableVideo) { setVideoSrc(null); return; }
     const directUrl = page?.services_hero_video_url?.trim();
     const publicId = page?.services_hero_video_public_id?.trim();
 
-    // 1) Direct URL
-    if (directUrl) {
-      setVideoSrc(directUrl);
-      return;
-    }
-
-    // 2) Public ID logic
-    if (!publicId) {
-      setVideoSrc(null);
-      return;
-    }
+    if (directUrl) { setVideoSrc(directUrl); return; }
+    if (!publicId) { setVideoSrc(null); return; }
 
     const buildVideoUrl = () => {
-      const width =
-        typeof window !== "undefined" ? window.innerWidth || 1920 : 1920;
-
+      const width = typeof window !== "undefined" ? window.innerWidth || 1920 : 1920;
       if (width <= 640) return getOptimizedVideoUrl(publicId, 640, "eco");
       if (width <= 1024) return getOptimizedVideoUrl(publicId, 1024, "eco");
       return getOptimizedVideoUrl(publicId, 1920, "eco");
     };
 
     const update = () => setVideoSrc(buildVideoUrl());
-
     update();
-
     let t: number | undefined;
     const onResize = () => {
       if (t) window.clearTimeout(t);
       t = window.setTimeout(update, 200);
     };
-    if (typeof window !== "undefined") {
-      window.addEventListener("resize", onResize);
-    }
-    return () => {
-      if (typeof window !== "undefined") {
-        window.removeEventListener("resize", onResize);
-      }
-      if (t) window.clearTimeout(t);
-    };
-  }, [
-    page?.services_hero_video_url,
-    page?.services_hero_video_public_id,
-    shouldDisableVideo,
-  ]);
+    if (typeof window !== "undefined") window.addEventListener("resize", onResize);
+    return () => { if (typeof window !== "undefined") window.removeEventListener("resize", onResize); };
+  }, [page?.services_hero_video_url, page?.services_hero_video_public_id, shouldDisableVideo]);
 
   if (!page) return null;
 
-  const title = getString(
-    `services_hero_title_${lang}` as keyof WagtailHomePage
-  );
-  const priceLabel = getString(
-    `services_hero_pricing_label_${lang}` as keyof WagtailHomePage
-  );
-  const price = getString(
-    `services_hero_price_${lang}` as keyof WagtailHomePage
-  );
-  const cta = getString(
-    `services_hero_cta_${lang}` as keyof WagtailHomePage
-  );
+  const title = getString(`services_hero_title_${lang}` as keyof WagtailHomePage);
+  const priceLabel = getString(`services_hero_pricing_label_${lang}` as keyof WagtailHomePage);
+  const price = getString(`services_hero_price_${lang}` as keyof WagtailHomePage);
+  const cta = getString(`services_hero_cta_${lang}` as keyof WagtailHomePage);
   const benefits = [
-    getString(
-      `services_hero_benefit_1_${lang}` as keyof WagtailHomePage
-    ),
-    getString(
-      `services_hero_benefit_2_${lang}` as keyof WagtailHomePage
-    ),
-    getString(
-      `services_hero_benefit_3_${lang}` as keyof WagtailHomePage
-    ),
+    getString(`services_hero_benefit_1_${lang}` as keyof WagtailHomePage),
+    getString(`services_hero_benefit_2_${lang}` as keyof WagtailHomePage),
+    getString(`services_hero_benefit_3_${lang}` as keyof WagtailHomePage),
   ].filter(Boolean);
 
   const hasPrice = Boolean(priceLabel || price);
   const hasCTA = Boolean(cta);
 
   return (
-    <section
-      id="services-hero"
-      className="relative flex items-center overflow-hidden min-h-[85vh] lg:min-h-[90vh] py-16 sm:py-20"
-      aria-labelledby="services-hero-title"
-    >
-      {/* Video / poster background */}
+    <section id="services-hero" className="relative flex items-center overflow-hidden min-h-[85vh] lg:min-h-[90vh] py-16 sm:py-20" aria-labelledby="services-hero-title">
       {videoSrc && (
         <video
           ref={videoRef}
@@ -195,14 +133,10 @@ export function ServicesHero() {
           preload="metadata"
         >
           <source src={videoSrc} type="video/mp4" />
-          {/* Accessibility Track: Fixed 'srclang' -> 'srcLang' */}
-          <track
-            kind="captions"
-            src="data:text/vtt;base64,V0VCVlRVCg=="
-            srcLang="en"
-            label="No captions"
-            default
-          />
+          {/* Fix CSP: use Blob URL and camelCase srcLang */}
+          {captionsUrl && (
+            <track kind="captions" src={captionsUrl} srcLang="en" label="No captions" default />
+          )}
         </video>
       )}
 
@@ -217,13 +151,8 @@ export function ServicesHero() {
         />
       )}
 
-      {/* Dark overlay */}
-      <div
-        className="absolute inset-0 bg-gradient-to-br from-charcoal/55 via-charcoal/45 to-charcoal/60"
-        aria-hidden="true"
-      />
+      <div className="absolute inset-0 bg-gradient-to-br from-charcoal/55 via-charcoal/45 to-charcoal/60" aria-hidden="true" />
 
-      {/* Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 h-full flex items-center">
         <motion.div
           initial={{ opacity: 0, x: -30 }}
@@ -234,49 +163,26 @@ export function ServicesHero() {
         >
           <div className="rounded-3xl bg-white/95 backdrop-blur-lg border border-white/50 shadow-elevated px-6 py-7 sm:px-10 sm:py-9 md:px-12 md:py-11 lg:px-14 lg:py-12">
             <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-6 sm:gap-8 lg:gap-12">
-              {/* Left block: title + price + CTA */}
               <div className="flex-1 space-y-4 sm:space-y-5 text-center lg:text-left">
-                <h2
-                  id="services-hero-title"
-                  className="font-heading font-normal text-charcoal leading-tight tracking-tight text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
-                >
+                <h2 id="services-hero-title" className="font-heading font-normal text-charcoal leading-tight tracking-tight text-2xl sm:text-3xl md:text-4xl lg:text-5xl">
                   {toSentenceCase(title)}
                 </h2>
-
                 {hasPrice && (
                   <div className="flex justify-center lg:justify-start">
                     <div className="inline-flex items-baseline gap-2 rounded-2xl bg-porcelain px-5 py-3 border border-sage-200/70 shadow-soft">
-                      {priceLabel && (
-                        <span className="text-sm sm:text-base font-semibold text-charcoal/75">
-                          {priceLabel}
-                        </span>
-                      )}
-                      {price && (
-                        <span className="text-xl sm:text-2xl font-bold text-sage-700 whitespace-nowrap">
-                          {price}
-                        </span>
-                      )}
+                      {priceLabel && <span className="text-sm sm:text-base font-semibold text-charcoal/75">{priceLabel}</span>}
+                      {price && <span className="text-xl sm:text-2xl font-bold text-sage-700 whitespace-nowrap">{price}</span>}
                     </div>
                   </div>
                 )}
-
                 {hasCTA && (
                   <div className="pt-1">
-                    <Button
-                      variant="default"
-                      size="md"
-                      className="w-full sm:w-auto rounded-full shadow-elevated px-7 sm:px-8 text-sm sm:text-base"
-                      onClick={() =>
-                        open("corporate", { defaultEventType: "corporate" })
-                      }
-                    >
+                    <Button variant="default" size="md" className="w-full sm:w-auto rounded-full shadow-elevated px-7 sm:px-8 text-sm sm:text-base" onClick={() => open("corporate", { defaultEventType: "corporate" })}>
                       {toSentenceCase(cta)}
                     </Button>
                   </div>
                 )}
               </div>
-
-              {/* Right block: benefits list */}
               {benefits.length > 0 && (
                 <div className="flex-1">
                   <ul className="grid gap-3 sm:gap-3.5">
@@ -285,9 +191,7 @@ export function ServicesHero() {
                         <span className="mt-0.5 inline-flex w-7 h-7 shrink-0 rounded-full bg-sage-100 border-2 border-sage-400 items-center justify-center">
                           <Check className="w-4 h-4 text-sage-700 stroke-[2.5]" />
                         </span>
-                        <span className="text-sm sm:text-base text-charcoal/90 leading-relaxed font-medium">
-                          {b}
-                        </span>
+                        <span className="text-sm sm:text-base text-charcoal/90 leading-relaxed font-medium">{b}</span>
                       </li>
                     ))}
                   </ul>
