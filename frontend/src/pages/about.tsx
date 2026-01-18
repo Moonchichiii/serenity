@@ -6,7 +6,7 @@ import {
   type Variants,
   type Transition,
 } from 'framer-motion';
-import { Heart, User, Award, MapPin, Phone } from 'lucide-react';
+import { Heart, User, Award, MapPin, Mail } from 'lucide-react';
 
 import SecretTrigger from '@/components/secret/SecretTrigger';
 import {
@@ -358,7 +358,7 @@ export function About() {
 
                 {/* Contact card – fixed visual height */}
                 <div className="text-center p-4 bg-background rounded-xl border border-primary/15 shadow-soft h-[220px] flex flex-col justify-center">
-                  <Phone
+                  <Mail
                     className="w-6 h-6 mx-auto mb-2"
                     style={{ color: 'hsl(210 80% 60%)' }}
                   />
