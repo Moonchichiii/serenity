@@ -8,16 +8,23 @@ const Footer: React.FC = () => {
   const { t } = useTranslation()
   const currentYear = new Date().getFullYear()
 
+  // Use a Deep Forest Green.
+  // It's dark enough to let the "Sage Green" review button pop,
+  // but much warmer and more premium than standard "Charcoal".
+  const footerBgColor = 'bg-[#354a3d]'
+  const gradientColor = 'to-[#354a3d]'
+
   return (
     <footer id="site-footer" className="relative mt-16">
-      {/* Blend strip: Smooth transition from page background to Footer Green */}
+      {/* Blend strip: Smooth transition from page background to Dark Forest Green */}
       <div
-        className="h-10 bg-gradient-to-b from-porcelain to-[#577460]"
+        className={`h-10 bg-gradient-to-b from-porcelain ${gradientColor}`}
         aria-hidden="true"
       />
 
-      {/* Footer body: Using Brand Sage Green instead of Charcoal */}
-      <div className="bg-[#577460] text-white pt-6 pb-12">
+      {/* Footer body */}
+      <div className={`${footerBgColor} text-white pt-6 pb-24 sm:pb-12`}>
+        {/* Added pb-24 on mobile to give space for the floating button so it doesn't cover text */}
         <div className="container mx-auto px-4">
           <div className="grid gap-10 sm:grid-cols-2 sm:items-start text-center sm:text-left max-w-5xl mx-auto sm:gap-16">
             {/* Brand + Contact */}
@@ -76,7 +83,6 @@ const Footer: React.FC = () => {
                     defaultValue: 'Suivez-nous sur Instagram',
                   })}
                 </span>
-                {/* Note: Pass 'white' color to icons if they support theming, else they inherit */}
                 <div className="text-white hover:text-honey-200 transition-colors">
                   <AnimatedInstagramIcon
                     magnetic
