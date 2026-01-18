@@ -13,63 +13,125 @@ from apps.cms.models import GiftSettings
 from .serializers import GiftVoucherSerializer
 
 
-@api_view(['POST'])
+def _safe_format(s: str, **kwargs) -> str:
+    """
+    Format CMS strings like 'You received a voucher from {purchaser_name}'
+    without crashing if braces are wrong.
+    """
+    if not s:
+        return ""
+    try:
+        return s.format(**kwargs)
+    except Exception:
+        # If someone entered invalid {tokens} in Wagtail, don't break email sending
+        return s
+
+
+@api_view(["POST"])
 @permission_classes([AllowAny])
 def create_voucher(request):
     """
     Creates a gift voucher and sends notification emails.
+    Uses GiftSettings (Wagtail) for all email copy with token formatting.
     """
     serializer = GiftVoucherSerializer(data=request.data)
-    if serializer.is_valid():
-        voucher = serializer.save()
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    voucher = serializer.save()
+
+    # Site + Gift settings
+    site = Site.find_for_request(request)
+    try:
+        gift_settings = GiftSettings.for_site(site)
+    except Exception:
+        # Fallback if site-specific settings fail
+        gift_settings = GiftSettings.objects.first()
+
+    # Language: use request LANGUAGE_CODE if available; fallback to English
+    lang = getattr(request, "LANGUAGE_CODE", "en")
+    if lang not in ("en", "fr"):
+        lang = "en"
+
+    site_name = getattr(site, "site_name", None) or "Serenity"
+
+    # Voucher image (safe)
+    image_url = ""
+    if gift_settings and gift_settings.voucher_image:
         try:
-            site = Site.find_for_request(request)
-            gift_settings = GiftSettings.for_site(site)
-        except Exception:
-            gift_settings = GiftSettings.objects.first()
-
-        image_url = ""
-        if gift_settings and gift_settings.voucher_image:
             image_url = gift_settings.voucher_image.file.url
+        except Exception:
+            image_url = ""
 
-        context = {
-            "voucher": voucher,
-            "settings": gift_settings,
-            "image_url": image_url,
-            "site_name": getattr(site, "site_name", "Serenity"),
-        }
+    # Tokens available for CMS copy
+    tokens = {
+        "purchaser_name": voucher.purchaser_name,
+        "recipient_name": voucher.recipient_name,
+        "site_name": site_name,
+        "code": voucher.code,
+    }
 
-        subject = f"{gift_settings.email_subject_en} / {gift_settings.email_subject_fr}"
+    # Pull localized strings from GiftSettings safely
+    # If gift_settings is None, these allow "" instead of crashing on getattr
 
-        html_content = render_to_string("vouchers/email_recipient.html", context)
-        text_content = strip_tags(html_content)
+    raw_subject = getattr(gift_settings, f"email_subject_{lang}", "") if gift_settings else ""
+    subject = raw_subject or "Gift Voucher"
 
-        msg_recipient = EmailMultiAlternatives(
-            subject=subject,
-            body=text_content,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[voucher.recipient_email]
-        )
-        msg_recipient.attach_alternative(html_content, "text/html")
-        msg_recipient.send()
+    raw_heading = getattr(gift_settings, f"email_heading_{lang}", "") if gift_settings else ""
+    email_heading = _safe_format(raw_heading, **tokens)
 
-        html_admin = render_to_string("vouchers/email_admin.html", context)
-        text_admin = strip_tags(html_admin)
+    raw_intro = getattr(gift_settings, f"email_intro_{lang}", "") if gift_settings else ""
+    email_intro = _safe_format(raw_intro, **tokens)
 
-        admin_email = "salon@example.com"
-        if settings.ADMINS:
-            admin_email = settings.ADMINS[0][1]
+    raw_redeem = getattr(gift_settings, f"email_redeem_{lang}", "") if gift_settings else ""
+    email_redeem = _safe_format(raw_redeem, **tokens)
 
-        msg_admin = EmailMultiAlternatives(
-            subject=f"New Gift Voucher Sold: {voucher.code}",
-            body=text_admin,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[admin_email]
-        )
-        msg_admin.attach_alternative(html_admin, "text/html")
-        msg_admin.send()
+    raw_closing = getattr(gift_settings, f"email_closing_{lang}", "") if gift_settings else ""
+    email_closing = _safe_format(raw_closing, **tokens)
 
-        return Response({"code": voucher.code}, status=status.HTTP_201_CREATED)
+    # Context for templates
+    context = {
+        "voucher": voucher,
+        "settings": gift_settings,   # keep for backwards compatibility
+        "image_url": image_url,
+        "site_name": site_name,
+        "lang": lang,
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # formatted strings (preferred)
+        "email_heading": email_heading,
+        "email_intro": email_intro,
+        "email_redeem": email_redeem,
+        "email_closing": email_closing,
+    }
+
+    # --- Recipient email ---
+    html_content = render_to_string("vouchers/email_recipient.html", context)
+    text_content = strip_tags(html_content)
+
+    msg_recipient = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[voucher.recipient_email],
+    )
+    msg_recipient.attach_alternative(html_content, "text/html")
+    msg_recipient.send()
+
+    # --- Admin email ---
+    html_admin = render_to_string("vouchers/email_admin.html", context)
+    text_admin = strip_tags(html_admin)
+
+    admin_email = "salon@example.com"
+    if settings.ADMINS:
+        admin_email = settings.ADMINS[0][1]
+
+    msg_admin = EmailMultiAlternatives(
+        subject=f"New Gift Voucher Sold: {voucher.code}",
+        body=text_admin,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[admin_email],
+    )
+    msg_admin.attach_alternative(html_admin, "text/html")
+    msg_admin.send()
+
+    return Response({"code": voucher.code}, status=status.HTTP_201_CREATED)

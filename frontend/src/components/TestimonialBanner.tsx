@@ -161,7 +161,7 @@ export function TestimonialBanner() {
       </p>
 
       <div className="flex justify-between items-center mt-4">
-        <p className="text-[11px] sm:text-xs text-charcoal/60">
+        <p className="text-[11px] sm:text-xs text-charcoal/75">
           {testimonial.date}
         </p>
         {testimonial.replies && testimonial.replies.length > 0 && (

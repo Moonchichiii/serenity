@@ -50,8 +50,11 @@ export function LocationMap() {
     return () => observer.disconnect();
   }, [isMobile]);
 
-  const collapsedHeight = isMobile ? 180 : 220;
-  const expandedHeight = 500;
+  const heightClass = isExpanded
+  ? "h-[500px]"
+  : isMobile
+    ? "h-[180px]"
+    : "h-[220px]";
 
   return (
     <div className="space-y-3 pt-2">
@@ -67,14 +70,15 @@ export function LocationMap() {
 
       {/* Map card – height animates, no zooming */}
       <div
-        ref={sectionRef}
-        className="relative w-full overflow-hidden rounded-2xl border border-primary/15 shadow-soft transition-[height] duration-700 ease-out"
-        onMouseEnter={() => !isMobile && setIsExpanded(true)}
-        onMouseLeave={() => !isMobile && setIsExpanded(false)}
-        style={{
-          height: isExpanded ? expandedHeight : collapsedHeight,
-        }}
-      >
+  ref={sectionRef}
+  className={[
+    "relative w-full overflow-hidden rounded-2xl border border-primary/15 shadow-soft",
+    "transition-[height] duration-700 ease-out",
+    heightClass,
+  ].join(" ")}
+  onMouseEnter={() => !isMobile && setIsExpanded(true)}
+  onMouseLeave={() => !isMobile && setIsExpanded(false)}
+>
         {isLoaded ? (
           <GoogleMap
             mapContainerClassName="w-full h-full"

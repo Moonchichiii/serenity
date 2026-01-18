@@ -228,7 +228,6 @@ class GiftSettingsSerializer(serializers.ModelSerializer):
             "modal_title_fr",
             "modal_text_en",
             "modal_text_fr",
-            # NEW: form copy overrides
             "form_message_placeholder_en",
             "form_message_placeholder_fr",
             "form_submit_label_en",

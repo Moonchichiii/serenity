@@ -118,13 +118,17 @@ export function ServicesHero() {
       const width =
         typeof window !== "undefined" ? window.innerWidth || 1920 : 1920;
       const base = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/video/upload`;
+
+      // Safety: remove existing .mp4 extension if present to avoid .mp4.mp4
+      const cleanId = publicId.replace(/\.mp4$/i, "");
+
       if (width <= 640) {
-        return `${base}/f_mp4,q_auto:low,w_640,h_360,c_fill/${publicId}.mp4`;
+        return `${base}/f_mp4,q_auto:low,w_640,h_360,c_fill/${cleanId}.mp4`;
       }
       if (width <= 1024) {
-        return `${base}/f_mp4,q_auto:eco,w_1024,h_576,c_fill/${publicId}.mp4`;
+        return `${base}/f_mp4,q_auto:eco,w_1024,h_576,c_fill/${cleanId}.mp4`;
       }
-      return `${base}/f_mp4,q_auto:eco,w_1920,h_1080,c_fill/${publicId}.mp4`;
+      return `${base}/f_mp4,q_auto:eco,w_1920,h_1080,c_fill/${cleanId}.mp4`;
     };
 
     const update = () => setVideoSrc(buildVideoUrl());
@@ -203,10 +207,14 @@ export function ServicesHero() {
       )}
 
       {!videoSrc && (
-        <div
-          className="absolute inset-0 w-full h-full bg-center bg-cover"
-          style={{ backgroundImage: `url(${posterUrl ?? tinyFallbackPoster})` }}
+        <img
+          src={posterUrl ?? tinyFallbackPoster}
+          alt=""
           aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover object-center"
+          loading="eager"
+          // @ts-expect-error fetchPriority is strictly standard but React types lag behind
+          fetchPriority="high"
         />
       )}
 

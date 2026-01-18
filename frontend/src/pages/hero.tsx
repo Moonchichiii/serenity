@@ -44,13 +44,10 @@ export function Hero() {
             return (
               <div
                 key={idx}
-                className="absolute inset-0"
+                className={`absolute inset-0 transition-all duration-1000 ease-out will-change-transform ${
+                  visible ? 'opacity-100 scale-[1.05]' : 'opacity-0 scale-100'
+                }`}
                 aria-hidden="true"
-                style={{
-                  opacity: visible ? 1 : 0,
-                  transform: visible ? 'scale(1.05)' : 'scale(1)',
-                  transition: 'opacity 1s ease-out, transform 1s ease-out',
-                }}
               >
                 <CloudImage
                   image={s.image}
@@ -80,55 +77,49 @@ export function Hero() {
           {subtitle}
         </p>
 
-    {/* CTA: Subtle fade-in only on mobile, instant on desktop */}
-<div
-  className="md:opacity-100 animate-fade-in md:animate-none"
-  style={{ animationDelay: '0.2s' }}
->
-  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-    {/* Private session CTA */}
-    <Button
-  size="md"
-  onClick={() =>
-    open('contact', { defaultSubject: 'Private session inquiry' })
-  }
-  className="
-    rounded-full shadow-elevated md:hover:scale-105
-    px-6 sm:px-7 text-sm sm:text-base
-  "
->
-  {t('hero.ctaPrivate')}
-</Button>
+        {/* CTA: Subtle fade-in only on mobile, instant on desktop */}
+        <div className="md:opacity-100 animate-fade-in delay-200 md:animate-none">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+            {/* Private session CTA */}
+            <Button
+              size="md"
+              onClick={() =>
+                open('contact', { defaultSubject: 'Private session inquiry' })
+              }
+              className="
+                rounded-full shadow-elevated md:hover:scale-105
+                px-6 sm:px-7 text-sm sm:text-base
+              "
+            >
+              {t('hero.ctaPrivate')}
+            </Button>
 
-    {/* Corporate wellness CTA */}
-    <Button
-  size="md"
-  type="button"
-  onClick={() => {
-    const targetId = 'services-hero'
-    const el = document.getElementById(targetId)
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      if (window.history && window.history.pushState) {
-        window.history.pushState(null, '', `#${targetId}`)
-      }
-    }
-  }}
-  className="
-    rounded-full shadow-elevated md:hover:scale-105
-    px-6 sm:px-7 text-sm sm:text-base
-  "
->
-  {t('hero.ctaCorporate')}
-</Button>
-  </div>
-
-</div>
-
+            {/* Corporate wellness CTA */}
+            <Button
+              size="md"
+              type="button"
+              onClick={() => {
+                const targetId = 'services-hero'
+                const el = document.getElementById(targetId)
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  if (window.history && window.history.pushState) {
+                    window.history.pushState(null, '', `#${targetId}`)
+                  }
+                }
+              }}
+              className="
+                rounded-full shadow-elevated md:hover:scale-105
+                px-6 sm:px-7 text-sm sm:text-base
+              "
+            >
+              {t('hero.ctaCorporate')}
+            </Button>
+          </div>
+        </div>
       </div>
-<CookieConsent />
+      <CookieConsent />
       <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-porcelain to-transparent z-10" />
-
     </section>
   )
 }

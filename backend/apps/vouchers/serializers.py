@@ -12,5 +12,5 @@ class GiftVoucherSerializer(serializers.ModelSerializer):
             "recipient_name",
             "recipient_email",
             "message",
-            "preferred_date"
+            "preferred_date",
         ]
