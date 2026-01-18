@@ -8,9 +8,7 @@ const Footer: React.FC = () => {
   const { t } = useTranslation()
   const currentYear = new Date().getFullYear()
 
-  // Use a Deep Forest Green.
-  // It's dark enough to let the "Sage Green" review button pop,
-  // but much warmer and more premium than standard "Charcoal".
+
   const footerBgColor = 'bg-[#354a3d]'
   const gradientColor = 'to-[#354a3d]'
 
@@ -18,7 +16,7 @@ const Footer: React.FC = () => {
     <footer id="site-footer" className="relative mt-16">
       {/* Blend strip: Smooth transition from page background to Dark Forest Green */}
       <div
-        className={`h-10 bg-gradient-to-b from-porcelain ${gradientColor}`}
+        className={`h-5 bg-gradient-to-b from-porcelain ${gradientColor}`}
         aria-hidden="true"
       />
 
