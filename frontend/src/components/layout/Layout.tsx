@@ -8,7 +8,7 @@ import ContactModal from '@/components/modals/ContactModal'
 import CMSLoginModal from '@/components/modals/CMSLoginModal'
 import CorporateModal from '@/components/modals/CorporateModal'
 import GiftVoucherModal from '@/components/modals/GiftVoucherModal'
-
+import { LegalModal } from '@/components/modals/LegalModal'
 // Components
 import { FloatingGiftButton } from '@/components/ui/FloatingGiftButton'
 
@@ -30,6 +30,8 @@ export function Layout({ children }: { children: ReactNode }) {
       <CorporateModal />
       <CMSLoginModal />
       <GiftVoucherModal />
+      <LegalModal />
+
 
       {/* Floating Actions */}
       <FloatingGiftButton />

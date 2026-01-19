@@ -3,15 +3,20 @@ import { Mail, MapPin, Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import AnimatedInstagramIcon from '@/components/ui/AnimatedInstagramIcon'
 import AnimatedFacebookIcon from '@/components/ui/AnimatedFacebookIcon'
-import { Link } from '@tanstack/react-router'
+import { useModal } from '@/shared/hooks/useModal'
 
 const Footer: React.FC = () => {
   const { t } = useTranslation()
+  const { open } = useModal()
   const currentYear = new Date().getFullYear()
 
   // Deep Forest Green
   const footerBgColor = 'bg-[#2a3c30]'
   const gradientColor = 'to-[#2a3c30]'
+
+  // Shared class for accessible footer links
+  const linkBtnClass =
+    'text-left hover:text-honey-200 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-honey-200/70 rounded-md'
 
   return (
     <footer id="site-footer" className="relative mt-24 contain-content">
@@ -23,11 +28,9 @@ const Footer: React.FC = () => {
 
       <div className={`${footerBgColor} text-white pt-8 pb-24 sm:pb-12`}>
         <div className="container mx-auto px-6 lg:px-12">
-
-          {/* Main Grid: 1 Col on Mobile, 3 Cols on Desktop */}
+          {/* Main Grid */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 border-b border-white/10 pb-12">
-
-            {/* COLUMN 1: Brand & Tagline (Span 4) */}
+            {/* COLUMN 1: Brand & Tagline */}
             <div className="md:col-span-4 space-y-6">
               <div>
                 <h3 className="inline-block font-heading font-semibold text-3xl text-white tracking-wide">
@@ -38,79 +41,80 @@ const Footer: React.FC = () => {
                     <span className="ml-5">Serenity</span>
                   </span>
                 </h3>
+
                 <p className="mt-4 text-sm text-white/80 leading-relaxed max-w-sm">
-                  {t('footer.tagline', {
-                    defaultValue: 'Massage thérapeutique professionnel et bien-être holistique au cœur de Marseille.',
-                  })}
+                  {t('footer.tagline')}
                 </p>
               </div>
 
-              {/* Address Mini-Block */}
+              {/* Address */}
               <div className="flex items-start gap-3 text-white/70">
                 <MapPin className="w-5 h-5 mt-0.5 shrink-0 text-honey-200" />
-                <span className="text-sm">
-                  {t('footer.addressFull', { defaultValue: '5 Avenues, 13004 Marseille, France' })}
-                </span>
+                <span className="text-sm">{t('footer.addressFull')}</span>
               </div>
             </div>
 
-            {/* COLUMN 2: Legal & Information (Span 4) - CENTERED on Desktop */}
+            {/* COLUMN 2: Legal (Updated to use Modals) */}
             <div className="md:col-span-4 md:pl-8 space-y-6">
               <h4 className="text-lg font-heading text-white tracking-wide">
-                {t('footer.info', { defaultValue: 'Informations' })}
+                {t('footer.info')}
               </h4>
+
               <ul className="space-y-3 text-sm text-white/70">
-                {/* GDPR: Mandatory Legal Links */}
                 <li>
-                  <Link
-                    to="/"
-                    className="hover:text-honey-200 transition-colors duration-300"
+                  <button
+                    type="button"
+                    onClick={() => open('legal', { page: 'legal' })}
+                    className={linkBtnClass}
                   >
-                    {t('footer.legalNotice', { defaultValue: 'Mentions Légales' })}
-                  </Link>
+                    {t('footer.legalNotice')}
+                  </button>
                 </li>
                 <li>
-                  <Link
-                    to="/"
-                    className="hover:text-honey-200 transition-colors duration-300"
+                  <button
+                    type="button"
+                    onClick={() => open('legal', { page: 'privacy' })}
+                    className={linkBtnClass}
                   >
-                    {t('footer.privacy', { defaultValue: 'Politique de Confidentialité' })}
-                  </Link>
+                    {t('footer.privacy')}
+                  </button>
                 </li>
                 <li>
-                  <Link
-                    to="/"
-                    className="hover:text-honey-200 transition-colors duration-300"
+                  <button
+                    type="button"
+                    onClick={() => open('legal', { page: 'terms' })}
+                    className={linkBtnClass}
                   >
-                    {t('footer.cgv', { defaultValue: 'CGV' })}
-                  </Link>
+                    {t('footer.cgv')}
+                  </button>
                 </li>
                 <li className="pt-2">
-                  <Link
-                    to="/"
-                    className="hover:text-honey-200 transition-colors duration-300"
+                  <button
+                    type="button"
+                    onClick={() => open('legal', { page: 'cookies' })}
+                    className={linkBtnClass}
                   >
-                    {t('footer.cookies', { defaultValue: 'Gestion des cookies' })}
-                  </Link>
+                    {t('footer.cookies')}
+                  </button>
                 </li>
               </ul>
             </div>
 
-            {/* COLUMN 3: Contact & Hours (Span 4) - RIGHT on Desktop */}
+            {/* COLUMN 3: Contact & Hours */}
             <div className="md:col-span-4 space-y-6">
               <h4 className="text-lg font-heading text-white tracking-wide">
-                {t('footer.contactTitle', { defaultValue: 'Nous Contacter' })}
+                {t('footer.contactTitle')}
               </h4>
 
               <div className="space-y-4">
                 <a
-                  href={`mailto:${t('footer.email', { defaultValue: 'contact@serenity-massage.fr' })}`}
+                  href={`mailto:${t('footer.email')}`}
                   className="flex items-center gap-3 text-sm text-white/80 hover:text-honey-200 transition-colors group"
                 >
                   <div className="p-2 rounded-full bg-white/5 group-hover:bg-white/10 transition-colors">
                     <Mail className="w-4 h-4" />
                   </div>
-                  <span>{t('footer.email', { defaultValue: 'contact@serenity-massage.fr' })}</span>
+                  <span>{t('footer.email')}</span>
                 </a>
 
                 <div className="flex items-start gap-3 text-sm text-white/80">
@@ -119,10 +123,10 @@ const Footer: React.FC = () => {
                   </div>
                   <div>
                     <span className="block font-medium text-white">
-                      {t('footer.hours', { defaultValue: 'Horaires' })}
+                      {t('footer.hours')}
                     </span>
-                    <span className="block text-white/60 mt-1">
-                      {t('footer.hoursValue', { defaultValue: 'Lun–Sam: 9:00–19:00' })}
+                    <span className="block text-white/70 mt-1">
+                      {t('footer.hoursValue')}
                     </span>
                   </div>
                 </div>
@@ -148,19 +152,19 @@ const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Bottom Bar: Copyright & Credits */}
-          <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/50">
+          {/* Bottom Bar */}
+          <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/60">
             <p>
-              © {currentYear} Serenity. {t('footer.allRights', { defaultValue: 'Tous droits réservés.' })}
+              © {currentYear} Serenity. {t('footer.allRights')}
             </p>
 
             <p className="flex items-center gap-1">
-              <span>{t('footer.designedBy', { defaultValue: 'Site réalisé par' })}</span>
+              <span>{t('footer.designedBy')}</span>
               <a
                 href="https://www.nordiccodeworks.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-honey-200 hover:text-white font-medium uppercase tracking-wider transition-colors ml-1"
+                className="text-honey-200 hover:text-white font-medium uppercase tracking-wider transition-colors ml-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-honey-200/70 rounded-sm"
                 aria-label="Nordic Code Works"
               >
                 Nordic Code Works

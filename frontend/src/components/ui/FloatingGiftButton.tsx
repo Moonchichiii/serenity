@@ -1,5 +1,3 @@
-// FloatingGiftButton.tsx
-
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TicketPercent } from 'lucide-react'
@@ -43,7 +41,7 @@ export function FloatingGiftButton() {
         whileTap={{ scale: 0.95 }}
         onClick={() => open('gift')}
         className="fixed z-40 bottom-6 right-6 sm:bottom-10 sm:right-10 group"
-        aria-label={t('gift.trigger', { defaultValue: 'Offer a Gift' })}
+        aria-label={t('gift.trigger')}
       >
         <div className="absolute inset-0 bg-terracotta-400 rounded-full animate-pulse-warm opacity-30" />
 
@@ -52,7 +50,7 @@ export function FloatingGiftButton() {
           {iconUrl ? (
             <img
               src={iconUrl}
-              alt={t('gift.trigger', { defaultValue: 'Gift voucher' })}
+              alt={t('gift.trigger')}
               className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-sm"
             />
           ) : (
@@ -61,7 +59,7 @@ export function FloatingGiftButton() {
         </div>
 
         <span className="absolute right-full mr-4 top-1/2 -translate-y-1/2 px-4 py-2 bg-charcoal/90 text-white text-xs font-medium tracking-wide rounded-xl opacity-0 -translate-x-2 pointer-events-none transition-all group-hover:opacity-100 group-hover:translate-x-0 whitespace-nowrap hidden sm:block backdrop-blur-md shadow-lg">
-          {t('gift.trigger', { defaultValue: 'Offer a Gift' })}
+          {t('gift.trigger')}
         </span>
       </motion.button>
     </AnimatePresence>

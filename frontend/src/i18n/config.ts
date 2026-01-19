@@ -46,8 +46,7 @@ const resources = {
           excellenceBody:
             'I am fully certified and committed to ongoing training.',
           holisticTitle: 'Holistic Approach',
-          holisticBody:
-            'I address the whole person—body, mind, and spirit.',
+          holisticBody: 'I address the whole person—body, mind, and spirit.',
         },
         certificationLabel: 'Certified',
         studioTitle: 'My Private Studio',
@@ -56,15 +55,14 @@ const resources = {
         contactTitle: 'Contact via email through the booking form',
         approachLabel: 'My Approach',
         approachHeading: 'A Personalized Wellness Journey',
-
-  mapTitle: 'Studio Area – 5 Avenues, 13004 Marseille',
-  mapDescription:
-  'The map shows the general 5 Avenues area in the 4th arrondissement of Marseille.',
-  mapPrivacy: 'Client privacy and discretion are always respected.',
-  mapCollapsedTitle: 'Private Studio Location',
-  mapCollapsedSubtitle: 'By Appointment Only',
-  mapHintHover: 'Hover to enlarge the map',
-  mapHintScroll: 'Scroll to view the map',
+        mapTitle: 'Studio Area – 5 Avenues, 13004 Marseille',
+        mapDescription:
+          'The map shows the general 5 Avenues area in the 4th arrondissement of Marseille.',
+        mapPrivacy: 'Client privacy and discretion are always respected.',
+        mapCollapsedTitle: 'Private Studio Location',
+        mapCollapsedSubtitle: 'By Appointment Only',
+        mapHintHover: 'Hover to enlarge the map',
+        mapHintScroll: 'Scroll to view the map',
       },
       services: {
         title: 'Services',
@@ -127,10 +125,12 @@ const resources = {
           location: 'Location / address',
           'location.placeholder': 'Company address or venue',
           services: 'Requested services',
-          'services.placeholder': 'Chair massage, 10-min rotations, 2 practitioners…',
+          'services.placeholder':
+            'Chair massage, 10-min rotations, 2 practitioners…',
           budget: 'Budget (optional)',
           notes: 'Additional notes',
-          'notes.placeholder': 'Ambiance / space available, parking, access badges, etc.',
+          'notes.placeholder':
+            'Ambiance / space available, parking, access badges, etc.',
           optional: '(optional)',
           send: 'Request quote',
           sending: 'Sending...',
@@ -199,14 +199,186 @@ const resources = {
         },
       },
       footer: {
-        tagline: 'Premium wellness massage services',
-        hours: 'Hours',
-        hoursText: 'By appointment only',
-        contact: 'Contact',
+        tagline:
+          'Professional therapeutic massage and holistic wellbeing in the heart of Marseille.',
+        addressFull: '5 Avenues, 13004 Marseille, France',
+        info: 'Information',
+        legalNotice: 'Legal notice',
+        privacy: 'Privacy policy',
+        cgv: 'Terms & Conditions',
+        cookies: 'Cookie settings',
+        contactTitle: 'Contact',
         email: 'contact@serenity-massage.fr',
-        phone: '+33 6 00 00 00 00',
-        rights: 'All rights reserved',
-        madeBy: 'Website by Nordic Code Works',
+        hours: 'Hours',
+        hoursValue: 'Mon–Sat: 9:00–19:00',
+        allRights: 'All rights reserved.',
+        designedBy: 'Website by',
+      },
+      legalPages: {
+        legal: {
+          title: 'Legal Notice',
+          sections: {
+            publisher: {
+              title: '1. Site Publisher',
+              intro: 'The website La Serenity is published by:',
+              items: [
+                'Company Name: [TO BE COMPLETED]',
+                'Legal Status: [Registration in progress]',
+                'Address: [TO BE COMPLETED]',
+                'SIRET/Registration ID: [PENDING]',
+                'Contact Email: [YOUR EMAIL]',
+              ],
+            },
+            hosting: {
+              title: '2. Hosting',
+              intro:
+                'The website is hosted on a distributed cloud architecture:',
+              items: [
+                'Backend & Database: Fly.io and Neon.tech.',
+                'Frontend & CDN: Cloudflare Inc.',
+              ],
+              outro:
+                'Data is stored securely, and providers adhere to international security standards.',
+            },
+            ip: {
+              title: '3. Intellectual Property',
+              body: 'All content on this website is protected by French and international intellectual property laws. All reproduction rights are reserved.',
+            },
+          },
+        },
+        privacy: {
+          title: 'Privacy Policy',
+          sections: {
+            controller: {
+              title: '1. Data Controller',
+              body: 'The party responsible for data processing is [PRACTITIONER NAME OR COMPANY].',
+            },
+            data: {
+              title: '2. Data Collection',
+              intro:
+                'We collect only the data strictly necessary to process your request via our forms (Contact and Corporate):',
+              items: [
+                'Name',
+                'Email address',
+                'Phone number',
+                'Event details (for corporate inquiries)',
+              ],
+            },
+            purpose: {
+              title: '3. Purpose of Data',
+              intro: 'The collected information is used solely to:',
+              items: [
+                'Respond to your inquiries or booking requests.',
+                'Create quotes for corporate services.',
+              ],
+              highlight:
+                'Privacy Commitment: Your data is never sold, rented, or used for advertising/marketing purposes. We will not send you newsletters without your explicit consent.',
+            },
+            retention: {
+              title: '4. Data Retention',
+              items: [
+                'Contact inquiries: 12 months after the last communication.',
+                'Billing data (if applicable): 10 years (legal obligation).',
+              ],
+            },
+            processors: {
+              title: '5. Technical Service Providers',
+              intro:
+                'To ensure site functionality, technical data may be processed by our trusted providers:',
+              items: [
+                'Fly.io & Neon: Server hosting and database.',
+                'Cloudinary: Media management.',
+                'Cloudflare: Site security and delivery (CDN).',
+              ],
+            },
+            rights: {
+              title: '6. Your Rights',
+              body: 'In accordance with GDPR, you have the right to access, rectify, and delete your data. To exercise this right, contact us at: [YOUR EMAIL].',
+            },
+          },
+        },
+        cookies: {
+          title: 'Cookie Policy',
+          sections: {
+            what: {
+              title: '1. What is a cookie?',
+              body: 'A cookie is a small text file placed on your device when visiting a website.',
+            },
+            used: {
+              title: '2. Cookies used on this site',
+              intro:
+                'We prioritize a minimalist approach that respects your privacy.',
+              items: [
+                'Strictly Necessary Cookies: Essential for technical operation (e.g., CSRF security, Cloudflare load balancing). These cannot be disabled.',
+                'Preference Cookies: Used to remember your language choice (French/English).',
+                'Third-Party Cookies: Embedded content (like Cloudinary images) may use technical trackers to optimize display.',
+              ],
+            },
+            ads: {
+              title: '3. No Advertising Cookies',
+              body: 'This website does not use advertising cookies or intrusive commercial tracking.',
+            },
+            consent: {
+              title: '4. Consent Management',
+              body: 'You can configure your browser to refuse all cookies, though this may affect the functionality of certain parts of the site (such as contact forms).',
+            },
+          },
+        },
+        terms: {
+          title: 'Terms and Conditions',
+          sections: {
+            object: {
+              title: '1. Object',
+              body: 'These terms govern the sale of wellness massage services offered by La Serenity.',
+            },
+            nature: {
+              title: '2. Nature of Services',
+              body: 'The massages offered are strictly for wellness and relaxation purposes. They have no therapeutic, medical, or physiotherapeutic aim and are not a substitute for medical treatment.',
+            },
+            pricing: {
+              title: '3. Pricing and Payment',
+              body: 'Prices are indicated in Euros (€) on the "Services" page. Payment is made [TO BE COMPLETED - e.g., on-site via cash or card].',
+            },
+            cancellation: {
+              title: '4. Appointments and Cancellation',
+              items: [
+                'Lateness: Delays of more than [15] minutes may result in a reduced session time or cancellation.',
+                'Cancellation: Cancellations must be made at least [24 or 48] hours in advance. Missed appointments or late cancellations may be charged.',
+              ],
+            },
+            vouchers: {
+              title: '5. Gift Vouchers',
+              body: 'Gift vouchers are valid for [X] months from the date of purchase. They are non-refundable and cannot be exchanged for cash.',
+            },
+            contraindications: {
+              title: '6. Contraindications',
+              body: 'Clients must inform the practitioner of any health issues, allergies, or pregnancy before the session begins. The practitioner reserves the right to refuse service in case of medical contraindications.',
+            },
+          },
+        },
+        accessibility: {
+          title: 'Accessibility Statement',
+          sections: {
+            commitment: {
+              title: 'Commitment',
+              body: 'La Serenity is committed to making its website accessible to the widest possible audience, regardless of physical or cognitive ability.',
+            },
+            standard: {
+              title: 'Technical Standard',
+              intro:
+                'This site was built using modern technologies (React, semantic HTML) following WCAG (Web Content Accessibility Guidelines) best practices:',
+              items: [
+                'Optimized color contrast.',
+                'Screen-reader friendly navigation.',
+                'Alternative text for images.',
+              ],
+            },
+            feedback: {
+              title: 'Feedback',
+              body: 'If you encounter any navigation barriers, please contact us so we can assist you: [YOUR EMAIL].',
+            },
+          },
+        },
       },
       review: {
         trigger: 'Leave a review',
@@ -286,6 +458,7 @@ const resources = {
         save: 'Save choices',
       },
       gift: {
+        trigger: 'Offer a Gift',
         title: 'Give the Gift of Relaxation',
         subtitle: 'Send a personalized massage voucher instantly.',
         form: {
@@ -301,14 +474,15 @@ const resources = {
           submit: 'Send Gift Voucher',
           sending: 'Generating Voucher...',
           successTitle: 'Voucher Sent!',
-          successMessage: 'We have emailed the voucher to the recipient and a copy to you.',
+          successMessage:
+            'We have emailed the voucher to the recipient and a copy to you.',
           codeLabel: 'Voucher Code:',
           close: 'Close',
         },
         validation: {
           required: 'Required field',
           email: 'Invalid email address',
-        }
+        },
       },
     },
   },
@@ -362,18 +536,18 @@ const resources = {
         studioTitle: 'Mon cabinet privé',
         studioLocationTitle: 'Emplacement du cabinet privé',
         byAppointment: 'Uniquement sur rendez-vous',
-         contactTitle: 'Contact par e-mail via le formulaire de réservation',
+        contactTitle: 'Contact par e-mail via le formulaire de réservation',
         approachLabel: 'Mon approche',
         approachHeading: 'Un accompagnement bien-être personnalisé',
-           mapTitle: 'Zone du cabinet – 5 Avenues, 13004 Marseille',
-  mapDescription:
-  'La carte indique la zone des 5 Avenues dans le 4ᵉ arrondissement de Marseille.',
-    mapPrivacy:
-    'La confidentialité et la discrétion de la clientèle sont toujours respectées.',
-  mapCollapsedTitle: 'Emplacement du cabinet privé',
-  mapCollapsedSubtitle: 'Uniquement sur rendez-vous',
-  mapHintHover: 'Survolez pour agrandir la carte',
-  mapHintScroll: 'Faites défiler pour afficher la carte',
+        mapTitle: 'Zone du cabinet – 5 Avenues, 13004 Marseille',
+        mapDescription:
+          'La carte indique la zone des 5 Avenues dans le 4ᵉ arrondissement de Marseille.',
+        mapPrivacy:
+          'La confidentialité et la discrétion de la clientèle sont toujours respectées.',
+        mapCollapsedTitle: 'Emplacement du cabinet privé',
+        mapCollapsedSubtitle: 'Uniquement sur rendez-vous',
+        mapHintHover: 'Survolez pour agrandir la carte',
+        mapHintScroll: 'Faites défiler pour afficher la carte',
       },
       services: {
         title: 'Services',
@@ -436,10 +610,12 @@ const resources = {
           location: 'Lieu / adresse',
           'location.placeholder': "Adresse de l'entreprise ou du lieu",
           services: 'Prestations souhaitées',
-          'services.placeholder': 'Massage assis, rotations 10 min, 2 praticiens…',
+          'services.placeholder':
+            'Massage assis, rotations 10 min, 2 praticiens…',
           budget: 'Budget (optionnel)',
           notes: 'Informations complémentaires',
-          'notes.placeholder': "Ambiance / espace disponible, parking, badges d'accès, etc.",
+          'notes.placeholder':
+            "Ambiance / espace disponible, parking, badges d'accès, etc.",
           optional: '(optionnel)',
           send: 'Demander un devis',
           sending: 'Envoi…',
@@ -448,14 +624,14 @@ const resources = {
           notice: 'Réponse sous un jour ouvré pour les demandes entreprises.',
           gdpr: {
             title: 'Confidentialité',
-            text: "Ce formulaire envoie votre demande par e-mail. Nous ne stockons pas vos données ; elles servent uniquement à vous répondre.",
+            text: 'Ce formulaire envoie votre demande par e-mail. Nous ne stockons pas vos données ; elles servent uniquement à vous répondre.',
           },
           validation: {
             nameRequired: 'Le nom est requis',
             nameTooShort: 'Le nom est trop court',
             emailRequired: "L'email est requis",
             emailInvalid: 'Email invalide',
-            companyRequired: 'Le nom de l\'entreprise est requis',
+            companyRequired: "Le nom de l'entreprise est requis",
             attendeesNumber: 'Entrez un nombre',
             attendeesMin: 'Au moins 1 participant',
           },
@@ -495,7 +671,8 @@ const resources = {
           sending: 'Envoi en cours...',
           success: 'Message envoyé avec succès ! ✨',
           error: "Erreur lors de l'envoi. Veuillez réessayer.",
-          notice: 'Je vous répondrai dans les plus brefs délais pendant les heures ouvrables.',
+          notice:
+            'Je vous répondrai dans les plus brefs délais pendant les heures ouvrables.',
           'subject.placeholder': 'Demande de rendez-vous',
           'message.placeholder':
             'Décrivez vos besoins, vos préférences de date/heure, ou toute question que vous pourriez avoir...',
@@ -510,19 +687,192 @@ const resources = {
           },
           gdpr: {
             title: 'Avis de confidentialité',
-            text: "Ce formulaire de contact envoie votre message directement par e-mail. Nous ne collectons, ne stockons ni ne traitons aucune donnée personnelle. Vos informations sont uniquement utilisées pour répondre à votre demande.",
+            text: 'Ce formulaire de contact envoie votre message directement par e-mail. Nous ne collectons, ne stockons ni ne traitons aucune donnée personnelle. Vos informations sont uniquement utilisées pour répondre à votre demande.',
           },
         },
       },
       footer: {
-        tagline: 'Services de massage bien-être premium',
-        hours: 'Horaires',
-        hoursText: 'Sur rendez-vous uniquement',
-        contact: 'Contact',
+        tagline:
+          'Massage thérapeutique professionnel et bien-être holistique au cœur de Marseille.',
+        addressFull: '5 Avenues, 13004 Marseille, France',
+        info: 'Informations',
+        legalNotice: 'Mentions légales',
+        privacy: 'Politique de confidentialité',
+        cgv: 'CGV',
+        cookies: 'Gestion des cookies',
+        contactTitle: 'Nous contacter',
         email: 'contact@serenity-massage.fr',
-        phone: '+33 6 00 00 00 00',
-        rights: 'Tous droits réservés',
-        madeBy: 'Site réalisé par Nordic Code Works',
+        hours: 'Horaires',
+        hoursValue: 'Lun–Sam : 9:00–19:00',
+        allRights: 'Tous droits réservés.',
+        designedBy: 'Site réalisé par',
+      },
+      legalPages: {
+        legal: {
+          title: 'Mentions Légales',
+          sections: {
+            publisher: {
+              title: '1. Éditeur du site',
+              intro: 'Le site internet La Serenity est édité par :',
+              items: [
+                "Nom de l'entreprise : [À COMPLÉTER - Ex: Sophie Martin EI]",
+                "Statut Juridique : [À COMPLÉTER - Ex: Entreprise Individuelle en cours d'immatriculation]",
+                "Siège social : [À COMPLÉTER - Ex: 12 Rue de la République, 13001 Marseille]",
+                'SIRET : [EN COURS D’ATTRIBUTION]',
+                'Email de contact : [VOTRE EMAIL]',
+                'Téléphone : [VOTRE TÉLÉPHONE - Optionnel]',
+              ],
+            },
+            hosting: {
+              title: '2. Hébergement',
+              intro:
+                'Le site est hébergé sur une architecture cloud distribuée :',
+              items: [
+                'Backend & Base de données : Fly.io (Chicago, IL, USA) et Neon.tech.',
+                'Frontend & CDN : Cloudflare Inc. (San Francisco, CA, USA).',
+              ],
+              outro:
+                'Les données sont stockées de manière sécurisée et les fournisseurs adhèrent aux normes de sécurité internationales.',
+            },
+            ip: {
+              title: '3. Propriété Intellectuelle',
+              body: 'L’ensemble de ce site relève de la législation française et internationale sur le droit d’auteur et la propriété intellectuelle. Tous les droits de reproduction sont réservés, y compris pour les documents téléchargeables et les représentations iconographiques et photographiques.',
+            },
+          },
+        },
+        privacy: {
+          title: 'Politique de Confidentialité',
+          sections: {
+            controller: {
+              title: '1. Responsable du traitement',
+              body: "Le responsable du traitement des données est [NOM DU PRATICIEN OU DE L'ENTREPRISE].",
+            },
+            data: {
+              title: '2. Données collectées',
+              intro:
+                'Nous collectons uniquement les données strictement nécessaires au traitement de votre demande via nos formulaires (Contact et Entreprise) :',
+              items: [
+                'Nom et Prénom',
+                'Adresse email',
+                'Numéro de téléphone',
+                "Détails de l'événement (pour les demandes entreprises)",
+              ],
+            },
+            purpose: {
+              title: '3. Finalité des données',
+              intro: 'Les informations recueillies ne sont utilisées que pour :',
+              items: [
+                "Répondre à vos demandes d'informations ou de rendez-vous.",
+                'Établir des devis pour les prestations entreprises.',
+              ],
+              highlight:
+                'Engagement de confidentialité : Vos données ne sont jamais vendues, louées ou utilisées à des fins publicitaires ou marketing par des tiers. Nous ne vous enverrons pas de newsletter sans votre consentement explicite.',
+            },
+            retention: {
+              title: '4. Durée de conservation',
+              items: [
+                'Formulaire de contact : 12 mois après le dernier échange.',
+                'Données de facturation (si applicable) : 10 ans (obligation légale).',
+              ],
+            },
+            processors: {
+              title: '5. Destinataires des données (Sous-traitants techniques)',
+              intro:
+                'Pour assurer le bon fonctionnement du site, certaines données techniques transitent par nos prestataires de confiance :',
+              items: [
+                'Fly.io & Neon : Hébergement du serveur et base de données.',
+                'Cloudinary : Gestion des médias.',
+                'Cloudflare : Sécurisation et distribution du site (CDN).',
+              ],
+            },
+            rights: {
+              title: '6. Vos droits',
+              body: 'Conformément au RGPD, vous disposez d’un droit d’accès, de rectification et de suppression de vos données. Pour exercer ce droit, contactez-nous à : [VOTRE EMAIL].',
+            },
+          },
+        },
+        cookies: {
+          title: 'Gestion des Cookies',
+          sections: {
+            what: {
+              title: "1. Qu'est-ce qu'un cookie ?",
+              body: "Un cookie est un petit fichier texte déposé sur votre terminal lors de la visite d'un site.",
+            },
+            used: {
+              title: '2. Cookies utilisés sur ce site',
+              intro:
+                'Nous privilégions une approche minimaliste respectueuse de votre vie privée.',
+              items: [
+                'Cookies strictement nécessaires : Indispensables au fonctionnement technique (ex: sécurité CSRF, équilibrage de charge via Cloudflare). Ces cookies ne peuvent pas être désactivés.',
+                'Cookies de préférence : Utilisés pour mémoriser votre choix de langue (Français/Anglais).',
+                'Cookies tiers : Certains contenus intégrés (comme les images Cloudinary) peuvent déposer des traceurs techniques pour optimiser l’affichage.',
+              ],
+            },
+            ads: {
+              title: '3. Absence de cookies publicitaires',
+              body: "Ce site n'utilise pas de cookies publicitaires ou de traçage commercial intrusif.",
+            },
+            consent: {
+              title: '4. Gestion du consentement',
+              body: 'Vous pouvez configurer votre navigateur pour refuser tous les cookies, mais cela pourrait altérer le fonctionnement de certaines parties du site (comme les formulaires de contact).',
+            },
+          },
+        },
+        terms: {
+          title: 'Conditions Générales de Vente (CGV)',
+          sections: {
+            object: {
+              title: '1. Objet',
+              body: 'Les présentes conditions régissent la vente de prestations de massage bien-être proposées par La Serenity.',
+            },
+            nature: {
+              title: '2. Nature des prestations',
+              body: 'Les massages proposés sont des soins de bien-être et de relaxation, sans aucune visée thérapeutique, médicale ou kinésithérapeutique. Ils ne se substituent en aucun cas à un traitement médical.',
+            },
+            pricing: {
+              title: '3. Tarifs et Paiement',
+              body: 'Les tarifs sont indiqués en euros (€) sur la page "Services" du site. Le paiement s’effectue [À COMPLÉTER - ex: sur place en espèces ou carte bancaire / ou virement en amont].',
+            },
+            cancellation: {
+              title: '4. Rendez-vous et Annulation',
+              items: [
+                'Retards : Tout retard de plus de [15] minutes pourra entraîner la réduction de la durée du soin ou son annulation.',
+                'Annulation : Toute annulation doit être effectuée au moins [24 ou 48] heures à l’avance. Tout rendez-vous non honoré ou annulé hors délai est dû.',
+              ],
+            },
+            vouchers: {
+              title: '5. Bons Cadeaux',
+              body: 'Les bons cadeaux sont valables [X] mois à compter de la date d’achat. Ils ne sont ni remboursables ni échangeables contre de l’argent.',
+            },
+            contraindications: {
+              title: '6. Contre-indications',
+              body: 'Le client s’engage à informer le praticien de tout problème de santé, allergie, ou grossesse avant le début de la séance. Le praticien se réserve le droit de refuser une prestation en cas de contre-indication médicale.',
+            },
+          },
+        },
+        accessibility: {
+          title: "Déclaration d'Accessibilité",
+          sections: {
+            commitment: {
+              title: 'Engagement',
+              body: 'La Serenity s’engage à rendre son site internet accessible au plus grand nombre, quelles que soient les capacités physiques ou cognitives.',
+            },
+            standard: {
+              title: 'Standard Technique',
+              intro:
+                'Ce site a été développé avec des technologies modernes (React, HTML sémantique) en suivant les bonnes pratiques WCAG (Web Content Accessibility Guidelines) :',
+              items: [
+                'Contraste des couleurs optimisé.',
+                'Navigation compatible avec les lecteurs d’écran.',
+                'Textes alternatifs pour les images.',
+              ],
+            },
+            feedback: {
+              title: 'Retour d’information',
+              body: 'Si vous rencontrez un obstacle à la navigation, veuillez nous contacter afin que nous puissions vous assister : [VOTRE EMAIL].',
+            },
+          },
+        },
       },
       review: {
         trigger: 'Laisser un avis',
@@ -549,7 +899,7 @@ const resources = {
           notice: 'Votre avis sera publié après validation par notre équipe',
           gdpr: {
             title: 'Avis de confidentialité',
-            text: "Votre avis sera stocké dans notre système pour modération. Nous ne collectons que les informations que vous fournissez (nom, email optionnel et texte) pour afficher votre témoignage. Votre email ne sera pas publié ni partagé.",
+            text: 'Votre avis sera stocké dans notre système pour modération. Nous ne collectons que les informations que vous fournissez (nom, email optionnel et texte) pour afficher votre témoignage. Votre email ne sera pas publié ni partagé.',
           },
         },
         validation: {
@@ -602,6 +952,7 @@ const resources = {
         save: 'Enregistrer les choix',
       },
       gift: {
+        trigger: 'Offrir un cadeau',
         title: 'Offrez le Cadeau de la Détente',
         subtitle: 'Envoyez un bon cadeau personnalisé instantanément.',
         form: {
@@ -617,14 +968,15 @@ const resources = {
           submit: 'Envoyer le Bon Cadeau',
           sending: 'Génération...',
           successTitle: 'Bon Envoyé !',
-          successMessage: 'Nous avons envoyé le bon au destinataire et une copie à vous.',
+          successMessage:
+            'Nous avons envoyé le bon au destinataire et une copie à vous.',
           codeLabel: 'Code du Bon :',
           close: 'Fermer',
         },
         validation: {
           required: 'Champ requis',
           email: 'Email invalide',
-        }
+        },
       },
     },
   },
