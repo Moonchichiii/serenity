@@ -46,7 +46,7 @@ export default function CookieConsent({
   return (
     <div
       className={[
-        'pointer-events-none fixed inset-x-0 bottom-4 z-200 flex justify-center px-4',
+        'pointer-events-none fixed inset-x-0 bottom-4 z-50 flex justify-center px-4',
         className,
       ].join(' ')}
       aria-live="polite"
