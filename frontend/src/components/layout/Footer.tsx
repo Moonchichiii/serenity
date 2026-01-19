@@ -16,7 +16,7 @@ const Footer: React.FC = () => {
 
   // Shared class for accessible footer links
   const linkBtnClass =
-    'text-left hover:text-honey-200 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-honey-200/70 rounded-md'
+    'cursor-pointer text-left hover:text-honey-200 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-honey-200/70 rounded-md'
 
   return (
     <footer id="site-footer" className="relative mt-24 contain-content">
