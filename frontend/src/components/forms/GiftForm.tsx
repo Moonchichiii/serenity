@@ -285,6 +285,9 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
           </div>
         </div>
       </div>
+<p className="mt-3 text-sm text-charcoal/70">
+  {t('gift.paymentNotice')}
+</p>
 
       <Button
         type="submit"
@@ -293,9 +296,6 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
       >
         {isSubmitting ? sendingLabel : submitLabel}
       </Button>
-      <p className="mt-3 text-sm text-charcoal/70">
-  {t('gift.paymentNotice')}
-</p>
 
     </form>
   )
