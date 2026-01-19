@@ -461,6 +461,7 @@ const resources = {
         trigger: 'Offer a Gift',
         title: 'Give the Gift of Relaxation',
         subtitle: 'Send a personalized massage voucher instantly.',
+                  paymentNotice: 'Online payment is coming soon. For now, vouchers are sent by email and paid directly at the appointment.',
         form: {
           purchaserSection: 'Your Details',
           recipientSection: 'Recipient Details',
@@ -478,7 +479,12 @@ const resources = {
             'We have emailed the voucher to the recipient and a copy to you.',
           codeLabel: 'Voucher Code:',
           close: 'Close',
-          paymentNotice: 'Online payment is coming soon. For now, vouchers are sent by email and paid directly at the appointment.',
+
+          purchaserNamePlaceholder: 'Jane Doe',
+purchaserEmailPlaceholder: 'jane@example.com',
+recipientNamePlaceholder: 'Recipient name',
+recipientEmailPlaceholder: 'recipient@example.com',
+
         },
         validation: {
           required: 'Required field',
@@ -956,6 +962,7 @@ const resources = {
         trigger: 'Offrir un cadeau',
         title: 'Offrez le Cadeau de la Détente',
         subtitle: 'Envoyez un bon cadeau personnalisé instantanément.',
+                  paymentNotice: 'Le paiement en ligne arrive bientôt. Pour le moment, les bons sont envoyés par e-mail et le paiement se fait directement lors du rendez-vous.',
         form: {
           purchaserSection: 'Vos Coordonnées',
           recipientSection: 'Destinataire',
@@ -973,7 +980,12 @@ const resources = {
             'Nous avons envoyé le bon au destinataire et une copie à vous.',
           codeLabel: 'Code du Bon :',
           close: 'Fermer',
-          paymentNotice: 'Le paiement en ligne arrive bientôt. Pour le moment, les bons sont envoyés par e-mail et le paiement se fait directement lors du rendez-vous.',
+
+          purchaserNamePlaceholder: 'Marie Dupont',
+purchaserEmailPlaceholder: 'marie@example.com',
+recipientNamePlaceholder: 'Nom du destinataire',
+recipientEmailPlaceholder: 'destinataire@example.com',
+
         },
         validation: {
           required: 'Champ requis',
