@@ -1,14 +1,21 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { useTranslation } from 'react-i18next'
-import { Gift, Mail, User, Calendar, MessageSquare, CheckCircle2 } from 'lucide-react'
+import toast from 'react-hot-toast'
+import {
+  Calendar,
+  CheckCircle2,
+  Gift,
+  Mail,
+  MessageSquare,
+  User,
+} from 'lucide-react'
+
 import { Button } from '@/components/ui/Button'
 import { cmsAPI, type GlobalSettings } from '@/api/cms'
-import toast from 'react-hot-toast'
 
-// Inputs are always strings (empty or filled).
 type GiftFormData = {
   purchaserName: string
   purchaserEmail: string
@@ -23,6 +30,9 @@ interface GiftFormProps {
   settings?: GlobalSettings['gift'] | null
 }
 
+/**
+ * Handles gift voucher purchases with validation and CMS content overrides.
+ */
 export function GiftForm({ onSuccess, settings }: GiftFormProps) {
   const { t, i18n } = useTranslation()
   const [successCode, setSuccessCode] = useState<string | null>(null)
@@ -57,7 +67,7 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
     },
   })
 
-  // Helper: pick CMS override (per language) or fall back to i18n
+  // Selects CMS content if available, falling back to i18n
   const fromCms = (
     enValue: string | undefined,
     frValue: string | undefined,
@@ -107,7 +117,7 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
 
   const onSubmit = async (data: GiftFormData) => {
     try {
-      // IMPORTANT: use camelCase here – cmsAPI.submitVoucher converts to snake_case
+      // API expects camelCase; cmsAPI handles snake_case conversion
       const res = await cmsAPI.submitVoucher({
         purchaserName: data.purchaserName,
         purchaserEmail: data.purchaserEmail,
@@ -160,9 +170,7 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
   }
 
   return (
-    // Slightly tighter for mobile
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
-      {/* Section: Purchaser */}
       <div className="bg-sage-50/50 p-4 rounded-2xl space-y-3 border border-sage-100">
         <h4 className="text-xs font-bold uppercase tracking-wider text-charcoal/60 flex items-center gap-2">
           <User className="w-3.5 h-3.5" />
@@ -178,7 +186,7 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
                 type="text"
                 {...register('purchaserName')}
                 className={inputClass}
-                placeholder="Jane Doe"
+                placeholder={t('gift.form.purchaserNamePlaceholder')}
               />
             </div>
             {errors.purchaserName && (
@@ -196,7 +204,7 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
                 type="email"
                 {...register('purchaserEmail')}
                 className={inputClass}
-                placeholder="jane@example.com"
+                placeholder={t('gift.form.purchaserEmailPlaceholder')}
               />
             </div>
             {errors.purchaserEmail && (
@@ -208,7 +216,6 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
         </div>
       </div>
 
-      {/* Section: Recipient */}
       <div className="space-y-4">
         <h4 className="text-xs font-bold uppercase tracking-wider text-charcoal/60 flex items-center gap-2 px-1">
           <Gift className="w-3.5 h-3.5" />
@@ -224,7 +231,7 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
                 type="text"
                 {...register('recipientName')}
                 className={inputClass}
-                placeholder="Recipient Name"
+                placeholder={t('gift.form.recipientNamePlaceholder')}
               />
             </div>
             {errors.recipientName && (
@@ -242,7 +249,7 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
                 type="email"
                 {...register('recipientEmail')}
                 className={inputClass}
-                placeholder="recipient@example.com"
+                placeholder={t('gift.form.recipientEmailPlaceholder')}
               />
             </div>
             {errors.recipientEmail && (
@@ -279,9 +286,17 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
         </div>
       </div>
 
-      <Button type="submit" className="w-full h-12 text-base" disabled={isSubmitting}>
+      <Button
+        type="submit"
+        className="w-full h-12 text-base"
+        disabled={isSubmitting}
+      >
         {isSubmitting ? sendingLabel : submitLabel}
       </Button>
+      <p className="mt-3 text-sm text-charcoal/70">
+  {t('gift.paymentNotice')}
+</p>
+
     </form>
   )
 }

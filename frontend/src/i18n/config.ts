@@ -478,6 +478,7 @@ const resources = {
             'We have emailed the voucher to the recipient and a copy to you.',
           codeLabel: 'Voucher Code:',
           close: 'Close',
+          paymentNotice: 'Online payment is coming soon. For now, vouchers are sent by email and paid directly at the appointment.',
         },
         validation: {
           required: 'Required field',
@@ -972,6 +973,7 @@ const resources = {
             'Nous avons envoyé le bon au destinataire et une copie à vous.',
           codeLabel: 'Code du Bon :',
           close: 'Fermer',
+          paymentNotice: 'Le paiement en ligne arrive bientôt. Pour le moment, les bons sont envoyés par e-mail et le paiement se fait directement lors du rendez-vous.',
         },
         validation: {
           required: 'Champ requis',
