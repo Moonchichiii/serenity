@@ -137,14 +137,14 @@ const Footer: React.FC = () => {
                 <div className="text-white/80 hover:text-honey-200 transition-colors">
                   <AnimatedInstagramIcon
                     magnetic
-                    size={42}
+                    size={52}
                     href="https://www.instagram.com/laserenity_marseille/"
                   />
                 </div>
                 <div className="text-white/80 hover:text-honey-200 transition-colors">
                   <AnimatedFacebookIcon
                     magnetic
-                    size={42}
+                    size={52}
                     href="https://facebook.com/yourpage"
                   />
                 </div>
