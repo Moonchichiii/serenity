@@ -199,8 +199,8 @@ const resources = {
         },
       },
       footer: {
-        tagline:
-          'Professional therapeutic massage and holistic wellbeing in the heart of Marseille.',
+  tagline:
+    'Professional relaxing massage and holistic well-being in the heart of Marseille.',
         addressFull: '5 Avenues, 13004 Marseille, France',
         info: 'Information',
         legalNotice: 'Legal notice',
@@ -700,7 +700,7 @@ recipientEmailPlaceholder: 'recipient@example.com',
       },
       footer: {
         tagline:
-          'Massage thérapeutique professionnel et bien-être holistique au cœur de Marseille.',
+    'Massage professionnel relaxant et bien-être holistique au cœur de Marseille.',
         addressFull: '5 Avenues, 13004 Marseille, France',
         info: 'Informations',
         legalNotice: 'Mentions légales',
