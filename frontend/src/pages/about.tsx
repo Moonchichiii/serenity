@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useState, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
-import { Heart, User, Award, MapPin } from 'lucide-react';
+import {
+  motion,
+  useReducedMotion,
+  type Variants,
+  type Transition,
+} from 'framer-motion';
+import { Heart, User, Award, MapPin, Mail } from 'lucide-react';
 
 import SecretTrigger from '@/components/secret/SecretTrigger';
 import {
@@ -14,6 +19,7 @@ import { Button } from '@/components/ui/Button';
 import CloudImage from '@/components/ResponsiveImage';
 import { useModal } from '@/shared/hooks/useModal';
 
+// Performance: Lazy load the map
 const LocationMap = lazy(() => import('@/components/ui/LocationMap').then(m => ({ default: m.LocationMap })));
 
 const pick = (
@@ -27,6 +33,7 @@ export function About() {
   const { t, i18n } = useTranslation();
   const { open } = useModal();
   const [cmsData, setCmsData] = useState<WagtailHomePage | null>(null);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     cmsAPI.getHomePage().then(setCmsData).catch(() => setCmsData(null));
@@ -90,139 +97,274 @@ export function About() {
     return tmp.textContent || tmp.innerText || '';
   };
 
+  const spring: Transition = { type: 'spring', stiffness: 220, damping: 22 };
+  const gridVariants: Variants | undefined = reduceMotion
+    ? undefined
+    : {
+        hidden: {},
+        show: {
+          transition: { staggerChildren: 0.08, delayChildren: 0.12 },
+        },
+      };
+  const cardVariants: Variants | undefined = reduceMotion
+    ? undefined
+    : {
+        hidden: { opacity: 0, y: 18, scale: 0.97 },
+        show: {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          transition: spring,
+        },
+      };
+
   return (
     <section
       id="about"
-      className="relative py-24 bg-stone-50/30"
+      className="section-padding relative overflow-hidden bg-background"
       aria-labelledby="about-heading"
     >
-      <div className="container mx-auto px-6 md:px-12 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
-
-          {/* LEFT COLUMN: Text Content (Span 7) */}
+      <div className="container mx-auto px-4 sm:px-6 md:px-12 lg:px-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
           <motion.article
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="lg:col-span-7 space-y-10"
+            transition={{ duration: 0.6 }}
+            className="space-y-8 sm:space-y-10"
           >
-            {/* Eyebrow */}
-            <div className="flex items-center gap-3 text-xs font-bold tracking-[0.2em] text-sage-600 uppercase">
-              <span className="w-8 h-[1px] bg-sage-400"></span>
+            <div
+              className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-foreground/70"
+              role="presentation"
+            >
+              <Heart className="w-4 h-4" aria-hidden="true" />
               <span>
                 {t('about.label', { defaultValue: 'About Me' })}{' '}
                 / <span lang="fr">À Propos de moi</span>
               </span>
             </div>
 
-            {/* Heading - Huge & Serif */}
-            <h2 id="about-heading" className="text-4xl md:text-6xl font-heading text-charcoal leading-[1.1]">
-              {content.title}
-            </h2>
+            <div className="space-y-4 sm:space-y-6">
+              <h2 id="about-heading" className="heading-primary">
+                {content.title}
+              </h2>
 
-            {/* Editorial Intro - Left Aligned, Relaxed Leading */}
-            <div className="text-lg md:text-xl text-stone-600 leading-loose space-y-6">
-               <div>
-                  {stripHtml(content.intro)}{' '}
-                  <SecretTrigger modalId="cmsLogin" times={3} windowMs={900}>
-                    <span className="cursor-text select-text font-semibold text-sage-700 hover:text-sage-800 transition-colors">
-                      Serenity
-                    </span>
-                  </SecretTrigger>
-               </div>
-               {content.subtitle && <p className="text-stone-500 italic font-serif">{content.subtitle}</p>}
+              <p className="body-text max-w-xl">
+                {stripHtml(content.intro)}{' '}
+                <SecretTrigger modalId="cmsLogin" times={3} windowMs={900}>
+                  <span className="cursor-text select-text font-semibold text-sage-700 hover:text-sage-800 transition-colors">
+                    Serenity
+                  </span>
+                </SecretTrigger>
+              </p>
+
+              {content.subtitle && (
+                <p className="body-text text-foreground/65 max-w-xl">
+                  {content.subtitle}
+                </p>
+              )}
             </div>
 
-            {/* Values Grid - Refined Clean Look */}
             <div className="space-y-4 pt-4">
-              <h3 className="text-lg font-heading text-charcoal mb-6 border-b border-stone-200 pb-2">
+              <h3 className="heading-secondary">
                 {t('about.guidesTitle', { defaultValue: 'What Guides Me' })}
               </h3>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-10">
-                <div className="space-y-3">
-                   <User className="w-6 h-6 text-sage-600" />
-                   <h4 className="font-heading text-xl text-charcoal">{t('about.guide.clientCareTitle', { defaultValue: 'Client-Centered Care' })}</h4>
-                   <p className="text-sm text-stone-500 leading-relaxed">{t('about.guide.clientCareBody')}</p>
+              <div className="grid gap-4">
+                {/* GUIDE 1: Client Care - Dark Monochrome */}
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center flex-shrink-0 mt-1">
+                    <User className="w-5 h-5 text-stone-700" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-1">
+                      {t('about.guide.clientCareTitle', {
+                        defaultValue: 'Client-Centered Care',
+                      })}
+                    </h4>
+                    <p className="text-sm text-foreground/70">
+                      {t('about.guide.clientCareBody', {
+                        defaultValue:
+                          'Your comfort, safety, and goals are my top priorities.',
+                      })}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="space-y-3">
-                   <Award className="w-6 h-6 text-honey-500" />
-                   <h4 className="font-heading text-xl text-charcoal">{t('about.guide.excellenceTitle', { defaultValue: 'Professional Excellence' })}</h4>
-                   <p className="text-sm text-stone-500 leading-relaxed">{t('about.guide.excellenceBody')}</p>
+                {/* GUIDE 2: Excellence - Dark Monochrome */}
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center flex-shrink-0 mt-1">
+                    <Award className="w-5 h-5 text-stone-700" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-1">
+                      {t('about.guide.excellenceTitle', {
+                        defaultValue: 'Professional Excellence',
+                      })}
+                    </h4>
+                    <p className="text-sm text-foreground/70">
+                      {t('about.guide.excellenceBody', {
+                        defaultValue:
+                          'I am fully certified and committed to ongoing training.',
+                      })}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="space-y-3">
-                   <Heart className="w-6 h-6 text-rose-400" />
-                   <h4 className="font-heading text-xl text-charcoal">{t('about.guide.holisticTitle', { defaultValue: 'Holistic Approach' })}</h4>
-                   <p className="text-sm text-stone-500 leading-relaxed">{t('about.guide.holisticBody')}</p>
+                {/* GUIDE 3: Holistic - Dark Monochrome */}
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center flex-shrink-0 mt-1">
+                    <Heart className="w-5 h-5 text-stone-700" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-1">
+                      {t('about.guide.holisticTitle', {
+                        defaultValue: 'Holistic Approach',
+                      })}
+                    </h4>
+                    <p className="text-sm text-foreground/70">
+                      {t('about.guide.holisticBody', {
+                        defaultValue:
+                          'I address the whole person—body, mind, and spirit.',
+                      })}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-6 pt-8 items-center sm:items-start">
-              <Button
-                size="lg"
-                className="rounded-full px-8 bg-charcoal text-white hover:bg-sage-700 transition-colors shadow-xl shadow-sage-900/10 w-full sm:w-auto"
-                onClick={() => open('contact', { defaultSubject: 'Appointment request' })}
-              >
-                {t('about.cta')}
-              </Button>
-
+            <div className="flex flex-col md:flex-row md:items-center gap-4 pt-4">
               {content.certification && (
-                <div className="flex items-center gap-3 px-4 py-3 bg-white rounded-xl border border-stone-100 shadow-sm w-full sm:w-auto">
-                  <Award className="w-5 h-5 text-sage-500" />
-                  <span className="text-xs text-stone-600 font-medium max-w-[200px]">
-                     {stripHtml(content.certification)}
-                  </span>
+                <div className="inline-flex items-center gap-3 bg-background px-6 py-4 rounded-2xl shadow-soft border border-primary/15">
+                  <Award className="w-7 h-7 text-primary" />
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">
+                      {t('about.certificationLabel', {
+                        defaultValue: 'Certified',
+                      })}
+                    </p>
+                    <p className="text-xs text-foreground/70">
+                      {stripHtml(content.certification)}
+                    </p>
+                  </div>
                 </div>
               )}
+
+              <div className="pt-1">
+                <Button
+                  size="md"
+                  className="shadow-warm"
+                  onClick={() =>
+                    open('contact', { defaultSubject: 'Appointment request' })
+                  }
+                >
+                  {t('about.cta')}
+                </Button>
+              </div>
             </div>
           </motion.article>
 
-          {/* RIGHT COLUMN: Visuals & Map (Span 5) - STICKY */}
-          <aside className="hidden lg:block lg:col-span-5 space-y-8 sticky top-24">
-             {/* Image Grid */}
-             {content.specialtiesGrid.length > 0 && (
-                <div className="grid grid-cols-2 gap-4">
-                  {content.specialtiesGrid.slice(0, 4).map((sp, i) => (
-                    <div
-                      key={i}
-                      className={`relative rounded-2xl overflow-hidden shadow-soft border border-stone-100 group ${i === 0 ? 'col-span-2 aspect-[2/1]' : 'aspect-square'}`}
-                    >
-                        {sp.image?.url && (
-                          <CloudImage
-                            image={sp.image}
-                            alt={sp.title}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            sizes="(max-width:1024px) 50vw, 400px"
-                          />
-                        )}
-                        <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
-                        <div className="absolute bottom-3 left-3 px-3 py-1 bg-white/90 backdrop-blur rounded-lg">
-                          <span className="text-xs font-bold text-charcoal uppercase tracking-wider">{sp.title}</span>
-                        </div>
-                    </div>
-                  ))}
-                </div>
-             )}
+          {cmsData && (
+            <aside className="space-y-8">
+              <div className="space-y-3">
+                <h3 className="heading-secondary">
+                  {content.specialtiesTitle ||
+                    t('about.studioTitle', {
+                      defaultValue: 'My Private Studio',
+                    })}
+                </h3>
+                <p className="body-text max-w-md">
+                  {t('about.studioDescription', {
+                    defaultValue:
+                      'Experience a tranquil, safe, and nurturing environment designed for your comfort and healing.',
+                  })}
+                </p>
+              </div>
 
-             {/* Minimal Map Card */}
-             <div className="bg-white p-6 rounded-3xl shadow-soft border border-stone-100">
-                 <div className="flex items-center gap-4 mb-4">
-                    <div className="p-3 bg-sage-50 rounded-full text-sage-600"><MapPin size={20}/></div>
-                    <div>
-                      <h5 className="font-bold text-charcoal text-sm">Mon Cabinet</h5>
-                      <p className="text-xs text-stone-500">Marseille, France</p>
+              <motion.div
+                variants={gridVariants}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, amount: 0.2 }}
+                className="hidden sm:grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 auto-rows-[160px] sm:auto-rows-[200px] lg:auto-rows-[230px]"
+              >
+                {content.specialtiesGrid.map((sp, i) => (
+                  <motion.div
+                    key={`${sp.title}-${i}`}
+                    variants={cardVariants}
+                    className={[
+                      'relative group overflow-hidden rounded-[26px] bg-charcoal/5 shadow-soft',
+                      'transition-transform duration-300 ease-out hover:-translate-y-1 hover:shadow-elevated',
+                      'col-span-1',
+                      i === 0 ? 'sm:row-span-2' : '',
+                    ].join(' ')}
+                  >
+                    {sp.image?.url && (
+                      <CloudImage
+                        image={sp.image}
+                        alt={sp.title}
+                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                        sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 45vw"
+                      />
+                    )}
+
+                    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/70 via-black/35 to-black/0">
+                      <div className="p-4 sm:p-5">
+                        <h4 className="text-base sm:text-lg md:text-xl font-serif font-semibold text-white drop-shadow-sm">
+                          {sp.title}
+                        </h4>
+                      </div>
                     </div>
-                 </div>
-                 <Suspense fallback={<div className="h-40 bg-stone-100 animate-pulse rounded-xl"/>}>
-                    <div className="rounded-xl overflow-hidden h-40 grayscale-[50%] hover:grayscale-0 transition-all duration-500">
-                      <LocationMap />
-                    </div>
-                 </Suspense>
-             </div>
-          </aside>
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 items-start">
+                <div className="p-4 bg-background rounded-xl border border-primary/15 shadow-soft">
+                  <MapPin
+                    className="w-6 h-6 mx-auto mb-2"
+                    style={{ color: 'hsl(210 80% 60%)' }}
+                  />
+                  {/* Lazy Loaded Map - Performance Fix */}
+                  <Suspense fallback={<div className="w-full h-[180px] bg-sage-50 rounded-xl animate-pulse" />}>
+                    <LocationMap />
+                  </Suspense>
+                </div>
+
+                <div className="text-center p-4 bg-background rounded-xl border border-primary/15 shadow-soft h-[220px] flex flex-col justify-center">
+                  <Mail
+                    className="w-6 h-6 mx-auto mb-2"
+                    style={{ color: 'hsl(210 80% 60%)' }}
+                  />
+                  <div className="text-sm font-medium text-foreground">
+                    {t('about.contactTitle', {
+                      defaultValue: 'Contact via email through the booking form',
+                    })}
+                  </div>
+                  <div className="text-xs text-foreground/70">
+                    {t('about.byAppointment', {
+                      defaultValue: 'By Appointment Only',
+                    })}
+                  </div>
+                </div>
+              </div>
+            </aside>
+          )}
+        </div>
+
+        <div className="mt-24 mb-24 max-w-4xl mx-auto text-center space-y-6">
+          <div className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-foreground/70">
+            <Heart className="w-4 h-4" />
+            <span>{t('about.approachLabel', { defaultValue: 'My Approach' })}</span>
+          </div>
+          <h2 className="heading-secondary">
+            {t('about.approachHeading', {
+              defaultValue: 'A Personalized Wellness Journey',
+            })}
+          </h2>
+          <p className="body-large max-w-3xl mx-auto">
+            {stripHtml(content.approachText)}
+          </p>
         </div>
       </div>
     </section>
