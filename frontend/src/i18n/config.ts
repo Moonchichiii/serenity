@@ -63,52 +63,13 @@ const resources = {
         mapCollapsedSubtitle: 'By Appointment Only',
         mapHintHover: 'Hover to enlarge the map',
         mapHintScroll: 'Scroll to view the map',
+        mapPreview: 'View map',
       },
       services: {
         title: 'Services',
         subtitle: 'Wellness massage tailored to your needs',
-        swedish: {
-          title: 'Swedish massage',
-          description:
-            'Relaxing full-body massage using gentle, flowing strokes to ease tension and promote overall wellness.',
-          duration: '60 min',
-          price: '€80',
-        },
-        deep: {
-          title: 'Deep tissue',
-          description:
-            'Targeted therapy focusing on deeper muscle layers to release chronic tension and knots.',
-          duration: '90 min',
-          price: '€110',
-        },
-        wellness: {
-          title: 'Wellness massage',
-          description:
-            'Customized treatment combining techniques to address specific concerns and restore balance.',
-          duration: '75 min',
-          price: '€95',
-        },
-        prenatal: {
-          title: 'Prenatal care',
-          description:
-            'Gentle, supportive massage designed for expectant mothers to ease discomfort and promote relaxation.',
-          duration: '60 min',
-          price: '€60',
-        },
-        amma: {
-          title: 'Amma chair massage',
-          description:
-            'Traditional Japanese chair massage technique focusing on pressure points to relieve tension and stress.',
-          duration: '15-20 min',
-          price: '€15',
-        },
-        reflexology: {
-          title: 'Foot reflexology',
-          description:
-            'Therapeutic foot massage targeting reflex points to promote relaxation and overall wellness. Available from December 2025.',
-          duration: '30 min',
-          price: '€30',
-        },
+        slide: 'SLIDE',
+        mostPopular: 'Most popular',
       },
       corp: {
         subjectPrefix: 'Corporate/Event Booking',
@@ -131,6 +92,7 @@ const resources = {
           notes: 'Additional notes',
           'notes.placeholder':
             'Ambiance / space available, parking, access badges, etc.',
+          moreDetailsLabel: 'Additional details (optional)',
           optional: '(optional)',
           send: 'Request quote',
           sending: 'Sending...',
@@ -149,6 +111,36 @@ const resources = {
             companyRequired: 'Company is required',
             attendeesNumber: 'Enter a number',
             attendeesMin: 'At least 1 attendee',
+          },
+          eventTypes: {
+            corporate: 'Corporate wellness',
+            team: 'Team day / offsite',
+            expo: 'Fair / expo / booth',
+            private: 'Private event',
+            other: 'Other',
+          },
+          placeholders: {
+            name: 'Jane Doe',
+            email: 'jane@company.com',
+            phone: '+33 6 00 00 00 00',
+            company: 'Acme SAS',
+            attendees: '25',
+            duration: '09:00–17:00 or 3h',
+            budget: '€500–€1500',
+          },
+          emailLines: {
+            contact: 'Contact',
+            company: 'Company',
+            eventType: 'Event type',
+            attendees: 'Attendees',
+            date: 'Date',
+            duration: 'Duration/Hours',
+            location: 'Location',
+            services: 'Requested services',
+            budget: 'Budget',
+            notes: 'Notes',
+            dash: '-',
+            arrow: '→',
           },
         },
       },
@@ -199,8 +191,8 @@ const resources = {
         },
       },
       footer: {
-  tagline:
-    'Professional relaxing massage and holistic well-being in the heart of Marseille.',
+        tagline:
+          'Professional relaxing massage and holistic well-being in the heart of Marseille.',
         addressFull: '5 Avenues, 13004 Marseille, France',
         info: 'Information',
         legalNotice: 'Legal notice',
@@ -351,8 +343,8 @@ const resources = {
               body: 'Gift vouchers are valid for [X] months from the date of purchase. They are non-refundable and cannot be exchanged for cash.',
             },
             contraindications: {
-              title: '6. Contraindications',
-              body: 'Clients must inform the practitioner of any health issues, allergies, or pregnancy before the session begins. The practitioner reserves the right to refuse service in case of medical contraindications.',
+              title: '6. Contre-indications',
+              body: 'Le client s’engage à informer le praticien de tout problème de santé, allergie, ou grossesse avant le début de la séance. Le praticien se réserve le droit de refuser une prestation en cas de contre-indication médicale.',
             },
           },
         },
@@ -461,7 +453,8 @@ const resources = {
         trigger: 'Offer a Gift',
         title: 'Give the Gift of Relaxation',
         subtitle: 'Send a personalized massage voucher instantly.',
-                  paymentNotice: 'Online payment is coming soon. For now, vouchers are sent by email and paid directly at the appointment.',
+        paymentNotice:
+          'Online payment is coming soon. For now, vouchers are sent by email and paid directly at the appointment.',
         form: {
           purchaserSection: 'Your Details',
           recipientSection: 'Recipient Details',
@@ -479,12 +472,10 @@ const resources = {
             'We have emailed the voucher to the recipient and a copy to you.',
           codeLabel: 'Voucher Code:',
           close: 'Close',
-
           purchaserNamePlaceholder: 'Jane Doe',
-purchaserEmailPlaceholder: 'jane@example.com',
-recipientNamePlaceholder: 'Recipient name',
-recipientEmailPlaceholder: 'recipient@example.com',
-
+          purchaserEmailPlaceholder: 'jane@example.com',
+          recipientNamePlaceholder: 'Recipient name',
+          recipientEmailPlaceholder: 'recipient@example.com',
         },
         validation: {
           required: 'Required field',
@@ -555,52 +546,13 @@ recipientEmailPlaceholder: 'recipient@example.com',
         mapCollapsedSubtitle: 'Uniquement sur rendez-vous',
         mapHintHover: 'Survolez pour agrandir la carte',
         mapHintScroll: 'Faites défiler pour afficher la carte',
+        mapPreview: 'Voir la carte',
       },
       services: {
         title: 'Services',
         subtitle: 'Massage bien-être adapté à vos besoins',
-        swedish: {
-          title: 'Massage suédois',
-          description:
-            'Massage complet du corps relaxant utilisant des mouvements doux et fluides pour soulager les tensions.',
-          duration: '60 min',
-          price: '80 €',
-        },
-        deep: {
-          title: 'Tissus profonds',
-          description:
-            'Thérapie ciblée se concentrant sur les couches musculaires profondes pour libérer les tensions chroniques.',
-          duration: '90 min',
-          price: '110 €',
-        },
-        wellness: {
-          title: 'Massage bien-être',
-          description:
-            'Traitement personnalisé combinant des techniques pour répondre à vos besoins spécifiques.',
-          duration: '75 min',
-          price: '95 €',
-        },
-        prenatal: {
-          title: 'Soins prénatals',
-          description:
-            "Massage doux et bienveillant conçu pour les futures mamans afin de soulager l'inconfort.",
-          duration: '60 min',
-          price: '60 €',
-        },
-        amma: {
-          title: 'Amma assis',
-          description:
-            'Technique de massage japonaise traditionnelle sur chaise, ciblant les points de pression pour soulager les tensions et le stress.',
-          duration: '15-20 min',
-          price: '15 €',
-        },
-        reflexology: {
-          title: 'Réflexologie plantaire',
-          description:
-            'Massage des pieds ciblant les points réflexes pour favoriser la relaxation et le bien-être général. Disponible à partir de décembre 2025.',
-          duration: '30 min',
-          price: '30 €',
-        },
+        slide: 'GLISSER',
+        mostPopular: 'Le plus populaire',
       },
       corp: {
         subjectPrefix: 'Demande Entreprise / Événement',
@@ -623,6 +575,7 @@ recipientEmailPlaceholder: 'recipient@example.com',
           notes: 'Informations complémentaires',
           'notes.placeholder':
             "Ambiance / espace disponible, parking, badges d'accès, etc.",
+          moreDetailsLabel: 'Détails supplémentaires (optionnel)',
           optional: '(optionnel)',
           send: 'Demander un devis',
           sending: 'Envoi…',
@@ -648,6 +601,29 @@ recipientEmailPlaceholder: 'recipient@example.com',
             expo: 'Salon / stand / expo',
             private: 'Événement privé',
             other: 'Autre',
+          },
+          placeholders: {
+            name: 'Marie Dupont',
+            email: 'marie@entreprise.fr',
+            phone: '+33 6 00 00 00 00',
+            company: 'Acme SAS',
+            attendees: '25',
+            duration: '09:00–17:00 ou 3h',
+            budget: '500–1500 €',
+          },
+          emailLines: {
+            contact: 'Contact',
+            company: 'Entreprise',
+            eventType: "Type d'événement",
+            attendees: 'Participants',
+            date: 'Date',
+            duration: 'Horaires / durée',
+            location: 'Lieu',
+            services: 'Prestations souhaitées',
+            budget: 'Budget',
+            notes: 'Notes',
+            dash: '-',
+            arrow: '→',
           },
         },
       },
@@ -700,7 +676,7 @@ recipientEmailPlaceholder: 'recipient@example.com',
       },
       footer: {
         tagline:
-    'Massage professionnel relaxant et bien-être holistique au cœur de Marseille.',
+          'Massage professionnel relaxant et bien-être holistique au cœur de Marseille.',
         addressFull: '5 Avenues, 13004 Marseille, France',
         info: 'Informations',
         legalNotice: 'Mentions légales',
@@ -962,14 +938,15 @@ recipientEmailPlaceholder: 'recipient@example.com',
         trigger: 'Offrir un cadeau',
         title: 'Offrez le Cadeau de la Détente',
         subtitle: 'Envoyez un bon cadeau personnalisé instantanément.',
-                  paymentNotice: 'Le paiement en ligne arrive bientôt. Pour le moment, les bons sont envoyés par e-mail et le paiement se fait directement lors du rendez-vous.',
+        paymentNotice:
+          'Le paiement en ligne arrive bientôt. Pour le moment, les bons sont envoyés par e-mail et le paiement se fait directement lors du rendez-vous.',
         form: {
           purchaserSection: 'Vos Coordonnées',
           recipientSection: 'Destinataire',
           purchaserName: 'Votre Nom',
           purchaserEmail: 'Votre Email',
-          recipientName: "Nom du Destinataire",
-          recipientEmail: "Email du Destinataire",
+          recipientName: 'Nom du Destinataire',
+          recipientEmail: 'Email du Destinataire',
           message: 'Message Personnel',
           messagePlaceholder: 'Joyeux anniversaire ! Profite de ce moment...',
           date: 'Date Préférée (Optionnel)',
@@ -980,12 +957,10 @@ recipientEmailPlaceholder: 'recipient@example.com',
             'Nous avons envoyé le bon au destinataire et une copie à vous.',
           codeLabel: 'Code du Bon :',
           close: 'Fermer',
-
           purchaserNamePlaceholder: 'Marie Dupont',
-purchaserEmailPlaceholder: 'marie@example.com',
-recipientNamePlaceholder: 'Nom du destinataire',
-recipientEmailPlaceholder: 'destinataire@example.com',
-
+          purchaserEmailPlaceholder: 'marie@example.com',
+          recipientNamePlaceholder: 'Nom du destinataire',
+          recipientEmailPlaceholder: 'destinataire@example.com',
         },
         validation: {
           required: 'Champ requis',

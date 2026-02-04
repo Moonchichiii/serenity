@@ -22,7 +22,6 @@ export function Services() {
 
   const lang = (i18n.language?.startsWith('fr') ? 'fr' : 'en') as 'en' | 'fr'
 
-  // Helper to detect chair / Amma / seated massage for highlight
   const isChairService = (service: WagtailService) => {
     const en = (service.title_en || '').toLowerCase()
     const fr = (service.title_fr || '').toLowerCase()
@@ -35,7 +34,6 @@ export function Services() {
     )
   }
 
-  // Pick one service to highlight as "Most popular"
   const highlightedServiceId = useMemo(
     () => services.find(isChairService)?.id,
     [services]
@@ -83,13 +81,22 @@ export function Services() {
               {/* ========================================= */}
               <div className="md:hidden relative">
 
-                {/* Visual Cue for Swiping */}
-                <div className="flex justify-end px-4 mb-2 text-xs font-semibold text-sage-600 tracking-wide uppercase items-center gap-1 animate-pulse">
-                  <span>{lang === 'fr' ? 'Glisser' : 'Swipe'}</span>
-                  <ArrowRight className="w-3 h-3" />
+                {/* SLIDE INDICATOR (Matches your screenshot) */}
+                <div className="flex justify-end px-4 mb-2">
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-sage-600 tracking-widest uppercase">
+                    {/* Uses the translation key with fallback */}
+                    <span>{t('services.slide', { defaultValue: 'SLIDE' })}</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </div>
                 </div>
 
-                <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-8 -mx-4 px-4 scrollbar-hide">
+                {/*
+                   SCROLL CONTAINER
+                   1. [&::-webkit-scrollbar]:hidden  -> Hides scrollbar on Chrome/Safari/Webkit
+                   2. [-ms-overflow-style:none]      -> Hides scrollbar on IE/Edge
+                   3. [scrollbar-width:none]         -> Hides scrollbar on Firefox
+                */}
+                <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-8 -mx-4 px-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                   {services.map((service) => {
                     const title = lang === 'fr' ? service.title_fr : service.title_en
                     const description = lang === 'fr' ? service.description_fr : service.description_en
@@ -100,7 +107,7 @@ export function Services() {
                         key={service.id}
                         className="snap-center shrink-0 w-[85vw] relative flex flex-col overflow-hidden rounded-[26px] bg-white shadow-soft border border-sage-100/70"
                       >
-                        {/* Image + badges (Same logic as desktop) */}
+                        {/* Image + badges */}
                         {service.image?.url && (
                           <div className="relative w-full h-48 overflow-hidden">
                             <CloudImage
@@ -118,7 +125,7 @@ export function Services() {
                                   {t('services.mostPopular', { defaultValue: 'Most popular' })}
                                 </div>
 
-                                {/* Price pill badge (only for highlighted) */}
+                                {/* Price pill badge */}
                                 <div className="absolute top-3 right-3 inline-flex items-center rounded-full bg-white/95 px-2 py-1 shadow-soft text-[10px] font-semibold text-charcoal">
                                   <Euro className="w-3 h-3 text-honey-500 mr-1" />
                                   <span className="mr-1">{service.price}</span>
@@ -131,7 +138,6 @@ export function Services() {
                           </div>
                         )}
 
-                        {/* Content */}
                         <div className="flex-1 flex flex-col px-5 pt-5 pb-5">
                           <div className="mb-4">
                             <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
@@ -142,7 +148,6 @@ export function Services() {
                             </p>
                           </div>
 
-                          {/* Footer: Duration & Price (if not highlighted) */}
                           <div className="mt-auto pt-4 border-t border-sage-200/60 flex items-center justify-between">
                             <div className="flex items-center gap-1.5 text-xs text-charcoal/70 font-medium">
                               <Clock className="w-4 h-4 text-sage-500" />
@@ -160,7 +165,7 @@ export function Services() {
                       </article>
                     )
                   })}
-                  {/* Spacer to allow scrolling past the last card */}
+                  {/* Spacer */}
                   <div className="w-2 shrink-0" />
                 </div>
               </div>
@@ -186,7 +191,6 @@ export function Services() {
                         'relative flex flex-col overflow-hidden',
                         'rounded-[26px] bg-porcelain shadow-soft border border-sage-100/70',
                         'hover:shadow-elevated hover:border-sage-300/80',
-                        // FIX: Replaced conflicting transitions with transition-all
                         'transition-all duration-300',
                         'max-w-md w-full mx-auto',
                       ].join(' ')}
@@ -204,14 +208,11 @@ export function Services() {
 
                           {isHighlighted && (
                             <>
-                              {/* Most popular badge */}
                               <div className="absolute top-3 left-3 inline-flex items-center rounded-full bg-rose-500 text-porcelain text-[11px] font-semibold px-3 py-1 shadow-soft">
                                 {t('services.mostPopular', {
                                   defaultValue: 'Most popular',
                                 })}
                               </div>
-
-                              {/* Price pill badge */}
                               <div className="absolute top-3 right-3 inline-flex items-center rounded-full bg-white/95 px-3 py-1 shadow-soft text-[11px] font-semibold text-charcoal">
                                 <Euro className="w-3 h-3 text-honey-500 mr-1" />
                                 <span className="mr-1">{service.price}</span>
@@ -224,7 +225,6 @@ export function Services() {
                         </div>
                       )}
 
-                      {/* Content */}
                       <div className="flex-1 flex flex-col px-5 sm:px-6 pt-5 pb-4">
                         <div className="mb-4">
                           <h3 className="text-xl sm:text-2xl font-heading font-semibold text-charcoal mb-1.5">
@@ -235,7 +235,6 @@ export function Services() {
                           </p>
                         </div>
 
-                        {/* Meta row */}
                         <div className="mt-auto pt-4 border-t border-sage-200/60 flex items-center justify-between">
                           <div className="flex items-center gap-1.5 text-xs sm:text-sm text-charcoal/70">
                             <Clock className="w-4 h-4 text-sage-500" />
