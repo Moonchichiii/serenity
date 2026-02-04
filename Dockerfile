@@ -26,29 +26,20 @@ COPY . /app
 ENV PYTHONPATH=/app/backend
 WORKDIR /app/backend
 
-# Build args for collectstatic (dummy values OK, not used at runtime)
-ARG DJANGO_SECRET_KEY=build-secret-key-not-used-in-production
-ARG DATABASE_URL=postgresql://dummy:dummy@dummy:5432/dummy
-ARG CLOUDINARY_CLOUD_NAME=dummy
-ARG CLOUDINARY_API_KEY=dummy
-ARG CLOUDINARY_API_SECRET=dummy
+ENV DJANGO_SETTINGS_MODULE=config.settings
 
-ENV DJANGO_SETTINGS_MODULE=config.settings \
-    DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY} \
-    DATABASE_URL=${DATABASE_URL} \
-    CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME} \
-    CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY} \
-    CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
-
-RUN mkdir -p /app/backend/staticfiles && \
+RUN --mount=type=secret,id=django_secret_key,required=false \
+    --mount=type=secret,id=database_url,required=false \
+    --mount=type=secret,id=cloudinary_cloud_name,required=false \
+    --mount=type=secret,id=cloudinary_api_key,required=false \
+    --mount=type=secret,id=cloudinary_api_secret,required=false \
+    export DJANGO_SECRET_KEY=$(cat /run/secrets/django_secret_key 2>/dev/null || echo "dummysecret") && \
+    export DATABASE_URL=$(cat /run/secrets/database_url 2>/dev/null || echo "postgresql://dummy:dummy@dummy:5432/dummy") && \
+    export CLOUDINARY_CLOUD_NAME=$(cat /run/secrets/cloudinary_cloud_name 2>/dev/null || echo "dummy") && \
+    export CLOUDINARY_API_KEY=$(cat /run/secrets/cloudinary_api_key 2>/dev/null || echo "dummy") && \
+    export CLOUDINARY_API_SECRET=$(cat /run/secrets/cloudinary_api_secret 2>/dev/null || echo "dummy") && \
+    mkdir -p /app/backend/staticfiles && \
     python manage.py collectstatic --noinput -v 1
-
-# Clear build-time env vars (will use Fly secrets at runtime)
-ENV DJANGO_SECRET_KEY="" \
-    DATABASE_URL="" \
-    CLOUDINARY_CLOUD_NAME="" \
-    CLOUDINARY_API_KEY="" \
-    CLOUDINARY_API_SECRET=""
 
 CMD ["bash","-lc","exec gunicorn config.asgi:application \
  -k uvicorn.workers.UvicornWorker \
