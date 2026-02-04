@@ -1,10 +1,28 @@
 {% load static wagtailadmin_tags %}
 
 <style>
-  /* --- SCOPED VARIABLES (Senior Level Encapsulation) --- */
+  /* --- SCOPED VARIABLES --- */
 
-  /* 1. Light Mode (Default) */
+  /* Base Styles (Dark Mode Default) */
   .serenity-dashboard {
+    --s-bg: #0f172a;
+    --s-card-bg: #1e293b;
+    --s-border: #334155;
+    --s-text-main: #f1f5f9;
+    --s-text-muted: #94a3b8;
+    --s-primary: #38bdf8;
+    --s-primary-fg: #0f172a;
+    --s-accent: #2dd4bf;
+    --s-radius: 6px;
+    --s-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --s-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  /* Light Mode Override */
+  html[data-theme="light"] .serenity-dashboard,
+  body[data-theme="light"] .serenity-dashboard,
+  body.w-theme-light .serenity-dashboard,
+  body.light .serenity-dashboard {
     --s-bg: #f8fafc;
     --s-card-bg: #ffffff;
     --s-border: #e2e8f0;
@@ -12,29 +30,13 @@
     --s-text-muted: #64748b;
     --s-primary: #0f172a;
     --s-primary-fg: #ffffff;
-    --s-accent: #0d9488;
-    --s-radius: 6px;
     --s-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --s-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  }
-
-  /* 2. Dark Mode Override */
-  /* This targets .serenity-dashboard ONLY when the html tag has data-theme="dark" */
-  html[data-theme="dark"] .serenity-dashboard {
-    --s-bg: #0f172a;      /* Slate 900 */
-    --s-card-bg: #1e293b; /* Slate 800 */
-    --s-border: #334155;  /* Slate 700 */
-    --s-text-main: #f1f5f9;
-    --s-text-muted: #94a3b8;
-    --s-primary: #38bdf8; /* Sky Blue for dark mode */
-    --s-primary-fg: #0f172a;
-    --s-accent: #2dd4bf;
   }
 
   /* --- COMPONENT STYLES --- */
   .serenity-dashboard {
     font-family: var(--s-font-family);
-    background-color: var(--s-card-bg);
+    background-color: var(--s-bg);
     border: 1px solid var(--s-border);
     border-radius: 8px;
     padding: 24px;
@@ -70,7 +72,7 @@
 
   .sd-lang-switch {
     display: flex;
-    background: var(--s-bg);
+    background: var(--s-card-bg);
     border: 1px solid var(--s-border);
     border-radius: 99px;
     padding: 2px;
@@ -87,9 +89,9 @@
   }
 
   .sd-lang-opt.active {
-    background: var(--s-text-main);
-    color: var(--s-bg);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    background: var(--s-primary);
+    color: var(--s-primary-fg);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
   }
 
   .sd-grid {
@@ -99,7 +101,7 @@
   }
 
   .sd-card {
-    background: var(--s-bg);
+    background: var(--s-card-bg);
     border: 1px solid var(--s-border);
     border-radius: var(--s-radius);
     padding: 16px;
@@ -111,7 +113,7 @@
   }
 
   .sd-card:hover {
-    border-color: var(--s-text-muted);
+    border-color: var(--s-primary);
     transform: translateY(-2px);
   }
 
@@ -123,7 +125,8 @@
     width: 100%;
     height: 2px;
     background: var(--s-border);
-    opacity: 0.5;
+    opacity: 0.3;
+    transition: background 0.2s, opacity 0.2s;
   }
 
   .sd-card:hover::after {
@@ -137,7 +140,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--s-card-bg);
+    background: var(--s-bg);
     border: 1px solid var(--s-border);
     border-radius: 6px;
     margin-bottom: 12px;
@@ -186,14 +189,14 @@
   }
 
   .sd-btn-primary {
-    background-color: var(--s-text-main);
-    color: var(--s-bg);
+    background-color: var(--s-primary);
+    color: var(--s-primary-fg);
     border: 1px solid transparent;
   }
 
   .sd-btn-primary:hover {
-    background-color: var(--s-text-muted);
-    color: #fff;
+    opacity: 0.9;
+    transform: translateY(-1px);
   }
 
   .sd-btn-secondary {
@@ -203,7 +206,7 @@
   }
 
   .sd-btn-secondary:hover {
-    border-color: var(--s-text-main);
+    border-color: var(--s-primary);
     color: var(--s-text-main);
   }
 
@@ -335,6 +338,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+  /* Translations */
   const SERENITY_COPY = {
     en: {
       welcome: "Welcome to Serenity CMS",
@@ -446,6 +450,7 @@ document.addEventListener("DOMContentLoaded", function() {
   const txtSubtitle = document.getElementById("txt-subtitle");
   const langBtns = document.querySelectorAll(".sd-lang-opt");
 
+  /* Apply translations */
   const fill = (lang) => {
     const D = SERENITY_COPY[lang];
     txtWelcome.textContent = D.welcome;
@@ -477,10 +482,12 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   };
 
+  /* Initialize language */
   let lang = getLang();
   if (!["en","fr"].includes(lang)) lang = "en";
   fill(lang);
 
+  /* Language toggle */
   langBtns.forEach(btn => {
     btn.addEventListener("click", () => {
       lang = btn.dataset.lang;
