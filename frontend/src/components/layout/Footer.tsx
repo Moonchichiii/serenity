@@ -16,7 +16,7 @@ const Footer: React.FC = () => {
 
   // Shared class for accessible footer links
   const linkBtnClass =
-    'cursor-pointer text-left hover:text-honey-200 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-honey-200/70 rounded-md'
+    'cursor-pointer hover:text-honey-200 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-honey-200/70 rounded-md'
 
   return (
     <footer id="site-footer" className="relative mt-24 contain-content">
@@ -26,12 +26,15 @@ const Footer: React.FC = () => {
         aria-hidden="true"
       />
 
-      <div className={`${footerBgColor} text-white pt-8 pb-24 sm:pb-12`}>
+      {/* Main Footer Content */}
+      <div className={`${footerBgColor} text-white pt-12 pb-28 sm:pb-12`}>
         <div className="container mx-auto px-6 lg:px-12">
-          {/* Main Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 border-b border-white/10 pb-12">
+
+          {/* Main Grid - Center text on Mobile, Left on Desktop */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8 border-b border-white/10 pb-12 text-center md:text-left">
+
             {/* COLUMN 1: Brand & Tagline */}
-            <div className="md:col-span-4 space-y-6">
+            <div className="md:col-span-4 flex flex-col items-center md:items-start space-y-6">
               <div>
                 <h3 className="inline-block font-heading font-semibold text-3xl text-white tracking-wide">
                   <span className="relative inline-block">
@@ -42,25 +45,27 @@ const Footer: React.FC = () => {
                   </span>
                 </h3>
 
-                <p className="mt-4 text-sm text-white/80 leading-relaxed max-w-sm">
+                <p className="mt-4 text-sm text-white/80 leading-relaxed max-w-sm mx-auto md:mx-0">
                   {t('footer.tagline')}
                 </p>
               </div>
 
-              {/* Address */}
-              <div className="flex items-start gap-3 text-white/70">
+              {/* Address - Centered on mobile */}
+              <div className="flex items-center md:items-start gap-3 text-white/70 justify-center md:justify-start">
                 <MapPin className="w-5 h-5 mt-0.5 shrink-0 text-honey-200" />
-                <span className="text-sm">{t('footer.addressFull')}</span>
+                <span className="text-sm max-w-[200px] md:max-w-none text-left md:text-left">
+                  {t('footer.addressFull')}
+                </span>
               </div>
             </div>
 
-            {/* COLUMN 2: Legal (Updated to use Modals) */}
-            <div className="md:col-span-4 md:pl-8 space-y-6">
+            {/* COLUMN 2: Legal Links */}
+            <div className="md:col-span-4 md:pl-8 flex flex-col items-center md:items-start space-y-6">
               <h4 className="text-lg font-heading text-white tracking-wide">
                 {t('footer.info')}
               </h4>
 
-              <ul className="space-y-3 text-sm text-white/70">
+              <ul className="space-y-4 text-sm text-white/70 flex flex-col items-center md:items-start">
                 <li>
                   <button
                     type="button"
@@ -88,7 +93,7 @@ const Footer: React.FC = () => {
                     {t('footer.cgv')}
                   </button>
                 </li>
-                <li className="pt-2">
+                <li>
                   <button
                     type="button"
                     onClick={() => open('legal', { page: 'cookies' })}
@@ -101,15 +106,16 @@ const Footer: React.FC = () => {
             </div>
 
             {/* COLUMN 3: Contact & Hours */}
-            <div className="md:col-span-4 space-y-6">
+            <div className="md:col-span-4 flex flex-col items-center md:items-start space-y-6">
               <h4 className="text-lg font-heading text-white tracking-wide">
                 {t('footer.contactTitle')}
               </h4>
 
-              <div className="space-y-4">
+              <div className="space-y-5 w-full">
+                {/* Email - Centered Flex */}
                 <a
                   href={`mailto:${t('footer.email')}`}
-                  className="flex items-center gap-3 text-sm text-white/80 hover:text-honey-200 transition-colors group"
+                  className="flex items-center justify-center md:justify-start gap-3 text-sm text-white/80 hover:text-honey-200 transition-colors group"
                 >
                   <div className="p-2 rounded-full bg-white/5 group-hover:bg-white/10 transition-colors">
                     <Mail className="w-4 h-4" />
@@ -117,11 +123,12 @@ const Footer: React.FC = () => {
                   <span>{t('footer.email')}</span>
                 </a>
 
-                <div className="flex items-start gap-3 text-sm text-white/80">
+                {/* Hours - Centered Flex */}
+                <div className="flex items-start justify-center md:justify-start gap-3 text-sm text-white/80">
                   <div className="p-2 rounded-full bg-white/5 mt-0.5">
                     <Clock className="w-4 h-4" />
                   </div>
-                  <div>
+                  <div className="text-center md:text-left">
                     <span className="block font-medium text-white">
                       {t('footer.hours')}
                     </span>
@@ -132,8 +139,8 @@ const Footer: React.FC = () => {
                 </div>
               </div>
 
-              {/* Socials */}
-              <div className="pl-4 pt-4 flex items-center gap-6">
+              {/* Socials - Centered */}
+              <div className="pt-4 flex items-center justify-center md:justify-start gap-6 w-full">
                 <div className="text-white/80 hover:text-honey-200 transition-colors">
                   <AnimatedInstagramIcon
                     magnetic
@@ -153,7 +160,7 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Bottom Bar */}
-          <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/60">
+          <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/60 text-center md:text-left">
             <p>
               © {currentYear} Serenity. {t('footer.allRights')}
             </p>
