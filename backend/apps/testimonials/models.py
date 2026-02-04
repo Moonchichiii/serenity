@@ -1,7 +1,7 @@
 from django.core.cache import cache
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
@@ -119,15 +119,25 @@ class TestimonialReply(models.Model):
         return f"Reply by {self.name}"
 
 
-@receiver(post_save, sender=Testimonial)
-def clear_testimonials_cache(sender, instance, **kwargs):
-    """Invalidate testimonials list cache on save."""
+def _delete_hydrated_cache():
+    from wagtail.models import Site
+    site_ids = list(Site.objects.values_list("id", flat=True)) or [0]
+    for site_id in site_ids:
+        cache.delete(f"cms:hydrated:{site_id}:all")
+
+
+def _delete_testimonials_list_cache():
     for rating in range(0, 6):
         cache.delete(f"testimonials:list:{rating}")
 
 
-@receiver(post_save, sender=TestimonialReply)
-def clear_cache_on_reply(sender, instance, **kwargs):
-    """Invalidate testimonials list cache on reply save."""
-    for rating in range(0, 6):
-        cache.delete(f"testimonials:list:{rating}")
+@receiver([post_save, post_delete], sender=Testimonial)
+def invalidate_testimonial_caches(sender, instance, **kwargs):
+    _delete_testimonials_list_cache()
+    _delete_hydrated_cache()
+
+
+@receiver([post_save, post_delete], sender=TestimonialReply)
+def invalidate_testimonial_reply_caches(sender, instance, **kwargs):
+    _delete_testimonials_list_cache()
+    _delete_hydrated_cache()

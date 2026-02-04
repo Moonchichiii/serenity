@@ -1,13 +1,12 @@
 from django.core.cache import cache
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Prefetch
 from rest_framework import status
 from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
 
-from apps.cms.serializers import TestimonialSerializer
-
 from .models import Testimonial, TestimonialReply
+from .serializers import TestimonialSerializer
 
 
 class TestimonialSubmissionThrottle(AnonRateThrottle):
@@ -26,15 +25,19 @@ def get_testimonials(request):
     cache_key = f"testimonials:list:{min_rating}"
     data = cache.get(cache_key)
 
-    if not data:
-        testimonials = Testimonial.objects.filter(
-            status="approved",
-            rating__gte=min_rating,
-        ).order_by("-created_at")[:20]
+    if data is None:
+        testimonials = (
+            Testimonial.objects.filter(status="approved", rating__gte=min_rating)
+            .prefetch_related(
+                Prefetch(
+                    "replies",
+                    queryset=TestimonialReply.objects.filter(status="approved").order_by("created_at"),
+                )
+            )
+            .order_by("-created_at")[:20]
+        )
 
-        serializer = TestimonialSerializer(testimonials, many=True)
-        data = serializer.data
-
+        data = TestimonialSerializer(testimonials, many=True).data
         cache.set(cache_key, data, 60 * 15)
 
     return Response(data)
@@ -151,5 +154,8 @@ def get_testimonial_stats(request):
             "total_reviews": stats["total"],
             "five_star_count": approved.filter(rating=5).count(),
             "four_star_count": approved.filter(rating=4).count(),
+            "three_star_count": approved.filter(rating=3).count(),
+            "two_star_count": approved.filter(rating=2).count(),
+            "one_star_count": approved.filter(rating=1).count(),
         }
     )
