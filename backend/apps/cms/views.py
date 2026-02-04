@@ -16,19 +16,15 @@ from .serializers import GiftSettingsSerializer, HomePageSerializer, ServiceSeri
 
 logger = logging.getLogger(__name__)
 
-# Cache TTL settings
-HOMEPAGE_CACHE_TTL = 60 * 60  # 1 hour
-SERVICES_CACHE_TTL = 60 * 30  # 30 minutes
+HOMEPAGE_CACHE_TTL = 60 * 60
+SERVICES_CACHE_TTL = 60 * 30
 
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
 @vary_on_headers("Accept-Language")
 def homepage_view(request):
-    """
-    Get homepage content with all CMS-managed fields.
-    Uses manual caching keyed by site and language.
-    """
+    """Get homepage content with CMS-managed fields."""
     site = Site.find_for_request(request)
     site_id = getattr(site, "id", 0)
     lang = getattr(request, "LANGUAGE_CODE", "en")
@@ -41,7 +37,6 @@ def homepage_view(request):
 
     logger.debug("Homepage cache MISS: %s (site=%s, lang=%s)", cache_key, site, lang)
 
-    # Find the appropriate HomePage for this site
     if not site:
         page = HomePage.objects.live().first()
     elif isinstance(site.root_page.specific, HomePage):
@@ -53,7 +48,6 @@ def homepage_view(request):
         logger.warning("No HomePage found for site_id=%s lang=%s", site_id, lang)
         return Response({"error": "No HomePage found"}, status=404)
 
-    # Optimized query with prefetched related data
     page = (
         page.__class__.objects.select_related("hero_image")
         .prefetch_related(
@@ -77,10 +71,7 @@ def homepage_view(request):
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def services_view(request):
-    """
-    Get all available services (bilingual support in serializer).
-    Uses manual caching with model signals handling invalidation.
-    """
+    """Get all available services with caching."""
     cache_key = "cms:services"
     data = cache.get(cache_key)
 
@@ -99,9 +90,7 @@ def services_view(request):
 @permission_classes([AllowAny])
 @never_cache
 def globals_view(request):
-    """
-    Get global site settings (Gift config, etc).
-    """
+    """Get global site settings."""
     site = Site.find_for_request(request)
     gift_settings = GiftSettings.for_site(site)
 

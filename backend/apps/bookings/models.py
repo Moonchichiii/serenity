@@ -4,6 +4,8 @@ from apps.services.models import Service
 
 
 class Booking(models.Model):
+    """Represents a service booking with client details and calendar integration."""
+
     STATUS_CHOICES = [
         ("pending", "Pending"),
         ("confirmed", "Confirmed"),

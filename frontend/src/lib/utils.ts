@@ -3,16 +3,12 @@ import { twMerge } from 'tailwind-merge'
 import { format } from 'date-fns'
 import { fr, enUS } from 'date-fns/locale'
 
-/**
- * Merge class names with Tailwind-aware precedence.
- */
+/** Merge class names with Tailwind-aware precedence */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-/**
- * Format a Date using a locale-aware date-fns pattern.
- */
+/** Format a Date using locale-aware date-fns pattern */
 export function formatDate(
   date: Date,
   locale: 'fr' | 'en' = 'fr',
@@ -23,26 +19,19 @@ export function formatDate(
   })
 }
 
-/**
- * Return a time string in HH:mm (already normalized upstream).
- */
+/** Return normalized time string in HH:mm format */
 export function formatTime(time: string): string {
   return time
 }
 
-/**
- * Format a number or numeric string as a price.
- * Returns "€—" if the value is not a valid number.
- */
+/** Format number as currency price */
 export function formatPrice(price: number | string, currency = '€'): string {
   const num = typeof price === 'string' ? Number(price) : price
   if (Number.isNaN(num)) return `${currency}—`
   return `${currency}${num.toFixed(0)}`
 }
 
-/**
- * Smooth-scroll to an element by id, with a pixel offset from the top.
- */
+/** Smooth-scroll to element by id with offset */
 export function scrollToElement(id: string, offset = 80) {
   if (typeof window === 'undefined') return
 
@@ -53,9 +42,7 @@ export function scrollToElement(id: string, offset = 80) {
   window.scrollTo({ top: y, behavior: 'smooth' })
 }
 
-/**
- * Derive up to two initials from a full name.
- */
+/** Extract up to two initials from name */
 export function getInitials(name: string): string {
   return name
     .trim()
@@ -65,17 +52,12 @@ export function getInitials(name: string): string {
     .slice(0, 2)
 }
 
-/**
- * Check whether a given Date is strictly in the past.
- */
+/** Check if date is in the past */
 export function isPastDate(date: Date): boolean {
   return date.getTime() < Date.now()
 }
 
-/**
- * Basic time-slot availability check.
- * Placeholder until real availability is wired to the API.
- */
+/** Check time-slot availability */
 export function isTimeSlotAvailable(date: Date, _time: string): boolean {
   return !isPastDate(date)
 }

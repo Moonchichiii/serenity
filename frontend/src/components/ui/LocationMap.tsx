@@ -7,7 +7,6 @@ const CENTER_5_AVENUES = { lat: 43.30135, lng: 5.39362 };
 const ZOOM_LEVEL = 14;
 const AREA_RADIUS_METERS = 300;
 
-// Sub-component: Only loaded when user interacts
 const MapLoader = memo(() => {
   const { isLoaded } = useJsApiLoader({
     id: 'location-map',
@@ -44,14 +43,13 @@ const MapLoader = memo(() => {
   );
 });
 
+MapLoader.displayName = 'MapLoader';
+
 export function LocationMap() {
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-
-  // FACADE: Default false. When true, we mount the heavy MapLoader.
   const [shouldLoadMap, setShouldLoadMap] = useState(false);
-
   const sectionRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -68,6 +66,7 @@ export function LocationMap() {
 
   useEffect(() => {
     if (!isMobile || !sectionRef.current) return;
+
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
@@ -78,6 +77,7 @@ export function LocationMap() {
       },
       { threshold: [0, 0.5, 1] }
     );
+
     observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, [isMobile]);
@@ -110,7 +110,6 @@ export function LocationMap() {
         {shouldLoadMap ? (
           <MapLoader />
         ) : (
-          /* Placeholder / Facade */
           <div className="w-full h-full flex flex-col items-center justify-center text-foreground/80 cursor-pointer">
             <MapPin className="w-8 h-8 mb-2 opacity-50 text-sage-600" />
             <p className="text-xs font-medium">

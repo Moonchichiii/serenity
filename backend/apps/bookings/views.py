@@ -23,17 +23,12 @@ TZ = ZoneInfo("Europe/Paris")
 @api_view(["GET", "POST"])
 @permission_classes([AllowAny])
 def bookings(request):
-    """
-    GET: List bookings (optionally filtered by email)
-    POST: Create new booking and add to Google Calendar
-    """
-
+    """GET: List bookings (optionally filtered by email). POST: Create new booking and add to Google Calendar."""
     if request.method == "POST":
         ser = BookingRequestSerializer(data=request.data)
         ser.is_valid(raise_exception=True)
         data = ser.validated_data
 
-        # Validate service exists and is available
         try:
             service = Service.objects.get(id=data["service_id"], is_available=True)
         except Service.DoesNotExist:
@@ -42,7 +37,6 @@ def bookings(request):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        # Ensure datetimes are timezone-aware
         start_dt = data["start_datetime"]
         end_dt = data["end_datetime"]
 
@@ -51,10 +45,8 @@ def bookings(request):
         if end_dt.tzinfo is None:
             end_dt = end_dt.replace(tzinfo=TZ)
 
-        # Generate confirmation code
         confirmation_code = secrets.token_hex(4).upper()
 
-        # Create database record
         booking = Booking.objects.create(
             service=service,
             start_datetime=start_dt,
@@ -68,12 +60,10 @@ def bookings(request):
             confirmation_code=confirmation_code,
         )
 
-        # Invalidate calendar caches
         start_date = start_dt.date()
         cache.delete(f"calendar:busy:{start_date.year}:{start_date.month}")
         cache.delete(f"calendar:slots:{start_date.isoformat()}")
 
-        # Create Google Calendar event
         event_title = f"{service.title_en} - {data['client_name']}"
         description = f"""
 Booking Details:
@@ -96,19 +86,12 @@ Notes: {data.get('client_notes', 'N/A')}
         )
 
         if calendar_event:
-            # Save Google Calendar event ID for future reference
             booking.google_calendar_event_id = calendar_event["id"]
             booking.status = "confirmed"
             booking.save()
 
-            print(f"✅ Booking created: {confirmation_code}")
-            print(f"📅 Calendar event: {calendar_event['link']}")
-        else:
-            print(f"⚠️ Booking {confirmation_code} created but calendar sync failed")
-
         return Response(BookingSerializer(booking).data, status=status.HTTP_201_CREATED)
 
-    # GET: List bookings
     email = request.GET.get("email")
     qs = Booking.objects.all().order_by("-created_at")
 
@@ -119,11 +102,9 @@ Notes: {data.get('client_notes', 'N/A')}
 
 
 @api_view(["DELETE"])
-@permission_classes([AllowAny])  # In production, add proper auth
+@permission_classes([AllowAny])
 def cancel_booking(request, confirmation_code):
-    """
-    Cancel a booking and remove from Google Calendar.
-    """
+    """Cancel a booking and remove from Google Calendar."""
     try:
         booking = Booking.objects.get(confirmation_code=confirmation_code)
     except Booking.DoesNotExist:
@@ -131,26 +112,18 @@ def cancel_booking(request, confirmation_code):
             {"detail": "Booking not found"}, status=status.HTTP_404_NOT_FOUND
         )
 
-    # Can only cancel pending/confirmed bookings
     if booking.status not in ["pending", "confirmed"]:
         return Response(
             {"detail": f"Cannot cancel {booking.status} booking"},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    # Delete from Google Calendar
     if booking.google_calendar_event_id:
-        success = delete_booking_event(booking.google_calendar_event_id)
-        if success:
-            print(f"✅ Deleted calendar event {booking.google_calendar_event_id}")
-        else:
-            print("⚠️ Failed to delete calendar event")
+        delete_booking_event(booking.google_calendar_event_id)
 
-    # Mark as cancelled (don't actually delete for record keeping)
     booking.status = "cancelled"
     booking.save()
 
-    # Invalidate calendar caches
     start_date = booking.start_datetime.date()
     cache.delete(f"calendar:busy:{start_date.year}:{start_date.month}")
     cache.delete(f"calendar:slots:{start_date.isoformat()}")

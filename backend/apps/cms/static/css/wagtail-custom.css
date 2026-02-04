@@ -1,23 +1,15 @@
-/*
- * Custom Wagtail Admin Styles for Client Simplicity
- * Makes interface bigger, clearer, more user-friendly
- */
-
-/* ============================================
-   BIGGER, CLEARER BUTTONS
-   ============================================ */
+/* BIGGER, CLEARER BUTTONS */
 .button,
 .button-small,
 .button-secondary {
     font-size: 16px !important;
     padding: 12px 24px !important;
-    min-height: 44px !important; /* Touch-friendly */
+    min-height: 44px !important;
 }
 
-/* Primary action buttons stand out more */
 .button-primary,
 .button.action-save {
-    background-color: #6d9177 !important; /* Sage green brand color */
+    background-color: #6d9177 !important;
     font-weight: 600 !important;
     font-size: 18px !important;
 }
@@ -28,22 +20,17 @@
     box-shadow: 0 4px 12px rgba(109, 145, 119, 0.3);
 }
 
-/* ============================================
-   SIMPLIFIED HEADER
-   ============================================ */
+/* SIMPLIFIED HEADER */
 .wagtail-userbar {
-    display: none !important; /* Hide developer toolbar on frontend */
+    display: none !important;
 }
 
-/* Make site name more prominent */
 .w-logo {
     font-size: 24px !important;
     font-weight: 700 !important;
 }
 
-/* ============================================
-   CLEARER FORM FIELDS
-   ============================================ */
+/* CLEARER FORM FIELDS */
 .field label {
     font-size: 16px !important;
     font-weight: 600 !important;
@@ -58,7 +45,7 @@
 .field select {
     font-size: 16px !important;
     padding: 12px !important;
-    border: 2px solid #dce5df !important; /* Sage border */
+    border: 2px solid #dce5df !important;
     border-radius: 8px !important;
 }
 
@@ -69,9 +56,7 @@
     box-shadow: 0 0 0 3px rgba(109, 145, 119, 0.1) !important;
 }
 
-/* ============================================
-   HELP TEXT MORE VISIBLE
-   ============================================ */
+/* HELP TEXT MORE VISIBLE */
 .help {
     font-size: 14px !important;
     color: #577460 !important;
@@ -82,9 +67,7 @@
     display: inline-block;
 }
 
-/* ============================================
-   IMAGE CHOOSER MORE PROMINENT
-   ============================================ */
+/* IMAGE CHOOSER MORE PROMINENT */
 .image-chooser__preview {
     border: 3px solid #dce5df !important;
     border-radius: 12px !important;
@@ -96,29 +79,21 @@
     padding: 12px 20px !important;
 }
 
-/* ============================================
-   HIDE COMPLEX/CONFUSING ELEMENTS
-   ============================================ */
-
-/* Hide revision history (confusing for clients) */
+/* HIDE COMPLEX ELEMENTS */
 .w-status-button--label:contains('Draft'),
 .w-status-button--label:contains('Live + Draft') {
     display: none !important;
 }
 
-/* Hide scheduled publishing (too complex) */
 .schedule-publishing-panel {
     display: none !important;
 }
 
-/* Hide page privacy settings (lock it down) */
 .privacy-radios {
     display: none !important;
 }
 
-/* ============================================
-   DASHBOARD IMPROVEMENTS
-   ============================================ */
+/* DASHBOARD IMPROVEMENTS */
 .homepage {
     max-width: 1200px !important;
     margin: 0 auto !important;
@@ -130,7 +105,6 @@
     margin-bottom: 16px !important;
 }
 
-/* Make action cards bigger and clearer */
 .w-summary-item {
     padding: 20px !important;
     border-radius: 12px !important;
@@ -143,9 +117,7 @@
     transform: translateY(-2px);
 }
 
-/* ============================================
-   MOBILE RESPONSIVE
-   ============================================ */
+/* MOBILE RESPONSIVE */
 @media (max-width: 768px) {
     .button,
     .button-small {
@@ -158,9 +130,7 @@
     }
 }
 
-/* ============================================
-   SUCCESS/ERROR MESSAGES MORE VISIBLE
-   ============================================ */
+/* SUCCESS/ERROR MESSAGES */
 .messages .success {
     background-color: #6d9177 !important;
     color: white !important;
@@ -170,22 +140,19 @@
 }
 
 .messages .error {
-    background-color: #e86a47 !important; /* Terracotta error color */
+    background-color: #e86a47 !important;
     color: white !important;
     font-size: 16px !important;
     padding: 16px 20px !important;
     border-radius: 8px !important;
 }
 
-/* ============================================
-   CUSTOM BRANDING
-   ============================================ */
+/* CUSTOM BRANDING */
 .w-header {
     background: linear-gradient(135deg, #dce5df 0%, #ede7e1 100%) !important;
     border-bottom: 2px solid #6d9177 !important;
 }
 
-/* Add "Serenity" branding feel */
 .w-logo::after {
     content: " 🌿";
     font-size: 20px;

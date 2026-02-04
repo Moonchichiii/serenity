@@ -34,44 +34,31 @@ export interface WagtailService {
 }
 
 export interface WagtailHomePage {
-  // Hero section
   hero_title_en: string
   hero_title_fr: string
   hero_subtitle_en: string
   hero_subtitle_fr: string
   hero_image: WagtailImage | null
   hero_slides?: WagtailHeroSlide[]
-
-  // About section headers
   about_title_en: string
   about_title_fr: string
   about_subtitle_en: string
   about_subtitle_fr: string
-
-  // About introduction
   about_intro_en: string
   about_intro_fr: string
   about_certification_en: string
   about_certification_fr: string
-
-  // About approach
   about_approach_title_en: string
   about_approach_title_fr: string
   about_approach_text_en: string
   about_approach_text_fr: string
-
-  // About specialties
   about_specialties_title_en: string
   about_specialties_title_fr: string
   specialties?: WagtailSpecialty[]
-
-  // Contact information
   phone: string
   email: string
   address_en: string
   address_fr: string
-
-  // Services hero section
   services_hero_title_en: string
   services_hero_title_fr: string
   services_hero_pricing_label_en: string
@@ -104,8 +91,6 @@ export interface ReplySubmission {
   text: string
 }
 
-// -----------------------------
-
 export interface WagtailTestimonial {
   id: number
   name: string
@@ -113,7 +98,6 @@ export interface WagtailTestimonial {
   text: string
   date: string
   avatar: string
-  // Added replies property
   replies: WagtailReply[]
 }
 
@@ -153,8 +137,6 @@ export interface ContactSubmissionResponse {
   message: string
 }
 
-// --- GLOBAL SETTINGS INTERFACE --- //
-
 export interface GlobalSettings {
   gift: {
     is_enabled: boolean
@@ -168,8 +150,6 @@ export interface GlobalSettings {
     modal_title_fr: string
     modal_text_en: string
     modal_text_fr: string
-
-    // NEW: optional form overrides
     form_message_placeholder_en: string
     form_message_placeholder_fr: string
     form_submit_label_en: string
@@ -185,8 +165,6 @@ export interface GlobalSettings {
   }
 }
 
-
-// --- NEW GIFT VOUCHER INTERFACES ---
 export interface GiftVoucherSubmission {
   purchaserName: string
   purchaserEmail: string
@@ -209,59 +187,40 @@ export const cmsAPI = {
     apiClient.get<WagtailService[]>('/api/services/').then((res) => res.data),
 
   getTestimonials: (minRating?: number): Promise<WagtailTestimonial[]> => {
-    const params =
-      typeof minRating === 'number' ? `?min_rating=${minRating}` : ''
+    const params = typeof minRating === 'number' ? `?min_rating=${minRating}` : ''
     return apiClient
       .get<WagtailTestimonial[]>(`/api/testimonials/${params}`)
       .then((res) => res.data)
   },
 
-  submitTestimonial: (
-    data: TestimonialSubmission
-  ): Promise<TestimonialSubmissionResponse> =>
+  submitTestimonial: (data: TestimonialSubmission): Promise<TestimonialSubmissionResponse> =>
     apiClient
       .post<TestimonialSubmissionResponse>('/api/testimonials/submit/', data)
       .then((res) => res.data),
 
-  // --- NEW REPLY METHOD ---
-  submitReply: (
-    id: number,
-    data: ReplySubmission
-  ): Promise<{ success: boolean; message: string }> =>
+  submitReply: (id: number, data: ReplySubmission): Promise<{ success: boolean; message: string }> =>
     apiClient
-      .post<{ success: boolean; message: string }>(
-        `/api/testimonials/${id}/reply/`,
-        data
-      )
+      .post<{ success: boolean; message: string }>(`/api/testimonials/${id}/reply/`, data)
       .then((res) => res.data),
-  // ------------------------
 
   getTestimonialStats: (): Promise<TestimonialStats> =>
-    apiClient
-      .get<TestimonialStats>('/api/testimonials/stats/')
-      .then((res) => res.data),
+    apiClient.get<TestimonialStats>('/api/testimonials/stats/').then((res) => res.data),
 
-  submitContact: (
-    data: ContactSubmission
-  ): Promise<ContactSubmissionResponse> =>
+  submitContact: (data: ContactSubmission): Promise<ContactSubmissionResponse> =>
     apiClient
       .post<ContactSubmissionResponse>('/api/contact/submit/', data)
       .then((res) => res.data),
 
-  // --- NEW: FETCH GLOBAL SETTINGS (Dynamic Icon) ---
   getGlobals: (): Promise<GlobalSettings> =>
     apiClient.get<GlobalSettings>('/api/globals/').then((res) => res.data),
 
-  // --- NEW GIFT VOUCHER METHOD (Fixed) ---
   submitVoucher: (data: GiftVoucherSubmission): Promise<GiftVoucherResponse> => {
-    // Convert camelCase to snake_case for Django / DRF
     const payload = {
       purchaser_name: data.purchaserName,
       purchaser_email: data.purchaserEmail,
       recipient_name: data.recipientName,
       recipient_email: data.recipientEmail,
       message: data.message || '',
-      // Send null if date is empty string, otherwise backend may reject it
       preferred_date: data.preferredDate ? data.preferredDate : null,
     }
 
@@ -271,7 +230,6 @@ export const cmsAPI = {
   },
 }
 
-// Extract localized text from bilingual content objects
 export function getLocalizedText<T extends Record<string, unknown>>(
   obj: T,
   field: string,

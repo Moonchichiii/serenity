@@ -14,48 +14,37 @@ from .serializers import GiftVoucherSerializer
 
 
 def _safe_format(s: str, **kwargs) -> str:
-    """
-    Format CMS strings like 'You received a voucher from {purchaser_name}'
-    without crashing if braces are wrong.
-    """
+    """Format CMS strings without crashing if braces are invalid."""
     if not s:
         return ""
     try:
         return s.format(**kwargs)
     except Exception:
-        # If someone entered invalid {tokens} in Wagtail, don't break email sending
         return s
 
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def create_voucher(request):
-    """
-    Creates a gift voucher and sends notification emails.
-    Uses GiftSettings (Wagtail) for all email copy with token formatting.
-    """
+    """Creates a gift voucher and sends notification emails."""
     serializer = GiftVoucherSerializer(data=request.data)
     if not serializer.is_valid():
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     voucher = serializer.save()
 
-    # Site + Gift settings
     site = Site.find_for_request(request)
     try:
         gift_settings = GiftSettings.for_site(site)
     except Exception:
-        # Fallback if site-specific settings fail
         gift_settings = GiftSettings.objects.first()
 
-    # Language: use request LANGUAGE_CODE if available; fallback to English
     lang = getattr(request, "LANGUAGE_CODE", "en")
     if lang not in ("en", "fr"):
         lang = "en"
 
     site_name = getattr(site, "site_name", None) or "Serenity"
 
-    # Voucher image (safe)
     image_url = ""
     if gift_settings and gift_settings.voucher_image:
         try:
@@ -63,16 +52,12 @@ def create_voucher(request):
         except Exception:
             image_url = ""
 
-    # Tokens available for CMS copy
     tokens = {
         "purchaser_name": voucher.purchaser_name,
         "recipient_name": voucher.recipient_name,
         "site_name": site_name,
         "code": voucher.code,
     }
-
-    # Pull localized strings from GiftSettings safely
-    # If gift_settings is None, these allow "" instead of crashing on getattr
 
     raw_subject = getattr(gift_settings, f"email_subject_{lang}", "") if gift_settings else ""
     subject = raw_subject or "Gift Voucher"
@@ -89,22 +74,18 @@ def create_voucher(request):
     raw_closing = getattr(gift_settings, f"email_closing_{lang}", "") if gift_settings else ""
     email_closing = _safe_format(raw_closing, **tokens)
 
-    # Context for templates
     context = {
         "voucher": voucher,
-        "settings": gift_settings,   # keep for backwards compatibility
+        "settings": gift_settings,
         "image_url": image_url,
         "site_name": site_name,
         "lang": lang,
-
-        # formatted strings (preferred)
         "email_heading": email_heading,
         "email_intro": email_intro,
         "email_redeem": email_redeem,
         "email_closing": email_closing,
     }
 
-    # --- Recipient email ---
     html_content = render_to_string("vouchers/email_recipient.html", context)
     text_content = strip_tags(html_content)
 
@@ -117,7 +98,6 @@ def create_voucher(request):
     msg_recipient.attach_alternative(html_content, "text/html")
     msg_recipient.send()
 
-    # --- Admin email ---
     html_admin = render_to_string("vouchers/email_admin.html", context)
     text_admin = strip_tags(html_admin)
 

@@ -5,8 +5,9 @@ from django.views.decorators.cache import cache_page
 from .google_calendar import list_busy_days, list_free_slots
 
 
-@cache_page(60 * 5)  # 5 min cache
+@cache_page(60 * 5)
 def busy(request):
+    """Return busy dates for a given year and month."""
     year = int(request.GET.get("year"))
     month = int(request.GET.get("month"))
 
@@ -20,9 +21,10 @@ def busy(request):
     return JsonResponse({"busy": busy_dates})
 
 
-@cache_page(60)  # 1 min cache
+@cache_page(60)
 def slots(request):
-    iso = request.GET.get("date")  # "YYYY-MM-DD"
+    """Return available time slots for a given date."""
+    iso = request.GET.get("date")
 
     cache_key = f"calendar:slots:{iso}"
     times = cache.get(cache_key)

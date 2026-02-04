@@ -1,10 +1,8 @@
 import { Settings } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useModal } from '@/shared/hooks/useModal'
-
 import { requestCookieSettingsOpen } from '@/shared/consent'
 
-/** Renders the cookie policy content and provides a trigger to open cookie settings. */
 export function CookiePolicy() {
   const { t } = useTranslation()
   const { close } = useModal()
@@ -12,10 +10,7 @@ export function CookiePolicy() {
   const sections = ['what', 'used', 'ads', 'consent'] as const
 
   const openCookieSettings = () => {
-    // Close the legal modal first (otherwise cookie banner opens behind the overlay)
     close('legal')
-
-    // Next tick so the overlay is removed before showing CookieConsent
     requestAnimationFrame(() => {
       requestCookieSettingsOpen()
     })
@@ -64,7 +59,6 @@ export function CookiePolicy() {
         ))}
       </div>
 
-      {/* Cookie settings trigger */}
       <div className="pt-4 border-t border-sage-200">
         <button
           type="button"

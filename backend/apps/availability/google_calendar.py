@@ -4,6 +4,7 @@ Handles reading availability + creating bookings
 """
 
 import json
+import logging
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -13,16 +14,15 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+logger = logging.getLogger(__name__)
+
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 CALENDAR_ID = config("GOOGLE_CALENDAR_ID", default="primary")
 TZ = ZoneInfo("Europe/Paris")
 
 
 def _get_credentials():
-    """
-    Load credentials from environment and refresh if needed.
-    Returns None if token is missing.
-    """
+    """Load credentials from environment and refresh if needed."""
     token_json = config("GOOGLE_OAUTH_TOKEN_JSON", default=None)
     if not token_json:
         return None
@@ -38,14 +38,12 @@ def _get_credentials():
             scopes=data.get("scopes", SCOPES),
         )
 
-        # Refresh if expired
         if creds.expired and creds.refresh_token:
             creds.refresh(Request())
-            # Note: In production, save refreshed token back to storage
 
         return creds
     except (json.JSONDecodeError, KeyError) as e:
-        print(f"❌ Invalid token format: {e}")
+        logger.error(f"Invalid token format: {e}")
         return None
 
 
@@ -58,15 +56,11 @@ def _get_service():
 
 
 def list_busy_days(year: int, month: int) -> list[str]:
-    """
-    Get list of dates (YYYY-MM-DD) that have any events.
-    Used to gray out fully booked days in calendar.
-    """
+    """Get list of dates (YYYY-MM-DD) that have any events."""
     service = _get_service()
     if not service:
-        return []  # Fallback if no credentials
+        return []
 
-    # Month range
     start = datetime(year, month, 1, tzinfo=TZ)
     if month == 12:
         end = datetime(year + 1, 1, 1, tzinfo=TZ)
@@ -90,12 +84,10 @@ def list_busy_days(year: int, month: int) -> list[str]:
         busy_dates = set()
 
         for event in events:
-            # Handle all-day events
             start_date = event["start"].get("date")
             if start_date:
                 busy_dates.add(start_date)
             else:
-                # DateTime event - extract date
                 start_dt = event["start"].get("dateTime")
                 if start_dt:
                     date_str = datetime.fromisoformat(start_dt).date().isoformat()
@@ -104,54 +96,27 @@ def list_busy_days(year: int, month: int) -> list[str]:
         return sorted(busy_dates)
 
     except HttpError as error:
-        print(f"❌ Calendar API error: {error}")
+        logger.error(f"Calendar API error: {error}")
         return []
 
 
 def list_free_slots(
     date_iso: str, slot_minutes: int = 30, work_hours: tuple = (9, 19)
 ) -> list[str]:
-    """
-    Get available time slots (HH:MM) for a specific date.
-
-    Args:
-        date_iso: Date in YYYY-MM-DD format
-        slot_minutes: Duration of each time slot (default 30 min)
-        work_hours: Tuple of (start_hour, end_hour) in 24h format
-
-    Returns:
-        List of available time slots as strings (e.g., ["09:00", "09:30", ...])
-    """
+    """Get available time slots (HH:MM) for a specific date."""
     service = _get_service()
     if not service:
-        # Fallback demo times if no credentials
         return [
-            "09:00",
-            "09:30",
-            "10:00",
-            "10:30",
-            "11:00",
-            "11:30",
-            "13:00",
-            "13:30",
-            "14:00",
-            "14:30",
-            "15:00",
-            "15:30",
-            "16:00",
-            "16:30",
-            "17:00",
-            "17:30",
-            "18:00",
+            "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+            "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
+            "16:00", "16:30", "17:00", "17:30", "18:00",
         ]
 
-    # Parse date and set work hours
     day = datetime.fromisoformat(date_iso).replace(tzinfo=TZ)
     start = day.replace(hour=work_hours[0], minute=0, second=0, microsecond=0)
     end = day.replace(hour=work_hours[1], minute=0, second=0, microsecond=0)
 
     try:
-        # Get all events for this day
         events_result = (
             service.events()
             .list(
@@ -166,7 +131,6 @@ def list_free_slots(
 
         events = events_result.get("items", [])
 
-        # Collect occupied time ranges
         occupied = []
         for event in events:
             event_start = event["start"].get("dateTime")
@@ -179,18 +143,15 @@ def list_free_slots(
                     )
                 )
 
-        # Generate available slots
         slots = []
         current_time = start
         slot_delta = timedelta(minutes=slot_minutes)
 
         while current_time + slot_delta <= end:
-            # Check if this slot conflicts with any occupied range
             slot_end = current_time + slot_delta
             is_free = True
 
             for occ_start, occ_end in occupied:
-                # Slot conflicts if it overlaps with occupied range
                 if not (slot_end <= occ_start or current_time >= occ_end):
                     is_free = False
                     break
@@ -203,7 +164,7 @@ def list_free_slots(
         return slots
 
     except HttpError as error:
-        print(f"❌ Calendar API error: {error}")
+        logger.error(f"Calendar API error: {error}")
         return []
 
 
@@ -215,23 +176,10 @@ def create_booking_event(
     client_name: str,
     description: str = "",
 ) -> dict | None:
-    """
-    Create a calendar event for a booking.
-
-    Args:
-        title: Event title (e.g., "Swedish Massage - Jane Doe")
-        start_datetime: Start time (timezone-aware)
-        end_datetime: End time (timezone-aware)
-        client_email: Client's email for calendar invite
-        client_name: Client's name
-        description: Additional notes
-
-    Returns:
-        dict with event details (id, htmlLink) or None if failed
-    """
+    """Create a calendar event for a booking."""
     service = _get_service()
     if not service:
-        print("❌ No calendar credentials available")
+        logger.error("No calendar credentials available")
         return None
 
     event = {
@@ -249,8 +197,8 @@ def create_booking_event(
         "reminders": {
             "useDefault": False,
             "overrides": [
-                {"method": "email", "minutes": 24 * 60},  # 1 day before
-                {"method": "popup", "minutes": 60},  # 1 hour before
+                {"method": "email", "minutes": 24 * 60},
+                {"method": "popup", "minutes": 60},
             ],
         },
     }
@@ -261,7 +209,7 @@ def create_booking_event(
             .insert(
                 calendarId=CALENDAR_ID,
                 body=event,
-                sendUpdates="all",  # Send email invite to client
+                sendUpdates="all",
             )
             .execute()
         )
@@ -273,20 +221,12 @@ def create_booking_event(
         }
 
     except HttpError as error:
-        print(f"❌ Failed to create calendar event: {error}")
+        logger.error(f"Failed to create calendar event: {error}")
         return None
 
 
 def delete_booking_event(event_id: str) -> bool:
-    """
-    Delete a calendar event (for cancellations).
-
-    Args:
-        event_id: Google Calendar event ID
-
-    Returns:
-        True if successfully deleted, False otherwise
-    """
+    """Delete a calendar event (for cancellations)."""
     service = _get_service()
     if not service:
         return False
@@ -295,10 +235,10 @@ def delete_booking_event(event_id: str) -> bool:
         service.events().delete(
             calendarId=CALENDAR_ID,
             eventId=event_id,
-            sendUpdates="all",  # Notify attendees
+            sendUpdates="all",
         ).execute()
         return True
 
     except HttpError as error:
-        print(f"❌ Failed to delete event: {error}")
+        logger.error(f"Failed to delete event: {error}")
         return False

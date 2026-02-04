@@ -21,7 +21,6 @@ export default function CMSLoginModal() {
   const open = isOpen('cmsLogin')
 
   const [csrfToken, setCsrfToken] = useState<string | null>(null)
-
   const [me, setMe] = useState<{
     isAuthenticated: boolean
     isStaff?: boolean
@@ -35,10 +34,10 @@ export default function CMSLoginModal() {
     reset,
   } = useForm<FormData>({ resolver: yupResolver(schema) })
 
-  // Fetch CSRF + session state when opened
   useEffect(() => {
     if (!open) return
-    ;(async () => {
+
+    const fetchSessionData = async () => {
       try {
         const csrfRes = await apiClient.get('/api/auth/csrf/')
         setCsrfToken(csrfRes.data?.csrfToken || null)
@@ -48,13 +47,14 @@ export default function CMSLoginModal() {
       } catch {
         setMe({ isAuthenticated: false })
       }
-    })()
+    }
+
+    fetchSessionData()
   }, [open])
 
   const onSubmit = async (data: FormData) => {
     try {
       if (!csrfToken) {
-        // Fallback: fetch CSRF token if for some reason it's missing
         const csrfRes = await apiClient.get('/api/auth/csrf/')
         setCsrfToken(csrfRes.data?.csrfToken || null)
       }
@@ -82,7 +82,7 @@ export default function CMSLoginModal() {
       setMe({ isAuthenticated: false })
       toast.success('Logged out')
     } catch {
-      /* no-op */
+      // Silent fail
     }
   }
 
