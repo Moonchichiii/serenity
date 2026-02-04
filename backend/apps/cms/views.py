@@ -8,10 +8,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from wagtail.models import Site
 
-from apps.cms.models import GiftSettings, HeroSlide, HomePage, Specialty
+from apps.cms.pages import HeroSlide, HomePage, Specialty
+from apps.cms.settings import GiftSettings
 from apps.services.models import Service
-
-# FIX: Correct app name is 'testimonials', not 'reviews'
 from apps.testimonials.models import Testimonial, TestimonialReply
 
 from .serializers import (

@@ -4,7 +4,8 @@ import cloudinary.utils
 from rest_framework import serializers
 from wagtail.images.models import Image
 
-from apps.cms.models import GiftSettings, HomePage
+from apps.cms.pages import HomePage
+from apps.cms.settings import GiftSettings
 from apps.services.models import Service
 from apps.testimonials.models import Testimonial, TestimonialReply
 

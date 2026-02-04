@@ -6,10 +6,12 @@ from django.utils.safestring import mark_safe
 from wagtail import hooks
 
 try:
-    from apps.cms.models import GiftSettings, HomePage
+    from apps.cms.pages import HomePage
+    from apps.cms.settings import GiftSettings
 except ImportError:
     HomePage = None
     GiftSettings = None
+
 
 try:
     from apps.testimonials.models import Testimonial, TestimonialReply
@@ -55,9 +57,9 @@ def add_welcome_panel(request, panels):
             # --- HomePage edit URL ---
             edit_url = "/cms-admin/pages/"
             if HomePage:
-                homepage_obj = HomePage.objects.first()
+                homepage_obj = HomePage.objects.live().first()
                 if homepage_obj:
-                    edit_url = f"/cms-admin/pages/{homepage_obj.id}/edit/"
+                    edit_url = reverse("wagtailadmin_pages:edit", args=[homepage_obj.id])
 
             # --- GiftSettings URL ---
             gift_settings_url = "#"

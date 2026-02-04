@@ -53,8 +53,8 @@ INSTALLED_APPS = [
     "wagtail_localize",
     # Local apps
     "apps.core",
-    "apps.cms",
-    "apps.services",
+    "apps.cms.apps.CmsConfig",
+    "apps.services.apps.ServicesConfig",
     "apps.testimonials",
     "apps.availability",
     "apps.bookings",
@@ -75,7 +75,6 @@ AUTHENTICATION_BACKENDS = [
 
 # ── Middleware
 MIDDLEWARE = [
-    "django.middleware.cache.UpdateCacheMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "csp.middleware.CSPMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -89,7 +88,6 @@ MIDDLEWARE = [
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "apps.core.middleware.CacheHeaderMiddleware",
-    "django.middleware.cache.FetchFromCacheMiddleware",
 ]
 
 
@@ -278,38 +276,34 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Cache Redis
 REDIS_URL = config("REDIS_URL", default=None)
+
 if REDIS_URL:
-    redis_options = {
-        "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        "CONNECTION_POOL_KWARGS": {"max_connections": 5},
-        "SOCKET_CONNECT_TIMEOUT": 5,
-        "SOCKET_TIMEOUT": 5,
-    }
-    try:
-        import hiredis  # noqa
-
-        redis_options["PARSER_CLASS"] = "redis.connection._HiredisParser"
-    except Exception:
-        pass
-
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
             "LOCATION": REDIS_URL,
-            "OPTIONS": redis_options,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "IGNORE_EXCEPTIONS": True,
+                "CONNECTION_POOL_KWARGS": {
+                    "max_connections": 10,
+                    "health_check_interval": 30,
+                    "retry_on_timeout": True,
+                },
+                "SOCKET_CONNECT_TIMEOUT": 5,
+                "SOCKET_TIMEOUT": 5,
+            },
             "KEY_PREFIX": "serenity",
-            "TIMEOUT": 300,
         }
     }
 else:
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-            "LOCATION": "unique-serenity",
+            "LOCATION": "serenity-local",
         }
     }
 
-# Cache middleware config
 CACHE_MIDDLEWARE_ALIAS = "default"
 CACHE_MIDDLEWARE_SECONDS = 300
 CACHE_MIDDLEWARE_KEY_PREFIX = ""
