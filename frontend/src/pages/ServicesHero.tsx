@@ -10,9 +10,11 @@ import {
 import { Button } from "@/components/ui/Button";
 import { useModal } from "@/shared/hooks/useModal";
 
+// --- Assets ---
 const FALLBACK_POSTER =
   "https://res.cloudinary.com/dbzlaawqt/image/upload/v1762274193/poster_zbbwz5.webp";
 
+// --- Utils ---
 const toSentenceCase = (s?: string) => {
   if (!s) return "";
   const first = s.charAt(0).toLocaleUpperCase();
@@ -28,7 +30,7 @@ export function ServicesHero() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const { open } = useModal();
 
-  // FIX CSP ERROR: Generate a Blob URL for the captions
+  // --- Logic: CSP / Captions ---
   const captionsUrl = useMemo(() => {
     if (typeof window === "undefined") return undefined;
     const blob = new Blob(["WEBVTT\n\n"], { type: "text/vtt" });
@@ -41,6 +43,7 @@ export function ServicesHero() {
     };
   }, [captionsUrl]);
 
+  // --- Logic: Performance / Data Saver ---
   const saveData =
     typeof navigator !== "undefined" &&
     // @ts-expect-error connection property not in standard Navigator type
@@ -50,17 +53,16 @@ export function ServicesHero() {
     window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
   const shouldDisableVideo = !!saveData || !!prefersReducedMotion;
 
+  // --- Fetch Data ---
   useEffect(() => {
-    cmsAPI
-      .getHomePage()
-      .then(setPage)
-      .catch(() => setPage(null));
+    cmsAPI.getHomePage().then(setPage).catch(() => setPage(null));
   }, []);
 
   const lang = i18n.language.startsWith("fr") ? "fr" : "en";
   const getString = (key: keyof WagtailHomePage) =>
     page && typeof page[key] === "string" ? (page[key] as string) : "";
 
+  // --- Logic: Image & Video Optimization ---
   useEffect(() => {
     const baseUrl = page?.services_hero_poster_image?.url;
     if (!baseUrl) {
@@ -81,11 +83,7 @@ export function ServicesHero() {
       );
     };
     compute();
-    let t: number | undefined;
-    const onResize = () => {
-      if (t) window.clearTimeout(t);
-      t = window.setTimeout(compute, 150);
-    };
+    const onResize = () => compute();
     if (typeof window !== "undefined")
       window.addEventListener("resize", onResize);
     return () => {
@@ -114,6 +112,7 @@ export function ServicesHero() {
     const buildVideoUrl = () => {
       const width =
         typeof window !== "undefined" ? window.innerWidth || 1920 : 1920;
+      // Ultra-optimized breakpoints for performance
       if (width <= 640) return getOptimizedVideoUrl(publicId, 640, "eco");
       if (width <= 1024) return getOptimizedVideoUrl(publicId, 1024, "eco");
       return getOptimizedVideoUrl(publicId, 1920, "eco");
@@ -121,11 +120,7 @@ export function ServicesHero() {
 
     const update = () => setVideoSrc(buildVideoUrl());
     update();
-    let t: number | undefined;
-    const onResize = () => {
-      if (t) window.clearTimeout(t);
-      t = window.setTimeout(update, 200);
-    };
+    const onResize = () => update();
     if (typeof window !== "undefined")
       window.addEventListener("resize", onResize);
     return () => {
@@ -140,6 +135,7 @@ export function ServicesHero() {
 
   if (!page) return null;
 
+  // --- Content Extraction ---
   const title = getString(
     `services_hero_title_${lang}` as keyof WagtailHomePage
   );
@@ -165,7 +161,10 @@ export function ServicesHero() {
       className="relative flex items-center justify-center overflow-hidden min-h-[85vh] lg:min-h-[85vh] py-12"
       aria-labelledby="services-hero-title"
     >
-      {/* --- Background Media --- */}
+      {/*
+        1. BACKGROUND VIDEO/IMAGE
+        Using 'object-cover' to fill space.
+      */}
       {videoSrc && (
         <video
           ref={videoRef}
@@ -201,54 +200,64 @@ export function ServicesHero() {
         />
       )}
 
-      {/* --- Modern Overlay (Softer gradient for cleaner look) --- */}
+      {/*
+        2. PREMIUM OVERLAY
+        Instead of a heavy flat color, we use a gradient that fades
+        from bottom-up to ensure text legibility while keeping the top airy.
+      */}
       <div
-        className="absolute inset-0 bg-charcoal/40"
+        className="absolute inset-0 bg-charcoal/30 backdrop-contrast-[.95]"
         aria-hidden="true"
       />
       <div
-        className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-charcoal/20"
+        className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/20 to-transparent"
         aria-hidden="true"
       />
 
-      {/* --- Content Card --- */}
+      {/*
+        3. THE FLOATING ISLAND (Content)
+        - Backdrop Blur XL for that "frosted glass" feel.
+        - Rounded 2rem for organic softness.
+        - Subtle white border for premium finish.
+      */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 40, scale: 0.98 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }} // Bezier for "premium" feel
           className="w-full max-w-5xl mx-auto"
         >
-          <div className="rounded-[2rem] bg-white/95 backdrop-blur-xl border border-white/60 shadow-2xl p-6 sm:p-10 lg:p-12 overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <div className="rounded-[2rem] bg-white/95 backdrop-blur-2xl border border-white/60 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] p-6 sm:p-10 lg:p-14 overflow-hidden">
 
-              {/* Left Column: Heading, Price, CTA */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+
+              {/* --- LEFT COLUMN: Emotional Pitch --- */}
               <div className="flex flex-col gap-6 text-center lg:text-left">
-                {/* Intro Tag (Optional visual flair) */}
-                <span className="hidden lg:block text-xs font-bold tracking-widest text-sage-600 uppercase mb-[-1rem]">
-                  {toSentenceCase(
-                    lang === "fr" ? "Offre Entreprise" : "Corporate Offer"
-                  )}
+
+                {/* Eyebrow Label - Adds professional context */}
+                <span className="hidden lg:block text-xs font-bold tracking-[0.2em] text-sage-600 uppercase mb-[-1rem] opacity-80">
+                  {lang === "fr" ? "Bien-être au travail" : "Corporate Wellness"}
                 </span>
 
                 <h2
                   id="services-hero-title"
-                  className="font-heading font-medium text-charcoal leading-[1.1] tracking-tight text-3xl sm:text-4xl md:text-5xl"
+                  className="font-heading font-medium text-charcoal leading-[1.15] tracking-tight text-3xl sm:text-4xl md:text-5xl"
                 >
                   {toSentenceCase(title)}
                 </h2>
 
+                {/* Price Pill - Minimalist & Integrated */}
                 {hasPrice && (
                   <div className="flex justify-center lg:justify-start">
-                    <div className="inline-flex items-center gap-2.5 rounded-full bg-sage-50/80 px-5 py-2.5 border border-sage-100">
+                    <div className="inline-flex items-center gap-3 rounded-full bg-stone-50 px-5 py-2.5 border border-stone-100/80 shadow-sm">
                       {priceLabel && (
-                        <span className="text-sm font-semibold text-charcoal/60 uppercase tracking-wide">
+                        <span className="text-sm font-semibold text-stone-500 uppercase tracking-wide">
                           {priceLabel}
                         </span>
                       )}
                       {price && (
-                        <span className="text-xl sm:text-2xl font-bold text-sage-800 tabular-nums">
+                        <span className="text-xl sm:text-2xl font-bold text-sage-800 tabular-nums tracking-tight">
                           {price}
                         </span>
                       )}
@@ -261,7 +270,8 @@ export function ServicesHero() {
                     <Button
                       variant="default"
                       size="lg"
-                      className="w-full sm:w-auto rounded-full shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 px-10 text-base font-semibold"
+                      // "h-14" ensures a nice touch target. "px-10" makes it feel substantial.
+                      className="w-full sm:w-auto h-14 rounded-full shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 px-10 text-base font-semibold bg-charcoal text-white hover:bg-charcoal/90"
                       onClick={() =>
                         open("corporate", { defaultEventType: "corporate" })
                       }
@@ -272,28 +282,30 @@ export function ServicesHero() {
                 )}
               </div>
 
-              {/* Right Column: Benefits List */}
+              {/* --- RIGHT COLUMN: Rational Benefits --- */}
               {benefits.length > 0 && (
-                <div className="relative">
-                  {/* Decorative Divider for Desktop */}
-                  <div className="absolute hidden lg:block left-[-1.5rem] top-4 bottom-4 w-px bg-gradient-to-b from-transparent via-sage-200 to-transparent" />
+                <div className="relative pl-0 lg:pl-6">
+                  {/* Vertical Divider (Desktop Only) - The "Zen" separator */}
+                  <div className="absolute hidden lg:block left-0 top-2 bottom-2 w-px bg-gradient-to-b from-transparent via-stone-200 to-transparent" />
 
-                  <ul className="space-y-4 sm:space-y-5">
+                  <ul className="space-y-5 sm:space-y-6">
                     {benefits.map((b, i) => (
-                      <motion.li
-                        key={i}
-                        initial={{ opacity: 0, x: 20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
-                        className="flex items-start gap-4 group"
-                      >
-                        <span className="mt-0.5 flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-sage-100 group-hover:bg-sage-200 transition-colors">
-                          <Check className="w-3.5 h-3.5 text-sage-700 stroke-[3]" />
-                        </span>
-                        <span className="text-base sm:text-lg text-charcoal/80 leading-snug font-medium group-hover:text-charcoal transition-colors">
-                          {b}
-                        </span>
-                      </motion.li>
+                      <li key={i}>
+                        <motion.div
+                          initial={{ opacity: 0, x: 15 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.3 + i * 0.15, duration: 0.5 }}
+                          className="flex items-start gap-4 group"
+                        >
+                          {/* Custom Checkmark: Soft sage background, deep sage icon */}
+                          <span className="mt-0.5 flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-sage-50 border border-sage-100 group-hover:border-sage-200 transition-colors">
+                            <Check className="w-3.5 h-3.5 text-sage-700 stroke-[2.5]" />
+                          </span>
+                          <span className="text-base sm:text-lg text-charcoal/80 leading-snug font-medium group-hover:text-charcoal transition-colors">
+                            {b}
+                          </span>
+                        </motion.div>
+                      </li>
                     ))}
                   </ul>
                 </div>
