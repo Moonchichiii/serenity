@@ -6,7 +6,7 @@ import {
   type Variants,
   type Transition,
 } from 'framer-motion';
-import { Heart, User, Award, MapPin, Mail, ArrowRight } from 'lucide-react';
+import { Heart, User, Award, Mail, ArrowRight } from 'lucide-react';
 
 import SecretTrigger from '@/components/secret/SecretTrigger';
 import {
@@ -104,28 +104,18 @@ export function About() {
         },
       };
 
-  // Reusable Map Component
+  // Reusable Map Component - Cleaned up to allow child component to control size/touch
   const MapCard = () => (
-    <div className="p-5 bg-white rounded-[24px] border border-stone-100 shadow-soft group hover:shadow-warm transition-shadow duration-300">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-full bg-sage-50 flex items-center justify-center text-sage-600">
-          <MapPin className="w-5 h-5" />
-        </div>
-        <div>
-          <h4 className="font-semibold text-foreground text-sm uppercase tracking-wide">
-             {t('about.studioTitle')}
-          </h4>
-          <p className="text-xs text-stone-500">
+    <div className="p-1">
+       <Suspense fallback={<div className="w-full h-[220px] bg-stone-100 animate-pulse rounded-2xl" />}>
+          <LocationMap />
+       </Suspense>
+
+       <div className="mt-3 px-1">
+          <p className="text-xs text-stone-500 leading-relaxed">
             {isLoading || !content ? 'Loading...' : content.address}
           </p>
-        </div>
-      </div>
-
-      <div className="rounded-2xl overflow-hidden border border-stone-100 relative h-[180px]">
-         <Suspense fallback={<div className="w-full h-full bg-stone-100 animate-pulse" />}>
-          <LocationMap />
-        </Suspense>
-      </div>
+       </div>
     </div>
   );
 

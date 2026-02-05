@@ -18,22 +18,31 @@ const MapLoader = memo(() => {
 
   return (
     <GoogleMap
-      mapContainerClassName="w-full h-full"
+      mapContainerClassName="w-full h-full rounded-2xl"
       center={CENTER_5_AVENUES}
       zoom={ZOOM_LEVEL}
       options={{
         disableDefaultUI: true,
         zoomControl: true,
         gestureHandling: 'cooperative',
+        styles: [
+          {
+            featureType: 'poi',
+            elementType: 'labels',
+            stylers: [{ visibility: 'off' }],
+          },
+        ],
       }}
     >
       <Circle
         center={CENTER_5_AVENUES}
         radius={AREA_RADIUS_METERS}
         options={{
-          strokeOpacity: 0.7,
+          strokeColor: '#788476',
+          strokeOpacity: 0.8,
           strokeWeight: 1,
-          fillOpacity: 0.16,
+          fillColor: '#788476',
+          fillOpacity: 0.15,
           clickable: false,
           draggable: false,
           editable: false,
@@ -47,74 +56,56 @@ MapLoader.displayName = 'MapLoader';
 
 export function LocationMap() {
   const { t } = useTranslation();
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const [shouldLoadMap, setShouldLoadMap] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const sectionRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  const handleInteraction = () => {
-    setShouldLoadMap(true);
-    if (!isMobile) setIsExpanded(true);
-  };
-
-  useEffect(() => {
-    if (!isMobile || !sectionRef.current) return;
+    const current = sectionRef.current;
+    if (!current) return;
 
     const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          const shouldExpand = entry.isIntersecting && entry.intersectionRatio > 0.5;
-          setIsExpanded(shouldExpand);
-          if (shouldExpand) setShouldLoadMap(true);
-        });
+      (entries) => {
+        if (entries.length > 0 && entries[0]?.isIntersecting) {
+          setShouldLoadMap(true);
+          observer.disconnect();
+        }
       },
-      { threshold: [0, 0.5, 1] }
+      { rootMargin: '100px' }
     );
 
-    observer.observe(sectionRef.current);
+    observer.observe(current);
     return () => observer.disconnect();
-  }, [isMobile]);
+  }, []);
 
-  const heightClass = isExpanded
-    ? isMobile ? "h-[300px]" : "h-[500px]"
-    : isMobile ? "h-[180px]" : "h-[220px]";
+  const containerClasses = [
+    'relative w-full overflow-hidden rounded-2xl border border-stone-200/60 shadow-sm',
+    'bg-stone-100 transition-[height] duration-500 ease-out',
+    'touch-pan-y',
+    isHovered ? 'h-[200px] lg:h-[320px]' : 'h-[200px] lg:h-[240px]',
+  ].join(' ');
 
   return (
     <div className="space-y-3 pt-2">
-      <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-foreground/70">
-        <MapPin className="w-4 h-4" aria-hidden="true" />
+      <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-sage-700/80">
+        <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
         <span>
-          {t('about.mapTitle', { defaultValue: 'Studio Area – 5 Avenues, 13004 Marseille' })}
+          {t('about.mapTitle', { defaultValue: 'Studio Area – 5 Avenues' })}
         </span>
       </div>
 
       <div
         ref={sectionRef}
-        className={[
-          "relative w-full overflow-hidden rounded-2xl border border-primary/15 shadow-soft",
-          "transition-[height] duration-700 ease-out bg-sage-50",
-          heightClass,
-        ].join(" ")}
-        onMouseEnter={handleInteraction}
-        onMouseLeave={() => !isMobile && setIsExpanded(false)}
-        onTouchStart={handleInteraction}
-        onClick={handleInteraction}
+        className={containerClasses}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         {shouldLoadMap ? (
           <MapLoader />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center text-foreground/80 cursor-pointer">
-            <MapPin className="w-8 h-8 mb-2 opacity-50 text-sage-600" />
-            <p className="text-xs font-medium">
-              {t('about.mapPreview', { defaultValue: 'View Map' })}
-            </p>
+          <div className="w-full h-full flex flex-col items-center justify-center bg-stone-100 text-stone-400">
+            <MapPin className="w-8 h-8 mb-2 opacity-50" />
+            <p className="text-xs">{t('loading', { defaultValue: 'Loading map...' })}</p>
           </div>
         )}
       </div>
