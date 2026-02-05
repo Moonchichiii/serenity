@@ -94,7 +94,9 @@ export function Header() {
         fixed top-0 left-0 right-0 z-50
         border-b transition-all duration-300
         ${isScrolled
-          ? 'glass border-sage-200/30 shadow-soft'
+          // UPDATED: 'bg-white/95 backdrop-blur-md' gives strong coverage
+          // while still looking modern and glassy.
+          ? 'bg-white/95 backdrop-blur-md border-sage-200/30 shadow-sm'
           : 'bg-transparent border-transparent'
         }
       `}
@@ -261,7 +263,8 @@ export function Header() {
             initial={shouldReduceMotion ? false : { opacity: 0, height: 0 }}
             animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, height: 'auto' }}
             exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
-            className="md:hidden border-t border-sage-200/30 bg-porcelain"
+            // UPDATED MOBILE MENU BG AS WELL
+            className="md:hidden border-t border-sage-200/30 bg-white/98 backdrop-blur-md"
           >
             <div className="container mx-auto px-4 py-4 space-y-2">
               <ul className="space-y-2">
@@ -271,7 +274,7 @@ export function Header() {
                       ref={idx === 0 ? firstMobileLinkRef : null}
                       href={item.href}
                       onClick={handleNav(item.href)}
-                      className="block py-3 px-4 text-charcoal/80 hover:text-charcoal hover:bg-sage-100 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-sage-400"
+                      className="block py-3 px-4 text-charcoal/80 hover:text-charcoal hover:bg-sage-50 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-sage-400"
                     >
                       {t(`nav.${item.key}`)}
                     </a>
@@ -284,7 +287,7 @@ export function Header() {
                       setIsOpen(false)
                       open('contact')
                     }}
-                    className="block w-full text-left py-3 px-4 text-charcoal/80 hover:text-charcoal hover:bg-sage-100 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-sage-400"
+                    className="block w-full text-left py-3 px-4 text-charcoal/80 hover:text-charcoal hover:bg-sage-50 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-sage-400"
                     aria-haspopup="dialog"
                     aria-controls="contact-modal"
                   >
