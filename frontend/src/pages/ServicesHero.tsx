@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { useModal } from "@/shared/hooks/useModal";
 
 // --- Assets ---
+// Fallback if CMS image fails
 const FALLBACK_POSTER =
   "https://res.cloudinary.com/dbzlaawqt/image/upload/v1762274193/poster_zbbwz5.webp";
 
@@ -215,6 +216,7 @@ export function ServicesHero() {
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="w-full max-w-5xl mx-auto"
         >
+          {/* Card Container */}
           <div className="rounded-[2.5rem] bg-white/90 backdrop-blur-2xl border border-white/60 shadow-2xl p-8 sm:p-12 lg:p-14 overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
@@ -255,9 +257,9 @@ export function ServicesHero() {
                 {hasCTA && (
                   <div className="pt-2">
                     <Button
-                      variant="default"
+                      variant="default" // Keeps your Sage Green consistency
                       size="lg"
-                      // Consistent with theme but rounded-full for 'softness'
+                      // Overrides to make it pill-shaped (rounded-full) + elevated shadow
                       className="w-full sm:w-auto min-h-[56px] rounded-full shadow-warm hover:shadow-elevated transition-all px-10 text-base font-medium"
                       onClick={() =>
                         open("corporate", { defaultEventType: "corporate" })
@@ -272,7 +274,7 @@ export function ServicesHero() {
               {/* --- RIGHT COLUMN: Benefits --- */}
               {benefits.length > 0 && (
                 <div className="relative pl-0 lg:pl-6">
-                  {/* Vertical Divider (Desktop) */}
+                  {/* Vertical Divider (Desktop Only) */}
                   <div className="absolute hidden lg:block left-0 top-4 bottom-4 w-px bg-gradient-to-b from-transparent via-stone-300/50 to-transparent" />
 
                   <ul className="space-y-6">
