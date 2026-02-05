@@ -22,6 +22,11 @@ import { useModal } from '@/shared/hooks/useModal';
 // Performance: Lazy load the map
 const LocationMap = lazy(() => import('@/components/ui/LocationMap').then(m => ({ default: m.LocationMap })));
 
+// Helper for loading states
+const Skeleton = ({ className }: { className: string }) => (
+  <div className={`bg-stone-200/50 animate-pulse rounded ${className}`} />
+);
+
 const pick = (
   cmsValue: string | null | undefined,
   fallback: string
@@ -35,6 +40,9 @@ export function About() {
   const [cmsData, setCmsData] = useState<WagtailHomePage | null>(null);
   const reduceMotion = useReducedMotion();
 
+  // Derived loading state
+  const isLoading = !cmsData;
+
   useEffect(() => {
     cmsAPI.getHomePage().then(setCmsData).catch(() => setCmsData(null));
   }, []);
@@ -44,19 +52,9 @@ export function About() {
       ? i18n.language
       : 'fr';
 
+  // CMS-FIRST CONTENT LOGIC
   const content = useMemo(() => {
-    const base = {
-      title: t('about.title'),
-      subtitle: t('about.subtitle'),
-      intro: t('about.intro'),
-      certification: t('about.certification'),
-      approachTitle: t('about.approach'),
-      approachText: t('about.approachText'),
-      specialtiesTitle: t('about.specialties'),
-      specialtiesGrid: [] as GridItem[],
-    };
-
-    if (!cmsData) return base;
+    if (!cmsData) return null; // Return null to trigger skeletons
 
     const specialtiesGrid = (cmsData.specialties ?? [])
       .map((sp: WagtailSpecialty): GridItem => ({
@@ -66,26 +64,14 @@ export function About() {
       .filter((s) => s.title.trim().length > 0);
 
     return {
-      ...base,
-      title: pick(cmsData[`about_title_${lang}`], base.title),
-      subtitle: pick(cmsData[`about_subtitle_${lang}`], base.subtitle),
-      intro: pick(cmsData[`about_intro_${lang}`], base.intro),
-      certification: pick(
-        cmsData[`about_certification_${lang}`],
-        base.certification
-      ),
-      approachTitle: pick(
-        cmsData[`about_approach_title_${lang}`],
-        base.approachTitle
-      ),
-      approachText: pick(
-        cmsData[`about_approach_text_${lang}`],
-        base.approachText
-      ),
-      specialtiesTitle: pick(
-        cmsData[`about_specialties_title_${lang}`],
-        base.specialtiesTitle
-      ),
+      title: pick(cmsData[`about_title_${lang}`], ''),
+      subtitle: pick(cmsData[`about_subtitle_${lang}`], ''),
+      intro: pick(cmsData[`about_intro_${lang}`], ''),
+      certification: pick(cmsData[`about_certification_${lang}`], ''),
+      approachTitle: pick(cmsData[`about_approach_title_${lang}`], ''),
+      approachText: pick(cmsData[`about_approach_text_${lang}`], ''),
+      specialtiesTitle: pick(cmsData[`about_specialties_title_${lang}`], ''),
+      studioDescription: t('about.studioDescriptionFallback'), // Kept as UI fallback just in case, or remove if CMS has this field
       specialtiesGrid,
     };
   }, [cmsData, lang, t]);
@@ -133,100 +119,107 @@ export function About() {
             transition={{ duration: 0.6 }}
             className="space-y-8 sm:space-y-10"
           >
+            {/* UI Label from i18n */}
             <div
               className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-foreground/70"
               role="presentation"
             >
               <Heart className="w-4 h-4" aria-hidden="true" />
-              <span>
-                {t('about.label', { defaultValue: 'About Me' })}{' '}
-                / <span lang="fr">À Propos de moi</span>
-              </span>
+              <span>{t('about.label')}</span>
             </div>
 
             <div className="space-y-4 sm:space-y-6">
-              <h2 id="about-heading" className="heading-primary">
-                {content.title}
+              <h2 id="about-heading" className="heading-primary min-h-[1em]">
+                {isLoading || !content ? (
+                  <Skeleton className="h-10 w-3/4 max-w-sm" />
+                ) : (
+                  content.title
+                )}
               </h2>
 
-              <p className="body-text max-w-xl">
-                {stripHtml(content.intro)}{' '}
-                <SecretTrigger modalId="cmsLogin" times={3} windowMs={900}>
-                  <span className="cursor-text select-text font-semibold text-sage-700 hover:text-sage-800 transition-colors">
-                    Serenity
-                  </span>
-                </SecretTrigger>
-              </p>
+              {/* Intro Text Block */}
+              <div className="body-text max-w-xl min-h-[4em]">
+                 {isLoading || !content ? (
+                   <div className="space-y-2">
+                     <Skeleton className="h-4 w-full" />
+                     <Skeleton className="h-4 w-5/6" />
+                     <Skeleton className="h-4 w-4/6" />
+                   </div>
+                 ) : (
+                   <>
+                     <p>{stripHtml(content.intro)}</p>
 
-              {content.subtitle && (
-                <p className="body-text text-foreground/65 max-w-xl">
-                  {content.subtitle}
-                </p>
-              )}
+                     {/* Secret Trigger - Separated Visual Signature */}
+                     <div className="mt-3 flex justify-end opacity-50 hover:opacity-100 transition-opacity">
+                       <SecretTrigger modalId="cmsLogin" times={3} windowMs={900}>
+                         <span className="text-[10px] uppercase tracking-widest text-sage-400 font-semibold cursor-default">
+                           Serenity
+                         </span>
+                       </SecretTrigger>
+                     </div>
+                   </>
+                 )}
+              </div>
+
+              {/* Subtitle / Quote */}
+              <div className="min-h-[1.5em]">
+                {isLoading || !content ? (
+                   <Skeleton className="h-4 w-1/2" />
+                ) : content.subtitle ? (
+                  <p className="body-text text-foreground/65 max-w-xl italic">
+                    {content.subtitle}
+                  </p>
+                ) : null}
+              </div>
             </div>
 
             <div className="space-y-4 pt-4">
               <h3 className="heading-secondary">
-                {t('about.guidesTitle', { defaultValue: 'What Guides Me' })}
+                {t('about.guidesTitle')}
               </h3>
 
               <div className="grid gap-4">
-                {/* GUIDE 1: Client Care - Dark Monochrome */}
+                {/* GUIDE 1: UI Content from i18n (Static) */}
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center flex-shrink-0 mt-1">
                     <User className="w-5 h-5 text-stone-700" />
                   </div>
                   <div>
                     <h4 className="font-semibold text-foreground mb-1">
-                      {t('about.guide.clientCareTitle', {
-                        defaultValue: 'Client-Centered Care',
-                      })}
+                      {t('about.guide.clientCareTitle')}
                     </h4>
                     <p className="text-sm text-foreground/70">
-                      {t('about.guide.clientCareBody', {
-                        defaultValue:
-                          'Your comfort, safety, and goals are my top priorities.',
-                      })}
+                      {t('about.guide.clientCareBody')}
                     </p>
                   </div>
                 </div>
 
-                {/* GUIDE 2: Excellence - Dark Monochrome */}
+                {/* GUIDE 2: UI Content from i18n (Static) */}
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center flex-shrink-0 mt-1">
                     <Award className="w-5 h-5 text-stone-700" />
                   </div>
                   <div>
                     <h4 className="font-semibold text-foreground mb-1">
-                      {t('about.guide.excellenceTitle', {
-                        defaultValue: 'Professional Excellence',
-                      })}
+                      {t('about.guide.excellenceTitle')}
                     </h4>
                     <p className="text-sm text-foreground/70">
-                      {t('about.guide.excellenceBody', {
-                        defaultValue:
-                          'I am fully certified and committed to ongoing training.',
-                      })}
+                      {t('about.guide.excellenceBody')}
                     </p>
                   </div>
                 </div>
 
-                {/* GUIDE 3: Holistic - Dark Monochrome */}
+                {/* GUIDE 3: UI Content from i18n (Static) */}
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center flex-shrink-0 mt-1">
                     <Heart className="w-5 h-5 text-stone-700" />
                   </div>
                   <div>
                     <h4 className="font-semibold text-foreground mb-1">
-                      {t('about.guide.holisticTitle', {
-                        defaultValue: 'Holistic Approach',
-                      })}
+                      {t('about.guide.holisticTitle')}
                     </h4>
                     <p className="text-sm text-foreground/70">
-                      {t('about.guide.holisticBody', {
-                        defaultValue:
-                          'I address the whole person—body, mind, and spirit.',
-                      })}
+                      {t('about.guide.holisticBody')}
                     </p>
                   </div>
                 </div>
@@ -234,28 +227,31 @@ export function About() {
             </div>
 
             <div className="flex flex-col md:flex-row md:items-center gap-4 pt-4">
-              {content.certification && (
-                <div className="inline-flex items-center gap-3 bg-background px-6 py-4 rounded-2xl shadow-soft border border-primary/15">
-                  <Award className="w-7 h-7 text-primary" />
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">
-                      {t('about.certificationLabel', {
-                        defaultValue: 'Certified',
-                      })}
-                    </p>
-                    <p className="text-xs text-foreground/70">
-                      {stripHtml(content.certification)}
-                    </p>
+              {/* Certification Badge */}
+              <div className="min-h-[80px]">
+                {isLoading || !content ? (
+                  <Skeleton className="h-20 w-64 rounded-2xl" />
+                ) : content.certification ? (
+                  <div className="inline-flex items-center gap-3 bg-background px-6 py-4 rounded-2xl shadow-soft border border-primary/15">
+                    <Award className="w-7 h-7 text-primary" />
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">
+                        {t('about.certificationLabel')}
+                      </p>
+                      <p className="text-xs text-foreground/70">
+                        {stripHtml(content.certification)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              )}
+                ) : null}
+              </div>
 
               <div className="pt-1">
                 <Button
                   size="md"
                   className="shadow-warm"
                   onClick={() =>
-                    open('contact', { defaultSubject: 'Appointment request' })
+                    open('contact', { defaultSubject: t('contact.form.subjectDefault') })
                   }
                 >
                   {t('about.cta')}
@@ -264,31 +260,39 @@ export function About() {
             </div>
           </motion.article>
 
-          {cmsData && (
-            <aside className="space-y-8">
-              <div className="space-y-3">
-                <h3 className="heading-secondary">
-                  {content.specialtiesTitle ||
-                    t('about.studioTitle', {
-                      defaultValue: 'My Private Studio',
-                    })}
-                </h3>
-                <p className="body-text max-w-md">
-                  {t('about.studioDescription', {
-                    defaultValue:
-                      'Experience a tranquil, safe, and nurturing environment designed for your comfort and healing.',
-                  })}
-                </p>
-              </div>
+          {/* RIGHT COLUMN */}
+          <aside className="space-y-8">
+            <div className="space-y-3">
+              <h3 className="heading-secondary min-h-[1.5em]">
+                {isLoading || !content ? (
+                   <Skeleton className="h-8 w-48" />
+                ) : (
+                  content.specialtiesTitle
+                )}
+              </h3>
 
-              <motion.div
-                variants={gridVariants}
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, amount: 0.2 }}
-                className="hidden sm:grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 auto-rows-[160px] sm:auto-rows-[200px] lg:auto-rows-[230px]"
-              >
-                {content.specialtiesGrid.map((sp, i) => (
+              {/* Note: Studio description is often UI chrome, but if CMS had it, we'd use content.studioDescription */}
+              <p className="body-text max-w-md">
+                 {t('about.studioDescriptionFallback')}
+              </p>
+            </div>
+
+            <motion.div
+              variants={gridVariants}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.2 }}
+              className="hidden sm:grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 auto-rows-[160px] sm:auto-rows-[200px] lg:auto-rows-[230px]"
+            >
+              {isLoading || !content ? (
+                // Skeleton Grid
+                <>
+                  <Skeleton className="col-span-1 sm:row-span-2 rounded-[26px]" />
+                  <Skeleton className="col-span-1 rounded-[26px]" />
+                  <Skeleton className="col-span-1 rounded-[26px]" />
+                </>
+              ) : (
+                content.specialtiesGrid.map((sp, i) => (
                   <motion.div
                     key={`${sp.title}-${i}`}
                     variants={cardVariants}
@@ -316,55 +320,63 @@ export function About() {
                       </div>
                     </div>
                   </motion.div>
-                ))}
-              </motion.div>
+                ))
+              )}
+            </motion.div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 items-start">
-                <div className="p-4 bg-background rounded-xl border border-primary/15 shadow-soft">
-                  <MapPin
-                    className="w-6 h-6 mx-auto mb-2"
-                    style={{ color: 'hsl(210 80% 60%)' }}
-                  />
-                  {/* Lazy Loaded Map - Performance Fix */}
-                  <Suspense fallback={<div className="w-full h-[180px] bg-sage-50 rounded-xl animate-pulse" />}>
-                    <LocationMap />
-                  </Suspense>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 items-start">
+              <div className="p-4 bg-background rounded-xl border border-primary/15 shadow-soft">
+                <MapPin
+                  className="w-6 h-6 mx-auto mb-2"
+                  style={{ color: 'hsl(210 80% 60%)' }}
+                />
+                <Suspense fallback={<div className="w-full h-[180px] bg-sage-50 rounded-xl animate-pulse" />}>
+                  <LocationMap />
+                </Suspense>
+              </div>
+
+              <div className="text-center p-4 bg-background rounded-xl border border-primary/15 shadow-soft h-[220px] flex flex-col justify-center">
+                <Mail
+                  className="w-6 h-6 mx-auto mb-2"
+                  style={{ color: 'hsl(210 80% 60%)' }}
+                />
+                <div className="text-sm font-medium text-foreground">
+                  {t('about.contactTitle')}
                 </div>
-
-                <div className="text-center p-4 bg-background rounded-xl border border-primary/15 shadow-soft h-[220px] flex flex-col justify-center">
-                  <Mail
-                    className="w-6 h-6 mx-auto mb-2"
-                    style={{ color: 'hsl(210 80% 60%)' }}
-                  />
-                  <div className="text-sm font-medium text-foreground">
-                    {t('about.contactTitle', {
-                      defaultValue: 'Contact via email through the booking form',
-                    })}
-                  </div>
-                  <div className="text-xs text-foreground/70">
-                    {t('about.byAppointment', {
-                      defaultValue: 'By Appointment Only',
-                    })}
-                  </div>
+                <div className="text-xs text-foreground/70">
+                  {t('about.byAppointment')}
                 </div>
               </div>
-            </aside>
-          )}
+            </div>
+          </aside>
         </div>
 
+        {/* BOTTOM SECTION: APPROACH */}
         <div className="mt-24 mb-24 max-w-4xl mx-auto text-center space-y-6">
           <div className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-foreground/70">
             <Heart className="w-4 h-4" />
-            <span>{t('about.approachLabel', { defaultValue: 'My Approach' })}</span>
+            <span>{t('about.approachLabel')}</span>
           </div>
-          <h2 className="heading-secondary">
-            {t('about.approachHeading', {
-              defaultValue: 'A Personalized Wellness Journey',
-            })}
+
+          <h2 className="heading-secondary min-h-[1.5em] flex justify-center items-center">
+             {isLoading || !content ? (
+               <Skeleton className="h-8 w-64" />
+             ) : (
+               content.approachTitle
+             )}
           </h2>
-          <p className="body-large max-w-3xl mx-auto">
-            {stripHtml(content.approachText)}
-          </p>
+
+          <div className="body-large max-w-3xl mx-auto min-h-[4em] flex flex-col items-center gap-2">
+            {isLoading || !content ? (
+              <>
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-5/6" />
+                <Skeleton className="h-4 w-4/5" />
+              </>
+            ) : (
+              stripHtml(content.approachText)
+            )}
+          </div>
         </div>
       </div>
     </section>

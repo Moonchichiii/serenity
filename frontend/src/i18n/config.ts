@@ -6,11 +6,15 @@ const resources = {
   en: {
     translation: {
       nav: {
+        home: 'Home',
         about: 'About',
         services: 'Services',
         corporate: 'Corporate',
         booking: 'Book now',
         contact: 'Contact',
+        openMenu: 'Open menu',
+        closeMenu: 'Close menu',
+        chooseLanguage: 'Choose language',
       },
       hero: {
         title: 'Find your balance',
@@ -20,56 +24,61 @@ const resources = {
         ctaCorporate: 'Corporate wellness inquiry',
       },
       about: {
-        title: 'About me',
-        subtitle: 'Dedicated to your wellness journey',
-        intro:
-          'With over 10 years of experience in professional massage, I specialize in creating personalized wellness experiences that restore balance and promote healing.',
-        certification: 'Certified professional wellness practitioner',
-        approach: 'My approach',
-        approachText:
-          'Every body is unique. I combine traditional techniques with intuitive care to address your specific needs, whether you seek relaxation, pain relief, or deeper wellness work.',
-        specialties: 'Specialties',
-        specialty1: 'Deep tissue therapy',
-        specialty2: 'Swedish relaxation',
-        specialty3: 'Sports recovery',
-        specialty4: 'Prenatal care',
-        cta: 'Book a session',
-        studioDescription:
-          'Experience a tranquil, safe, and nurturing environment designed for your comfort and healing.',
         label: 'About Me',
+        cta: 'Book a session',
+        certificationLabel: 'Certified',
         guidesTitle: 'What Guides Me',
         guide: {
           clientCareTitle: 'Client-Centered Care',
-          clientCareBody:
-            'Your comfort, safety, and goals are my top priorities.',
+          clientCareBody: 'Your comfort, safety, and goals are my top priorities.',
           excellenceTitle: 'Professional Excellence',
-          excellenceBody:
-            'I am fully certified and committed to ongoing training.',
+          excellenceBody: 'I am fully certified and committed to ongoing training.',
           holisticTitle: 'Holistic Approach',
           holisticBody: 'I address the whole person—body, mind, and spirit.',
         },
-        certificationLabel: 'Certified',
-        studioTitle: 'My Private Studio',
-        studioLocationTitle: 'Private Studio Location',
-        byAppointment: 'By Appointment Only',
+        // Replaced specific studioTitle with general fallback UI description only
+        studioDescriptionFallback: 'Experience a tranquil, safe, and nurturing environment designed for your comfort and healing.',
         contactTitle: 'Contact via email through the booking form',
+        byAppointment: 'By Appointment Only',
         approachLabel: 'My Approach',
-        approachHeading: 'A Personalized Wellness Journey',
-        mapTitle: 'Studio Area – 5 Avenues, 13004 Marseille',
-        mapDescription:
-          'The map shows the general 5 Avenues area in the 4th arrondissement of Marseille.',
-        mapPrivacy: 'Client privacy and discretion are always respected.',
-        mapCollapsedTitle: 'Private Studio Location',
-        mapCollapsedSubtitle: 'By Appointment Only',
-        mapHintHover: 'Hover to enlarge the map',
-        mapHintScroll: 'Scroll to view the map',
-        mapPreview: 'View map',
       },
       services: {
         title: 'Services',
         subtitle: 'Wellness massage tailored to your needs',
         slide: 'SLIDE',
         mostPopular: 'Most popular',
+      },
+      contact: {
+        form: {
+          title: 'Contact form',
+          subjectDefault: 'Appointment request',
+          name: 'Full name',
+          email: 'Email address',
+          phone: 'Phone number',
+          subject: 'Subject',
+          message: 'Message',
+          optional: '(optional)',
+          send: 'Send message',
+          sending: 'Sending...',
+          success: 'Message sent successfully! ✨',
+          error: 'Error sending message. Please try again.',
+          notice: 'I will reply as soon as possible during business hours.',
+          'subject.placeholder': 'Appointment request',
+          'message.placeholder': 'Describe your needs, your preferred date/time, or any questions you may have...',
+          validation: {
+            nameRequired: 'Name is required',
+            nameTooShort: 'Name is too short',
+            emailRequired: 'Email is required',
+            emailInvalid: 'Invalid email',
+            subjectRequired: 'Subject is required',
+            messageRequired: 'Message is required',
+            messageTooShort: 'Message is too short',
+          },
+          gdpr: {
+            title: 'Privacy notice',
+            text: 'This contact form sends your message directly via email. We do not collect, store, or process any personal data. Your information is only used to respond to your inquiry.',
+          },
+        },
       },
       corp: {
         subjectPrefix: 'Corporate/Event Booking',
@@ -156,38 +165,6 @@ const resources = {
           time: 'Preferred time',
           notes: 'Special requests (optional)',
           submit: 'Confirm booking',
-        },
-      },
-      contact: {
-        form: {
-          title: 'Contact form',
-          name: 'Full name',
-          email: 'Email address',
-          phone: 'Phone number',
-          subject: 'Subject',
-          message: 'Message',
-          optional: '(optional)',
-          send: 'Send message',
-          sending: 'Sending...',
-          success: 'Message sent successfully! ✨',
-          error: 'Error sending message. Please try again.',
-          notice: 'I will reply as soon as possible during business hours.',
-          'subject.placeholder': 'Appointment request',
-          'message.placeholder':
-            'Describe your needs, your preferred date/time, or any questions you may have...',
-          validation: {
-            nameRequired: 'Name is required',
-            nameTooShort: 'Name is too short',
-            emailRequired: 'Email is required',
-            emailInvalid: 'Invalid email',
-            subjectRequired: 'Subject is required',
-            messageRequired: 'Message is required',
-            messageTooShort: 'Message is too short',
-          },
-          gdpr: {
-            title: 'Privacy notice',
-            text: 'This contact form sends your message directly via email. We do not collect, store, or process any personal data. Your information is only used to respond to your inquiry.',
-          },
         },
       },
       footer: {
@@ -487,11 +464,15 @@ const resources = {
   fr: {
     translation: {
       nav: {
+        home: 'Accueil',
         about: 'À propos',
         services: 'Services',
         corporate: 'Entreprises',
         booking: 'Réserver',
         contact: 'Contact',
+        openMenu: 'Ouvrir le menu',
+        closeMenu: 'Fermer le menu',
+        chooseLanguage: 'Choisir la langue',
       },
       hero: {
         title: 'Trouvez votre équilibre',
@@ -501,58 +482,62 @@ const resources = {
         ctaCorporate: 'Demande bien-être en entreprise',
       },
       about: {
-        title: 'À propos de moi',
-        subtitle: 'Dédiée à votre bien-être',
-        intro:
-          "Avec plus de 10 ans d'expérience en massage professionnel, je me spécialise dans la création d'expériences de bien-être personnalisées qui restaurent l'équilibre et favorisent la guérison.",
-        certification: 'Praticienne professionnelle certifiée en bien-être',
-        approach: 'Mon approche',
-        approachText:
-          'Chaque corps est unique. Je combine des techniques traditionnelles avec des soins intuitifs pour répondre à vos besoins spécifiques, que vous recherchiez la relaxation, le soulagement de la douleur ou un travail de bien-être plus profond.',
-        specialties: 'Spécialités',
-        specialty1: 'Thérapie tissus profonds',
-        specialty2: 'Relaxation suédoise',
-        specialty3: 'Récupération sportive',
-        specialty4: 'Soins prénatals',
+        label: 'À Propos de moi',
         cta: 'Réserver une séance',
-        studioDescription:
-          'Vivez un environnement calme, sécurisant et bienveillant, pensé pour votre confort et votre guérison.',
-        label: 'À propos de moi',
+        certificationLabel: 'Certifiée',
         guidesTitle: 'Ce qui me guide',
         guide: {
           clientCareTitle: 'Un accompagnement centré sur vous',
-          clientCareBody:
-            'Votre confort, votre sécurité et vos objectifs sont ma priorité.',
+          clientCareBody: 'Votre confort, votre sécurité et vos objectifs sont ma priorité.',
           excellenceTitle: 'Excellence professionnelle',
-          excellenceBody:
-            'Je suis pleinement certifiée et engagée dans une formation continue.',
+          excellenceBody: 'Je suis pleinement certifiée et engagée dans une formation continue.',
           holisticTitle: 'Approche holistique',
-          holisticBody:
-            'Je prends en compte la personne dans sa globalité : corps, esprit et émotionnel.',
+          holisticBody: 'Je prends en compte la personne dans sa globalité : corps, esprit et émotionnel.',
         },
-        certificationLabel: 'Certifiée',
-        studioTitle: 'Mon cabinet privé',
-        studioLocationTitle: 'Emplacement du cabinet privé',
-        byAppointment: 'Uniquement sur rendez-vous',
+        studioDescriptionFallback: 'Vivez un environnement calme, sécurisant et bienveillant, pensé pour votre confort et votre guérison.',
         contactTitle: 'Contact par e-mail via le formulaire de réservation',
+        byAppointment: 'Uniquement sur rendez-vous',
         approachLabel: 'Mon approche',
-        approachHeading: 'Un accompagnement bien-être personnalisé',
-        mapTitle: 'Zone du cabinet – 5 Avenues, 13004 Marseille',
-        mapDescription:
-          'La carte indique la zone des 5 Avenues dans le 4ᵉ arrondissement de Marseille.',
-        mapPrivacy:
-          'La confidentialité et la discrétion de la clientèle sont toujours respectées.',
-        mapCollapsedTitle: 'Emplacement du cabinet privé',
-        mapCollapsedSubtitle: 'Uniquement sur rendez-vous',
-        mapHintHover: 'Survolez pour agrandir la carte',
-        mapHintScroll: 'Faites défiler pour afficher la carte',
-        mapPreview: 'Voir la carte',
       },
       services: {
         title: 'Services',
         subtitle: 'Massage bien-être adapté à vos besoins',
         slide: 'GLISSER',
         mostPopular: 'Le plus populaire',
+      },
+      contact: {
+        form: {
+          title: 'Formulaire de contact',
+          subjectDefault: 'Demande de rendez-vous',
+          name: 'Nom complet',
+          email: 'Adresse email',
+          phone: 'Téléphone',
+          subject: 'Sujet',
+          message: 'Message',
+          optional: '(optionnel)',
+          send: 'Envoyer le message',
+          sending: 'Envoi en cours...',
+          success: 'Message envoyé avec succès ! ✨',
+          error: "Erreur lors de l'envoi. Veuillez réessayer.",
+          notice:
+            'Je vous répondrai dans les plus brefs délais pendant les heures ouvrables.',
+          'subject.placeholder': 'Demande de rendez-vous',
+          'message.placeholder':
+            'Décrivez vos besoins, vos préférences de date/heure, ou toute question que vous pourriez avoir...',
+          validation: {
+            nameRequired: 'Le nom est requis',
+            nameTooShort: 'Le nom est trop court',
+            emailRequired: "L'email est requis",
+            emailInvalid: 'Email invalide',
+            subjectRequired: 'Le sujet est requis',
+            messageRequired: 'Le message est requis',
+            messageTooShort: 'Le message est trop court',
+          },
+          gdpr: {
+            title: 'Avis de confidentialité',
+            text: 'Ce formulaire de contact envoie votre message directement par e-mail. Nous ne collectons, ne stockons ni ne traitons aucune donnée personnelle. Vos informations sont uniquement utilisées pour répondre à votre demande.',
+          },
+        },
       },
       corp: {
         subjectPrefix: 'Demande Entreprise / Événement',
@@ -639,39 +624,6 @@ const resources = {
           time: 'Heure souhaitée',
           notes: 'Demandes spéciales (optionnel)',
           submit: 'Confirmer la réservation',
-        },
-      },
-      contact: {
-        form: {
-          title: 'Formulaire de contact',
-          name: 'Nom complet',
-          email: 'Adresse email',
-          phone: 'Téléphone',
-          subject: 'Sujet',
-          message: 'Message',
-          optional: '(optionnel)',
-          send: 'Envoyer le message',
-          sending: 'Envoi en cours...',
-          success: 'Message envoyé avec succès ! ✨',
-          error: "Erreur lors de l'envoi. Veuillez réessayer.",
-          notice:
-            'Je vous répondrai dans les plus brefs délais pendant les heures ouvrables.',
-          'subject.placeholder': 'Demande de rendez-vous',
-          'message.placeholder':
-            'Décrivez vos besoins, vos préférences de date/heure, ou toute question que vous pourriez avoir...',
-          validation: {
-            nameRequired: 'Le nom est requis',
-            nameTooShort: 'Le nom est trop court',
-            emailRequired: "L'email est requis",
-            emailInvalid: 'Email invalide',
-            subjectRequired: 'Le sujet est requis',
-            messageRequired: 'Le message est requis',
-            messageTooShort: 'Le message est trop court',
-          },
-          gdpr: {
-            title: 'Avis de confidentialité',
-            text: 'Ce formulaire de contact envoie votre message directement par e-mail. Nous ne collectons, ne stockons ni ne traitons aucune donnée personnelle. Vos informations sont uniquement utilisées pour répondre à votre demande.',
-          },
         },
       },
       footer: {
@@ -918,7 +870,7 @@ const resources = {
       },
       cookie: {
         intro:
-          'Nous utilisons des cookies essentiels pour faire fonctionner ce site. Avec votre accord, nous pouvons également activer :',
+          'We use essential cookies to run this site. With your consent, we can also enable:',
         mediaTitle: 'Médias tiers (Cloudinary)',
         mediaDesc:
           'Active les images/vidéos Cloudinary (peut définir des cookies tiers).',

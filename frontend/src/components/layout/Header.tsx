@@ -109,7 +109,7 @@ export function Header() {
             href="#home"
             onClick={handleNav('#home')}
             className="flex items-center space-x-2 group"
-            aria-label={t('nav.home', { defaultValue: 'Home' })}
+            aria-label={t('nav.home')}
           >
             <span className={`
               font-heading font-semibold text-charcoal
@@ -245,7 +245,7 @@ export function Header() {
               onClick={() => setIsOpen(!isOpen)}
               aria-expanded={isOpen}
               aria-controls={mobileMenuId}
-              aria-label={isOpen ? t('nav.closeMenu', { defaultValue: 'Close menu' }) : t('nav.openMenu', { defaultValue: 'Open menu' })}
+              aria-label={isOpen ? t('nav.closeMenu') : t('nav.openMenu')}
             >
               {isOpen ? <X className="w-6 h-6" aria-hidden="true" /> : <Menu className="w-6 h-6" aria-hidden="true" />}
             </Button>
