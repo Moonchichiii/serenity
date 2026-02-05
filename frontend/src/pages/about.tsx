@@ -138,13 +138,8 @@ export function About() {
           >
             {/* 1. Header & Intro */}
             <div className="space-y-6 mb-10">
-              <div
-                className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-sage-600"
-                role="presentation"
-              >
-                <Heart className="w-4 h-4" aria-hidden="true" />
-                <span>{t('about.label')}</span>
-              </div>
+
+              {/* Removed redundant 'About Me' label here to fix duplication */}
 
               <h2 id="about-heading" className="text-4xl sm:text-5xl font-serif text-foreground min-h-[1em]">
                 {isLoading || !content ? (
