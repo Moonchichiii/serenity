@@ -10,11 +10,8 @@
 
     <!-- Preconnect -->
     <link rel="preconnect" href="https://serenity.fly.dev">
-    <link rel="dns-prefetch" href="https://serenity.fly.dev">
     <link rel="preconnect" href="https://res.cloudinary.com">
-    <link rel="dns-prefetch" href="https://res.cloudinary.com">
     <link rel="preconnect" href="https://ui-avatars.com">
-    <link rel="dns-prefetch" href="https://ui-avatars.com">
 
     <!-- Preload only Critical Heading Font -->
     <link rel="preload" as="font" href="/fonts/DMSerifDisplay-Regular.woff2" type="font/woff2" crossorigin>
@@ -53,15 +50,15 @@
     <meta property="og:site_name" content="Serenity">
     <meta property="og:locale" content="fr_FR">
 
-    <!-- UPDATED SCHEMA FOR GOOGLE -->
+    <!-- UPDATED SCHEMA FOR GOOGLE (FIXED) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "HealthAndBeautyBusiness",
       "name": "Serenity",
-      "image": "https://laserenity.fr/og-image-1200x630.jpg",
-      "url": "https://laserenity.fr/",
-      "telephone": "+33 6 00 00 00 00",
+      "image": "https://www.laserenity.fr/og-image.jpg",
+      "url": "https://www.laserenity.fr/",
+      "telephone": "+33600000000",
       "priceRange": "€€",
       "address": {
         "@type": "PostalAddress",
@@ -79,17 +76,30 @@
         "https://www.instagram.com/laserenity_marseille"
       ],
       "makesOffer": [
-        { "@type": "Service", "name": "Massage Thérapeutique,Marseille"},
+        { "@type": "Service", "name": "Massage Thérapeutique" },
         { "@type": "Service", "name": "AMMA Assis" },
         { "@type": "Service", "name": "Massage Prénatal" },
         { "@type": "Service", "name": "Drainage Lymphatique" },
-        { "@type": "Service", "name": "Massage Californien" },
+        { "@type": "Service", "name": "Massage Californien" }
       ]
     }
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- SEO PRERENDER: This text is visible to Google immediately -->
+      <div style="position:absolute; width:1px; height:1px; padding:0; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;">
+        <h1>Serenity - Massage Californien et Bien-être à Marseille</h1>
+        <p>Cabinet de massage situé aux 13004 Marseille. Nous proposons des massages sur mesure : massage californien, drainage lymphatique, massage prénatal et AMMA assis pour entreprises.</p>
+        <h2>Nos Services</h2>
+        <ul>
+          <li>Massage Californien Relaxant</li>
+          <li>Drainage Lymphatique (Méthode Renata)</li>
+          <li>Massage Femme Enceinte (Prénatal)</li>
+          <li>Massage Assis (Entreprise et Événementiel)</li>
+        </ul>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

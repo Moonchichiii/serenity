@@ -71,7 +71,7 @@ export function About() {
       approachText: pick(cmsData[`about_approach_text_${lang}`], ''),
       specialtiesTitle: pick(cmsData[`about_specialties_title_${lang}`], ''),
       studioDescription: t('about.studioDescriptionFallback'),
-      address: pick(cmsData[`address_${lang}`], '5 Avenues, 13004 Marseille'),
+      address: pick(cmsData[`address_${lang}`], 'Marseille'),
       specialtiesGrid,
     };
   }, [cmsData, lang, t]);
@@ -148,6 +148,14 @@ export function About() {
           >
             {/* 1. Header & Intro */}
             <div className="space-y-6 mb-10">
+              <div
+                className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-sage-600"
+                role="presentation"
+              >
+                <Heart className="w-4 h-4" aria-hidden="true" />
+                <span>{t('about.label')}</span>
+              </div>
+
               <h2 id="about-heading" className="text-4xl sm:text-5xl font-serif text-foreground min-h-[1em]">
                 {isLoading || !content ? (
                   <Skeleton className="h-12 w-3/4 max-w-sm" />
@@ -169,7 +177,7 @@ export function About() {
                      <span className="inline-block ml-1 opacity-20 hover:opacity-100 transition-opacity align-baseline">
                        <SecretTrigger modalId="cmsLogin" times={3} windowMs={900}>
                          <span className="text-[10px] uppercase tracking-widest text-[#2e2e2e] font-bold cursor-default select-none">
-                           Serenity!
+                           Serenity.
                          </span>
                        </SecretTrigger>
                      </span>
@@ -237,8 +245,14 @@ export function About() {
               </div>
             </div>
 
-            {/* 4. Approach Section */}
+            {/* 4. Approach Section + CONTACT CARD + MAP (All in Left Column now) */}
             <div className="mt-6 pt-10 border-t border-stone-200/60">
+
+              <div className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-sage-600 mb-4">
+                <Award className="w-4 h-4" />
+                <span>{t('about.approachLabel')}</span>
+              </div>
+
               <h3 className="text-3xl font-serif text-foreground mb-4 min-h-[1.2em]">
                  {isLoading || !content ? <Skeleton className="h-8 w-64" /> : content.approachTitle}
               </h3>
@@ -290,7 +304,7 @@ export function About() {
           {/* ==================== RIGHT COLUMN (VISUALS ONLY) ==================== */}
           <aside className="space-y-10 lg:sticky lg:top-24 hidden lg:block">
 
-            {/* 1. Images Grid (HIDDEN ON MOBILE) */}
+            {/* 1. Images Grid (HIDDEN ON MOBILE via hidden lg:block on parent) */}
             <div className="space-y-4">
               <h3 className="font-serif text-2xl text-foreground px-1">
                 {isLoading || !content ? <Skeleton className="h-8 w-48" /> : content.specialtiesTitle}
