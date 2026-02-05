@@ -40,63 +40,52 @@ export function Services() {
   )
 
   return (
-    <div className="services-page bg-stone-50/50">
+    <div className="services-page bg-stone-50/30">
       <ServicesHero />
 
-      <section id="services" className="pt-16 lg:pt-24 pb-8 lg:pb-10 overflow-hidden">
+      <section id="services" className="pt-20 lg:pt-32 pb-16 lg:pb-20 overflow-hidden">
         <div className="container mx-auto px-4 lg:px-8">
 
-          {/* Header */}
+          {/* Header - Centered & Serif */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-left md:text-center mb-8 md:mb-14 px-1"
+            className="text-left md:text-center mb-12 md:mb-20 px-1"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-charcoal mb-3 md:mb-4">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-serif font-medium text-stone-900 mb-4 md:mb-6">
               {t('services.title')}
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-charcoal/70 max-w-2xl md:mx-auto">
+            <p className="text-lg md:text-xl text-stone-600 max-w-2xl md:mx-auto leading-relaxed">
               {t('services.subtitle')}
             </p>
           </motion.div>
 
           {isLoading ? (
             <div className="text-center py-20">
-              <div className="animate-pulse text-charcoal/60">
-                Loading services...
+              <div className="animate-pulse text-stone-400 font-serif text-lg">
+                Loading...
               </div>
             </div>
           ) : services.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-charcoal/70">
-                No services available yet. Add them in Wagtail!
+              <p className="text-stone-500">
+                No services available yet.
               </p>
             </div>
           ) : (
             <>
-              {/* ========================================= */}
-              {/* MOBILE VIEW: Horizontal Snap Scroll       */}
-              {/* ========================================= */}
+              {/* MOBILE VIEW: Snap Scroll */}
               <div className="md:hidden relative">
-
-                {/* SLIDE INDICATOR (Matches your screenshot) */}
-                <div className="flex justify-end px-4 mb-2">
-                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-sage-600 tracking-widest uppercase">
-                    {/* Uses the translation key with fallback */}
+                <div className="flex justify-end px-4 mb-3">
+                  <div className="flex items-center gap-2 text-[10px] font-bold text-stone-400 tracking-[0.2em] uppercase">
                     <span>{t('services.slide', { defaultValue: 'SLIDE' })}</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight className="w-3 h-3" />
                   </div>
                 </div>
 
-                {/*
-                   SCROLL CONTAINER
-                   1. [&::-webkit-scrollbar]:hidden  -> Hides scrollbar on Chrome/Safari/Webkit
-                   2. [-ms-overflow-style:none]      -> Hides scrollbar on IE/Edge
-                   3. [scrollbar-width:none]         -> Hides scrollbar on Firefox
-                */}
-                <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-8 -mx-4 px-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                <div className="flex overflow-x-auto snap-x snap-mandatory gap-5 pb-8 -mx-4 px-6 no-scrollbar">
                   {services.map((service) => {
                     const title = lang === 'fr' ? service.title_fr : service.title_en
                     const description = lang === 'fr' ? service.description_fr : service.description_en
@@ -105,11 +94,10 @@ export function Services() {
                     return (
                       <article
                         key={service.id}
-                        className="snap-center shrink-0 w-[85vw] relative flex flex-col overflow-hidden rounded-[26px] bg-white shadow-soft border border-sage-100/70"
+                        className="snap-center shrink-0 w-[85vw] relative flex flex-col overflow-hidden rounded-[2rem] bg-white shadow-lg shadow-stone-200/50 border border-stone-100"
                       >
-                        {/* Image + badges */}
                         {service.image?.url && (
-                          <div className="relative w-full h-48 overflow-hidden">
+                          <div className="relative w-full h-56 overflow-hidden">
                             <CloudImage
                               image={service.image}
                               alt={service.image.title || title}
@@ -117,47 +105,33 @@ export function Services() {
                               fit="cover"
                               sizes="85vw"
                             />
-
                             {isHighlighted && (
-                              <>
-                                {/* Most popular badge */}
-                                <div className="absolute top-3 left-3 inline-flex items-center rounded-full bg-rose-500 text-porcelain text-[10px] font-semibold px-2 py-1 shadow-soft">
-                                  {t('services.mostPopular', { defaultValue: 'Most popular' })}
-                                </div>
-
-                                {/* Price pill badge */}
-                                <div className="absolute top-3 right-3 inline-flex items-center rounded-full bg-white/95 px-2 py-1 shadow-soft text-[10px] font-semibold text-charcoal">
-                                  <Euro className="w-3 h-3 text-honey-500 mr-1" />
-                                  <span className="mr-1">{service.price}</span>
-                                  <span className="text-charcoal/80">
-                                    • {service.duration_minutes} min
-                                  </span>
-                                </div>
-                              </>
+                              <div className="absolute top-4 right-4 inline-flex items-center rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-[10px] font-bold tracking-wide text-stone-800 shadow-sm">
+                                <Euro className="w-3 h-3 text-sage-600 mr-1" />
+                                {service.price}
+                              </div>
                             )}
                           </div>
                         )}
 
-                        <div className="flex-1 flex flex-col px-5 pt-5 pb-5">
-                          <div className="mb-4">
-                            <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
+                        <div className="flex-1 flex flex-col p-6">
+                          <div className="mb-6">
+                            <h3 className="text-2xl font-serif font-medium text-stone-900 mb-3">
                               {title}
                             </h3>
-                            <p className="text-sm text-charcoal/70 leading-relaxed line-clamp-4">
+                            <p className="text-sm text-stone-500 leading-relaxed line-clamp-4">
                               {description}
                             </p>
                           </div>
 
-                          <div className="mt-auto pt-4 border-t border-sage-200/60 flex items-center justify-between">
-                            <div className="flex items-center gap-1.5 text-xs text-charcoal/70 font-medium">
-                              <Clock className="w-4 h-4 text-sage-500" />
+                          <div className="mt-auto pt-5 border-t border-stone-100 flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-xs font-medium text-stone-400 uppercase tracking-wider">
+                              <Clock className="w-3.5 h-3.5" />
                               <span>{service.duration_minutes} min</span>
                             </div>
-
                             {!isHighlighted && (
-                              <div className="inline-flex items-center gap-1 text-sm font-semibold text-charcoal">
-                                <Euro className="w-4 h-4 text-honey-500" />
-                                <span>{service.price}</span>
+                              <div className="text-sm font-serif font-semibold text-stone-900">
+                                {service.price}
                               </div>
                             )}
                           </div>
@@ -165,15 +139,12 @@ export function Services() {
                       </article>
                     )
                   })}
-                  {/* Spacer */}
                   <div className="w-2 shrink-0" />
                 </div>
               </div>
 
-              {/* ========================================= */}
-              {/* DESKTOP VIEW: Original Grid               */}
-              {/* ========================================= */}
-              <div className="hidden md:grid grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto cv-auto">
+              {/* DESKTOP VIEW: Grid */}
+              <div className="hidden md:grid grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-10 max-w-7xl mx-auto">
                 {services.map((service, index) => {
                   const title = lang === 'fr' ? service.title_fr : service.title_en
                   const description = lang === 'fr' ? service.description_fr : service.description_en
@@ -182,69 +153,49 @@ export function Services() {
                   return (
                     <motion.article
                       key={service.id}
-                      initial={{ opacity: 0, y: 24, scale: 0.98 }}
-                      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
-                      transition={{ duration: 0.45, delay: index * 0.06 }}
-                      whileHover={{ y: -6 }}
-                      className={[
-                        'relative flex flex-col overflow-hidden',
-                        'rounded-[26px] bg-porcelain shadow-soft border border-sage-100/70',
-                        'hover:shadow-elevated hover:border-sage-300/80',
-                        'transition-all duration-300',
-                        'max-w-md w-full mx-auto',
-                      ].join(' ')}
+                      transition={{ duration: 0.6, delay: index * 0.1 }}
+                      whileHover={{ y: -8 }}
+                      className="relative flex flex-col overflow-hidden rounded-[2rem] bg-white shadow-xl shadow-stone-200/40 border border-stone-100 transition-all duration-500 hover:shadow-2xl hover:shadow-stone-200/60"
                     >
-                      {/* Image + badges */}
                       {service.image?.url && (
-                        <div className="relative w-full h-44 sm:h-48 overflow-hidden">
+                        <div className="relative w-full h-64 overflow-hidden">
                           <CloudImage
                             image={service.image}
                             alt={service.image.title || title}
-                            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                            className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
                             fit="cover"
-                            sizes="(max-width:1024px) 45vw, 320px"
+                            sizes="(max-width:1024px) 45vw, 380px"
                           />
 
-                          {isHighlighted && (
-                            <>
-                              <div className="absolute top-3 left-3 inline-flex items-center rounded-full bg-rose-500 text-porcelain text-[11px] font-semibold px-3 py-1 shadow-soft">
-                                {t('services.mostPopular', {
-                                  defaultValue: 'Most popular',
-                                })}
-                              </div>
-                              <div className="absolute top-3 right-3 inline-flex items-center rounded-full bg-white/95 px-3 py-1 shadow-soft text-[11px] font-semibold text-charcoal">
-                                <Euro className="w-3 h-3 text-honey-500 mr-1" />
-                                <span className="mr-1">{service.price}</span>
-                                <span className="text-charcoal/80">
-                                  • {service.duration_minutes} min
-                                </span>
-                              </div>
-                            </>
-                          )}
+                          {/* Floating Price Pill */}
+                          <div className="absolute top-5 right-5 inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-4 py-1.5 text-xs font-bold text-stone-800 shadow-lg">
+                             <span>{service.price}</span>
+                          </div>
                         </div>
                       )}
 
-                      <div className="flex-1 flex flex-col px-5 sm:px-6 pt-5 pb-4">
-                        <div className="mb-4">
-                          <h3 className="text-xl sm:text-2xl font-heading font-semibold text-charcoal mb-1.5">
+                      <div className="flex-1 flex flex-col p-8">
+                        <div className="mb-6">
+                          <h3 className="text-2xl font-serif font-medium text-stone-900 mb-3">
                             {title}
                           </h3>
-                          <p className="text-sm sm:text-base text-charcoal/70 leading-relaxed">
+                          <p className="text-base text-stone-500 leading-relaxed font-light">
                             {description}
                           </p>
                         </div>
 
-                        <div className="mt-auto pt-4 border-t border-sage-200/60 flex items-center justify-between">
-                          <div className="flex items-center gap-1.5 text-xs sm:text-sm text-charcoal/70">
-                            <Clock className="w-4 h-4 text-sage-500" />
+                        <div className="mt-auto pt-6 border-t border-stone-100 flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-xs font-bold text-stone-400 uppercase tracking-widest">
+                            <Clock className="w-3.5 h-3.5" />
                             <span>{service.duration_minutes} min</span>
                           </div>
-                          {!isHighlighted && (
-                            <div className="inline-flex items-center gap-1 text-sm font-semibold text-charcoal">
-                              <Euro className="w-4 h-4 text-honey-500" />
-                              <span>{service.price}</span>
-                            </div>
+                          {isHighlighted && (
+                             <span className="text-[10px] font-bold text-sage-600 bg-sage-50 px-2 py-1 rounded uppercase tracking-wider">
+                               {t('services.mostPopular', { defaultValue: 'Popular' })}
+                             </span>
                           )}
                         </div>
                       </div>
@@ -257,13 +208,9 @@ export function Services() {
         </div>
       </section>
 
-      <section
-        id="testimonials"
-        className="mt-10 lg:mt-16 pt-12 lg:pt-16 pb-0 bg-porcelain"
-      >
-        <div className="mx-[calc(100%-100vw)] w-screen">
-          <TestimonialBanner />
-        </div>
+      {/* Testimonials Section Spacer */}
+      <section id="testimonials" className="bg-white">
+        <TestimonialBanner />
       </section>
     </div>
   )

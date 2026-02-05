@@ -10,73 +10,52 @@ const Footer: React.FC = () => {
   const { open } = useModal()
   const currentYear = new Date().getFullYear()
 
-  // Deep Forest Green
+  // Updated Colors: Still Dark Green, but borders are cleaner
   const footerBgColor = 'bg-[#2a3c30]'
-  const gradientColor = 'to-[#2a3c30]'
 
-  // Shared class for accessible footer links
   const linkBtnClass =
-    'cursor-pointer hover:text-honey-200 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-honey-200/70 rounded-md text-left'
+    'cursor-pointer text-white/70 hover:text-white transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-md text-left text-sm py-1'
 
   return (
-    <footer id="site-footer" className="relative mt-24 contain-content">
-      {/* Blend strip */}
-      <div
-        className={`h-1 bg-gradient-to-b from-porcelain ${gradientColor}`}
-        aria-hidden="true"
-      />
-
+    <footer id="site-footer" className="relative mt-0 contain-content">
       {/* Main Footer Content */}
-      {/* Added pb-32 on mobile to clear the Floating Gift Button */}
-      <div className={`${footerBgColor} text-white pt-12 pb-32 md:pb-12`}>
+      <div className={`${footerBgColor} text-white pt-20 pb-32 md:pb-12`}>
         <div className="container mx-auto px-6 lg:px-12">
 
-          {/* Main Grid - STRICT LEFT ALIGNMENT */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-0 md:gap-8 border-b border-white/10 text-left">
+          {/* Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-12 border-b border-white/10 pb-16 text-left">
 
-            {/* COLUMN 1: Brand & Socials (Mobile: First Block) */}
-            <div className="md:col-span-4 flex flex-col items-start space-y-6 pb-8 md:pb-12 border-b md:border-none border-white/5">
+            {/* COLUMN 1: Brand */}
+            <div className="md:col-span-5 flex flex-col items-start space-y-8">
               <div>
-                <h3 className="inline-block font-heading font-semibold text-3xl text-white tracking-wide">
-                  <span className="relative inline-block">
-                    <span className="absolute -top-3 left-0 text-xs tracking-[0.2em] uppercase text-honey-200/80">
-                      La
-                    </span>
-                    <span className="ml-5">Serenity</span>
-                  </span>
+                <h3 className="font-serif text-4xl text-white tracking-wide">
+                  La Serenity
                 </h3>
-
-                <p className="mt-4 text-sm text-white/80 leading-relaxed max-w-sm">
+                <p className="mt-4 text-sm text-white/60 leading-relaxed max-w-sm font-light">
                   {t('footer.tagline')}
                 </p>
               </div>
 
-              {/* Socials - Left Aligned & Closer to Brand */}
-              <div className="flex items-center gap-5">
-                <div className="text-white/80 hover:text-honey-200 transition-colors">
-                  <AnimatedInstagramIcon
-                    magnetic
-                    size={48} // Slightly smaller for mobile elegance
-                    href="https://www.instagram.com/laserenity_marseille/"
-                  />
-                </div>
-                <div className="text-white/80 hover:text-honey-200 transition-colors">
-                  <AnimatedFacebookIcon
-                    magnetic
-                    size={48}
-                    href="https://facebook.com/yourpage"
-                  />
-                </div>
+              <div className="flex items-center gap-6">
+                <AnimatedInstagramIcon
+                  magnetic
+                  size={44}
+                  href="https://www.instagram.com/laserenity_marseille/"
+                />
+                <AnimatedFacebookIcon
+                  magnetic
+                  size={44}
+                  href="https://facebook.com/yourpage"
+                />
               </div>
             </div>
 
-            {/* COLUMN 2: Legal Links (Mobile: Second Block) */}
-            <div className="md:col-span-4 md:pl-8 py-8 md:py-0 md:pb-12 border-b md:border-none border-white/5">
-              <h4 className="text-lg font-heading text-white tracking-wide mb-5">
+            {/* COLUMN 2: Legal Links */}
+            <div className="md:col-span-3">
+              <h4 className="text-sm font-bold uppercase tracking-[0.15em] text-white/40 mb-6">
                 {t('footer.info')}
               </h4>
-
-              <ul className="grid grid-cols-1 gap-3 text-sm text-white/70">
+              <ul className="flex flex-col gap-2">
                 <li>
                   <button type="button" onClick={() => open('legal', { page: 'legal' })} className={linkBtnClass}>
                     {t('footer.legalNotice')}
@@ -100,44 +79,44 @@ const Footer: React.FC = () => {
               </ul>
             </div>
 
-            {/* COLUMN 3: Contact & Hours (Mobile: Third Block) */}
-            <div className="md:col-span-4 pt-8 md:pt-0 pb-12">
-              <h4 className="text-lg font-heading text-white tracking-wide mb-5">
+            {/* COLUMN 3: Contact */}
+            <div className="md:col-span-4">
+              <h4 className="text-sm font-bold uppercase tracking-[0.15em] text-white/40 mb-6">
                 {t('footer.contactTitle')}
               </h4>
 
-              <div className="space-y-6">
+              <div className="space-y-6 text-sm text-white/80 font-light">
                 {/* Email */}
                 <a
                   href={`mailto:${t('footer.email')}`}
-                  className="flex items-center gap-4 text-sm text-white/80 hover:text-honey-200 transition-colors group"
+                  className="flex items-center gap-4 hover:text-white transition-colors group"
                 >
-                  <div className="p-2.5 rounded-full bg-white/5 group-hover:bg-white/10 transition-colors shrink-0">
+                  <div className="p-2 rounded-full bg-white/5 group-hover:bg-white/10 transition-colors">
                     <Mail className="w-4 h-4" />
                   </div>
                   <span>{t('footer.email')}</span>
                 </a>
 
-                {/* Address - Properly Aligned */}
-                <div className="flex items-start gap-4 text-white/70">
-                  <div className="p-2.5 rounded-full bg-white/5 mt-[-2px] shrink-0">
-                    <MapPin className="w-4 h-4 text-honey-200" />
+                {/* Address */}
+                <div className="flex items-start gap-4">
+                  <div className="p-2 rounded-full bg-white/5 mt-[-2px]">
+                    <MapPin className="w-4 h-4" />
                   </div>
-                  <span className="text-sm leading-relaxed max-w-[220px]">
+                  <span className="leading-relaxed">
                     {t('footer.addressFull')}
                   </span>
                 </div>
 
                 {/* Hours */}
-                <div className="flex items-start gap-4 text-sm text-white/80">
-                  <div className="p-2.5 rounded-full bg-white/5 mt-[-2px] shrink-0">
+                <div className="flex items-start gap-4">
+                  <div className="p-2 rounded-full bg-white/5 mt-[-2px]">
                     <Clock className="w-4 h-4" />
                   </div>
                   <div>
                     <span className="block font-medium text-white mb-0.5">
                       {t('footer.hours')}
                     </span>
-                    <span className="block text-white/70">
+                    <span className="block text-white/60">
                       {t('footer.hoursValue')}
                     </span>
                   </div>
@@ -146,8 +125,8 @@ const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Bottom Bar - Stacked on Mobile */}
-          <div className="pt-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-xs text-white/50">
+          {/* Bottom Bar */}
+          <div className="pt-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-[11px] text-white/40 uppercase tracking-wider font-medium">
             <p>
               © {currentYear} Serenity. {t('footer.allRights')}
             </p>
@@ -158,7 +137,7 @@ const Footer: React.FC = () => {
                 href="https://www.nordiccodeworks.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-honey-200 hover:text-white font-medium uppercase tracking-wider transition-colors ml-1"
+                className="text-white/60 hover:text-white transition-colors ml-1"
                 aria-label="Nordic Code Works"
               >
                 Nordic Code Works
