@@ -71,7 +71,7 @@ export function About() {
       approachText: pick(cmsData[`about_approach_text_${lang}`], ''),
       specialtiesTitle: pick(cmsData[`about_specialties_title_${lang}`], ''),
       studioDescription: t('about.studioDescriptionFallback'),
-      address: pick(cmsData[`address_${lang}`], '5 Avenues, 13004 Marseille'), // Dynamic Address
+      address: pick(cmsData[`address_${lang}`], '5 Avenues, 13004 Marseille'),
       specialtiesGrid,
     };
   }, [cmsData, lang, t]);
@@ -104,6 +104,31 @@ export function About() {
         },
       };
 
+  // Reusable Map Component
+  const MapCard = () => (
+    <div className="p-5 bg-white rounded-[24px] border border-stone-100 shadow-soft group hover:shadow-warm transition-shadow duration-300">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-full bg-sage-50 flex items-center justify-center text-sage-600">
+          <MapPin className="w-5 h-5" />
+        </div>
+        <div>
+          <h4 className="font-semibold text-foreground text-sm uppercase tracking-wide">
+             {t('about.studioTitle')}
+          </h4>
+          <p className="text-xs text-stone-500">
+            {isLoading || !content ? 'Loading...' : content.address}
+          </p>
+        </div>
+      </div>
+
+      <div className="rounded-2xl overflow-hidden border border-stone-100 relative h-[180px]">
+         <Suspense fallback={<div className="w-full h-full bg-stone-100 animate-pulse" />}>
+          <LocationMap />
+        </Suspense>
+      </div>
+    </div>
+  );
+
   return (
     <section
       id="about"
@@ -113,7 +138,7 @@ export function About() {
       <div className="container mx-auto px-4 sm:px-6 md:px-12 lg:px-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
 
-          {/* ==================== LEFT COLUMN ==================== */}
+          {/* ==================== LEFT COLUMN (TEXT + MAP) ==================== */}
           <motion.article
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -121,10 +146,8 @@ export function About() {
             transition={{ duration: 0.6 }}
             className="flex flex-col h-full"
           >
-            {/* 1. Header Block */}
+            {/* 1. Header & Intro */}
             <div className="space-y-6 mb-10">
-              {/* Removed Duplicate "About Me" Label */}
-
               <h2 id="about-heading" className="text-4xl sm:text-5xl font-serif text-foreground min-h-[1em]">
                 {isLoading || !content ? (
                   <Skeleton className="h-12 w-3/4 max-w-sm" />
@@ -142,12 +165,11 @@ export function About() {
                    </div>
                  ) : (
                    <div>
-                     {/* Text + Inline Secret Trigger */}
                      <span className="inline">{stripHtml(content.intro)}</span>
                      <span className="inline-block ml-1 opacity-20 hover:opacity-100 transition-opacity align-baseline">
                        <SecretTrigger modalId="cmsLogin" times={3} windowMs={900}>
-                         <span className="text-[10px] uppercase tracking-widest text-sage-500 font-bold cursor-default select-none">
-                           Serenity
+                         <span className="text-[10px] uppercase tracking-widest text-[#2e2e2e] font-bold cursor-default select-none">
+                           Serenity!
                          </span>
                        </SecretTrigger>
                      </span>
@@ -156,12 +178,11 @@ export function About() {
               </div>
             </div>
 
-            {/* 2. Guides Block */}
+            {/* 2. Guides */}
             <div className="space-y-6 border-t border-stone-200/60 pt-8 mb-10">
               <h3 className="font-serif text-2xl text-foreground">
                 {t('about.guidesTitle')}
               </h3>
-
               <div className="grid gap-6">
                 {[
                   { icon: User, title: 'about.guide.clientCareTitle', body: 'about.guide.clientCareBody' },
@@ -185,7 +206,7 @@ export function About() {
               </div>
             </div>
 
-            {/* 3. CTA + Certification */}
+            {/* 3. CTA */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-12">
               <div className="min-h-[60px]">
                 {isLoading || !content ? (
@@ -203,7 +224,6 @@ export function About() {
                   </div>
                 ) : null}
               </div>
-
               <div>
                 <Button
                   size="lg"
@@ -217,10 +237,8 @@ export function About() {
               </div>
             </div>
 
-            {/* 4. APPROACH SECTION + CONTACT CARD */}
+            {/* 4. Approach Section */}
             <div className="mt-6 pt-10 border-t border-stone-200/60">
-              {/* Removed Duplicate "Mon Approche" Label */}
-
               <h3 className="text-3xl font-serif text-foreground mb-4 min-h-[1.2em]">
                  {isLoading || !content ? <Skeleton className="h-8 w-64" /> : content.approachTitle}
               </h3>
@@ -237,8 +255,8 @@ export function About() {
                 )}
               </div>
 
-              {/* CONTACT CARD - Moved here as requested */}
-              <div className="p-6 bg-sage-50/50 rounded-[24px] border border-sage-100/50 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
+              {/* Contact Card */}
+              <div className="p-6 bg-sage-50/50 rounded-[24px] border border-sage-100/50 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow mb-8">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-sage-600">
                     <Mail className="w-5 h-5" />
@@ -262,16 +280,18 @@ export function About() {
                 </Button>
               </div>
 
+              {/* MAP CARD: Now placed here in the main column (middle) for all screens */}
+              <MapCard />
+
             </div>
           </motion.article>
 
 
-          {/* ==================== RIGHT COLUMN ==================== */}
-          <aside className="space-y-10 lg:sticky lg:top-24">
+          {/* ==================== RIGHT COLUMN (VISUALS ONLY) ==================== */}
+          <aside className="space-y-10 lg:sticky lg:top-24 hidden lg:block">
 
-            {/* 1. Images Grid */}
+            {/* 1. Images Grid (HIDDEN ON MOBILE) */}
             <div className="space-y-4">
-               {/* Clean heading from CMS or Skeleton */}
               <h3 className="font-serif text-2xl text-foreground px-1">
                 {isLoading || !content ? <Skeleton className="h-8 w-48" /> : content.specialtiesTitle}
               </h3>
@@ -281,13 +301,13 @@ export function About() {
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: true, amount: 0.2 }}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                className="grid grid-cols-2 gap-4"
               >
                 {isLoading || !content ? (
                   <>
                     <Skeleton className="col-span-1 h-48 rounded-[24px]" />
                     <Skeleton className="col-span-1 h-48 rounded-[24px]" />
-                    <Skeleton className="col-span-1 sm:col-span-2 h-48 rounded-[24px]" />
+                    <Skeleton className="col-span-2 h-48 rounded-[24px]" />
                   </>
                 ) : (
                   content.specialtiesGrid.map((sp, i) => (
@@ -297,7 +317,7 @@ export function About() {
                       className={[
                         'relative group overflow-hidden rounded-[24px] bg-stone-100 shadow-sm border border-stone-100',
                         'transition-all duration-500 hover:shadow-warm hover:-translate-y-1',
-                        i === 2 ? 'sm:col-span-2 aspect-[2/1]' : 'aspect-square' // First 2 square, 3rd wide
+                        i === 2 ? 'col-span-2 aspect-[2/1]' : 'aspect-square'
                       ].join(' ')}
                     >
                       {sp.image?.url && (
@@ -305,7 +325,7 @@ export function About() {
                           image={sp.image}
                           alt={sp.title}
                           className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                          sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
+                          sizes="(max-width:1024px) 50vw, 33vw"
                         />
                       )}
                       <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-transparent to-transparent p-5">
@@ -318,31 +338,6 @@ export function About() {
                 )}
               </motion.div>
             </div>
-
-            {/* 2. Map Card (Now isolated in right column) */}
-            <div className="p-5 bg-white rounded-[24px] border border-stone-100 shadow-soft group hover:shadow-warm transition-shadow duration-300">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-sage-50 flex items-center justify-center text-sage-600">
-                  <MapPin className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-foreground text-sm uppercase tracking-wide">
-                     {t('about.studioTitle')}
-                  </h4>
-                  {/* Dynamic Address from CMS */}
-                  <p className="text-xs text-stone-500">
-                    {isLoading || !content ? 'Loading...' : content.address}
-                  </p>
-                </div>
-              </div>
-
-              <div className="rounded-2xl overflow-hidden border border-stone-100 relative h-[180px]">
-                 <Suspense fallback={<div className="w-full h-full bg-stone-100 animate-pulse" />}>
-                  <LocationMap />
-                </Suspense>
-              </div>
-            </div>
-
           </aside>
 
         </div>
