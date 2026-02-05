@@ -233,10 +233,6 @@ export function About() {
             {/* 4. Approach Section + CONTACT CARD + MAP (All in Left Column now) */}
             <div className="mt-6 pt-10 border-t border-stone-200/60">
 
-              <div className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-sage-600 mb-4">
-                <Award className="w-4 h-4" />
-                <span>{t('about.approachLabel')}</span>
-              </div>
 
               <h3 className="text-3xl font-serif text-foreground mb-4 min-h-[1.2em]">
                  {isLoading || !content ? <Skeleton className="h-8 w-64" /> : content.approachTitle}

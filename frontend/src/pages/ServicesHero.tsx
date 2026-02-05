@@ -112,7 +112,6 @@ export function ServicesHero() {
     const buildVideoUrl = () => {
       const width =
         typeof window !== "undefined" ? window.innerWidth || 1920 : 1920;
-      // Ultra-optimized breakpoints for performance
       if (width <= 640) return getOptimizedVideoUrl(publicId, 640, "eco");
       if (width <= 1024) return getOptimizedVideoUrl(publicId, 1024, "eco");
       return getOptimizedVideoUrl(publicId, 1920, "eco");
@@ -161,10 +160,7 @@ export function ServicesHero() {
       className="relative flex items-center justify-center overflow-hidden min-h-[85vh] lg:min-h-[85vh] py-12"
       aria-labelledby="services-hero-title"
     >
-      {/*
-        1. BACKGROUND VIDEO/IMAGE
-        Using 'object-cover' to fill space.
-      */}
+      {/* 1. BACKGROUND VIDEO/IMAGE */}
       {videoSrc && (
         <video
           ref={videoRef}
@@ -200,64 +196,54 @@ export function ServicesHero() {
         />
       )}
 
-      {/*
-        2. PREMIUM OVERLAY
-        Instead of a heavy flat color, we use a gradient that fades
-        from bottom-up to ensure text legibility while keeping the top airy.
-      */}
+      {/* 2. OVERLAY: Subtle Darkening for Contrast */}
       <div
-        className="absolute inset-0 bg-charcoal/30 backdrop-contrast-[.95]"
+        className="absolute inset-0 bg-stone-900/20 backdrop-contrast-[.95]"
         aria-hidden="true"
       />
       <div
-        className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/20 to-transparent"
+        className="absolute inset-0 bg-gradient-to-t from-stone-900/60 via-stone-900/10 to-transparent"
         aria-hidden="true"
       />
 
-      {/*
-        3. THE FLOATING ISLAND (Content)
-        - Backdrop Blur XL for that "frosted glass" feel.
-        - Rounded 2rem for organic softness.
-        - Subtle white border for premium finish.
-      */}
+      {/* 3. THE CONTENT CARD */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
         <motion.div
-          initial={{ opacity: 0, y: 40, scale: 0.98 }}
+          initial={{ opacity: 0, y: 30, scale: 0.98 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }} // Bezier for "premium" feel
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="w-full max-w-5xl mx-auto"
         >
-          <div className="rounded-[2rem] bg-white/95 backdrop-blur-2xl border border-white/60 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] p-6 sm:p-10 lg:p-14 overflow-hidden">
-
+          <div className="rounded-[2.5rem] bg-white/90 backdrop-blur-2xl border border-white/60 shadow-2xl p-8 sm:p-12 lg:p-14 overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
-              {/* --- LEFT COLUMN: Emotional Pitch --- */}
+              {/* --- LEFT COLUMN: Pitch --- */}
               <div className="flex flex-col gap-6 text-center lg:text-left">
-
-                {/* Eyebrow Label - Adds professional context */}
-                <span className="hidden lg:block text-xs font-bold tracking-[0.2em] text-sage-600 uppercase mb-[-1rem] opacity-80">
+                {/* Eyebrow */}
+                <span className="hidden lg:block text-xs font-bold tracking-[0.2em] text-sage-600 uppercase mb-[-0.5rem] opacity-90">
                   {lang === "fr" ? "Bien-être au travail" : "Corporate Wellness"}
                 </span>
 
+                {/* Title */}
                 <h2
                   id="services-hero-title"
-                  className="font-heading font-medium text-charcoal leading-[1.15] tracking-tight text-3xl sm:text-4xl md:text-5xl"
+                  className="font-serif font-medium text-stone-900 leading-[1.1] text-3xl sm:text-4xl md:text-5xl"
                 >
                   {toSentenceCase(title)}
                 </h2>
 
-                {/* Price Pill - Minimalist & Integrated */}
+                {/* Price Pill */}
                 {hasPrice && (
                   <div className="flex justify-center lg:justify-start">
-                    <div className="inline-flex items-center gap-3 rounded-full bg-stone-50 px-5 py-2.5 border border-stone-100/80 shadow-sm">
+                    <div className="inline-flex items-center gap-3 rounded-full bg-stone-50 px-5 py-2.5 border border-stone-200/60 shadow-inner">
                       {priceLabel && (
-                        <span className="text-sm font-semibold text-stone-500 uppercase tracking-wide">
+                        <span className="text-xs sm:text-sm font-bold text-stone-400 uppercase tracking-wide">
                           {priceLabel}
                         </span>
                       )}
                       {price && (
-                        <span className="text-xl sm:text-2xl font-bold text-sage-800 tabular-nums tracking-tight">
+                        <span className="text-xl sm:text-2xl font-serif text-stone-800 tracking-tight">
                           {price}
                         </span>
                       )}
@@ -265,13 +251,14 @@ export function ServicesHero() {
                   </div>
                 )}
 
+                {/* CTA Button */}
                 {hasCTA && (
                   <div className="pt-2">
                     <Button
                       variant="default"
                       size="lg"
-                      // "h-14" ensures a nice touch target. "px-10" makes it feel substantial.
-                      className="w-full sm:w-auto h-14 rounded-full shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 px-10 text-base font-semibold bg-charcoal text-white hover:bg-charcoal/90"
+                      // Consistent with theme but rounded-full for 'softness'
+                      className="w-full sm:w-auto min-h-[56px] rounded-full shadow-warm hover:shadow-elevated transition-all px-10 text-base font-medium"
                       onClick={() =>
                         open("corporate", { defaultEventType: "corporate" })
                       }
@@ -282,26 +269,27 @@ export function ServicesHero() {
                 )}
               </div>
 
-              {/* --- RIGHT COLUMN: Rational Benefits --- */}
+              {/* --- RIGHT COLUMN: Benefits --- */}
               {benefits.length > 0 && (
                 <div className="relative pl-0 lg:pl-6">
-                  {/* Vertical Divider (Desktop Only) - The "Zen" separator */}
-                  <div className="absolute hidden lg:block left-0 top-2 bottom-2 w-px bg-gradient-to-b from-transparent via-stone-200 to-transparent" />
+                  {/* Vertical Divider (Desktop) */}
+                  <div className="absolute hidden lg:block left-0 top-4 bottom-4 w-px bg-gradient-to-b from-transparent via-stone-300/50 to-transparent" />
 
-                  <ul className="space-y-5 sm:space-y-6">
+                  <ul className="space-y-6">
                     {benefits.map((b, i) => (
                       <li key={i}>
                         <motion.div
-                          initial={{ opacity: 0, x: 15 }}
+                          initial={{ opacity: 0, x: 20 }}
                           whileInView={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.3 + i * 0.15, duration: 0.5 }}
+                          transition={{ delay: 0.2 + i * 0.1, duration: 0.6 }}
                           className="flex items-start gap-4 group"
                         >
-                          {/* Custom Checkmark: Soft sage background, deep sage icon */}
-                          <span className="mt-0.5 flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-sage-50 border border-sage-100 group-hover:border-sage-200 transition-colors">
-                            <Check className="w-3.5 h-3.5 text-sage-700 stroke-[2.5]" />
-                          </span>
-                          <span className="text-base sm:text-lg text-charcoal/80 leading-snug font-medium group-hover:text-charcoal transition-colors">
+                          {/* Check Icon */}
+                          <div className="mt-1 flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-sage-50 text-sage-600">
+                            <Check className="w-4 h-4" />
+                          </div>
+                          {/* Text */}
+                          <span className="text-base sm:text-lg text-stone-600 leading-snug font-medium group-hover:text-stone-900 transition-colors">
                             {b}
                           </span>
                         </motion.div>
