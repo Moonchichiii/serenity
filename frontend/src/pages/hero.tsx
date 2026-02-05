@@ -5,6 +5,7 @@ import { cmsAPI, type WagtailHomePage } from '@/api/cms'
 import CloudImage from '@/components/ResponsiveImage'
 import CookieConsent from '@/components/CookieConsent'
 import { useModal } from '@/shared/hooks/useModal'
+import { motion } from 'framer-motion'
 
 export function Hero() {
   const { t, i18n } = useTranslation()
@@ -29,13 +30,14 @@ export function Hero() {
     return () => clearInterval(id)
   }, [slides])
 
-
   const lang = (i18n.language === 'en' || i18n.language === 'fr') ? (i18n.language as 'en' | 'fr') : 'fr'
   const title = cmsData ? ((lang === 'fr' ? cmsData.hero_title_fr : cmsData.hero_title_en) ?? t('hero.title')) : t('hero.title')
   const subtitle = cmsData ? ((lang === 'fr' ? cmsData.hero_subtitle_fr : cmsData.hero_subtitle_en) ?? t('hero.subtitle')) : t('hero.subtitle')
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-gradient-hero">
+    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+
+      {/* 1. BACKGROUND SLIDESHOW */}
       <div className="absolute inset-0 z-0">
         {slides ? (
           slides.map((s, idx) => {
@@ -44,82 +46,120 @@ export function Hero() {
             return (
               <div
                 key={idx}
-                className={`absolute inset-0 transition-all duration-1000 ease-out will-change-transform ${
-                  visible ? 'opacity-100 scale-[1.05]' : 'opacity-0 scale-100'
+                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                  visible ? 'opacity-100' : 'opacity-0'
                 }`}
                 aria-hidden="true"
               >
-                <CloudImage
-                  image={s.image}
-                  alt={alt}
-                  priority={idx === 0}
-                  className="w-full h-full"
-                  fit="cover"
-                  sizes="100vw"
-                />
+                {/* Added 'scale' animation to create a subtle breathing effect */}
+                <div className={`w-full h-full transition-transform duration-[6000ms] ease-linear ${visible ? 'scale-110' : 'scale-100'}`}>
+                  <CloudImage
+                    image={s.image}
+                    alt={alt}
+                    priority={idx === 0}
+                    className="w-full h-full object-cover"
+                    sizes="100vw"
+                  />
+                </div>
               </div>
             )
           })
         ) : (
-          <div className="absolute inset-0" aria-hidden="true" />
+          <div className="absolute inset-0 bg-stone-200" aria-hidden="true" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-br from-sage-200/70 via-sand-100/70 to-porcelain/70" />
+
+        {/*
+            2. OVERLAY FIX
+            Increased opacity of the overlay so the text pops more.
+            - 'bg-stone-50/60' provides a base milky layer.
+            - The gradient adds a bit more solidity at the bottom.
+        */}
+        <div className="absolute inset-0 bg-stone-100/60 mix-blend-hard-light" />
+        <div className="absolute inset-0 bg-gradient-to-t from-stone-50/90 via-stone-50/40 to-stone-50/20" />
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 lg:px-8 text-center">
-        {/* H1: No animation to prevent render delay for LCP */}
-        <h1 className="text-5xl md:text-6xl lg:text-7xl font-heading font-bold text-charcoal mb-6">
+      {/* 3. CONTENT */}
+      <div className="relative z-10 container mx-auto px-4 lg:px-8 flex flex-col items-center justify-center text-center h-full">
+
+        {/* Eyebrow (Optional, if you want it) */}
+        <motion.span
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="inline-block text-xs font-bold tracking-[0.2em] text-sage-700 uppercase mb-4"
+        >
+          {t('about.label', { defaultValue: 'Massage Bien-être' })}
+        </motion.span>
+
+        {/* Title */}
+        <motion.h1
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          // Changed to 'font-serif' and charcoal color
+          className="text-5xl md:text-6xl lg:text-7xl font-serif font-medium text-stone-900 mb-6 drop-shadow-sm max-w-4xl"
+        >
           {title}
-        </h1>
+        </motion.h1>
 
-        {/* Subtitle: Subtle fade-in only on mobile, instant on desktop */}
-        <p className="text-xl md:text-2xl text-charcoal/80 mb-10 max-w-2xl mx-auto text-balance md:opacity-100 animate-fade-in md:animate-none">
+        {/* Subtitle */}
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="text-lg md:text-2xl text-stone-600 mb-10 max-w-2xl mx-auto leading-relaxed"
+        >
           {subtitle}
-        </p>
+        </motion.p>
 
-        {/* CTA: Subtle fade-in only on mobile, instant on desktop */}
-        <div className="md:opacity-100 animate-fade-in delay-200 md:animate-none">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-            {/* Private session CTA */}
-            <Button
-              size="md"
-              onClick={() =>
-                open('contact', { defaultSubject: 'Private session inquiry' })
-              }
-              className="
-                rounded-full shadow-elevated md:hover:scale-105
-                px-6 sm:px-7 text-sm sm:text-base
-              "
-            >
-              {t('hero.ctaPrivate')}
-            </Button>
+        {/* CTA Buttons - DEAD CENTER & UPDATED STYLE */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full"
+        >
+          {/* Private Session */}
+          <Button
+            size="lg"
+            onClick={() =>
+              open('contact', { defaultSubject: 'Private session inquiry' })
+            }
+            // Pill shape, Taller (h-14), larger text
+            className="w-full sm:w-auto h-14 rounded-full px-8 text-base shadow-warm hover:shadow-elevated transition-transform hover:-translate-y-1"
+          >
+            {t('hero.ctaPrivate')}
+          </Button>
 
-            {/* Corporate wellness CTA */}
-            <Button
-              size="md"
-              type="button"
-              onClick={() => {
-                const targetId = 'services-hero'
-                const el = document.getElementById(targetId)
-                if (el) {
-                  el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                  if (window.history && window.history.pushState) {
-                    window.history.pushState(null, '', `#${targetId}`)
-                  }
+          {/* Corporate Wellness - Secondary Style? Or same?
+              Keeping same variant for now but outlined is an option if you want contrast.
+              Let's stick to the 'default' Sage to be safe, or use 'secondary' if defined.
+          */}
+          <Button
+            variant="secondary" // Light Sage background to differentiate
+            size="lg"
+            type="button"
+            onClick={() => {
+              const targetId = 'services-hero'
+              const el = document.getElementById(targetId)
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                if (window.history && window.history.pushState) {
+                  window.history.pushState(null, '', `#${targetId}`)
                 }
-              }}
-              className="
-                rounded-full shadow-elevated md:hover:scale-105
-                px-6 sm:px-7 text-sm sm:text-base
-              "
-            >
-              {t('hero.ctaCorporate')}
-            </Button>
-          </div>
-        </div>
+              }
+            }}
+            className="w-full sm:w-auto h-14 rounded-full px-8 text-base shadow-sm hover:shadow-md transition-transform hover:-translate-y-1"
+          >
+            {t('hero.ctaCorporate')}
+          </Button>
+        </motion.div>
       </div>
+
       <CookieConsent />
-      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-porcelain to-transparent z-10" />
+
+      {/* Bottom Fade to blend into the next section */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
     </section>
   )
 }

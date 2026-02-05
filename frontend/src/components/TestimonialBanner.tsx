@@ -188,9 +188,9 @@ export function TestimonialBanner() {
             <span className="mr-1.5">
               <Star className="w-3.5 h-3.5 text-honey-400 fill-honey-400" />
             </span>
-            {t('testimonials.label', 'Client stories / Témoignages clients')}
+            {t('testimonials.label', 'Client stories')}
           </p>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-charcoal mb-3">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-charcoal mb-3">
             {t('testimonials.title', 'What Clients Say')}
           </h2>
           <p className="text-base sm:text-lg text-charcoal/70 max-w-2xl mx-auto">
