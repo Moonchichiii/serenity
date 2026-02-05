@@ -21,12 +21,24 @@ export function TestimonialBanner() {
   const [paused, setPaused] = useState(false);
   const trackTopRef = useRef<HTMLDivElement | null>(null);
 
+  // Detect Mobile
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const items = useMemo(() => {
     if (testimonials.length === 0) return [];
+    // On mobile, we just want the list once. On desktop, we need enough for the loop.
+    if (isMobile) return testimonials;
+
     return testimonials.length < 4
       ? [...testimonials, ...testimonials, ...testimonials]
       : [...testimonials, ...testimonials];
-  }, [testimonials]);
+  }, [testimonials, isMobile]);
 
   useEffect(() => {
     cmsAPI
@@ -35,13 +47,17 @@ export function TestimonialBanner() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Infinite Loop Logic (Desktop Only)
   useEffect(() => {
-    if (prefersReduced || !trackTopRef.current || items.length === 0) return;
+    if (isMobile || prefersReduced || !trackTopRef.current || items.length === 0) return;
 
     const loopWidth =
       trackTopRef.current.scrollWidth / (testimonials.length < 4 ? 3 : 2);
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-    const duration = isMobile ? 50 : 70; // Slower, smoother
+
+    // Safety check to avoid division by zero if width is 0
+    if (!loopWidth) return;
+
+    const duration = 60;
 
     if (paused) {
       controlsTop.stop();
@@ -80,10 +96,11 @@ export function TestimonialBanner() {
     prefersReduced,
     items.length,
     testimonials.length,
+    isMobile
   ]);
 
   const handleCardClick = (testimonial: WagtailTestimonial) => {
-    setPaused(true);
+    if (!isMobile) setPaused(true);
     setSelectedTestimonial(testimonial);
   };
 
@@ -92,40 +109,40 @@ export function TestimonialBanner() {
     setPaused(false);
   };
 
-  if (loading) return null; // No spinner needed here, just renders when ready
+  if (loading) return null;
   if (testimonials.length === 0) return null;
 
   const renderCard = (testimonial: WagtailTestimonial, index: number) => (
     <article
       key={`${testimonial.id}-${index}`}
       onClick={() => handleCardClick(testimonial)}
-      className="bg-white border border-stone-100 rounded-[24px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 w-[320px] sm:w-[380px] flex-shrink-0 cursor-pointer group relative snap-center"
+      className="bg-white border border-stone-100 rounded-[24px] p-6 sm:p-8 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300 w-[280px] sm:w-[320px] md:w-[380px] flex-shrink-0 cursor-pointer group relative snap-center"
     >
-      <Quote className="absolute top-8 right-8 w-8 h-8 text-stone-100 fill-stone-100 group-hover:text-sage-100 group-hover:fill-sage-100 transition-colors" />
+      <Quote className="absolute top-6 right-6 w-6 h-6 sm:w-8 sm:h-8 text-stone-100 fill-stone-100 group-hover:text-sage-100 group-hover:fill-sage-100 transition-colors" />
 
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
         {testimonial.avatar ? (
           <img
             src={testimonial.avatar}
             alt=""
-            className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white shadow-sm"
             loading="lazy"
           />
         ) : (
-          <div className="w-12 h-12 rounded-full bg-sage-50 text-sage-600 flex items-center justify-center text-lg font-serif font-medium">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-sage-50 text-sage-600 flex items-center justify-center text-base sm:text-lg font-serif font-medium">
             {testimonial.name?.[0]?.toUpperCase() ?? '?'}
           </div>
         )}
 
-        <div>
-          <h3 className="font-serif font-medium text-stone-900 text-lg">
+        <div className="min-w-0">
+          <h3 className="font-serif font-medium text-stone-900 text-base sm:text-lg truncate">
             {testimonial.name}
           </h3>
           <div className="flex gap-0.5" aria-hidden="true">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
                 key={i}
-                className={`w-3.5 h-3.5 ${
+                className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${
                   i < testimonial.rating
                     ? 'fill-amber-400 text-amber-400'
                     : 'text-stone-200'
@@ -136,12 +153,12 @@ export function TestimonialBanner() {
         </div>
       </div>
 
-      <p className="text-[15px] text-stone-600 leading-relaxed line-clamp-4 font-light">
+      <p className="text-sm sm:text-[15px] text-stone-600 leading-relaxed line-clamp-4 font-light">
         "{testimonial.text}"
       </p>
 
       {testimonial.replies && testimonial.replies.length > 0 && (
-        <div className="mt-6 pt-4 border-t border-stone-50 flex items-center gap-2 text-xs font-medium text-sage-600">
+        <div className="mt-4 sm:mt-6 pt-4 border-t border-stone-50 flex items-center gap-2 text-xs font-medium text-sage-600">
           <MessageCircle className="w-3.5 h-3.5" />
           <span>{t('testimonials.reply', 'Read reply')}</span>
         </div>
@@ -150,55 +167,63 @@ export function TestimonialBanner() {
   );
 
   return (
-    <section className="py-24 lg:py-32 bg-white overflow-hidden" id="testimonials">
-      <div className="max-w-7xl mx-auto px-6 mb-16 text-center">
-        <span className="inline-block text-xs font-bold tracking-[0.2em] text-stone-400 uppercase mb-4">
+    <section className="py-16 sm:py-24 lg:py-32 bg-white overflow-hidden" id="testimonials">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-10 sm:mb-16 text-center">
+        <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.2em] text-stone-400 uppercase mb-3 sm:mb-4">
           {t('testimonials.label', 'Testimonials')}
         </span>
-        <h2 className="text-4xl md:text-5xl font-serif font-medium text-stone-900 mb-6">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-medium text-stone-900 mb-4 sm:mb-6">
           {t('testimonials.title', 'Kind Words')}
         </h2>
-        <p className="text-lg text-stone-500 max-w-xl mx-auto font-light">
+        <p className="text-base sm:text-lg text-stone-500 max-w-xl mx-auto font-light">
           {t('testimonials.subtitle', 'Experiences shared by our community')}
         </p>
       </div>
 
       <div
-        className="space-y-8"
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => !selectedTestimonial && setPaused(false)}
+        className="space-y-4 sm:space-y-8"
+        onMouseEnter={() => !isMobile && setPaused(true)}
+        onMouseLeave={() => !isMobile && !selectedTestimonial && setPaused(false)}
       >
-        <div className="relative">
-          {/* Gradient Fade Edges */}
-          <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white to-transparent z-10" />
-          <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white to-transparent z-10" />
-
-          {/* Row 1: Left */}
-          <div className="flex gap-6 overflow-hidden py-4">
-            <motion.div
-              ref={trackTopRef}
-              className="flex gap-6 w-max"
-              animate={prefersReduced ? undefined : controlsTop}
-            >
-              {/* Buffers for smooth loop */}
-              <div className="w-[100px]" />
-              {items.map((tst, index) => renderCard(tst, index))}
-              <div className="w-[100px]" />
-            </motion.div>
+        {/* MOBILE VIEW: Horizontal Snap Scroll (Native Touch) */}
+        {isMobile ? (
+          <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-8 px-6 -mx-4 no-scrollbar">
+             {items.map((tst, index) => renderCard(tst, index))}
+             <div className="w-4 shrink-0" />
           </div>
+        ) : (
+          /* DESKTOP VIEW: Infinite Animation */
+          <div className="relative">
+            {/* Gradient Fade Edges */}
+            <div className="absolute inset-y-0 left-0 w-24 sm:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-y-0 right-0 w-24 sm:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
 
-          {/* Row 2: Right */}
-          <div className="flex gap-6 overflow-hidden py-4">
-            <motion.div
-              className="flex gap-6 w-max"
-              animate={prefersReduced ? undefined : controlsBottom}
-            >
-              <div className="w-[100px]" />
-              {items.map((tst, index) => renderCard(tst, index + 100))}
-              <div className="w-[100px]" />
-            </motion.div>
+            {/* Row 1: Left */}
+            <div className="flex gap-6 overflow-hidden py-4">
+              <motion.div
+                ref={trackTopRef}
+                className="flex gap-6 w-max"
+                animate={prefersReduced ? undefined : controlsTop}
+              >
+                <div className="w-[50px] sm:w-[100px]" />
+                {items.map((tst, index) => renderCard(tst, index))}
+                <div className="w-[50px] sm:w-[100px]" />
+              </motion.div>
+            </div>
+
+            {/* Row 2: Right */}
+            <div className="flex gap-6 overflow-hidden py-4">
+              <motion.div
+                className="flex gap-6 w-max"
+                animate={prefersReduced ? undefined : controlsBottom}
+              >
+                <div className="w-[50px] sm:w-[100px]" />
+                {items.map((tst, index) => renderCard(tst, index + 100))}
+                <div className="w-[50px] sm:w-[100px]" />
+              </motion.div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <TestimonialModal
