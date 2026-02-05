@@ -71,6 +71,7 @@ export function About() {
       approachText: pick(cmsData[`about_approach_text_${lang}`], ''),
       specialtiesTitle: pick(cmsData[`about_specialties_title_${lang}`], ''),
       studioDescription: t('about.studioDescriptionFallback'),
+      address: pick(cmsData[`address_${lang}`], '5 Avenues, 13004 Marseille'), // Dynamic Address
       specialtiesGrid,
     };
   }, [cmsData, lang, t]);
@@ -122,13 +123,7 @@ export function About() {
           >
             {/* 1. Header Block */}
             <div className="space-y-6 mb-10">
-              <div
-                className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-sage-600"
-                role="presentation"
-              >
-                <Heart className="w-4 h-4" aria-hidden="true" />
-                <span>{t('about.label')}</span>
-              </div>
+              {/* Removed Duplicate "About Me" Label */}
 
               <h2 id="about-heading" className="text-4xl sm:text-5xl font-serif text-foreground min-h-[1em]">
                 {isLoading || !content ? (
@@ -146,16 +141,17 @@ export function About() {
                      <Skeleton className="h-4 w-4/6" />
                    </div>
                  ) : (
-                   <>
-                     <p>{stripHtml(content.intro)}</p>
-                     <div className="mt-4 flex justify-end opacity-40 hover:opacity-100 transition-opacity">
+                   <div>
+                     {/* Text + Inline Secret Trigger */}
+                     <span className="inline">{stripHtml(content.intro)}</span>
+                     <span className="inline-block ml-1 opacity-20 hover:opacity-100 transition-opacity align-baseline">
                        <SecretTrigger modalId="cmsLogin" times={3} windowMs={900}>
-                         <span className="text-[10px] uppercase tracking-widest text-sage-500 font-bold cursor-default">
+                         <span className="text-[10px] uppercase tracking-widest text-sage-500 font-bold cursor-default select-none">
                            Serenity
                          </span>
                        </SecretTrigger>
-                     </div>
-                   </>
+                     </span>
+                   </div>
                  )}
               </div>
             </div>
@@ -190,7 +186,7 @@ export function About() {
             </div>
 
             {/* 3. CTA + Certification */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-16">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-12">
               <div className="min-h-[60px]">
                 {isLoading || !content ? (
                   <Skeleton className="h-16 w-48 rounded-2xl" />
@@ -221,18 +217,15 @@ export function About() {
               </div>
             </div>
 
-            {/* 4. APPROACH SECTION (Moved Here for Balance) */}
-            <div className="mt-auto pt-10 border-t border-stone-200/60">
-               <div className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-sage-600 mb-4">
-                <Award className="w-4 h-4" />
-                <span>{t('about.approachLabel')}</span>
-              </div>
+            {/* 4. APPROACH SECTION + CONTACT CARD */}
+            <div className="mt-6 pt-10 border-t border-stone-200/60">
+              {/* Removed Duplicate "Mon Approche" Label */}
 
-              <h3 className="text-3xl font-serif text-foreground mb-6 min-h-[1.2em]">
+              <h3 className="text-3xl font-serif text-foreground mb-4 min-h-[1.2em]">
                  {isLoading || !content ? <Skeleton className="h-8 w-64" /> : content.approachTitle}
               </h3>
 
-              <div className="text-base text-foreground/75 leading-relaxed space-y-4">
+              <div className="text-base text-foreground/75 leading-relaxed space-y-4 mb-8">
                 {isLoading || !content ? (
                   <>
                     <Skeleton className="h-4 w-full" />
@@ -243,6 +236,32 @@ export function About() {
                   <p>{stripHtml(content.approachText)}</p>
                 )}
               </div>
+
+              {/* CONTACT CARD - Moved here as requested */}
+              <div className="p-6 bg-sage-50/50 rounded-[24px] border border-sage-100/50 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-sage-600">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground text-sm">
+                      {t('contact.form.title')}
+                    </p>
+                    <p className="text-xs text-stone-500">
+                      {t('about.byAppointment')}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                   variant="ghost"
+                   size="sm"
+                   onClick={() => open('contact')}
+                   className="text-sage-700 hover:text-sage-800 hover:bg-sage-100"
+                >
+                   <ArrowRight className="w-5 h-5" />
+                </Button>
+              </div>
+
             </div>
           </motion.article>
 
@@ -252,7 +271,7 @@ export function About() {
 
             {/* 1. Images Grid */}
             <div className="space-y-4">
-               {/* Note: In a real "Zen" design, we might move this heading inside the grid or remove it to be cleaner */}
+               {/* Clean heading from CMS or Skeleton */}
               <h3 className="font-serif text-2xl text-foreground px-1">
                 {isLoading || !content ? <Skeleton className="h-8 w-48" /> : content.specialtiesTitle}
               </h3>
@@ -300,58 +319,30 @@ export function About() {
               </motion.div>
             </div>
 
-            {/* 2. Location & Contact Cards (Stacked vertically in right column) */}
-            <div className="space-y-5">
-
-              {/* Map Card */}
-              <div className="p-5 bg-white rounded-[24px] border border-stone-100 shadow-soft group hover:shadow-warm transition-shadow duration-300">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-sage-50 flex items-center justify-center text-sage-600">
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground text-sm uppercase tracking-wide">
-                       {t('about.studioTitle', { defaultValue: 'My Studio' })}
-                    </h4>
-                    <p className="text-xs text-stone-500">
-                      5 Avenues, 13004 Marseille
-                    </p>
-                  </div>
+            {/* 2. Map Card (Now isolated in right column) */}
+            <div className="p-5 bg-white rounded-[24px] border border-stone-100 shadow-soft group hover:shadow-warm transition-shadow duration-300">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-sage-50 flex items-center justify-center text-sage-600">
+                  <MapPin className="w-5 h-5" />
                 </div>
-
-                <div className="rounded-2xl overflow-hidden border border-stone-100 relative h-[180px]">
-                   <Suspense fallback={<div className="w-full h-full bg-stone-100 animate-pulse" />}>
-                    <LocationMap />
-                  </Suspense>
+                <div>
+                  <h4 className="font-semibold text-foreground text-sm uppercase tracking-wide">
+                     {t('about.studioTitle')}
+                  </h4>
+                  {/* Dynamic Address from CMS */}
+                  <p className="text-xs text-stone-500">
+                    {isLoading || !content ? 'Loading...' : content.address}
+                  </p>
                 </div>
               </div>
 
-              {/* Contact Card */}
-              <div className="p-6 bg-sage-50/50 rounded-[24px] border border-sage-100/50 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-sage-600">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground text-sm">
-                      {t('contact.form.title')}
-                    </p>
-                    <p className="text-xs text-stone-500">
-                      {t('about.byAppointment')}
-                    </p>
-                  </div>
-                </div>
-                <Button
-                   variant="ghost"
-                   size="sm"
-                   onClick={() => open('contact')}
-                   className="text-sage-700 hover:text-sage-800 hover:bg-sage-100"
-                >
-                   <ArrowRight className="w-5 h-5" />
-                </Button>
+              <div className="rounded-2xl overflow-hidden border border-stone-100 relative h-[180px]">
+                 <Suspense fallback={<div className="w-full h-full bg-stone-100 animate-pulse" />}>
+                  <LocationMap />
+                </Suspense>
               </div>
-
             </div>
+
           </aside>
 
         </div>
