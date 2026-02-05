@@ -46,7 +46,7 @@ export function Services() {
       <section id="services" className="pt-20 lg:pt-32 pb-16 lg:pb-20 overflow-hidden">
         <div className="container mx-auto px-4 lg:px-8">
 
-          {/* Header - Centered & Serif */}
+          {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -105,12 +105,11 @@ export function Services() {
                               fit="cover"
                               sizes="85vw"
                             />
-                            {isHighlighted && (
-                              <div className="absolute top-4 right-4 inline-flex items-center rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-[10px] font-bold tracking-wide text-stone-800 shadow-sm">
-                                <Euro className="w-3 h-3 text-sage-600 mr-1" />
+                            {/* Mobile Price Badge - Highlight logic removed if not needed for mobile, but keeping visual consistency */}
+                            <div className={`absolute top-4 right-4 inline-flex items-center gap-1 rounded-full bg-white/95 backdrop-blur-md px-3 py-1.5 text-[11px] font-bold tracking-wide text-stone-800 shadow-sm ${isHighlighted ? 'ring-2 ring-rose-200' : ''}`}>
+                                <Euro className="w-3 h-3 text-sage-600" />
                                 {service.price}
-                              </div>
-                            )}
+                            </div>
                           </div>
                         )}
 
@@ -129,11 +128,10 @@ export function Services() {
                               <Clock className="w-3.5 h-3.5" />
                               <span>{service.duration_minutes} min</span>
                             </div>
-                            {!isHighlighted && (
-                              <div className="text-sm font-serif font-semibold text-stone-900">
-                                {service.price}
-                              </div>
-                            )}
+
+                            <div className="text-sm font-serif font-semibold text-stone-900">
+                               {service.price} €
+                            </div>
                           </div>
                         </div>
                       </article>
@@ -170,9 +168,8 @@ export function Services() {
                             sizes="(max-width:1024px) 45vw, 380px"
                           />
 
-                          {/* Floating Price Pill */}
                           <div className="absolute top-5 right-5 inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-4 py-1.5 text-xs font-bold text-stone-800 shadow-lg">
-                             <span>{service.price}</span>
+                             <span>{service.price} €</span>
                           </div>
                         </div>
                       )}
