@@ -74,7 +74,7 @@ export default function CookieConsent({ className = '' }: { className?: string }
                   <input type="checkbox" className="mt-1 accent-sage-500" checked disabled aria-checked="true" />
                   <div>
                     <div className="font-medium text-charcoal">{t('cookie.essentials')}</div>
-                    <div className="text-sm text-charcoal/70">{t('cookie.alwaysOn')}</div>
+                    <div className="text-sm text-charcoal/90">{t('cookie.alwaysOn')}</div>
                   </div>
                 </label>
 
@@ -87,7 +87,7 @@ export default function CookieConsent({ className = '' }: { className?: string }
                   />
                   <div>
                     <div className="font-medium text-charcoal">{t('cookie.mediaTitle')}</div>
-                    <div className="text-sm text-charcoal/70">{t('cookie.mediaDesc')}</div>
+                    <div className="text-sm text-charcoal/90">{t('cookie.mediaDesc')}</div>
                   </div>
                 </label>
 
@@ -100,7 +100,7 @@ export default function CookieConsent({ className = '' }: { className?: string }
                   />
                   <div>
                     <div className="font-medium text-charcoal">{t('cookie.analyticsTitle')}</div>
-                    <div className="text-sm text-charcoal/70">{t('cookie.analyticsDesc')}</div>
+                    <div className="text-sm text-charcoal/90">{t('cookie.analyticsDesc')}</div>
                   </div>
                 </label>
               </div>
