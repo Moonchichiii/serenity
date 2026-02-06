@@ -32,14 +32,14 @@ export function Hero() {
 
   const lang = (i18n.language === 'en' || i18n.language === 'fr') ? (i18n.language as 'en' | 'fr') : 'fr'
 
-
+  // CMS-FIRST LOGIC
   const title = cmsData ? ((lang === 'fr' ? cmsData.hero_title_fr : cmsData.hero_title_en) ?? t('hero.title')) : t('hero.title')
   const subtitle = cmsData ? ((lang === 'fr' ? cmsData.hero_subtitle_fr : cmsData.hero_subtitle_en) ?? t('hero.subtitle')) : t('hero.subtitle')
 
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
 
-      {/* 1. BACKGROUND SLIDESHOW (CMS DRIVEN) */}
+      {/* 1. BACKGROUND SLIDESHOW */}
       <div className="absolute inset-0 z-0">
         {slides ? (
           slides.map((s, idx) => {
@@ -70,38 +70,38 @@ export function Hero() {
           <div className="absolute inset-0 bg-stone-200" aria-hidden="true" />
         )}
 
-        {/*
-            2. OVERLAY
-            Opacity increased to improve text readability over dynamic CMS images
-        */}
+        {/* 2. OVERLAY */}
         <div className="absolute inset-0 bg-stone-100/60 mix-blend-hard-light" />
         <div className="absolute inset-0 bg-gradient-to-t from-stone-50/90 via-stone-50/40 to-stone-50/20" />
       </div>
 
-      {/* 3. CONTENT */}
+      {/* 3. CONTENT - Centered but Wider */}
       <div className="relative z-10 container mx-auto px-4 lg:px-8 flex flex-col items-center justify-center text-center h-full">
 
-        {/* Title (CMS Driven) */}
+        {/* Title */}
         <motion.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-5xl md:text-6xl lg:text-7xl font-serif font-medium text-stone-900 mb-6 drop-shadow-sm max-w-4xl"
+          // CHANGED: Increased max-width to 'max-w-5xl' to let it stretch wide
+          className="text-5xl md:text-6xl lg:text-7xl font-serif font-medium text-stone-900 mb-6 drop-shadow-sm max-w-5xl"
         >
           {title}
         </motion.h1>
 
-        {/* Subtitle (CMS Driven) */}
+        {/* Subtitle */}
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-lg md:text-2xl text-stone-600 mb-10 max-w-2xl mx-auto leading-relaxed"
+          // CHANGED: Increased max-width to 'max-w-3xl' (was 2xl)
+          // This makes the text block rectangular instead of square
+          className="text-lg md:text-2xl text-stone-600 mb-10 max-w-3xl mx-auto leading-relaxed"
         >
           {subtitle}
         </motion.p>
 
-        {/* CTA Buttons */}
+        {/* CTA Buttons - Centered */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

@@ -30,7 +30,9 @@
 }
 
 @theme {
+/* Typography Mapping */
   --font-heading: 'DM Serif Display', Georgia, serif;
+  --font-serif: 'DM Serif Display', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
 
   --color-sage-50: #f6f8f7;
@@ -66,6 +68,36 @@
   --color-honey-400: #f2c76b;
   --color-honey-500: #ebb03d;
 
+  --color-lavender-50: #f9f7fc;
+  --color-lavender-100: #f0ecf8;
+  --color-lavender-200: #e4dcf3;
+  --color-lavender-300: #c9b9e8;
+  --color-lavender-400: #a990d9;
+  --color-lavender-500: #8b6bc9;
+
+  --color-background: var(--color-porcelain);
+  --color-foreground: var(--color-charcoal);
+
+  --color-primary: var(--color-sage-200);
+  --color-primary-foreground: var(--color-charcoal);
+
+  --color-secondary: var(--color-sand-200);
+  --color-secondary-foreground: var(--color-charcoal);
+
+  --color-accent: var(--color-terracotta-300);
+  --color-accent-foreground: var(--color-charcoal);
+
+  --color-muted: var(--color-sand-200);
+  --color-muted-foreground: #717171;
+
+  --color-card: #ffffff;
+  --color-card-foreground: var(--color-charcoal);
+
+  --color-border: var(--color-sage-200);
+  --color-input: var(--color-sage-200);
+  --color-ring: var(--color-sage-400);
+
+  --radius-sm: 0.5rem;
   --color-lavender-50: #f9f7fc;
   --color-lavender-100: #f0ecf8;
   --color-lavender-200: #e4dcf3;
