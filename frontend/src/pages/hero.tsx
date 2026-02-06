@@ -36,6 +36,9 @@ export function Hero() {
   const title = cmsData ? ((lang === 'fr' ? cmsData.hero_title_fr : cmsData.hero_title_en) ?? t('hero.title')) : t('hero.title')
   const subtitle = cmsData ? ((lang === 'fr' ? cmsData.hero_subtitle_fr : cmsData.hero_subtitle_en) ?? t('hero.subtitle')) : t('hero.subtitle')
 
+  const ctaPrivateText = t('hero.ctaPrivate')
+  const ctaCorporateText = t('hero.ctaCorporate')
+
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
 
@@ -43,7 +46,7 @@ export function Hero() {
       <div className="absolute inset-0 z-0">
         {slides ? (
           slides.map((s, idx) => {
-            const alt = s.image?.title || 'Hero'
+            const alt = s.image?.title || 'Hero background'
             const visible = active === idx
             return (
               <div
@@ -51,13 +54,13 @@ export function Hero() {
                 className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
                   visible ? 'opacity-100' : 'opacity-0'
                 }`}
-                aria-hidden="true"
+                aria-hidden="true" // Hides background images from screen readers (good practice)
               >
                 {/* Scale animation for breathing effect */}
                 <div className={`w-full h-full transition-transform duration-[6000ms] ease-linear ${visible ? 'scale-110' : 'scale-100'}`}>
                   <CloudImage
                     image={s.image}
-                    alt={alt}
+                    alt={alt} // Even though aria-hidden is true on parent, alt is required
                     priority={idx === 0} // This is the LCP winner!
                     className="w-full h-full object-cover"
                     sizes="100vw"
@@ -83,7 +86,6 @@ export function Hero() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          // Increased max-width to let it breathe
           className="text-5xl md:text-6xl lg:text-7xl font-serif font-medium text-stone-900 mb-6 drop-shadow-sm max-w-5xl"
         >
           {title}
@@ -94,7 +96,6 @@ export function Hero() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          // Increased max-width to avoid "boxy" look
           className="text-lg md:text-2xl text-stone-600 mb-10 max-w-3xl mx-auto leading-relaxed"
         >
           {subtitle}
@@ -113,9 +114,10 @@ export function Hero() {
             onClick={() =>
               open('contact', { defaultSubject: 'Private session inquiry' })
             }
+            aria-label={ctaPrivateText} // Explicit label fix
             className="w-full sm:w-auto h-14 rounded-full px-8 text-base shadow-warm hover:shadow-elevated transition-transform hover:-translate-y-1"
           >
-            {t('hero.ctaPrivate')}
+            {ctaPrivateText}
           </Button>
 
           {/* Corporate Wellness */}
@@ -133,9 +135,10 @@ export function Hero() {
                 }
               }
             }}
+            aria-label={ctaCorporateText} // Explicit label fix
             className="w-full sm:w-auto h-14 rounded-full px-8 text-base shadow-sm hover:shadow-md transition-transform hover:-translate-y-1"
           >
-            {t('hero.ctaCorporate')}
+            {ctaCorporateText}
           </Button>
         </motion.div>
       </div>

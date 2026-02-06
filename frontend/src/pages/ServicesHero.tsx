@@ -236,9 +236,9 @@ export function ServicesHero() {
               {hasCTA && (
                 <div className="pt-2">
                   <Button
-                    variant="default" // Using your shared component
+                    variant="default"
                     size="lg"
-                    // Hero Modifications: Taller (h-14), Pill Shape (rounded-full), White Border
+                    aria-label={cta || "Contact Corporate"}
                     className="w-full sm:w-auto h-14 rounded-full shadow-lg hover:shadow-white/20 border border-white/10 transition-all px-10 text-base font-semibold tracking-wide"
                     onClick={() => open("corporate", { defaultEventType: "corporate" })}
                   >

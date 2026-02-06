@@ -52,7 +52,7 @@ export function FloatingGiftButton() {
           {iconUrl ? (
             <img
               src={iconUrl}
-              alt={t('gift.trigger', 'Offer a Gift')}
+              alt=""
               className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-sm"
             />
           ) : (
