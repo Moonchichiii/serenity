@@ -1,10 +1,12 @@
-/api/*  https://serenity.fly.dev/api/:splat  200
-
+# --- Static Assets ---
 /favicon.ico       /favicon.ico      200
 /robots.txt        /robots.txt       200
 /sitemap.xml       /sitemap.xml      200
 /site.webmanifest  /site.webmanifest 200
 /og-image.jpg      /og-image.jpg     200
 
+# --- Assets Folder ---
 /assets/*          /assets/:splat    200
+
+# --- SPA Catch-All ---
 /*  /index.html  200
