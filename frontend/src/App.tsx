@@ -46,6 +46,7 @@ const indexRoute = createRoute({
   getParentRoute: () => layoutRoute,
   path: '/',
   component: HomePage,
+  preload: true,
 })
 
 const routeTree = rootRoute.addChildren([layoutRoute.addChildren([indexRoute])])

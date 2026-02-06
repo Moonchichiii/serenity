@@ -58,7 +58,7 @@ export function Hero() {
                   <CloudImage
                     image={s.image}
                     alt={alt}
-                    priority={idx === 0}
+                    priority={idx === 0} // This is the LCP winner!
                     className="w-full h-full object-cover"
                     sizes="100vw"
                   />
@@ -75,7 +75,7 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-t from-stone-50/90 via-stone-50/40 to-stone-50/20" />
       </div>
 
-      {/* 3. CONTENT - Centered but Wider */}
+      {/* 3. CONTENT - Centered but Wider (max-w-5xl) */}
       <div className="relative z-10 container mx-auto px-4 lg:px-8 flex flex-col items-center justify-center text-center h-full">
 
         {/* Title */}
@@ -83,7 +83,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          // CHANGED: Increased max-width to 'max-w-5xl' to let it stretch wide
+          // Increased max-width to let it breathe
           className="text-5xl md:text-6xl lg:text-7xl font-serif font-medium text-stone-900 mb-6 drop-shadow-sm max-w-5xl"
         >
           {title}
@@ -94,8 +94,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          // CHANGED: Increased max-width to 'max-w-3xl' (was 2xl)
-          // This makes the text block rectangular instead of square
+          // Increased max-width to avoid "boxy" look
           className="text-lg md:text-2xl text-stone-600 mb-10 max-w-3xl mx-auto leading-relaxed"
         >
           {subtitle}
