@@ -221,6 +221,7 @@ export function About() {
                 <Button
                   size="lg"
                   className="shadow-warm hover:shadow-elevated transition-all"
+                  aria-label={t('contact.open', { defaultValue: 'Open contact form' })}
                   onClick={() =>
                     open('contact', { defaultSubject: t('contact.form.subjectDefault') })
                   }
@@ -268,6 +269,7 @@ export function About() {
                 <Button
                    variant="ghost"
                    size="sm"
+                   aria-label={t('contact.open', { defaultValue: 'Open contact form' })}
                    onClick={() => open('contact')}
                    className="text-sage-700 hover:text-sage-800 hover:bg-sage-100"
                 >

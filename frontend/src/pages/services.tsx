@@ -103,7 +103,7 @@ export function Services() {
                               alt={service.image.title || title}
                               className="w-full h-full object-cover"
                               fit="cover"
-                              sizes="85vw"
+                              sizes="(max-width: 1024px) 45vw, (max-width: 1280px) 33vw, 500px"
                             />
                             {/* Mobile Price Badge - Highlight logic removed if not needed for mobile, but keeping visual consistency */}
                             <div className={`absolute top-4 right-4 inline-flex items-center gap-1 rounded-full bg-white/95 backdrop-blur-md px-3 py-1.5 text-[11px] font-bold tracking-wide text-stone-800 shadow-sm ${isHighlighted ? 'ring-2 ring-rose-200' : ''}`}>
