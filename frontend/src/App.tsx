@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-router'
 import { Suspense, lazy } from 'react'
 
-const Hero = lazy(() => import('@/pages/hero').then(m => ({ default: m.Hero })))
+import { Hero } from '@/pages/hero'
 const About = lazy(() => import('@/pages/about').then(m => ({ default: m.About })))
 const Services = lazy(() => import('@/pages/services').then(m => ({ default: m.Services })))
 const ReviewTrigger = lazy(() => import('@/components/ReviewTrigger').then(m => ({ default: m.ReviewTrigger })))
