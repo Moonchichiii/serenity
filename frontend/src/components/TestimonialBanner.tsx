@@ -169,7 +169,7 @@ export function TestimonialBanner() {
   return (
     <section className="py-16 sm:py-24 lg:py-32 bg-white overflow-hidden" id="testimonials">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-10 sm:mb-16 text-center">
-        <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.2em] text-stone-400 uppercase mb-3 sm:mb-4">
+        <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.2em] text-stone-600 uppercase mb-3 sm:mb-4">
           {t('testimonials.label', 'Testimonials')}
         </span>
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-medium text-stone-900 mb-4 sm:mb-6">
