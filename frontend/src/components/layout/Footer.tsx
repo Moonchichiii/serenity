@@ -52,7 +52,7 @@ const Footer: React.FC = () => {
 
             {/* COLUMN 2: Legal Links */}
             <div className="md:col-span-3">
-              <h4 className="text-sm font-bold uppercase tracking-[0.15em] text-white/40 mb-6">
+              <h4 className="text-sm font-bold uppercase tracking-[0.15em] text-white/60 mb-6">
                 {t('footer.info')}
               </h4>
               <ul className="flex flex-col gap-2">
@@ -81,7 +81,7 @@ const Footer: React.FC = () => {
 
             {/* COLUMN 3: Contact */}
             <div className="md:col-span-4">
-              <h4 className="text-sm font-bold uppercase tracking-[0.15em] text-white/40 mb-6">
+              <h4 className="text-sm font-bold uppercase tracking-[0.15em] text-white/60 mb-6">
                 {t('footer.contactTitle')}
               </h4>
 
@@ -126,7 +126,7 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Bottom Bar */}
-          <div className="pt-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-[11px] text-white/40 uppercase tracking-wider font-medium">
+          <div className="pt-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-[11px] text-white/60 uppercase tracking-wider font-medium">
             <p>
               © {currentYear} Serenity. {t('footer.allRights')}
             </p>

@@ -41,8 +41,10 @@ export function FloatingGiftButton() {
         whileTap={{ scale: 0.95 }}
         onClick={() => open('gift')}
         className="fixed z-40 bottom-6 right-6 sm:bottom-10 sm:right-10 group"
-        aria-label={t('gift.trigger')}
+        aria-label={t('gift.trigger', 'Offer a Gift')}
+        title={t('gift.trigger', 'Offer a Gift')}
       >
+        <span className="sr-only">{t('gift.trigger', 'Offer a Gift')}</span>
         <div className="absolute inset-0 bg-terracotta-400 rounded-full animate-pulse-warm opacity-30" />
 
         {/* Bigger circle, less padding, bigger image */}
@@ -50,7 +52,7 @@ export function FloatingGiftButton() {
           {iconUrl ? (
             <img
               src={iconUrl}
-              alt={t('gift.trigger')}
+              alt={t('gift.trigger', 'Offer a Gift')}
               className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-sm"
             />
           ) : (

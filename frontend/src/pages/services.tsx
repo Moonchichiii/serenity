@@ -64,7 +64,7 @@ export function Services() {
 
           {isLoading ? (
             <div className="text-center py-20">
-              <div className="animate-pulse text-stone-400 font-serif text-lg">
+              <div className="animate-pulse text-stone-600 font-serif text-lg">
                 Loading...
               </div>
             </div>
@@ -79,7 +79,7 @@ export function Services() {
               {/* MOBILE VIEW: Snap Scroll */}
               <div className="md:hidden relative">
                 <div className="flex justify-end px-4 mb-3">
-                  <div className="flex items-center gap-2 text-[10px] font-bold text-stone-400 tracking-[0.2em] uppercase">
+                  <div className="flex items-center gap-2 text-[10px] font-bold text-stone-600 tracking-[0.2em] uppercase">
                     <span>{t('services.slide', { defaultValue: 'SLIDE' })}</span>
                     <ArrowRight className="w-3 h-3" />
                   </div>
@@ -124,7 +124,7 @@ export function Services() {
                           </div>
 
                           <div className="mt-auto pt-5 border-t border-stone-100 flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-xs font-medium text-stone-400 uppercase tracking-wider">
+                            <div className="flex items-center gap-2 text-xs font-medium text-stone-600 uppercase tracking-wider">
                               <Clock className="w-3.5 h-3.5" />
                               <span>{service.duration_minutes} min</span>
                             </div>
@@ -185,7 +185,7 @@ export function Services() {
                         </div>
 
                         <div className="mt-auto pt-6 border-t border-stone-100 flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-xs font-bold text-stone-400 uppercase tracking-widest">
+                          <div className="flex items-center gap-2 text-xs font-bold text-stone-600 uppercase tracking-widest">
                             <Clock className="w-3.5 h-3.5" />
                             <span>{service.duration_minutes} min</span>
                           </div>
