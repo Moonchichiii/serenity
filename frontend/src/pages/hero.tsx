@@ -31,13 +31,15 @@ export function Hero() {
   }, [slides])
 
   const lang = (i18n.language === 'en' || i18n.language === 'fr') ? (i18n.language as 'en' | 'fr') : 'fr'
+
+
   const title = cmsData ? ((lang === 'fr' ? cmsData.hero_title_fr : cmsData.hero_title_en) ?? t('hero.title')) : t('hero.title')
   const subtitle = cmsData ? ((lang === 'fr' ? cmsData.hero_subtitle_fr : cmsData.hero_subtitle_en) ?? t('hero.subtitle')) : t('hero.subtitle')
 
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
 
-      {/* 1. BACKGROUND SLIDESHOW */}
+      {/* 1. BACKGROUND SLIDESHOW (CMS DRIVEN) */}
       <div className="absolute inset-0 z-0">
         {slides ? (
           slides.map((s, idx) => {
@@ -51,7 +53,7 @@ export function Hero() {
                 }`}
                 aria-hidden="true"
               >
-                {/* Added 'scale' animation to create a subtle breathing effect */}
+                {/* Scale animation for breathing effect */}
                 <div className={`w-full h-full transition-transform duration-[6000ms] ease-linear ${visible ? 'scale-110' : 'scale-100'}`}>
                   <CloudImage
                     image={s.image}
@@ -69,10 +71,8 @@ export function Hero() {
         )}
 
         {/*
-            2. OVERLAY FIX
-            Increased opacity of the overlay so the text pops more.
-            - 'bg-stone-50/60' provides a base milky layer.
-            - The gradient adds a bit more solidity at the bottom.
+            2. OVERLAY
+            Opacity increased to improve text readability over dynamic CMS images
         */}
         <div className="absolute inset-0 bg-stone-100/60 mix-blend-hard-light" />
         <div className="absolute inset-0 bg-gradient-to-t from-stone-50/90 via-stone-50/40 to-stone-50/20" />
@@ -81,28 +81,17 @@ export function Hero() {
       {/* 3. CONTENT */}
       <div className="relative z-10 container mx-auto px-4 lg:px-8 flex flex-col items-center justify-center text-center h-full">
 
-        {/* Eyebrow (Optional, if you want it) */}
-        <motion.span
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="inline-block text-xs font-bold tracking-[0.2em] text-sage-700 uppercase mb-4"
-        >
-          {t('about.label', { defaultValue: 'Massage Bien-être' })}
-        </motion.span>
-
-        {/* Title */}
+        {/* Title (CMS Driven) */}
         <motion.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          // Changed to 'font-serif' and charcoal color
           className="text-5xl md:text-6xl lg:text-7xl font-serif font-medium text-stone-900 mb-6 drop-shadow-sm max-w-4xl"
         >
           {title}
         </motion.h1>
 
-        {/* Subtitle */}
+        {/* Subtitle (CMS Driven) */}
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -112,7 +101,7 @@ export function Hero() {
           {subtitle}
         </motion.p>
 
-        {/* CTA Buttons - DEAD CENTER & UPDATED STYLE */}
+        {/* CTA Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -125,18 +114,14 @@ export function Hero() {
             onClick={() =>
               open('contact', { defaultSubject: 'Private session inquiry' })
             }
-            // Pill shape, Taller (h-14), larger text
             className="w-full sm:w-auto h-14 rounded-full px-8 text-base shadow-warm hover:shadow-elevated transition-transform hover:-translate-y-1"
           >
             {t('hero.ctaPrivate')}
           </Button>
 
-          {/* Corporate Wellness - Secondary Style? Or same?
-              Keeping same variant for now but outlined is an option if you want contrast.
-              Let's stick to the 'default' Sage to be safe, or use 'secondary' if defined.
-          */}
+          {/* Corporate Wellness */}
           <Button
-            variant="secondary" // Light Sage background to differentiate
+            variant="secondary"
             size="lg"
             type="button"
             onClick={() => {
@@ -158,7 +143,7 @@ export function Hero() {
 
       <CookieConsent />
 
-      {/* Bottom Fade to blend into the next section */}
+      {/* Bottom Fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
     </section>
   )
