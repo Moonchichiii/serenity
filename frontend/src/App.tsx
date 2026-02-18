@@ -8,22 +8,17 @@ import {
 } from '@tanstack/react-router'
 import { Suspense, lazy } from 'react'
 
-import { Hero } from '@/pages/hero'
-const About = lazy(() => import('@/pages/about').then(m => ({ default: m.About })))
-const Services = lazy(() => import('@/pages/services').then(m => ({ default: m.Services })))
-const ReviewTrigger = lazy(() => import('@/components/ReviewTrigger').then(m => ({ default: m.ReviewTrigger })))
+// ✅ CRITICAL PERFORMANCE FIX:
+// Hero is imported statically so it renders immediately (Better LCP).
+import { Hero } from '@/features/home/hero'
+
+// ⚡️ LAZY LOAD:
+// These are below the fold, so we load them only when needed to save bandwidth.
+const About = lazy(() => import('@/features/about/about').then(m => ({ default: m.About })))
+const Services = lazy(() => import('@/features/services/services').then(m => ({ default: m.Services })))
+const ReviewTrigger = lazy(() => import('@/features/testimonials/components/ReviewTrigger').then(m => ({ default: m.ReviewTrigger })))
 
 const rootRoute = createRootRoute({
-  component: () => (
-    <Suspense fallback={<div className="p-6 text-center text-charcoal/70">Loading…</div>}>
-      <Outlet />
-    </Suspense>
-  ),
-})
-
-const layoutRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  id: 'layout',
   component: () => (
     <Layout>
       <Outlet />
@@ -34,22 +29,27 @@ const layoutRoute = createRoute({
 function HomePage() {
   return (
     <>
+      {/* Render Hero immediately */}
       <Hero />
-      <About />
-      <Services />
-      <ReviewTrigger targetSectionId="testimonials" />
+
+      {/* Suspend the rest of the page until loaded */}
+      <Suspense fallback={<div className="h-96" aria-hidden="true" />}>
+        <About />
+        <Services />
+        <ReviewTrigger targetSectionId="testimonials" />
+      </Suspense>
     </>
   )
 }
 
+// Create the Index Route
 const indexRoute = createRoute({
-  getParentRoute: () => layoutRoute,
+  getParentRoute: () => rootRoute,
   path: '/',
   component: HomePage,
-  preload: true,
 })
 
-const routeTree = rootRoute.addChildren([layoutRoute.addChildren([indexRoute])])
+const routeTree = rootRoute.addChildren([indexRoute])
 
 const router = createRouter({
   routeTree,

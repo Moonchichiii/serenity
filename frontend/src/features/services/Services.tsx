@@ -1,43 +1,50 @@
-import { useEffect, useState, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { motion } from 'framer-motion'
-import { Clock, Euro, ArrowRight } from 'lucide-react'
-import { cmsAPI, type WagtailService } from '@/api/cms'
-import { ServicesHero } from '@/pages/ServicesHero'
-import TestimonialBanner from '@/components/TestimonialBanner'
-import CloudImage from '@/components/ResponsiveImage'
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
+import { Clock, Euro, ArrowRight } from 'lucide-react';
+
+// ✅ Sibling Import (ServicesHero is right next to this file now)
+import { ServicesHero } from './ServicesHero';
+
+// ✅ Hooks & Types
+import { useServices } from '@/hooks/useCMS';
+import { getLocalizedText } from '@/api/cms';
+
+// Shared UI
+import TestimonialBanner from '@/components/TestimonialBanner';
+import CloudImage from '@/components/ResponsiveImage';
 
 export function Services() {
-  const { t, i18n } = useTranslation()
-  const [services, setServices] = useState<WagtailService[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const { t, i18n } = useTranslation();
 
-  useEffect(() => {
-    cmsAPI
-      .getServices()
-      .then(setServices)
-      .catch(() => setServices([]))
-      .finally(() => setIsLoading(false))
-  }, [])
+  // ✅ SENIOR PATTERN: Data Hook (Cached)
+  const { data: services, isLoading, isError } = useServices();
 
-  const lang = (i18n.language?.startsWith('fr') ? 'fr' : 'en') as 'en' | 'fr'
+  const lang = (i18n.language?.startsWith('fr') ? 'fr' : 'en') as 'en' | 'fr';
 
-  const isChairService = (service: WagtailService) => {
-    const en = (service.title_en || '').toLowerCase()
-    const fr = (service.title_fr || '').toLowerCase()
+  // Logic to highlight Chair Massage (Amma Assis)
+  const highlightedServiceId = useMemo(() => {
+    if (!services) return null;
+    return services.find((s) => {
+      const en = (s.title_en || '').toLowerCase();
+      const fr = (s.title_fr || '').toLowerCase();
+      return (
+        en.includes('chair') ||
+        en.includes('amma') ||
+        en.includes('seated') ||
+        fr.includes('amma') ||
+        fr.includes('assis')
+      );
+    })?.id;
+  }, [services]);
+
+  if (isError) {
     return (
-      en.includes('chair') ||
-      en.includes('amma') ||
-      en.includes('seated') ||
-      fr.includes('amma') ||
-      fr.includes('assis')
-    )
+        <div className="text-center py-20 bg-stone-50">
+            <p className="text-stone-500">Unable to load services.</p>
+        </div>
+    );
   }
-
-  const highlightedServiceId = useMemo(
-    () => services.find(isChairService)?.id,
-    [services]
-  )
 
   return (
     <div className="services-page bg-stone-50/30">
@@ -68,11 +75,9 @@ export function Services() {
                 Loading...
               </div>
             </div>
-          ) : services.length === 0 ? (
+          ) : !services || services.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-stone-500">
-                No services available yet.
-              </p>
+              <p className="text-stone-500">No services available yet.</p>
             </div>
           ) : (
             <>
@@ -87,9 +92,9 @@ export function Services() {
 
                 <div className="flex overflow-x-auto snap-x snap-mandatory gap-5 pb-8 -mx-4 px-6 no-scrollbar">
                   {services.map((service) => {
-                    const title = lang === 'fr' ? service.title_fr : service.title_en
-                    const description = lang === 'fr' ? service.description_fr : service.description_en
-                    const isHighlighted = service.id === highlightedServiceId
+                    const title = getLocalizedText(service, 'title', lang);
+                    const description = getLocalizedText(service, 'description', lang);
+                    const isHighlighted = service.id === highlightedServiceId;
 
                     return (
                       <article
@@ -103,9 +108,9 @@ export function Services() {
                               alt={service.image.title || title}
                               className="w-full h-full object-cover"
                               fit="cover"
-                              sizes="(max-width: 1024px) 45vw, (max-width: 1280px) 33vw, 500px"
+                              sizes="(max-width: 640px) 90vw"
                             />
-                            {/* Mobile Price Badge - Highlight logic removed if not needed for mobile, but keeping visual consistency */}
+                            {/* Price Badge */}
                             <div className={`absolute top-4 right-4 inline-flex items-center gap-1 rounded-full bg-white/95 backdrop-blur-md px-3 py-1.5 text-[11px] font-bold tracking-wide text-stone-800 shadow-sm ${isHighlighted ? 'ring-2 ring-rose-200' : ''}`}>
                                 <Euro className="w-3 h-3 text-sage-600" />
                                 {service.price}
@@ -128,7 +133,6 @@ export function Services() {
                               <Clock className="w-3.5 h-3.5" />
                               <span>{service.duration_minutes} min</span>
                             </div>
-
                             <div className="text-sm font-serif font-semibold text-stone-900">
                                {service.price} €
                             </div>
@@ -144,9 +148,9 @@ export function Services() {
               {/* DESKTOP VIEW: Grid */}
               <div className="hidden md:grid grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-10 max-w-7xl mx-auto">
                 {services.map((service, index) => {
-                  const title = lang === 'fr' ? service.title_fr : service.title_en
-                  const description = lang === 'fr' ? service.description_fr : service.description_en
-                  const isHighlighted = service.id === highlightedServiceId
+                  const title = getLocalizedText(service, 'title', lang);
+                  const description = getLocalizedText(service, 'description', lang);
+                  const isHighlighted = service.id === highlightedServiceId;
 
                   return (
                     <motion.article
@@ -165,7 +169,7 @@ export function Services() {
                             alt={service.image.title || title}
                             className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
                             fit="cover"
-                            sizes="(max-width:1024px) 45vw, 380px"
+                            sizes="(max-width:1280px) 45vw, 400px"
                           />
 
                           <div className="absolute top-5 right-5 inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-4 py-1.5 text-xs font-bold text-stone-800 shadow-lg">
@@ -205,12 +209,7 @@ export function Services() {
         </div>
       </section>
 
-      {/* Testimonials Section Spacer */}
-      <section id="testimonials" className="bg-white">
-        <TestimonialBanner />
-      </section>
+      <TestimonialBanner />
     </div>
-  )
+  );
 }
-
-export default Services

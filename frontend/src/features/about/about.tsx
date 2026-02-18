@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, lazy, Suspense } from 'react';
+import { useMemo, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   motion,
@@ -9,15 +9,14 @@ import {
 import { Heart, User, Award, Mail, ArrowRight } from 'lucide-react';
 
 import SecretTrigger from '@/components/secret/SecretTrigger';
-import {
-  cmsAPI,
-  type WagtailHomePage,
-  type WagtailImage,
-  type WagtailSpecialty,
-} from '@/api/cms';
+import type { WagtailSpecialty } from '@/types/api';
 import { Button } from '@/components/ui/Button';
 import CloudImage from '@/components/ResponsiveImage';
 import { useModal } from '@/shared/hooks/useModal';
+
+
+import { useHomePage } from '@/hooks/useCMS';
+import { getLocalizedText } from '@/api/cms';
 
 // Performance: Lazy load the map
 const LocationMap = lazy(() => import('@/components/ui/LocationMap').then(m => ({ default: m.LocationMap })));
@@ -27,29 +26,17 @@ const Skeleton = ({ className }: { className: string }) => (
   <div className={`bg-stone-200/50 animate-pulse rounded ${className}`} />
 );
 
-const pick = (
-  cmsValue: string | null | undefined,
-  fallback: string
-): string => (cmsValue !== null && cmsValue !== undefined ? cmsValue : fallback);
-
-type GridItem = { title: string; image?: WagtailImage | null };
+type GridItem = { title: string; image?: WagtailSpecialty['image'] };
 
 export function About() {
   const { t, i18n } = useTranslation();
   const { open } = useModal();
-  const [cmsData, setCmsData] = useState<WagtailHomePage | null>(null);
   const reduceMotion = useReducedMotion();
 
-  const isLoading = !cmsData;
+  // ✅ FIXED: Replaced manual useEffect/useState/cmsAPI with the Hook
+  const { data: cmsData, isLoading } = useHomePage();
 
-  useEffect(() => {
-    cmsAPI.getHomePage().then(setCmsData).catch(() => setCmsData(null));
-  }, []);
-
-  const lang: 'en' | 'fr' =
-    i18n.language === 'en' || i18n.language === 'fr'
-      ? i18n.language
-      : 'fr';
+  const lang = i18n.language.startsWith('fr') ? 'fr' : 'en';
 
   // CMS-FIRST CONTENT LOGIC
   const content = useMemo(() => {
@@ -57,21 +44,21 @@ export function About() {
 
     const specialtiesGrid = (cmsData.specialties ?? [])
       .map((sp: WagtailSpecialty): GridItem => ({
-        title: pick(lang === 'fr' ? sp.title_fr : sp.title_en, ''),
+        title: getLocalizedText(sp, 'title', lang),
         image: sp.image ?? null,
       }))
       .filter((s) => s.title.trim().length > 0);
 
     return {
-      title: pick(cmsData[`about_title_${lang}`], ''),
-      subtitle: pick(cmsData[`about_subtitle_${lang}`], ''),
-      intro: pick(cmsData[`about_intro_${lang}`], ''),
-      certification: pick(cmsData[`about_certification_${lang}`], ''),
-      approachTitle: pick(cmsData[`about_approach_title_${lang}`], ''),
-      approachText: pick(cmsData[`about_approach_text_${lang}`], ''),
-      specialtiesTitle: pick(cmsData[`about_specialties_title_${lang}`], ''),
+      title: getLocalizedText(cmsData, 'about_title', lang),
+      subtitle: getLocalizedText(cmsData, 'about_subtitle', lang),
+      intro: getLocalizedText(cmsData, 'about_intro', lang),
+      certification: getLocalizedText(cmsData, 'about_certification', lang),
+      approachTitle: getLocalizedText(cmsData, 'about_approach_title', lang),
+      approachText: getLocalizedText(cmsData, 'about_approach_text', lang),
+      specialtiesTitle: getLocalizedText(cmsData, 'about_specialties_title', lang),
       studioDescription: t('about.studioDescriptionFallback'),
-      address: pick(cmsData[`address_${lang}`], 'Marseille'),
+      address: getLocalizedText(cmsData, 'address', lang),
       specialtiesGrid,
     };
   }, [cmsData, lang, t]);
@@ -104,7 +91,7 @@ export function About() {
         },
       };
 
-  // Reusable Map Component - Cleaned up to allow child component to control size/touch
+  // Reusable Map Component
   const MapCard = () => (
     <div className="p-1">
        <Suspense fallback={<div className="w-full h-[220px] bg-stone-100 animate-pulse rounded-2xl" />}>
@@ -138,9 +125,6 @@ export function About() {
           >
             {/* 1. Header & Intro */}
             <div className="space-y-6 mb-10">
-
-              {/* Removed redundant 'About Me' label here to fix duplication */}
-
               <h2 id="about-heading" className="text-4xl sm:text-5xl font-serif text-foreground min-h-[1em]">
                 {isLoading || !content ? (
                   <Skeleton className="h-12 w-3/4 max-w-sm" />
@@ -231,10 +215,8 @@ export function About() {
               </div>
             </div>
 
-            {/* 4. Approach Section + CONTACT CARD + MAP (All in Left Column now) */}
+            {/* 4. Approach Section + CONTACT CARD + MAP */}
             <div className="mt-6 pt-10 border-t border-stone-200/60">
-
-
               <h3 className="text-3xl font-serif text-foreground mb-4 min-h-[1.2em]">
                  {isLoading || !content ? <Skeleton className="h-8 w-64" /> : content.approachTitle}
               </h3>
@@ -277,17 +259,12 @@ export function About() {
                 </Button>
               </div>
 
-              {/* MAP CARD: Now placed here in the main column (middle) for all screens */}
               <MapCard />
-
             </div>
           </motion.article>
 
-
           {/* ==================== RIGHT COLUMN (VISUALS ONLY) ==================== */}
           <aside className="space-y-10 lg:sticky lg:top-24 hidden lg:block">
-
-            {/* 1. Images Grid (HIDDEN ON MOBILE via hidden lg:block on parent) */}
             <div className="space-y-4">
               <h3 className="font-serif text-2xl text-foreground px-1">
                 {isLoading || !content ? <Skeleton className="h-8 w-48" /> : content.specialtiesTitle}

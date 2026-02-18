@@ -60,8 +60,8 @@ export function Hero() {
                 <div className={`w-full h-full transition-transform duration-[6000ms] ease-linear ${visible ? 'scale-110' : 'scale-100'}`}>
                   <CloudImage
                     image={s.image}
-                    alt={alt} // Even though aria-hidden is true on parent, alt is required
-                    priority={idx === 0} // This is the LCP winner!
+                    alt={alt}
+                    priority={idx === 0}
                     className="w-full h-full object-cover"
                     sizes="100vw"
                   />
