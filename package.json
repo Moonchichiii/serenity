@@ -2,14 +2,17 @@
   "name": "serenity",
   "private": true,
   "version": "0.0.0",
-  "workspaces": ["frontend"],
+  "workspaces": [
+    "frontend"
+  ],
   "scripts": {
-    "dev": "pnpm -C frontend dev",
-    "build": "pnpm -C frontend build",
-    "lint": "pnpm -C frontend lint",
-    "type-check": "pnpm -C frontend type-check",
-    "dev:backend": "python backend/manage.py runserver 0.0.0.0:8000",
-    "dev:all": "powershell -NoProfile -Command \"Start-Process -NoNewWindow pnpm -ArgumentList 'dev:backend'; pnpm dev\""
+    "install:all": "bun install",
+    "dev": "bun --cwd frontend dev",
+    "build": "bun --cwd frontend build",
+    "lint": "bun --cwd frontend lint",
+    "type-check": "bun --cwd frontend type-check",
+    "dev:backend": "cd backend && uv run python manage.py runserver 0.0.0.0:8000",
+    "dev:all": "powershell -NoProfile -Command \"Start-Process -NoNewWindow bun -ArgumentList 'run', 'dev:backend'; bun run dev\""
   },
   "devDependencies": {
     "typescript": "5.9.3"
