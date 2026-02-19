@@ -1,133 +1,67 @@
-"""
-Booking API endpoints with Google Calendar integration
-"""
+"""Booking API endpoints — thin delegation to services and selectors."""
 
-import secrets
-from zoneinfo import ZoneInfo
-
-from django.core.cache import cache
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from apps.availability.google_calendar import create_booking_event, delete_booking_event
-from apps.services.models import Service
-
-from .models import Booking
-from .serializers import BookingRequestSerializer, BookingSerializer
-
-TZ = ZoneInfo("Europe/Paris")
+from .selectors import get_all_bookings, get_bookings_by_email
+from .serializers import (
+    BookingRequestSerializer,
+    BookingSerializer,
+    VoucherBookingRequestSerializer,
+)
+from .services import cancel_booking, create_booking, create_voucher_booking
 
 
 @api_view(["GET", "POST"])
 @permission_classes([AllowAny])
-def bookings(request):
-    """GET: List bookings (optionally filtered by email). POST: Create new booking and add to Google Calendar."""
+def bookings(request) -> Response:
+    """GET: list bookings (filter by ?email=). POST: create online booking."""
     if request.method == "POST":
         ser = BookingRequestSerializer(data=request.data)
         ser.is_valid(raise_exception=True)
-        data = ser.validated_data
 
-        try:
-            service = Service.objects.get(id=data["service_id"], is_available=True)
-        except Service.DoesNotExist:
+        booking, error = create_booking(ser.validated_data)
+        if error:
             return Response(
-                {"detail": "Service not found or unavailable"},
-                status=status.HTTP_404_NOT_FOUND,
+                {"detail": error}, status=status.HTTP_404_NOT_FOUND
             )
 
-        start_dt = data["start_datetime"]
-        end_dt = data["end_datetime"]
-
-        if start_dt.tzinfo is None:
-            start_dt = start_dt.replace(tzinfo=TZ)
-        if end_dt.tzinfo is None:
-            end_dt = end_dt.replace(tzinfo=TZ)
-
-        confirmation_code = secrets.token_hex(4).upper()
-
-        booking = Booking.objects.create(
-            service=service,
-            start_datetime=start_dt,
-            end_datetime=end_dt,
-            status="pending",
-            client_name=data["client_name"],
-            client_email=data["client_email"],
-            client_phone=data["client_phone"],
-            client_notes=data.get("client_notes", ""),
-            preferred_language=data["preferred_language"],
-            confirmation_code=confirmation_code,
+        return Response(
+            BookingSerializer(booking).data,
+            status=status.HTTP_201_CREATED,
         )
-
-        start_date = start_dt.date()
-        cache.delete(f"calendar:busy:{start_date.year}:{start_date.month}")
-        cache.delete(f"calendar:slots:{start_date.isoformat()}")
-
-        event_title = f"{service.title_en} - {data['client_name']}"
-        description = f"""
-Booking Details:
-- Service: {service.title_en} ({service.duration_minutes} min)
-- Client: {data['client_name']}
-- Email: {data['client_email']}
-- Phone: {data['client_phone']}
-- Confirmation Code: {confirmation_code}
-
-Notes: {data.get('client_notes', 'N/A')}
-        """.strip()
-
-        calendar_event = create_booking_event(
-            title=event_title,
-            start_datetime=start_dt,
-            end_datetime=end_dt,
-            client_email=data["client_email"],
-            client_name=data["client_name"],
-            description=description,
-        )
-
-        if calendar_event:
-            booking.google_calendar_event_id = calendar_event["id"]
-            booking.status = "confirmed"
-            booking.save()
-
-        return Response(BookingSerializer(booking).data, status=status.HTTP_201_CREATED)
 
     email = request.GET.get("email")
-    qs = Booking.objects.all().order_by("-created_at")
-
-    if email:
-        qs = qs.filter(client_email__iexact=email)
-
+    qs = get_bookings_by_email(email) if email else get_all_bookings()
     return Response(BookingSerializer(qs, many=True).data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def voucher_bookings(request) -> Response:
+    """Create a booking from a voucher redemption."""
+    ser = VoucherBookingRequestSerializer(data=request.data)
+    ser.is_valid(raise_exception=True)
+
+    booking, error = create_voucher_booking(ser.validated_data)
+    if error:
+        return Response(
+            {"detail": error}, status=status.HTTP_404_NOT_FOUND
+        )
+
+    return Response(
+        BookingSerializer(booking).data,
+        status=status.HTTP_201_CREATED,
+    )
 
 
 @api_view(["DELETE"])
 @permission_classes([AllowAny])
-def cancel_booking(request, confirmation_code):
-    """Cancel a booking and remove from Google Calendar."""
-    try:
-        booking = Booking.objects.get(confirmation_code=confirmation_code)
-    except Booking.DoesNotExist:
-        return Response(
-            {"detail": "Booking not found"}, status=status.HTTP_404_NOT_FOUND
-        )
-
-    if booking.status not in ["pending", "confirmed"]:
-        return Response(
-            {"detail": f"Cannot cancel {booking.status} booking"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    if booking.google_calendar_event_id:
-        delete_booking_event(booking.google_calendar_event_id)
-
-    booking.status = "cancelled"
-    booking.save()
-
-    start_date = booking.start_datetime.date()
-    cache.delete(f"calendar:busy:{start_date.year}:{start_date.month}")
-    cache.delete(f"calendar:slots:{start_date.isoformat()}")
-
-    return Response(
-        {"detail": "Booking cancelled successfully"}, status=status.HTTP_200_OK
-    )
+def cancel_booking_view(request, confirmation_code) -> Response:
+    """Cancel a booking by confirmation code."""
+    data, error, http_status = cancel_booking(confirmation_code)
+    if error:
+        return Response({"detail": error}, status=http_status)
+    return Response(data, status=http_status)

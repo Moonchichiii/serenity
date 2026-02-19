@@ -4,7 +4,8 @@ from apps.services.models import Service
 
 
 class Booking(models.Model):
-    """Represents a service booking with client details and calendar integration."""
+    """Represents a service booking with client details and calendar
+    integration. Supports both online and voucher-sourced bookings."""
 
     STATUS_CHOICES = [
         ("pending", "Pending"),
@@ -13,13 +14,27 @@ class Booking(models.Model):
         ("completed", "Completed"),
     ]
 
+    SOURCE_CHOICES = [
+        ("online", "Online"),
+        ("voucher", "Voucher"),
+        ("manual", "Manual"),
+    ]
+
     # Core booking info
     service = models.ForeignKey(
         Service, on_delete=models.PROTECT, related_name="bookings"
     )
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
-    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default="pending")
+    status = models.CharField(
+        max_length=16, choices=STATUS_CHOICES, default="pending"
+    )
+    source = models.CharField(
+        max_length=16,
+        choices=SOURCE_CHOICES,
+        default="online",
+        help_text="How this booking originated",
+    )
 
     # Client details
     client_name = models.CharField(max_length=200)
@@ -30,6 +45,15 @@ class Booking(models.Model):
 
     # Confirmation
     confirmation_code = models.CharField(max_length=12, unique=True)
+
+    # Voucher linkage (soft reference — no FK to avoid tight coupling)
+    voucher_code = models.CharField(
+        max_length=20,
+        blank=True,
+        default="",
+        db_index=True,
+        help_text="Gift voucher code if booked via voucher redemption",
+    )
 
     # Google Calendar integration
     google_calendar_event_id = models.CharField(
@@ -49,7 +73,16 @@ class Booking(models.Model):
             models.Index(fields=["client_email"]),
             models.Index(fields=["confirmation_code"]),
             models.Index(fields=["status"]),
+            models.Index(fields=["source"]),
         ]
 
     def __str__(self):
-        return f"{self.client_name} - {self.service} - {self.start_datetime:%Y-%m-%d %H:%M}"
+        label = (
+            f"[{self.get_source_display()}] "
+            if self.source != "online"
+            else ""
+        )
+        return (
+            f"{label}{self.client_name} - {self.service} "
+            f"- {self.start_datetime:%Y-%m-%d %H:%M}"
+        )

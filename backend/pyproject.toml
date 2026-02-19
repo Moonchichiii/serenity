@@ -23,7 +23,7 @@ dependencies = [
     "python-dateutil>=2.9,<3",
 
     # Wagtail CMS
-    "wagtail>=6.2,<7",
+    "wagtail>=7.3,<8",
     "wagtail-localize>=1.10,<2",
 
     # Images

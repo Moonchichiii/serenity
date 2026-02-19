@@ -1,6 +1,8 @@
 """
-Google Calendar integration for Serenity
-Handles reading availability + creating bookings
+Google Calendar API client for Serenity.
+
+Low-level functions for reading availability and managing booking events.
+Consumed by selectors.py (reads) and apps.bookings.services (writes).
 """
 
 import json
@@ -43,7 +45,7 @@ def _get_credentials():
 
         return creds
     except (json.JSONDecodeError, KeyError) as e:
-        logger.error(f"Invalid token format: {e}")
+        logger.error("Invalid Google OAuth token format: %s", e)
         return None
 
 
@@ -52,13 +54,16 @@ def _get_service():
     creds = _get_credentials()
     if not creds:
         return None
-    return build("calendar", "v3", credentials=creds, cache_discovery=False)
+    return build(
+        "calendar", "v3", credentials=creds, cache_discovery=False
+    )
 
 
 def list_busy_days(year: int, month: int) -> list[str]:
-    """Get list of dates (YYYY-MM-DD) that have any events."""
+    """Get dates (YYYY-MM-DD) that have any events for a given month."""
     service = _get_service()
     if not service:
+        logger.error("No calendar credentials — cannot fetch busy days")
         return []
 
     start = datetime(year, month, 1, tzinfo=TZ)
@@ -90,31 +95,41 @@ def list_busy_days(year: int, month: int) -> list[str]:
             else:
                 start_dt = event["start"].get("dateTime")
                 if start_dt:
-                    date_str = datetime.fromisoformat(start_dt).date().isoformat()
+                    date_str = (
+                        datetime.fromisoformat(start_dt)
+                        .date()
+                        .isoformat()
+                    )
                     busy_dates.add(date_str)
 
         return sorted(busy_dates)
 
     except HttpError as error:
-        logger.error(f"Calendar API error: {error}")
+        logger.error("Calendar API error (busy days): %s", error)
         return []
 
 
 def list_free_slots(
-    date_iso: str, slot_minutes: int = 30, work_hours: tuple = (9, 19)
+    date_iso: str,
+    slot_minutes: int = 30,
+    work_hours: tuple = (9, 19),
 ) -> list[str]:
     """Get available time slots (HH:MM) for a specific date."""
     service = _get_service()
     if not service:
-        return [
-            "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
-            "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
-            "16:00", "16:30", "17:00", "17:30", "18:00",
-        ]
+        logger.error(
+            "No calendar credentials — cannot fetch slots for %s",
+            date_iso,
+        )
+        return []
 
     day = datetime.fromisoformat(date_iso).replace(tzinfo=TZ)
-    start = day.replace(hour=work_hours[0], minute=0, second=0, microsecond=0)
-    end = day.replace(hour=work_hours[1], minute=0, second=0, microsecond=0)
+    start = day.replace(
+        hour=work_hours[0], minute=0, second=0, microsecond=0
+    )
+    end = day.replace(
+        hour=work_hours[1], minute=0, second=0, microsecond=0
+    )
 
     try:
         events_result = (
@@ -149,12 +164,10 @@ def list_free_slots(
 
         while current_time + slot_delta <= end:
             slot_end = current_time + slot_delta
-            is_free = True
-
-            for occ_start, occ_end in occupied:
-                if not (slot_end <= occ_start or current_time >= occ_end):
-                    is_free = False
-                    break
+            is_free = all(
+                slot_end <= occ_start or current_time >= occ_end
+                for occ_start, occ_end in occupied
+            )
 
             if is_free:
                 slots.append(current_time.strftime("%H:%M"))
@@ -164,7 +177,7 @@ def list_free_slots(
         return slots
 
     except HttpError as error:
-        logger.error(f"Calendar API error: {error}")
+        logger.error("Calendar API error (free slots): %s", error)
         return []
 
 
@@ -179,7 +192,7 @@ def create_booking_event(
     """Create a calendar event for a booking."""
     service = _get_service()
     if not service:
-        logger.error("No calendar credentials available")
+        logger.error("No calendar credentials — cannot create event")
         return None
 
     event = {
@@ -193,7 +206,9 @@ def create_booking_event(
             "dateTime": end_datetime.isoformat(),
             "timeZone": str(TZ),
         },
-        "attendees": [{"email": client_email, "displayName": client_name}],
+        "attendees": [
+            {"email": client_email, "displayName": client_name}
+        ],
         "reminders": {
             "useDefault": False,
             "overrides": [
@@ -221,7 +236,7 @@ def create_booking_event(
         }
 
     except HttpError as error:
-        logger.error(f"Failed to create calendar event: {error}")
+        logger.error("Failed to create calendar event: %s", error)
         return None
 
 
@@ -240,5 +255,5 @@ def delete_booking_event(event_id: str) -> bool:
         return True
 
     except HttpError as error:
-        logger.error(f"Failed to delete event: {error}")
+        logger.error("Failed to delete calendar event: %s", error)
         return False
