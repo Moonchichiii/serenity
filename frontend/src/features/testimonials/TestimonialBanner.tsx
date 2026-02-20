@@ -1,25 +1,20 @@
-import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Star, MessageCircle, Quote } from 'lucide-react'
 
-// ✅ Refactored: Import selector instead of fetch hook
 import { useCMSTestimonials } from '@/lib/cmsSelectors'
 import type { WagtailTestimonial } from '@/types/api'
-
-// Components
 import { TestimonialModal } from '@/components/modals/TestimonialModal'
 
 export function TestimonialBanner() {
   const { t } = useTranslation()
-
-  // ✅ Read directly from store (pre-loaded)
   const allTestimonials = useCMSTestimonials()
 
-  // Filter for high quality testimonials locally (equivalent to minRating=4 API param)
-  const testimonials = useMemo(() => {
-    return (allTestimonials || []).filter((t) => t.rating >= 4)
-  }, [allTestimonials])
+  const testimonials = useMemo(
+    () => (allTestimonials || []).filter((item) => item.rating >= 4),
+    [allTestimonials],
+  )
 
   const [selectedTestimonial, setSelectedTestimonial] =
     useState<WagtailTestimonial | null>(null)
@@ -28,7 +23,6 @@ export function TestimonialBanner() {
     typeof window !== 'undefined' &&
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
-  // Detect Mobile
   const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
@@ -37,32 +31,24 @@ export function TestimonialBanner() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Prepare items for loop (duplicate if needed for infinite scroll effect)
   const items = useMemo(() => {
     if (testimonials.length === 0) return []
     if (isMobile) return testimonials
-
-    // Make sure we have enough items to fill the screen for the loop
-    // If few items, duplicate them more times
     if (testimonials.length < 4) {
-      return [...testimonials, ...testimonials, ...testimonials, ...testimonials]
+      return [
+        ...testimonials,
+        ...testimonials,
+        ...testimonials,
+        ...testimonials,
+      ]
     }
     return [...testimonials, ...testimonials]
   }, [testimonials, isMobile])
 
-  // --- Animation Logic ---
-  // Note: For a strictly read-only component refactor, we keep the existing logic,
-  // but in production, consider CSS animations for smoother infinite loops than JS-driven Framer Motion.
-
   const [paused, setPaused] = useState(false)
 
-  // We'll use simple CSS-based animation classes or standard Framer Motion "animate" props
-  // dependent on the 'paused' state to simplify the refactor and remove heavy useEffects if possible.
-  // However, preserving original scroll logic for fidelity:
+  // ✅ Removed unused `xTranslation` ref
 
-  const xTranslation = useRef(0) // Internal ref to track position if we were doing custom loop
-
-  // Simplified rendering logic for the cards to keep the component clean
   if (!testimonials || testimonials.length === 0) return null
 
   const handleCardClick = (testimonial: WagtailTestimonial) => {
@@ -75,7 +61,10 @@ export function TestimonialBanner() {
     setPaused(false)
   }
 
-  const renderCard = (testimonial: WagtailTestimonial, index: number) => (
+  const renderCard = (
+    testimonial: WagtailTestimonial,
+    index: number,
+  ) => (
     <article
       key={`${testimonial.id}-${index}`}
       onClick={() => handleCardClick(testimonial)}
@@ -117,13 +106,15 @@ export function TestimonialBanner() {
       </div>
 
       <p className="text-sm sm:text-[15px] text-stone-600 leading-relaxed line-clamp-4 font-light">
-        "{testimonial.text}"
+        &ldquo;{testimonial.text}&rdquo;
       </p>
 
       {testimonial.replies && testimonial.replies.length > 0 && (
         <div className="mt-4 sm:mt-6 pt-4 border-t border-stone-50 flex items-center gap-2 text-xs font-medium text-sage-600">
           <MessageCircle className="w-3.5 h-3.5" />
-          <span>{t('testimonials.reply', { defaultValue: 'Read reply' })}</span>
+          <span>
+            {t('testimonials.reply', { defaultValue: 'Read reply' })}
+          </span>
         </div>
       )}
     </article>
@@ -143,7 +134,8 @@ export function TestimonialBanner() {
         </h2>
         <p className="text-base sm:text-lg text-stone-500 max-w-xl mx-auto font-light">
           {t('testimonials.subtitle', {
-            defaultValue: 'Experiences shared by our community',
+            defaultValue:
+              'Experiences shared by our community',
           })}
         </p>
       </div>
@@ -155,28 +147,24 @@ export function TestimonialBanner() {
           !isMobile && !selectedTestimonial && setPaused(false)
         }
       >
-        {/* MOBILE VIEW */}
         {isMobile ? (
           <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-8 px-6 -mx-4 no-scrollbar">
             {items.map((tst, index) => renderCard(tst, index))}
             <div className="w-4 shrink-0" />
           </div>
         ) : (
-          /* DESKTOP VIEW */
           <div className="relative">
             <div className="absolute inset-y-0 left-0 w-24 sm:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
             <div className="absolute inset-y-0 right-0 w-24 sm:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
 
-            {/* Row 1: Moves Left */}
+            {/* Row 1 → left */}
             <div className="flex gap-6 overflow-hidden py-4">
               <motion.div
                 className="flex gap-6 w-max"
                 animate={
                   prefersReduced || paused
                     ? undefined
-                    : {
-                        x: [0, -1000], // Simplified loop for robustness
-                      }
+                    : { x: [0, -1000] }
                 }
                 transition={{
                   x: {
@@ -187,22 +175,19 @@ export function TestimonialBanner() {
                   },
                 }}
               >
-                {/* Render items twice to ensure seamless loop visual */}
-                {items.map((tst, index) => renderCard(tst, index))}
-                {items.map((tst, index) => renderCard(tst, index + 100))}
+                {items.map((tst, i) => renderCard(tst, i))}
+                {items.map((tst, i) => renderCard(tst, i + 100))}
               </motion.div>
             </div>
 
-            {/* Row 2: Moves Right (optional, or slower left) */}
+            {/* Row 2 → right */}
             <div className="flex gap-6 overflow-hidden py-4">
               <motion.div
                 className="flex gap-6 w-max"
                 animate={
                   prefersReduced || paused
                     ? undefined
-                    : {
-                        x: [-1000, 0],
-                      }
+                    : { x: [-1000, 0] }
                 }
                 transition={{
                   x: {
@@ -213,8 +198,8 @@ export function TestimonialBanner() {
                   },
                 }}
               >
-                 {items.map((tst, index) => renderCard(tst, index + 200))}
-                 {items.map((tst, index) => renderCard(tst, index + 300))}
+                {items.map((tst, i) => renderCard(tst, i + 200))}
+                {items.map((tst, i) => renderCard(tst, i + 300))}
               </motion.div>
             </div>
           </div>

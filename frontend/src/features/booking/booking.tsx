@@ -1,55 +1,76 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { motion } from 'framer-motion'
-import { useForm, type SubmitHandler } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import * as yup from 'yup'
-import { Button } from '@/components/ui/Button'
-import { Calendar as CalendarIcon, User, Mail, Phone, FileText } from 'lucide-react'
-import toast from 'react-hot-toast'
-import Calendar from 'react-calendar'
-import { format, parse } from 'date-fns'
-import { isPastDate } from '@/lib/utils'
-import { bookingsAPI } from '@/api/booking'
-import { API_URL } from '@/api/client'
-import { useCMSServices } from '@/lib/cmsSelectors' // ✅ Imported selector
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { Button } from "@/components/ui/Button";
+import {
+  Calendar as CalendarIcon,
+  User,
+  Mail,
+  Phone,
+  FileText,
+} from "lucide-react";
+import toast from "react-hot-toast";
+import Calendar from "react-calendar";
+import { format, parse } from "date-fns";
+import { isPastDate } from "@/lib/utils";
+import { bookingsAPI } from "@/api/booking";
+import { useCMSServices } from "@/lib/cmsSelectors";
 
 type BookingFormData = {
-  name: string
-  email: string
-  phone: string
-  service: string
-  date: string
-  time: string
-  notes?: string
-}
+  name: string;
+  email: string;
+  phone: string;
+  service: string;
+  date: string;
+  time: string;
+  notes?: string;
+};
 
 const bookingSchema: yup.ObjectSchema<BookingFormData> = yup
   .object({
-    name: yup.string().required('Name is required').min(2),
-    email: yup.string().required('Email is required').email(),
+    name: yup.string().required("Name is required").min(2),
+    email: yup.string().required("Email is required").email(),
     phone: yup
       .string()
-      .required('Phone is required')
-      .matches(/^\+?[0-9\s-]{10,}$/, 'Invalid phone number'),
-    service: yup.string().required('Please select a service'),
-    date: yup.string().required('Please select a date'),
-    time: yup.string().required('Please select a time'),
-    notes: yup.string().optional().transform((v) => (v === '' ? undefined : v)),
+      .required("Phone is required")
+      .matches(/^\+?[0-9\s-]{10,}$/, "Invalid phone number"),
+    service: yup.string().required("Please select a service"),
+    date: yup.string().required("Please select a date"),
+    time: yup.string().required("Please select a time"),
+    notes: yup
+      .string()
+      .optional()
+      .transform((v) => (v === "" ? undefined : v)),
   })
-  .required()
+  .required();
 
 const defaultTimeSlots = [
-  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-  '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
-  '16:00', '16:30', '17:00', '17:30', '18:00',
-]
+  "09:00",
+  "09:30",
+  "10:00",
+  "10:30",
+  "11:00",
+  "11:30",
+  "13:00",
+  "13:30",
+  "14:00",
+  "14:30",
+  "15:00",
+  "15:30",
+  "16:00",
+  "16:30",
+  "17:00",
+  "17:30",
+  "18:00",
+];
 
 export function Booking() {
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useTranslation();
 
-  // ✅ Read directly from store (pre-loaded)
-  const services = useCMSServices()
+  const services = useCMSServices();
 
   const {
     register,
@@ -60,14 +81,17 @@ export function Booking() {
     setValue,
   } = useForm<BookingFormData>({
     resolver: yupResolver(bookingSchema),
-  })
+  });
 
-  const selectedTime = watch('time')
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-  const [activeStartDate, setActiveStartDate] = useState<Date>(new Date())
-  const [busyDates, setBusyDates] = useState<Set<string>>(new Set())
-  const [isBusyLoading, setIsBusyLoading] = useState(false)
-  const [availableTimes, setAvailableTimes] = useState<string[]>(defaultTimeSlots)
+  const selectedTime = watch("time");
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [activeStartDate, setActiveStartDate] = useState<Date>(
+    new Date()
+  );
+  const [busyDates, setBusyDates] = useState<Set<string>>(new Set());
+  const [isBusyLoading, setIsBusyLoading] = useState(false);
+  const [availableTimes, setAvailableTimes] =
+    useState<string[]>(defaultTimeSlots);
 
   const ym = useMemo(
     () => ({
@@ -75,53 +99,55 @@ export function Booking() {
       month: activeStartDate.getMonth() + 1,
     }),
     [activeStartDate]
-  )
+  );
 
   useEffect(() => {
-    setIsBusyLoading(true)
-    fetch(`${API_URL}/api/calendar/busy?year=${ym.year}&month=${ym.month}`)
-      .then((r) => r.json())
-      .then((data: { busy: string[] }) => setBusyDates(new Set(data?.busy ?? [])))
+    setIsBusyLoading(true);
+    bookingsAPI
+      .getBusyDates(ym.year, ym.month)
+      .then((data) => setBusyDates(new Set(data?.busy ?? [])))
       .catch(() => setBusyDates(new Set()))
-      .finally(() => setIsBusyLoading(false))
-  }, [ym.year, ym.month])
+      .finally(() => setIsBusyLoading(false));
+  }, [ym.year, ym.month]);
 
   useEffect(() => {
-    if (!selectedDate) return
+    if (!selectedDate) return;
 
-    const iso = format(selectedDate, 'yyyy-MM-dd')
-    console.log('🔍 Fetching slots for date:', iso)
+    const iso = format(selectedDate, "yyyy-MM-dd");
 
-    fetch(`${API_URL}/api/calendar/slots?date=${iso}`)
-      .then((r) => r.json())
-      .then((data: { times: string[] }) => {
-        console.log('📅 Available times:', data.times)
-        setAvailableTimes(data?.times?.length ? data.times : [])
+    bookingsAPI
+      .getSlots(iso)
+      .then((data) => {
+        setAvailableTimes(data?.times?.length ? data.times : []);
       })
-      .catch((err) => {
-        console.error('❌ Error fetching slots:', err)
-        setAvailableTimes([])
-      })
-  }, [selectedDate])
+      .catch(() => {
+        setAvailableTimes([]);
+      });
+  }, [selectedDate]);
 
   const onSubmit: SubmitHandler<BookingFormData> = async (data) => {
     try {
-      const service = services.find((s) => s.id.toString() === data.service)
+      const service = services.find(
+        (s) => s.id.toString() === data.service
+      );
       if (!service) {
-        toast.error('Service not found')
-        return
+        toast.error("Service not found");
+        return;
       }
 
-      // Combine date + time into datetime for backend
-      const dateTimeStr = `${data.date}T${data.time}:00`
-      const startDate = parse(dateTimeStr, "yyyy-MM-dd'T'HH:mm:ss", new Date())
+      const dateTimeStr = `${data.date}T${data.time}:00`;
+      const startDate = parse(
+        dateTimeStr,
+        "yyyy-MM-dd'T'HH:mm:ss",
+        new Date()
+      );
       const endDate = new Date(
         startDate.getTime() + service.duration_minutes * 60000
-      )
+      );
 
-      const start_datetime = startDate.toISOString()
-      const end_datetime = endDate.toISOString()
-      const lang = i18n.language as 'en' | 'fr'
+      const start_datetime = startDate.toISOString();
+      const end_datetime = endDate.toISOString();
+      const lang = i18n.language as "en" | "fr";
 
       const booking = await bookingsAPI.create({
         service_id: service.id,
@@ -130,25 +156,23 @@ export function Booking() {
         client_name: data.name,
         client_email: data.email,
         client_phone: data.phone,
-        client_notes: data.notes || '',
+        client_notes: data.notes || "",
         preferred_language: lang,
-      })
+      });
 
       toast.success(
-        `${t('booking.form.submit')} 🎉\nConfirmation: ${booking.confirmation_code}`,
+        `${t("booking.form.submit")} 🎉\nConfirmation: ${booking.confirmation_code}`,
         { duration: 6000 }
-      )
+      );
 
-      reset()
-      setSelectedDate(null)
-      console.log('Booking created:', booking)
-    } catch (error) {
-      console.error('Booking error:', error)
-      toast.error('Something went wrong. Please try again.')
+      reset();
+      setSelectedDate(null);
+    } catch {
+      toast.error("Something went wrong. Please try again.");
     }
-  }
+  };
 
-  const lang = i18n.language as 'en' | 'fr'
+  const lang = i18n.language as "en" | "fr";
 
   return (
     <section id="booking" className="py-20 lg:py-32 bg-gradient-warm">
@@ -161,9 +185,11 @@ export function Booking() {
           className="text-center mb-12"
         >
           <h2 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-4">
-            {t('booking.title')}
+            {t("booking.title")}
           </h2>
-          <p className="text-xl text-charcoal/70">{t('booking.subtitle')}</p>
+          <p className="text-xl text-charcoal/70">
+            {t("booking.subtitle")}
+          </p>
         </motion.div>
 
         <motion.div
@@ -174,7 +200,10 @@ export function Booking() {
           className="max-w-4xl mx-auto"
         >
           <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-elevated border-2 border-sage-200/30">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-8"
+            >
               {/* Personal Information Section */}
               <div className="space-y-6">
                 <h3 className="text-2xl font-heading font-semibold text-charcoal flex items-center gap-2">
@@ -188,11 +217,11 @@ export function Booking() {
                       htmlFor="name"
                       className="block text-sm font-medium text-charcoal"
                     >
-                      {t('booking.form.name')}{' '}
+                      {t("booking.form.name")}{" "}
                       <span className="text-terracotta-500">*</span>
                     </label>
                     <input
-                      {...register('name')}
+                      {...register("name")}
                       type="text"
                       id="name"
                       className="w-full px-4 py-3 rounded-xl border-2 border-sage-200 focus:border-terracotta-300 focus:ring-2 focus:ring-terracotta-200 transition-all"
@@ -210,13 +239,13 @@ export function Booking() {
                       htmlFor="email"
                       className="block text-sm font-medium text-charcoal"
                     >
-                      {t('booking.form.email')}{' '}
+                      {t("booking.form.email")}{" "}
                       <span className="text-terracotta-500">*</span>
                     </label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-charcoal/40" />
                       <input
-                        {...register('email')}
+                        {...register("email")}
                         type="email"
                         id="email"
                         className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-sage-200 focus:border-terracotta-300 focus:ring-2 focus:ring-terracotta-200 transition-all"
@@ -236,13 +265,13 @@ export function Booking() {
                     htmlFor="phone"
                     className="block text-sm font-medium text-charcoal"
                   >
-                    {t('booking.form.phone')}{' '}
+                    {t("booking.form.phone")}{" "}
                     <span className="text-terracotta-500">*</span>
                   </label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-charcoal/40" />
                     <input
-                      {...register('phone')}
+                      {...register("phone")}
                       type="tel"
                       id="phone"
                       className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-sage-200 focus:border-terracotta-300 focus:ring-2 focus:ring-terracotta-200 transition-all"
@@ -269,22 +298,25 @@ export function Booking() {
                     htmlFor="service"
                     className="block text-sm font-medium text-charcoal"
                   >
-                    {t('booking.form.service')}{' '}
+                    {t("booking.form.service")}{" "}
                     <span className="text-terracotta-500">*</span>
                   </label>
                   <select
-                    {...register('service')}
+                    {...register("service")}
                     id="service"
                     className="w-full px-4 py-3 rounded-xl border-2 border-sage-200 focus:border-terracotta-300 focus:ring-2 focus:ring-terracotta-200 transition-all"
                   >
-                    <option value="">{t('booking.form.service')}</option>
+                    <option value="">
+                      {t("booking.form.service")}
+                    </option>
                     {services && services.length > 0 ? (
                       services.map((service) => (
                         <option key={service.id} value={service.id}>
-                          {lang === 'fr'
+                          {lang === "fr"
                             ? service.title_fr
-                            : service.title_en}{' '}
-                          - {service.duration_minutes} min - €{service.price}
+                            : service.title_en}{" "}
+                          - {service.duration_minutes} min - €
+                          {service.price}
                         </option>
                       ))
                     ) : (
@@ -301,11 +333,11 @@ export function Booking() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-charcoal">
-                      {t('booking.form.date')}{' '}
+                      {t("booking.form.date")}{" "}
                       <span className="text-terracotta-500">*</span>
                     </label>
 
-                    <input type="hidden" {...register('date')} />
+                    <input type="hidden" {...register("date")} />
 
                     <div className="rounded-2xl border-2 border-sage-200 p-3 bg-white">
                       <div className="flex items-center justify-between mb-2">
@@ -313,8 +345,8 @@ export function Booking() {
                           <CalendarIcon className="w-5 h-5 text-terracotta-400" />
                           <span className="text-sm font-medium">
                             {selectedDate
-                              ? format(selectedDate, 'PPP')
-                              : t('booking.form.date')}
+                              ? format(selectedDate, "PPP")
+                              : t("booking.form.date")}
                           </span>
                         </div>
                         {isBusyLoading && (
@@ -327,13 +359,138 @@ export function Booking() {
                       <Calendar
                         value={selectedDate}
                         onChange={(value) => {
-                          const date = Array.isArray(value) ? value[0] : value
-                          setSelectedDate(date)
+                          const date = Array.isArray(value)
+                            ? value[0]
+                            : value;
+                          setSelectedDate(date);
                           if (date) {
-                            setValue('date', format(date, 'yyyy-MM-dd'), {
-                              shouldValidate: true,
-                            })
+                            setValue(
+                              "date",
+                              format(date, "yyyy-MM-dd"),
+                              {
+                                shouldValidate: true,
+                              }
+                            );
                           }
                         }}
-                        onActiveStartDateChange={({ activeStartDate }) => {
+                        onActiveStartDateChange={({
+                          activeStartDate,
+                        }) => {
                           if (activeStartDate)
+                            setActiveStartDate(activeStartDate);
+                        }}
+                        tileDisabled={({ date }) =>
+                          isPastDate(date) ||
+                          busyDates.has(format(date, "yyyy-MM-dd"))
+                        }
+                        tileClassName={({ date }) => {
+                          const iso = format(date, "yyyy-MM-dd");
+                          if (busyDates.has(iso))
+                            return "line-through opacity-40";
+                          return "";
+                        }}
+                        minDate={new Date()}
+                        className="w-full border-none"
+                      />
+                    </div>
+                    {errors.date && (
+                      <p className="text-sm text-terracotta-500">
+                        {errors.date.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-charcoal">
+                      {t("booking.form.time")}{" "}
+                      <span className="text-terracotta-500">*</span>
+                    </label>
+
+                    <input type="hidden" {...register("time")} />
+
+                    <div className="grid grid-cols-3 gap-2">
+                      {availableTimes.length > 0 ? (
+                        availableTimes.map((time) => (
+                          <button
+                            key={time}
+                            type="button"
+                            onClick={() =>
+                              setValue("time", time, {
+                                shouldValidate: true,
+                              })
+                            }
+                            className={`px-3 py-2 rounded-xl text-sm font-medium border-2 transition-all ${
+                              selectedTime === time
+                                ? "border-terracotta-400 bg-terracotta-50 text-terracotta-700"
+                                : "border-sage-200 hover:border-sage-300 text-charcoal/70"
+                            }`}
+                          >
+                            {time}
+                          </button>
+                        ))
+                      ) : (
+                        <p className="col-span-3 text-sm text-charcoal/50 py-4 text-center">
+                          {selectedDate
+                            ? t("booking.form.noSlots", {
+                                defaultValue:
+                                  "No available slots for this date",
+                              })
+                            : t("booking.form.selectDateFirst", {
+                                defaultValue:
+                                  "Select a date to see available times",
+                              })}
+                        </p>
+                      )}
+                    </div>
+                    {errors.time && (
+                      <p className="text-sm text-terracotta-500">
+                        {errors.time.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="notes"
+                  className="block text-sm font-medium text-charcoal flex items-center gap-2"
+                >
+                  <FileText className="w-4 h-4 text-terracotta-400" />
+                  {t("booking.form.notes", {
+                    defaultValue: "Additional notes",
+                  })}
+                </label>
+                <textarea
+                  {...register("notes")}
+                  id="notes"
+                  rows={3}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-sage-200 focus:border-terracotta-300 focus:ring-2 focus:ring-terracotta-200 transition-all resize-none"
+                  placeholder={t("booking.form.notesPlaceholder", {
+                    defaultValue:
+                      "Any special requests or information...",
+                  })}
+                />
+              </div>
+
+              {/* Submit */}
+              <Button
+                type="submit"
+                size="lg"
+                disabled={isSubmitting}
+                className="w-full shadow-warm hover:shadow-elevated transition-all"
+              >
+                {isSubmitting
+                  ? t("booking.form.submitting", {
+                      defaultValue: "Booking...",
+                    })
+                  : t("booking.form.submit")}
+              </Button>
+            </form>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}

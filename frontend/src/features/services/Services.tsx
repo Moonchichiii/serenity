@@ -11,7 +11,7 @@ import { useCMSServices } from '@/lib/cmsSelectors'
 import { getLocalizedText } from '@/api/cms'
 
 // Shared UI
-import TestimonialBanner from '@/components/TestimonialBanner'
+import TestimonialBanner from '@/features/testimonials/TestimonialBanner'
 import CloudImage from '@/components/ResponsiveImage'
 
 export function Services() {

@@ -12,83 +12,28 @@ import SecretTrigger from '@/components/secret/SecretTrigger'
 import { Button } from '@/components/ui/Button'
 import CloudImage from '@/components/ResponsiveImage'
 import { useModal } from '@/shared/hooks/useModal'
-
-// ✅ Refactored: Import selector instead of fetch hook
 import { useCMSPage } from '@/lib/cmsSelectors'
+import type { WagtailImage, WagtailSpecialty } from '@/types/api'
 
-// Performance: Lazy load the map
+// Lazy-load map at module level (never inside a component)
 const LocationMap = lazy(() =>
-  import('@/components/ui/LocationMap').then(m => ({ default: m.LocationMap }))
+  import('@/components/ui/LocationMap').then((m) => ({
+    default: m.LocationMap,
+  })),
 )
 
-type GridItem = { title: string; image: any }
+// ── Types ────────────────────────────────────────────────────────────
+type GridItem = {
+  title: string
+  image: WagtailImage | null | undefined
+}
 
-export function About() {
-  const { t, i18n } = useTranslation()
-  const { open } = useModal()
-  const reduceMotion = useReducedMotion()
+// ── Extracted static components ──────────────────────────────────────
+// Moved OUTSIDE About() so React never recreates it on re-render
+// (fixes react-hooks/static-components)
 
-  // ✅ Read directly from store (pre-loaded)
-  const cmsData = useCMSPage()
-
-  const lang = i18n.language.startsWith('fr') ? 'fr' : 'en'
-
-  // CMS-FIRST CONTENT LOGIC
-  const content = useMemo(() => {
-    // Graceful fallback if data isn't ready (though it should be)
-    if (!cmsData) return null
-
-    const specialtiesGrid = (cmsData.specialties || [])
-      .map((sp: any): GridItem => ({
-        title: lang === 'fr' ? sp.title_fr : sp.title, // Manual fallback logic if not using getLocalizedText helper
-        image: sp.image || null,
-      }))
-      .filter(s => s.title && s.title.trim().length > 0)
-
-    return {
-      title: (lang === 'fr' ? cmsData.about_title_fr : cmsData.about_title_en) ?? t('about.title'),
-      subtitle: (lang === 'fr' ? cmsData.about_subtitle_fr : cmsData.about_subtitle_en) ?? t('about.subtitle'),
-      intro: (lang === 'fr' ? cmsData.about_intro_fr : cmsData.about_intro_en) ?? t('about.intro'),
-      certification: (lang === 'fr' ? cmsData.about_certification_fr : cmsData.about_certification_en) ?? '',
-      approachTitle: (lang === 'fr' ? cmsData.about_approach_title_fr : cmsData.about_approach_title_en) ?? t('about.approachTitle'),
-      approachText: (lang === 'fr' ? cmsData.about_approach_text_fr : cmsData.about_approach_text_en) ?? t('about.approachText'),
-      specialtiesTitle: (lang === 'fr' ? cmsData.about_specialties_title_fr : cmsData.about_specialties_title_en) ?? t('about.specialtiesTitle'),
-      studioDescription: t('about.studioDescriptionFallback'),
-      address: cmsData.address ?? t('footer.address'),
-      specialtiesGrid,
-    }
-  }, [cmsData, lang, t])
-
-  const stripHtml = (html?: string | null) => {
-    if (!html) return ''
-    const tmp = document.createElement('div')
-    tmp.innerHTML = html
-    return tmp.textContent || tmp.innerText || ''
-  }
-
-  const spring: Transition = { type: 'spring', stiffness: 220, damping: 22 }
-  const gridVariants: Variants | undefined = reduceMotion
-    ? undefined
-    : {
-        hidden: {},
-        show: {
-          transition: { staggerChildren: 0.08, delayChildren: 0.12 },
-        },
-      }
-  const cardVariants: Variants | undefined = reduceMotion
-    ? undefined
-    : {
-        hidden: { opacity: 0, y: 18, scale: 0.97 },
-        show: {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          transition: spring,
-        },
-      }
-
-  // Reusable Map Component
-  const MapCard = () => (
+function MapCard({ address }: { address: string }) {
+  return (
     <div className="p-1">
       <Suspense
         fallback={
@@ -99,14 +44,100 @@ export function About() {
       </Suspense>
 
       <div className="mt-3 px-1">
-        <p className="text-xs text-stone-500 leading-relaxed">
-          {content?.address}
-        </p>
+        <p className="text-xs text-stone-500 leading-relaxed">{address}</p>
       </div>
     </div>
   )
+}
 
-  if (!content) return null // Hide section if no data (rare case)
+// ── Helpers ──────────────────────────────────────────────────────────
+const stripHtml = (html?: string | null): string => {
+  if (!html) return ''
+  const tmp = document.createElement('div')
+  tmp.innerHTML = html
+  return tmp.textContent || tmp.innerText || ''
+}
+
+// ── Main component ──────────────────────────────────────────────────
+export function About() {
+  const { t, i18n } = useTranslation()
+  const { open } = useModal()
+  const reduceMotion = useReducedMotion()
+
+  const cmsData = useCMSPage()
+
+  const lang = i18n.language.startsWith('fr') ? 'fr' : 'en'
+
+  const content = useMemo(() => {
+    if (!cmsData) return null
+
+    const specialtiesGrid = (cmsData.specialties || [])
+      .map(
+        (sp: WagtailSpecialty): GridItem => ({
+          title:
+            lang === 'fr'
+              ? (sp.title_fr ?? '')
+              : (sp.title_en ?? ''),
+          image: sp.image ?? null,
+        }),
+      )
+      .filter((s) => s.title.trim().length > 0)
+
+    return {
+      title:
+        (lang === 'fr'
+          ? cmsData.about_title_fr
+          : cmsData.about_title_en) ?? t('about.title'),
+      subtitle:
+        (lang === 'fr'
+          ? cmsData.about_subtitle_fr
+          : cmsData.about_subtitle_en) ?? t('about.subtitle'),
+      intro:
+        (lang === 'fr'
+          ? cmsData.about_intro_fr
+          : cmsData.about_intro_en) ?? t('about.intro'),
+      certification:
+        (lang === 'fr'
+          ? cmsData.about_certification_fr
+          : cmsData.about_certification_en) ?? '',
+      approachTitle:
+        (lang === 'fr'
+          ? cmsData.about_approach_title_fr
+          : cmsData.about_approach_title_en) ?? t('about.approachTitle'),
+      approachText:
+        (lang === 'fr'
+          ? cmsData.about_approach_text_fr
+          : cmsData.about_approach_text_en) ?? t('about.approachText'),
+      specialtiesTitle:
+        (lang === 'fr'
+          ? cmsData.about_specialties_title_fr
+          : cmsData.about_specialties_title_en) ??
+        t('about.specialtiesTitle'),
+      studioDescription: t('about.studioDescriptionFallback'),
+      address: cmsData.address ?? t('footer.address'),
+      specialtiesGrid,
+    }
+  }, [cmsData, lang, t])
+
+  const spring: Transition = { type: 'spring', stiffness: 220, damping: 22 }
+
+  const gridVariants: Variants | undefined = reduceMotion
+    ? undefined
+    : {
+        hidden: {},
+        show: {
+          transition: { staggerChildren: 0.08, delayChildren: 0.12 },
+        },
+      }
+
+  const cardVariants: Variants | undefined = reduceMotion
+    ? undefined
+    : {
+        hidden: { opacity: 0, y: 18, scale: 0.97 },
+        show: { opacity: 1, y: 0, scale: 1, transition: spring },
+      }
+
+  if (!content) return null
 
   return (
     <section
@@ -116,7 +147,7 @@ export function About() {
     >
       <div className="container mx-auto px-4 sm:px-6 md:px-12 lg:px-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
-          {/* ==================== LEFT COLUMN (TEXT + MAP) ==================== */}
+          {/* ─── LEFT COLUMN ─────────────────────────────────────── */}
           <motion.article
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -135,9 +166,15 @@ export function About() {
 
               <div className="text-lg text-foreground/80 leading-relaxed max-w-xl min-h-[4em]">
                 <div>
-                  <span className="inline">{stripHtml(content.intro)}</span>
+                  <span className="inline">
+                    {stripHtml(content.intro)}
+                  </span>
                   <span className="inline-block ml-1 opacity-20 hover:opacity-100 transition-opacity align-baseline">
-                    <SecretTrigger modalId="cmsLogin" times={3} windowMs={900}>
+                    <SecretTrigger
+                      modalId="cmsLogin"
+                      times={3}
+                      windowMs={900}
+                    >
                       <span className="text-[10px] uppercase tracking-widest text-[#2e2e2e] font-bold cursor-default select-none">
                         Serenity.
                       </span>
@@ -216,12 +253,13 @@ export function About() {
                     })
                   }
                 >
-                  {t('about.cta')} <ArrowRight className="w-4 h-4 ml-2" />
+                  {t('about.cta')}{' '}
+                  <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </div>
             </div>
 
-            {/* 4. Approach Section + CONTACT CARD + MAP */}
+            {/* 4. Approach + Contact + Map */}
             <div className="mt-6 pt-10 border-t border-stone-200/60">
               <h3 className="text-3xl font-serif text-foreground mb-4 min-h-[1.2em]">
                 {content.approachTitle}
@@ -259,11 +297,11 @@ export function About() {
                 </Button>
               </div>
 
-              <MapCard />
+              <MapCard address={content.address} />
             </div>
           </motion.article>
 
-          {/* ==================== RIGHT COLUMN (VISUALS ONLY) ==================== */}
+          {/* ─── RIGHT COLUMN ────────────────────────────────────── */}
           <aside className="space-y-10 lg:sticky lg:top-24 hidden lg:block">
             <div className="space-y-4">
               <h3 className="font-serif text-2xl text-foreground px-1">
@@ -284,7 +322,9 @@ export function About() {
                     className={[
                       'relative group overflow-hidden rounded-[24px] bg-stone-100 shadow-sm border border-stone-100',
                       'transition-all duration-500 hover:shadow-warm hover:-translate-y-1',
-                      i === 2 ? 'col-span-2 aspect-[2/1]' : 'aspect-square',
+                      i === 2
+                        ? 'col-span-2 aspect-[2/1]'
+                        : 'aspect-square',
                     ].join(' ')}
                   >
                     {sp.image?.url && (

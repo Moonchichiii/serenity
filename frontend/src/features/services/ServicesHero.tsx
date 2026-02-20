@@ -3,46 +3,34 @@ import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-// ✅ Refactored: Import selector instead of fetch hook
 import { useCMSPage } from '@/lib/cmsSelectors'
 import { useModal } from '@/shared/hooks/useModal'
-import { getLocalizedText } from '@/api/cms'
-
-// Utils & Components
+import { getLocalizedText } from '@/lib/localize'
 import {
   getResponsivePosterUrl,
   getOptimizedVideoUrl,
 } from '@/utils/cloudinary'
 import { Button } from '@/components/ui/Button'
 
-// Assets
 const FALLBACK_POSTER =
   'https://res.cloudinary.com/dbzlaawqt/image/upload/v1762274193/poster_zbbwz5.webp'
 
 const toSentenceCase = (s?: string) => {
   if (!s) return ''
-  const first = s.charAt(0).toLocaleUpperCase()
-  const rest = s.slice(1).toLocaleLowerCase()
-  return first + rest
+  return s.charAt(0).toLocaleUpperCase() + s.slice(1).toLocaleLowerCase()
 }
 
-// Define connection type locally to satisfy TS/ESLint
-type NetworkInformation = {
-  saveData?: boolean
-}
+type NetworkInformation = { saveData?: boolean }
 
 export function ServicesHero() {
   const { t, i18n } = useTranslation()
   const { open } = useModal()
-
-  // ✅ Read directly from store (pre-loaded)
   const page = useCMSPage()
 
-  const [posterUrl, setPosterUrl] = useState<string | undefined>(undefined)
-  const [videoSrc, setVideoSrc] = useState<string | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
+  const [videoSrc, setVideoSrc] = useState<string | null>(null)
 
-  // --- Logic: CSP / Captions ---
+  // ── Captions (CSP-safe blob) ───────────────────────────────────────
   const captionsUrl = useMemo(() => {
     if (typeof window === 'undefined') return undefined
     const blob = new Blob(['WEBVTT\n\n'], { type: 'text/vtt' })
@@ -55,11 +43,11 @@ export function ServicesHero() {
     }
   }, [captionsUrl])
 
-  // --- Logic: Performance / Data Saver ---
+  // ── Performance flags ──────────────────────────────────────────────
   const saveData =
     typeof navigator !== 'undefined' &&
-    (navigator as unknown as { connection?: NetworkInformation }).connection
-      ?.saveData
+    (navigator as unknown as { connection?: NetworkInformation })
+      .connection?.saveData
 
   const prefersReducedMotion =
     typeof window !== 'undefined' &&
@@ -69,72 +57,60 @@ export function ServicesHero() {
 
   const lang = i18n.language.startsWith('fr') ? 'fr' : 'en'
 
-  // --- Logic: Image & Video Optimization ---
-  useEffect(() => {
-    const baseUrl = page?.services_hero_poster_image?.url
-    if (!baseUrl) {
-      setPosterUrl(FALLBACK_POSTER)
-      return
-    }
+  // ── Poster: derived via useMemo (no setState in effect) ────────────
+  const posterBaseUrl =
+    page?.services_hero_poster_image?.url ?? null
 
-    const compute = () => {
-      const w =
-        typeof window !== 'undefined'
-          ? Math.max(window.innerWidth || 0, 360)
-          : 768
-      setPosterUrl(
-        getResponsivePosterUrl(baseUrl, w, {
-          quality: 'eco',
-          min: 480,
-          max: 1440,
-        })
-      )
-    }
+  const posterUrl = useMemo(() => {
+    if (!posterBaseUrl) return FALLBACK_POSTER
+    const w =
+      typeof window !== 'undefined'
+        ? Math.max(window.innerWidth || 0, 360)
+        : 768
+    return getResponsivePosterUrl(posterBaseUrl, w, {
+      quality: 'eco',
+      min: 480,
+      max: 1440,
+    })
+  }, [posterBaseUrl])
 
-    compute()
-    const onResize = () => compute()
-    if (typeof window !== 'undefined')
-      window.addEventListener('resize', onResize)
-    return () => {
-      if (typeof window !== 'undefined')
-        window.removeEventListener('resize', onResize)
-    }
-  }, [page?.services_hero_poster_image?.url])
-
+  // ── Video: setState only inside event callbacks ────────────────────
   useEffect(() => {
     if (shouldDisableVideo) {
-      setVideoSrc(null)
+      queueMicrotask(() => setVideoSrc(null))
       return
     }
+
     const directUrl = page?.services_hero_video_url?.trim()
     const publicId = page?.services_hero_video_public_id?.trim()
 
     if (directUrl) {
-      setVideoSrc(directUrl)
+      queueMicrotask(() => setVideoSrc(directUrl))
       return
     }
+
     if (!publicId) {
-      setVideoSrc(null)
+      queueMicrotask(() => setVideoSrc(null))
       return
     }
 
     const buildVideoUrl = () => {
       const width =
-        typeof window !== 'undefined' ? window.innerWidth || 1920 : 1920
-      if (width <= 640) return getOptimizedVideoUrl(publicId, 640, 'eco')
-      if (width <= 1024) return getOptimizedVideoUrl(publicId, 1024, 'eco')
+        typeof window !== 'undefined'
+          ? window.innerWidth || 1920
+          : 1920
+      if (width <= 640)
+        return getOptimizedVideoUrl(publicId, 640, 'eco')
+      if (width <= 1024)
+        return getOptimizedVideoUrl(publicId, 1024, 'eco')
       return getOptimizedVideoUrl(publicId, 1920, 'eco')
     }
 
     const update = () => setVideoSrc(buildVideoUrl())
     update()
-    const onResize = () => update()
-    if (typeof window !== 'undefined')
-      window.addEventListener('resize', onResize)
-    return () => {
-      if (typeof window !== 'undefined')
-        window.removeEventListener('resize', onResize)
-    }
+
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
   }, [
     page?.services_hero_video_url,
     page?.services_hero_video_public_id,
@@ -143,9 +119,13 @@ export function ServicesHero() {
 
   if (!page) return null
 
-  // --- Content Extraction ---
+  // ── Content extraction ─────────────────────────────────────────────
   const title = getLocalizedText(page, 'services_hero_title', lang)
-  const priceLabel = getLocalizedText(page, 'services_hero_pricing_label', lang)
+  const priceLabel = getLocalizedText(
+    page,
+    'services_hero_pricing_label',
+    lang,
+  )
   const price = getLocalizedText(page, 'services_hero_price', lang)
   const cta = getLocalizedText(page, 'services_hero_cta', lang)
 
@@ -171,7 +151,7 @@ export function ServicesHero() {
         <video
           ref={videoRef}
           className="absolute inset-0 w-full h-full object-cover object-center"
-          poster={posterUrl ?? FALLBACK_POSTER}
+          poster={posterUrl}
           autoPlay={!shouldDisableVideo}
           muted
           playsInline
@@ -179,11 +159,13 @@ export function ServicesHero() {
           preload="metadata"
         >
           <source src={videoSrc} type="video/mp4" />
-          {captionsUrl && <track kind="captions" src={captionsUrl} default />}
+          {captionsUrl && (
+            <track kind="captions" src={captionsUrl} default />
+          )}
         </video>
       ) : (
         <img
-          src={posterUrl ?? FALLBACK_POSTER}
+          src={posterUrl}
           alt=""
           aria-hidden="true"
           className="absolute inset-0 h-full w-full object-cover object-center"
@@ -210,10 +192,12 @@ export function ServicesHero() {
           className="w-full max-w-6xl mx-auto"
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
-            {/* LEFT COLUMN */}
+            {/* LEFT */}
             <div className="flex flex-col gap-6 text-center lg:text-left">
               <span className="hidden lg:block text-xs font-bold tracking-[0.2em] text-sage-200 uppercase mb-[-0.5rem] drop-shadow-md">
-                {lang === 'fr' ? 'Bien-être au travail' : 'Corporate Wellness'}
+                {lang === 'fr'
+                  ? 'Bien-être au travail'
+                  : 'Corporate Wellness'}
               </span>
 
               <h2 className="font-serif font-medium text-white leading-[1.15] text-4xl sm:text-5xl md:text-6xl drop-shadow-lg">
@@ -245,7 +229,9 @@ export function ServicesHero() {
                     aria-label={cta || 'Contact Corporate'}
                     className="w-full sm:w-auto h-14 rounded-full shadow-lg hover:shadow-white/20 border border-white/10 transition-all px-10 text-base font-semibold tracking-wide"
                     onClick={() =>
-                      open('corporate', { defaultEventType: 'corporate' })
+                      open('corporate', {
+                        defaultEventType: 'corporate',
+                      })
                     }
                   >
                     {toSentenceCase(cta)}
@@ -254,7 +240,7 @@ export function ServicesHero() {
               )}
             </div>
 
-            {/* RIGHT COLUMN */}
+            {/* RIGHT */}
             {benefits.length > 0 && (
               <div className="relative pl-0 lg:pl-10">
                 <div className="absolute hidden lg:block left-0 top-2 bottom-2 w-px bg-gradient-to-b from-transparent via-white/30 to-transparent" />
@@ -264,7 +250,10 @@ export function ServicesHero() {
                       <motion.div
                         initial={{ opacity: 0, x: 20 }}
                         whileInView={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
+                        transition={{
+                          delay: 0.2 + i * 0.1,
+                          duration: 0.5,
+                        }}
                         className="flex items-start gap-4 group"
                       >
                         <div className="mt-1 flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white group-hover:bg-white/20 transition-colors">
