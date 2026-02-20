@@ -1,10 +1,19 @@
+"""
+Note: Granular endpoints (services, globals) are DEPRECATED.
+All SPA initialization must use 'homepage/hydrated/'.
+"""
+
 from django.urls import path
 
-from .views import globals_view, homepage_view, hydrated_homepage_view, services_view
+from .views import (
+    hydrated_homepage_view,
+)
 
 urlpatterns = [
-    path("homepage/", homepage_view, name="homepage"),
-    path("homepage/hydrated/", hydrated_homepage_view, name="homepage-hydrated"),
-    path("services/", services_view, name="services"),
-    path("globals/", globals_view, name="cms-globals"),
+    # Primary Enterprise Entry Point
+    path(
+        "homepage/hydrated/",
+        hydrated_homepage_view,
+        name="homepage-hydrated",
+    ),
 ]

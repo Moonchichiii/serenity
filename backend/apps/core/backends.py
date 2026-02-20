@@ -1,25 +1,24 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 from django.db.models import Q
-from django.http import HttpRequest
+
+if TYPE_CHECKING:
+    from django.http import HttpRequest
 
 User = get_user_model()
 
-
 class EmailOrUsernameBackend(ModelBackend):
-    """Authenticate with either email or username."""
-
     def authenticate(
         self,
         request: HttpRequest | None,
         username: str | None = None,
         password: str | None = None,
         **kwargs: Any,
-    ) -> Any:  # Use Any to satisfy strict inheritance from ModelBackend
+    ) -> Any:
         if username is None or password is None:
             return None
 

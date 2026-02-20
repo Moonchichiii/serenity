@@ -1,3 +1,8 @@
+"""
+Customises the Wagtail admin dashboard.
+Replaces the default dashboard with a Serenity-branded welcome panel containing direct-edit links to content sections.
+"""
+
 from __future__ import annotations
 
 from typing import Any
@@ -32,66 +37,75 @@ try:
 except ImportError:
     GiftVoucher = None
 
+# Helpers
 
-def get_snippet_url(model: Any, action: str = 'list') -> str:
-    """Generate Wagtail 7.x snippet URL, returning '#' on failure."""
+def get_snippet_url(model: Any, action: str = "list") -> str:
+    """
+    Generate a Wagtail snippet URL. Returns '#' on failure.
+    """
     if not model:
-        return '#'
+        return "#"
 
     app_label = model._meta.app_label
     model_name = model._meta.model_name
-    url_name = f'wagtailsnippets_{app_label}_{model_name}:{action}'
+    url_name = f"wagtailsnippets_{app_label}_{model_name}:{action}"
 
     try:
         return reverse(url_name)
     except NoReverseMatch:
-        return '#'
+        return "#"
 
+# Dashboard panels
 
-@hooks.register('construct_homepage_panels')
+@hooks.register("construct_homepage_panels")
 def add_welcome_panel(request: Any, panels: list[Any]) -> list[Any]:
-    """Add custom welcome panel to Wagtail admin homepage."""
+    """
+    Replace the default Wagtail dashboard with a custom welcome panel.
+    """
 
     class WelcomePanel:
         order: int = 0
         media: Media = Media()
 
         def render(self) -> str:
-            # --- HomePage edit URL ---
-            edit_url = '/cms-admin/pages/'
+            edit_url = "/cms-admin/pages/"
+            homepage_title = ""
+
             if HomePage:
                 homepage_obj = HomePage.objects.live().first()
                 if homepage_obj:
-                    edit_url = reverse('wagtailadmin_pages:edit', args=[homepage_obj.id])
+                    homepage_title = homepage_obj.title or ""
+                    edit_url = reverse(
+                        "wagtailadmin_pages:edit",
+                        args=[homepage_obj.id],
+                    )
 
-            # --- GiftSettings URL ---
-            gift_settings_url = '#'
-
+            gift_settings_url = "#"
             if GiftSettings is not None:
                 app_label = GiftSettings._meta.app_label
                 model_name = GiftSettings._meta.model_name
-
                 try:
                     gift_settings_url = reverse(
-                        'wagtailsettings:edit',
+                        "wagtailsettings:edit",
                         args=[app_label, model_name],
                     )
                 except NoReverseMatch:
-                    gift_settings_url = '#'
+                    gift_settings_url = "#"
 
             context = {
-                'edit_url': edit_url,
-                'testimonial_list_url': get_snippet_url(Testimonial, 'list'),
-                'testimonial_add_url': get_snippet_url(Testimonial, 'add'),
-                'reply_list_url': get_snippet_url(TestimonialReply, 'list'),
-                'service_list_url': get_snippet_url(Service, 'list'),
-                'service_add_url': get_snippet_url(Service, 'add'),
-                'voucher_list_url': get_snippet_url(GiftVoucher, 'list'),
-                'gift_settings_url': gift_settings_url,
+                "edit_url": edit_url,
+                "homepage_title": homepage_title,
+                "testimonial_list_url": get_snippet_url(Testimonial, "list"),
+                "testimonial_add_url": get_snippet_url(Testimonial, "add"),
+                "reply_list_url": get_snippet_url(TestimonialReply, "list"),
+                "service_list_url": get_snippet_url(Service, "list"),
+                "service_add_url": get_snippet_url(Service, "add"),
+                "voucher_list_url": get_snippet_url(GiftVoucher, "list"),
+                "gift_settings_url": gift_settings_url,
             }
 
-            html = render_to_string('admin/wagtail_admin', context)
-            return format_html('{}', mark_safe(html))
+            html = render_to_string("admin/wagtail_admin.html", context)
+            return format_html("{}", mark_safe(html))
 
     panels.insert(0, WelcomePanel())
     return panels

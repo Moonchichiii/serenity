@@ -1,3 +1,7 @@
+"""
+apps.cms.apps — Django AppConfig for the CMS app.
+"""
+
 from django.apps import AppConfig
 
 
@@ -7,5 +11,9 @@ class CmsConfig(AppConfig):
     label = "cms"
 
     def ready(self) -> None:
-      pass
-        # import apps.cms.signals
+        # Signal-based cache invalidation is prepared in signals.py
+        # but currently disabled.  Uncomment the import below to
+        # activate it:
+        #
+        #   import apps.cms.signals
+        pass

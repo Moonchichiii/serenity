@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
-from collections.abc import Callable
-from typing import Any, ParamSpec, TypeVar, cast
+from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
@@ -13,6 +12,9 @@ from django.utils.translation import gettext as _
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
 # ParamSpec and TypeVar kept for future signature preservation if needed
 P = ParamSpec('P')
 R = TypeVar('R')
@@ -20,16 +22,14 @@ R = TypeVar('R')
 if getattr(settings, 'RATELIMIT_ENABLE', True):
     from django_ratelimit.decorators import ratelimit
 else:
-    F = TypeVar('F', bound=Callable[..., Any])
-
     def ratelimit(*args: Any, **kwargs: Any) -> Any:
         """No-op decorator supporting both @ratelimit and @ratelimit(...)."""
         # Used as: @ratelimit
         if args and len(args) == 1 and callable(args[0]) and not kwargs:
-            return cast(F, args[0])
+            return args[0]
 
         # Used as: @ratelimit(...)
-        def _decorator(func: F) -> F:
+        def _decorator(func: Callable[P, R]) -> Callable[P, R]:
             return func
 
         return _decorator

@@ -1,0 +1,210 @@
+/* Scoped Serenity dashboard panel (lives inside Wagtail admin) */
+.serenity-dashboard {
+  /* Wagtail-ish neutral palette */
+  --s-bg: #f5f7fa;
+  --s-card-bg: #ffffff;
+  --s-border: #e2e8f0;
+  --s-text-main: #0f172a;
+  --s-text-muted: #64748b;
+
+  /* Calm, Wagtail-compatible accent (subtle teal) */
+  --s-primary: #0f172a;
+  --s-primary-fg: #ffffff;
+  --s-accent: #14b8a6;
+
+  --s-radius: 10px;
+  --s-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  --s-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  font-family: var(--s-font-family);
+  background-color: var(--s-bg);
+  border: 1px solid var(--s-border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 30px;
+  color: var(--s-text-main);
+  box-shadow: var(--s-shadow);
+}
+
+.sd-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--s-border);
+  padding-bottom: 16px;
+  gap: 12px;
+}
+
+.sd-title h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.02em;
+}
+
+.sd-title p {
+  font-size: 0.9rem;
+  color: var(--s-text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.sd-lang-switch {
+  display: inline-flex;
+  background: var(--s-card-bg);
+  border: 1px solid var(--s-border);
+  border-radius: 999px;
+  padding: 2px;
+}
+
+.sd-lang-opt {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 999px;
+  color: var(--s-text-muted);
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.sd-lang-opt:focus {
+  outline: 2px solid rgba(20, 184, 166, 0.35);
+  outline-offset: 2px;
+}
+
+.sd-lang-opt.active {
+  background: var(--s-primary);
+  color: var(--s-primary-fg);
+}
+
+.sd-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.sd-card {
+  background: var(--s-card-bg);
+  border: 1px solid var(--s-border);
+  border-radius: var(--s-radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  overflow: hidden;
+  min-height: 170px;
+}
+
+.sd-card:hover {
+  border-color: rgba(20, 184, 166, 0.55);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+  transform: translateY(-1px);
+}
+
+.sd-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(20, 184, 166, 0.22);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.sd-card:hover::after {
+  opacity: 1;
+}
+
+.sd-card-icon {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border: 1px solid var(--s-border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  color: var(--s-text-main);
+}
+
+.sd-card-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+}
+
+.sd-card h3 {
+  font-size: 0.98rem;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+}
+
+.sd-card p {
+  font-size: 0.86rem;
+  color: var(--s-text-muted);
+  margin: 0 0 14px 0;
+  line-height: 1.45;
+  flex-grow: 1;
+}
+
+.sd-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.sd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 10px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: transform 0.15s ease, opacity 0.15s ease, border-color 0.15s ease;
+  letter-spacing: 0.02em;
+}
+
+.sd-btn-primary {
+  background-color: var(--s-primary);
+  color: var(--s-primary-fg);
+  border: 1px solid transparent;
+}
+
+.sd-btn-primary:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.sd-btn-secondary {
+  background-color: transparent;
+  border: 1px solid var(--s-border);
+  color: var(--s-text-main);
+}
+
+.sd-btn-secondary:hover {
+  border-color: rgba(20, 184, 166, 0.6);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .sd-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .sd-lang-switch {
+    align-self: flex-start;
+  }
+  .sd-grid {
+    grid-template-columns: 1fr;
+  }
+}
