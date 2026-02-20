@@ -1,58 +1,52 @@
-import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
-import { Clock, Euro, ArrowRight } from 'lucide-react';
+import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
+import { Clock, Euro, ArrowRight } from 'lucide-react'
 
-// ✅ Sibling Import (ServicesHero is right next to this file now)
-import { ServicesHero } from './ServicesHero';
+// ✅ Sibling Import
+import { ServicesHero } from './ServicesHero'
 
-// ✅ Hooks & Types
-import { useServices } from '@/hooks/useCMS';
-import { getLocalizedText } from '@/api/cms';
+// ✅ Refactored: Import selector instead of fetch hook
+import { useCMSServices } from '@/lib/cmsSelectors'
+import { getLocalizedText } from '@/api/cms'
 
 // Shared UI
-import TestimonialBanner from '@/components/TestimonialBanner';
-import CloudImage from '@/components/ResponsiveImage';
+import TestimonialBanner from '@/components/TestimonialBanner'
+import CloudImage from '@/components/ResponsiveImage'
 
 export function Services() {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation()
 
-  // ✅ SENIOR PATTERN: Data Hook (Cached)
-  const { data: services, isLoading, isError } = useServices();
+  // ✅ Read directly from store (pre-loaded)
+  const services = useCMSServices()
 
-  const lang = (i18n.language?.startsWith('fr') ? 'fr' : 'en') as 'en' | 'fr';
+  const lang = (i18n.language?.startsWith('fr') ? 'fr' : 'en') as 'en' | 'fr'
 
   // Logic to highlight Chair Massage (Amma Assis)
   const highlightedServiceId = useMemo(() => {
-    if (!services) return null;
+    if (!services) return null
     return services.find((s) => {
-      const en = (s.title_en || '').toLowerCase();
-      const fr = (s.title_fr || '').toLowerCase();
+      const en = (s.title_en || '').toLowerCase()
+      const fr = (s.title_fr || '').toLowerCase()
       return (
         en.includes('chair') ||
         en.includes('amma') ||
         en.includes('seated') ||
         fr.includes('amma') ||
         fr.includes('assis')
-      );
-    })?.id;
-  }, [services]);
-
-  if (isError) {
-    return (
-        <div className="text-center py-20 bg-stone-50">
-            <p className="text-stone-500">Unable to load services.</p>
-        </div>
-    );
-  }
+      )
+    })?.id
+  }, [services])
 
   return (
     <div className="services-page bg-stone-50/30">
       <ServicesHero />
 
-      <section id="services" className="pt-20 lg:pt-32 pb-16 lg:pb-20 overflow-hidden">
+      <section
+        id="services"
+        className="pt-20 lg:pt-32 pb-16 lg:pb-20 overflow-hidden"
+      >
         <div className="container mx-auto px-4 lg:px-8">
-
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -69,13 +63,7 @@ export function Services() {
             </p>
           </motion.div>
 
-          {isLoading ? (
-            <div className="text-center py-20">
-              <div className="animate-pulse text-stone-600 font-serif text-lg">
-                Loading...
-              </div>
-            </div>
-          ) : !services || services.length === 0 ? (
+          {!services || services.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-stone-500">No services available yet.</p>
             </div>
@@ -85,16 +73,22 @@ export function Services() {
               <div className="md:hidden relative">
                 <div className="flex justify-end px-4 mb-3">
                   <div className="flex items-center gap-2 text-[10px] font-bold text-stone-600 tracking-[0.2em] uppercase">
-                    <span>{t('services.slide', { defaultValue: 'SLIDE' })}</span>
+                    <span>
+                      {t('services.slide', { defaultValue: 'SLIDE' })}
+                    </span>
                     <ArrowRight className="w-3 h-3" />
                   </div>
                 </div>
 
                 <div className="flex overflow-x-auto snap-x snap-mandatory gap-5 pb-8 -mx-4 px-6 no-scrollbar">
                   {services.map((service) => {
-                    const title = getLocalizedText(service, 'title', lang);
-                    const description = getLocalizedText(service, 'description', lang);
-                    const isHighlighted = service.id === highlightedServiceId;
+                    const title = getLocalizedText(service, 'title', lang)
+                    const description = getLocalizedText(
+                      service,
+                      'description',
+                      lang
+                    )
+                    const isHighlighted = service.id === highlightedServiceId
 
                     return (
                       <article
@@ -111,9 +105,13 @@ export function Services() {
                               sizes="(max-width: 640px) 90vw"
                             />
                             {/* Price Badge */}
-                            <div className={`absolute top-4 right-4 inline-flex items-center gap-1 rounded-full bg-white/95 backdrop-blur-md px-3 py-1.5 text-[11px] font-bold tracking-wide text-stone-800 shadow-sm ${isHighlighted ? 'ring-2 ring-rose-200' : ''}`}>
-                                <Euro className="w-3 h-3 text-sage-600" />
-                                {service.price}
+                            <div
+                              className={`absolute top-4 right-4 inline-flex items-center gap-1 rounded-full bg-white/95 backdrop-blur-md px-3 py-1.5 text-[11px] font-bold tracking-wide text-stone-800 shadow-sm ${
+                                isHighlighted ? 'ring-2 ring-rose-200' : ''
+                              }`}
+                            >
+                              <Euro className="w-3 h-3 text-sage-600" />
+                              {service.price}
                             </div>
                           </div>
                         )}
@@ -134,7 +132,7 @@ export function Services() {
                               <span>{service.duration_minutes} min</span>
                             </div>
                             <div className="text-sm font-serif font-semibold text-stone-900">
-                               {service.price} €
+                              {service.price} €
                             </div>
                           </div>
                         </div>
@@ -148,9 +146,13 @@ export function Services() {
               {/* DESKTOP VIEW: Grid */}
               <div className="hidden md:grid grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-10 max-w-7xl mx-auto">
                 {services.map((service, index) => {
-                  const title = getLocalizedText(service, 'title', lang);
-                  const description = getLocalizedText(service, 'description', lang);
-                  const isHighlighted = service.id === highlightedServiceId;
+                  const title = getLocalizedText(service, 'title', lang)
+                  const description = getLocalizedText(
+                    service,
+                    'description',
+                    lang
+                  )
+                  const isHighlighted = service.id === highlightedServiceId
 
                   return (
                     <motion.article
@@ -173,7 +175,7 @@ export function Services() {
                           />
 
                           <div className="absolute top-5 right-5 inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-4 py-1.5 text-xs font-bold text-stone-800 shadow-lg">
-                             <span>{service.price} €</span>
+                            <span>{service.price} €</span>
                           </div>
                         </div>
                       )}
@@ -194,9 +196,11 @@ export function Services() {
                             <span>{service.duration_minutes} min</span>
                           </div>
                           {isHighlighted && (
-                             <span className="text-[10px] font-bold text-sage-600 bg-sage-50 px-2 py-1 rounded uppercase tracking-wider">
-                               {t('services.mostPopular', { defaultValue: 'Popular' })}
-                             </span>
+                            <span className="text-[10px] font-bold text-sage-600 bg-sage-50 px-2 py-1 rounded uppercase tracking-wider">
+                              {t('services.mostPopular', {
+                                defaultValue: 'Popular',
+                              })}
+                            </span>
                           )}
                         </div>
                       </div>
@@ -211,5 +215,5 @@ export function Services() {
 
       <TestimonialBanner />
     </div>
-  );
+  )
 }

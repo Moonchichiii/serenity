@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/Button'
-import { cmsAPI, type WagtailHomePage } from '@/api/cms'
+import { useCMSPage } from '@/lib/cmsSelectors'
 import CloudImage from '@/components/ResponsiveImage'
 import CookieConsent from '@/components/CookieConsent'
 import { useModal } from '@/shared/hooks/useModal'
@@ -9,13 +9,11 @@ import { motion } from 'framer-motion'
 
 export function Hero() {
   const { t, i18n } = useTranslation()
-  const [cmsData, setCmsData] = useState<WagtailHomePage | null>(null)
-  const [active, setActive] = useState(0)
   const { open } = useModal()
 
-  useEffect(() => {
-    cmsAPI.getHomePage().then(setCmsData).catch(() => setCmsData(null))
-  }, [])
+  // ✅ Refactored: Read directly from context/loader state
+  const cmsData = useCMSPage()
+  const [active, setActive] = useState(0)
 
   const slides = useMemo(() => {
     const s = (cmsData?.hero_slides || []).filter(s => s.image)
@@ -32,9 +30,9 @@ export function Hero() {
 
   const lang = (i18n.language === 'en' || i18n.language === 'fr') ? (i18n.language as 'en' | 'fr') : 'fr'
 
-  // CMS-FIRST LOGIC
-  const title = cmsData ? ((lang === 'fr' ? cmsData.hero_title_fr : cmsData.hero_title_en) ?? t('hero.title')) : t('hero.title')
-  const subtitle = cmsData ? ((lang === 'fr' ? cmsData.hero_subtitle_fr : cmsData.hero_subtitle_en) ?? t('hero.subtitle')) : t('hero.subtitle')
+  // CMS-FIRST LOGIC (Simplified now that cmsData is guaranteed or null, not loading state)
+  const title = (lang === 'fr' ? cmsData?.hero_title_fr : cmsData?.hero_title_en) ?? t('hero.title')
+  const subtitle = (lang === 'fr' ? cmsData?.hero_subtitle_fr : cmsData?.hero_subtitle_en) ?? t('hero.subtitle')
 
   const ctaPrivateText = t('hero.ctaPrivate')
   const ctaCorporateText = t('hero.ctaCorporate')
@@ -54,7 +52,7 @@ export function Hero() {
                 className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
                   visible ? 'opacity-100' : 'opacity-0'
                 }`}
-                aria-hidden="true" // Hides background images from screen readers (good practice)
+                aria-hidden="true"
               >
                 {/* Scale animation for breathing effect */}
                 <div className={`w-full h-full transition-transform duration-[6000ms] ease-linear ${visible ? 'scale-110' : 'scale-100'}`}>
@@ -83,9 +81,6 @@ export function Hero() {
 
         {/* Title */}
         <motion.h1
-          // initial={{ opacity: 0, y: 10 }}
-          // animate={{ opacity: 1, y: 0 }}
-          // transition={{ duration: 0.6, delay: 0.2 }}
           className="text-5xl md:text-6xl lg:text-7xl font-serif font-medium text-stone-900 mb-6 drop-shadow-sm max-w-5xl"
         >
           {title}
@@ -114,7 +109,7 @@ export function Hero() {
             onClick={() =>
               open('contact', { defaultSubject: 'Private session inquiry' })
             }
-            aria-label={ctaPrivateText} // Explicit label fix
+            aria-label={ctaPrivateText}
             className="w-full sm:w-auto h-14 rounded-full px-8 text-base shadow-warm hover:shadow-elevated transition-transform hover:-translate-y-1"
           >
             {ctaPrivateText}
@@ -135,7 +130,7 @@ export function Hero() {
                 }
               }
             }}
-            aria-label={ctaCorporateText} // Explicit label fix
+            aria-label={ctaCorporateText}
             className="w-full sm:w-auto h-14 rounded-full px-8 text-base shadow-sm hover:shadow-md transition-transform hover:-translate-y-1"
           >
             {ctaCorporateText}

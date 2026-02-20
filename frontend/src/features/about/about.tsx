@@ -1,76 +1,72 @@
-import { useMemo, lazy, Suspense } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useMemo, lazy, Suspense } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   motion,
   useReducedMotion,
   type Variants,
   type Transition,
-} from 'framer-motion';
-import { Heart, User, Award, Mail, ArrowRight } from 'lucide-react';
+} from 'framer-motion'
+import { Heart, User, Award, Mail, ArrowRight } from 'lucide-react'
 
-import SecretTrigger from '@/components/secret/SecretTrigger';
-import type { WagtailSpecialty } from '@/types/api';
-import { Button } from '@/components/ui/Button';
-import CloudImage from '@/components/ResponsiveImage';
-import { useModal } from '@/shared/hooks/useModal';
+import SecretTrigger from '@/components/secret/SecretTrigger'
+import { Button } from '@/components/ui/Button'
+import CloudImage from '@/components/ResponsiveImage'
+import { useModal } from '@/shared/hooks/useModal'
 
-
-import { useHomePage } from '@/hooks/useCMS';
-import { getLocalizedText } from '@/api/cms';
+// ✅ Refactored: Import selector instead of fetch hook
+import { useCMSPage } from '@/lib/cmsSelectors'
 
 // Performance: Lazy load the map
-const LocationMap = lazy(() => import('@/components/ui/LocationMap').then(m => ({ default: m.LocationMap })));
+const LocationMap = lazy(() =>
+  import('@/components/ui/LocationMap').then(m => ({ default: m.LocationMap }))
+)
 
-// Helper for loading states
-const Skeleton = ({ className }: { className: string }) => (
-  <div className={`bg-stone-200/50 animate-pulse rounded ${className}`} />
-);
-
-type GridItem = { title: string; image?: WagtailSpecialty['image'] };
+type GridItem = { title: string; image: any }
 
 export function About() {
-  const { t, i18n } = useTranslation();
-  const { open } = useModal();
-  const reduceMotion = useReducedMotion();
+  const { t, i18n } = useTranslation()
+  const { open } = useModal()
+  const reduceMotion = useReducedMotion()
 
-  // ✅ FIXED: Replaced manual useEffect/useState/cmsAPI with the Hook
-  const { data: cmsData, isLoading } = useHomePage();
+  // ✅ Read directly from store (pre-loaded)
+  const cmsData = useCMSPage()
 
-  const lang = i18n.language.startsWith('fr') ? 'fr' : 'en';
+  const lang = i18n.language.startsWith('fr') ? 'fr' : 'en'
 
   // CMS-FIRST CONTENT LOGIC
   const content = useMemo(() => {
-    if (!cmsData) return null;
+    // Graceful fallback if data isn't ready (though it should be)
+    if (!cmsData) return null
 
-    const specialtiesGrid = (cmsData.specialties ?? [])
-      .map((sp: WagtailSpecialty): GridItem => ({
-        title: getLocalizedText(sp, 'title', lang),
-        image: sp.image ?? null,
+    const specialtiesGrid = (cmsData.specialties || [])
+      .map((sp: any): GridItem => ({
+        title: lang === 'fr' ? sp.title_fr : sp.title, // Manual fallback logic if not using getLocalizedText helper
+        image: sp.image || null,
       }))
-      .filter((s) => s.title.trim().length > 0);
+      .filter(s => s.title && s.title.trim().length > 0)
 
     return {
-      title: getLocalizedText(cmsData, 'about_title', lang),
-      subtitle: getLocalizedText(cmsData, 'about_subtitle', lang),
-      intro: getLocalizedText(cmsData, 'about_intro', lang),
-      certification: getLocalizedText(cmsData, 'about_certification', lang),
-      approachTitle: getLocalizedText(cmsData, 'about_approach_title', lang),
-      approachText: getLocalizedText(cmsData, 'about_approach_text', lang),
-      specialtiesTitle: getLocalizedText(cmsData, 'about_specialties_title', lang),
+      title: (lang === 'fr' ? cmsData.about_title_fr : cmsData.about_title_en) ?? t('about.title'),
+      subtitle: (lang === 'fr' ? cmsData.about_subtitle_fr : cmsData.about_subtitle_en) ?? t('about.subtitle'),
+      intro: (lang === 'fr' ? cmsData.about_intro_fr : cmsData.about_intro_en) ?? t('about.intro'),
+      certification: (lang === 'fr' ? cmsData.about_certification_fr : cmsData.about_certification_en) ?? '',
+      approachTitle: (lang === 'fr' ? cmsData.about_approach_title_fr : cmsData.about_approach_title_en) ?? t('about.approachTitle'),
+      approachText: (lang === 'fr' ? cmsData.about_approach_text_fr : cmsData.about_approach_text_en) ?? t('about.approachText'),
+      specialtiesTitle: (lang === 'fr' ? cmsData.about_specialties_title_fr : cmsData.about_specialties_title_en) ?? t('about.specialtiesTitle'),
       studioDescription: t('about.studioDescriptionFallback'),
-      address: getLocalizedText(cmsData, 'address', lang),
+      address: cmsData.address ?? t('footer.address'),
       specialtiesGrid,
-    };
-  }, [cmsData, lang, t]);
+    }
+  }, [cmsData, lang, t])
 
   const stripHtml = (html?: string | null) => {
-    if (!html) return '';
-    const tmp = document.createElement('div');
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || '';
-  };
+    if (!html) return ''
+    const tmp = document.createElement('div')
+    tmp.innerHTML = html
+    return tmp.textContent || tmp.innerText || ''
+  }
 
-  const spring: Transition = { type: 'spring', stiffness: 220, damping: 22 };
+  const spring: Transition = { type: 'spring', stiffness: 220, damping: 22 }
   const gridVariants: Variants | undefined = reduceMotion
     ? undefined
     : {
@@ -78,7 +74,7 @@ export function About() {
         show: {
           transition: { staggerChildren: 0.08, delayChildren: 0.12 },
         },
-      };
+      }
   const cardVariants: Variants | undefined = reduceMotion
     ? undefined
     : {
@@ -89,22 +85,28 @@ export function About() {
           scale: 1,
           transition: spring,
         },
-      };
+      }
 
   // Reusable Map Component
   const MapCard = () => (
     <div className="p-1">
-       <Suspense fallback={<div className="w-full h-[220px] bg-stone-100 animate-pulse rounded-2xl" />}>
-          <LocationMap />
-       </Suspense>
+      <Suspense
+        fallback={
+          <div className="w-full h-[220px] bg-stone-100 animate-pulse rounded-2xl" />
+        }
+      >
+        <LocationMap />
+      </Suspense>
 
-       <div className="mt-3 px-1">
-          <p className="text-xs text-stone-500 leading-relaxed">
-            {isLoading || !content ? 'Loading...' : content.address}
-          </p>
-       </div>
+      <div className="mt-3 px-1">
+        <p className="text-xs text-stone-500 leading-relaxed">
+          {content?.address}
+        </p>
+      </div>
     </div>
-  );
+  )
+
+  if (!content) return null // Hide section if no data (rare case)
 
   return (
     <section
@@ -114,7 +116,6 @@ export function About() {
     >
       <div className="container mx-auto px-4 sm:px-6 md:px-12 lg:px-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
-
           {/* ==================== LEFT COLUMN (TEXT + MAP) ==================== */}
           <motion.article
             initial={{ opacity: 0, y: 20 }}
@@ -125,33 +126,24 @@ export function About() {
           >
             {/* 1. Header & Intro */}
             <div className="space-y-6 mb-10">
-              <h2 id="about-heading" className="text-4xl sm:text-5xl font-serif text-foreground min-h-[1em]">
-                {isLoading || !content ? (
-                  <Skeleton className="h-12 w-3/4 max-w-sm" />
-                ) : (
-                  content.title
-                )}
+              <h2
+                id="about-heading"
+                className="text-4xl sm:text-5xl font-serif text-foreground min-h-[1em]"
+              >
+                {content.title}
               </h2>
 
               <div className="text-lg text-foreground/80 leading-relaxed max-w-xl min-h-[4em]">
-                 {isLoading || !content ? (
-                   <div className="space-y-3">
-                     <Skeleton className="h-4 w-full" />
-                     <Skeleton className="h-4 w-5/6" />
-                     <Skeleton className="h-4 w-4/6" />
-                   </div>
-                 ) : (
-                   <div>
-                     <span className="inline">{stripHtml(content.intro)}</span>
-                     <span className="inline-block ml-1 opacity-20 hover:opacity-100 transition-opacity align-baseline">
-                       <SecretTrigger modalId="cmsLogin" times={3} windowMs={900}>
-                         <span className="text-[10px] uppercase tracking-widest text-[#2e2e2e] font-bold cursor-default select-none">
-                           Serenity.
-                         </span>
-                       </SecretTrigger>
-                     </span>
-                   </div>
-                 )}
+                <div>
+                  <span className="inline">{stripHtml(content.intro)}</span>
+                  <span className="inline-block ml-1 opacity-20 hover:opacity-100 transition-opacity align-baseline">
+                    <SecretTrigger modalId="cmsLogin" times={3} windowMs={900}>
+                      <span className="text-[10px] uppercase tracking-widest text-[#2e2e2e] font-bold cursor-default select-none">
+                        Serenity.
+                      </span>
+                    </SecretTrigger>
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -162,9 +154,21 @@ export function About() {
               </h3>
               <div className="grid gap-6">
                 {[
-                  { icon: User, title: 'about.guide.clientCareTitle', body: 'about.guide.clientCareBody' },
-                  { icon: Award, title: 'about.guide.excellenceTitle', body: 'about.guide.excellenceBody' },
-                  { icon: Heart, title: 'about.guide.holisticTitle', body: 'about.guide.holisticBody' },
+                  {
+                    icon: User,
+                    title: 'about.guide.clientCareTitle',
+                    body: 'about.guide.clientCareBody',
+                  },
+                  {
+                    icon: Award,
+                    title: 'about.guide.excellenceTitle',
+                    body: 'about.guide.excellenceBody',
+                  },
+                  {
+                    icon: Heart,
+                    title: 'about.guide.holisticTitle',
+                    body: 'about.guide.holisticBody',
+                  },
                 ].map((item, idx) => (
                   <div key={idx} className="flex items-start gap-4">
                     <div className="w-10 h-10 rounded-full bg-sage-50 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -186,9 +190,7 @@ export function About() {
             {/* 3. CTA */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-12">
               <div className="min-h-[60px]">
-                {isLoading || !content ? (
-                  <Skeleton className="h-16 w-48 rounded-2xl" />
-                ) : content.certification ? (
+                {content.certification ? (
                   <div className="inline-flex items-center gap-3 pl-1 pr-6 py-2 border-l-2 border-sage-300">
                     <div>
                       <p className="text-sm font-bold text-foreground uppercase tracking-wider">
@@ -205,9 +207,13 @@ export function About() {
                 <Button
                   size="lg"
                   className="shadow-warm hover:shadow-elevated transition-all"
-                  aria-label={t('contact.open', { defaultValue: 'Open contact form' })}
+                  aria-label={t('contact.open', {
+                    defaultValue: 'Open contact form',
+                  })}
                   onClick={() =>
-                    open('contact', { defaultSubject: t('contact.form.subjectDefault') })
+                    open('contact', {
+                      defaultSubject: t('contact.form.subjectDefault'),
+                    })
                   }
                 >
                   {t('about.cta')} <ArrowRight className="w-4 h-4 ml-2" />
@@ -218,19 +224,11 @@ export function About() {
             {/* 4. Approach Section + CONTACT CARD + MAP */}
             <div className="mt-6 pt-10 border-t border-stone-200/60">
               <h3 className="text-3xl font-serif text-foreground mb-4 min-h-[1.2em]">
-                 {isLoading || !content ? <Skeleton className="h-8 w-64" /> : content.approachTitle}
+                {content.approachTitle}
               </h3>
 
               <div className="text-base text-foreground/75 leading-relaxed space-y-4 mb-8">
-                {isLoading || !content ? (
-                  <>
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-5/6" />
-                    <Skeleton className="h-4 w-full" />
-                  </>
-                ) : (
-                  <p>{stripHtml(content.approachText)}</p>
-                )}
+                <p>{stripHtml(content.approachText)}</p>
               </div>
 
               {/* Contact Card */}
@@ -249,13 +247,15 @@ export function About() {
                   </div>
                 </div>
                 <Button
-                   variant="ghost"
-                   size="sm"
-                   aria-label={t('contact.open', { defaultValue: 'Open contact form' })}
-                   onClick={() => open('contact')}
-                   className="text-sage-700 hover:text-sage-800 hover:bg-sage-100"
+                  variant="ghost"
+                  size="sm"
+                  aria-label={t('contact.open', {
+                    defaultValue: 'Open contact form',
+                  })}
+                  onClick={() => open('contact')}
+                  className="text-sage-700 hover:text-sage-800 hover:bg-sage-100"
                 >
-                   <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-5 h-5" />
                 </Button>
               </div>
 
@@ -267,7 +267,7 @@ export function About() {
           <aside className="space-y-10 lg:sticky lg:top-24 hidden lg:block">
             <div className="space-y-4">
               <h3 className="font-serif text-2xl text-foreground px-1">
-                {isLoading || !content ? <Skeleton className="h-8 w-48" /> : content.specialtiesTitle}
+                {content.specialtiesTitle}
               </h3>
 
               <motion.div
@@ -277,45 +277,36 @@ export function About() {
                 viewport={{ once: true, amount: 0.2 }}
                 className="grid grid-cols-2 gap-4"
               >
-                {isLoading || !content ? (
-                  <>
-                    <Skeleton className="col-span-1 h-48 rounded-[24px]" />
-                    <Skeleton className="col-span-1 h-48 rounded-[24px]" />
-                    <Skeleton className="col-span-2 h-48 rounded-[24px]" />
-                  </>
-                ) : (
-                  content.specialtiesGrid.map((sp, i) => (
-                    <motion.div
-                      key={`${sp.title}-${i}`}
-                      variants={cardVariants}
-                      className={[
-                        'relative group overflow-hidden rounded-[24px] bg-stone-100 shadow-sm border border-stone-100',
-                        'transition-all duration-500 hover:shadow-warm hover:-translate-y-1',
-                        i === 2 ? 'col-span-2 aspect-[2/1]' : 'aspect-square'
-                      ].join(' ')}
-                    >
-                      {sp.image?.url && (
-                        <CloudImage
-                          image={sp.image}
-                          alt={sp.title}
-                          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                          sizes="(max-width:1024px) 50vw, 33vw"
-                        />
-                      )}
-                      <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-transparent to-transparent p-5">
-                        <span className="text-white font-medium text-lg font-serif tracking-wide">
-                          {sp.title}
-                        </span>
-                      </div>
-                    </motion.div>
-                  ))
-                )}
+                {content.specialtiesGrid.map((sp, i) => (
+                  <motion.div
+                    key={`${sp.title}-${i}`}
+                    variants={cardVariants}
+                    className={[
+                      'relative group overflow-hidden rounded-[24px] bg-stone-100 shadow-sm border border-stone-100',
+                      'transition-all duration-500 hover:shadow-warm hover:-translate-y-1',
+                      i === 2 ? 'col-span-2 aspect-[2/1]' : 'aspect-square',
+                    ].join(' ')}
+                  >
+                    {sp.image?.url && (
+                      <CloudImage
+                        image={sp.image}
+                        alt={sp.title}
+                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                        sizes="(max-width:1024px) 50vw, 33vw"
+                      />
+                    )}
+                    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-transparent to-transparent p-5">
+                      <span className="text-white font-medium text-lg font-serif tracking-wide">
+                        {sp.title}
+                      </span>
+                    </div>
+                  </motion.div>
+                ))}
               </motion.div>
             </div>
           </aside>
-
         </div>
       </div>
     </section>
-  );
+  )
 }

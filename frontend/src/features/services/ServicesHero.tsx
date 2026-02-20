@@ -1,144 +1,169 @@
-import { useMemo, useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
-import { Check } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useMemo, useEffect, useRef, useState } from 'react'
+import { motion } from 'framer-motion'
+import { Check } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
-// ✅ Hooks & Types
-import { useHomePage } from "@/hooks/useCMS";
-import { useModal } from "@/shared/hooks/useModal";
-import { getLocalizedText } from "@/api/cms";
+// ✅ Refactored: Import selector instead of fetch hook
+import { useCMSPage } from '@/lib/cmsSelectors'
+import { useModal } from '@/shared/hooks/useModal'
+import { getLocalizedText } from '@/api/cms'
 
 // Utils & Components
-import { getResponsivePosterUrl, getOptimizedVideoUrl } from "@/utils/cloudinary";
-import { Button } from "@/components/ui/Button";
+import {
+  getResponsivePosterUrl,
+  getOptimizedVideoUrl,
+} from '@/utils/cloudinary'
+import { Button } from '@/components/ui/Button'
 
 // Assets
 const FALLBACK_POSTER =
-  "https://res.cloudinary.com/dbzlaawqt/image/upload/v1762274193/poster_zbbwz5.webp";
+  'https://res.cloudinary.com/dbzlaawqt/image/upload/v1762274193/poster_zbbwz5.webp'
 
 const toSentenceCase = (s?: string) => {
-  if (!s) return "";
-  const first = s.charAt(0).toLocaleUpperCase();
-  const rest = s.slice(1).toLocaleLowerCase();
-  return first + rest;
-};
+  if (!s) return ''
+  const first = s.charAt(0).toLocaleUpperCase()
+  const rest = s.slice(1).toLocaleLowerCase()
+  return first + rest
+}
 
 // Define connection type locally to satisfy TS/ESLint
 type NetworkInformation = {
-  saveData?: boolean;
-};
+  saveData?: boolean
+}
 
 export function ServicesHero() {
-  const { t, i18n } = useTranslation();
-  const { open } = useModal();
+  const { t, i18n } = useTranslation()
+  const { open } = useModal()
 
-  // React Query Hook
-  const { data: page } = useHomePage();
+  // ✅ Read directly from store (pre-loaded)
+  const page = useCMSPage()
 
-  const [posterUrl, setPosterUrl] = useState<string | undefined>(undefined);
-  const [videoSrc, setVideoSrc] = useState<string | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [posterUrl, setPosterUrl] = useState<string | undefined>(undefined)
+  const [videoSrc, setVideoSrc] = useState<string | null>(null)
+  const videoRef = useRef<HTMLVideoElement | null>(null)
 
   // --- Logic: CSP / Captions ---
   const captionsUrl = useMemo(() => {
-    if (typeof window === "undefined") return undefined;
-    const blob = new Blob(["WEBVTT\n\n"], { type: "text/vtt" });
-    return URL.createObjectURL(blob);
-  }, []);
+    if (typeof window === 'undefined') return undefined
+    const blob = new Blob(['WEBVTT\n\n'], { type: 'text/vtt' })
+    return URL.createObjectURL(blob)
+  }, [])
 
   useEffect(() => {
     return () => {
-      if (captionsUrl) URL.revokeObjectURL(captionsUrl);
-    };
-  }, [captionsUrl]);
+      if (captionsUrl) URL.revokeObjectURL(captionsUrl)
+    }
+  }, [captionsUrl])
 
   // --- Logic: Performance / Data Saver ---
-  // ✅ FIXED: Safe access to non-standard 'connection' property
-  const saveData = typeof navigator !== "undefined" &&
-    (navigator as unknown as { connection?: NetworkInformation }).connection?.saveData;
+  const saveData =
+    typeof navigator !== 'undefined' &&
+    (navigator as unknown as { connection?: NetworkInformation }).connection
+      ?.saveData
 
-  const prefersReducedMotion = typeof window !== "undefined" &&
-    window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  const prefersReducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
 
-  const shouldDisableVideo = !!saveData || !!prefersReducedMotion;
+  const shouldDisableVideo = !!saveData || !!prefersReducedMotion
 
-  const lang = i18n.language.startsWith("fr") ? "fr" : "en";
+  const lang = i18n.language.startsWith('fr') ? 'fr' : 'en'
 
   // --- Logic: Image & Video Optimization ---
   useEffect(() => {
-    const baseUrl = page?.services_hero_poster_image?.url;
+    const baseUrl = page?.services_hero_poster_image?.url
     if (!baseUrl) {
-      setPosterUrl(FALLBACK_POSTER);
-      return;
+      setPosterUrl(FALLBACK_POSTER)
+      return
     }
+
     const compute = () => {
-      const w = typeof window !== "undefined" ? Math.max(window.innerWidth || 0, 360) : 768;
+      const w =
+        typeof window !== 'undefined'
+          ? Math.max(window.innerWidth || 0, 360)
+          : 768
       setPosterUrl(
-        getResponsivePosterUrl(baseUrl, w, { quality: "eco", min: 480, max: 1440 })
-      );
-    };
-    compute();
-    const onResize = () => compute();
-    if (typeof window !== "undefined") window.addEventListener("resize", onResize);
+        getResponsivePosterUrl(baseUrl, w, {
+          quality: 'eco',
+          min: 480,
+          max: 1440,
+        })
+      )
+    }
+
+    compute()
+    const onResize = () => compute()
+    if (typeof window !== 'undefined')
+      window.addEventListener('resize', onResize)
     return () => {
-      if (typeof window !== "undefined") window.removeEventListener("resize", onResize);
-    };
-  }, [page?.services_hero_poster_image?.url]);
+      if (typeof window !== 'undefined')
+        window.removeEventListener('resize', onResize)
+    }
+  }, [page?.services_hero_poster_image?.url])
 
   useEffect(() => {
     if (shouldDisableVideo) {
-      setVideoSrc(null);
-      return;
+      setVideoSrc(null)
+      return
     }
-    const directUrl = page?.services_hero_video_url?.trim();
-    const publicId = page?.services_hero_video_public_id?.trim();
+    const directUrl = page?.services_hero_video_url?.trim()
+    const publicId = page?.services_hero_video_public_id?.trim()
 
     if (directUrl) {
-      setVideoSrc(directUrl);
-      return;
+      setVideoSrc(directUrl)
+      return
     }
     if (!publicId) {
-      setVideoSrc(null);
-      return;
+      setVideoSrc(null)
+      return
     }
 
     const buildVideoUrl = () => {
-      const width = typeof window !== "undefined" ? window.innerWidth || 1920 : 1920;
-      if (width <= 640) return getOptimizedVideoUrl(publicId, 640, "eco");
-      if (width <= 1024) return getOptimizedVideoUrl(publicId, 1024, "eco");
-      return getOptimizedVideoUrl(publicId, 1920, "eco");
-    };
+      const width =
+        typeof window !== 'undefined' ? window.innerWidth || 1920 : 1920
+      if (width <= 640) return getOptimizedVideoUrl(publicId, 640, 'eco')
+      if (width <= 1024) return getOptimizedVideoUrl(publicId, 1024, 'eco')
+      return getOptimizedVideoUrl(publicId, 1920, 'eco')
+    }
 
-    const update = () => setVideoSrc(buildVideoUrl());
-    update();
-    const onResize = () => update();
-    if (typeof window !== "undefined") window.addEventListener("resize", onResize);
+    const update = () => setVideoSrc(buildVideoUrl())
+    update()
+    const onResize = () => update()
+    if (typeof window !== 'undefined')
+      window.addEventListener('resize', onResize)
     return () => {
-      if (typeof window !== "undefined") window.removeEventListener("resize", onResize);
-    };
-  }, [page?.services_hero_video_url, page?.services_hero_video_public_id, shouldDisableVideo]);
+      if (typeof window !== 'undefined')
+        window.removeEventListener('resize', onResize)
+    }
+  }, [
+    page?.services_hero_video_url,
+    page?.services_hero_video_public_id,
+    shouldDisableVideo,
+  ])
 
-  if (!page) return null;
+  if (!page) return null
 
   // --- Content Extraction ---
-  const title = getLocalizedText(page, 'services_hero_title', lang);
-  const priceLabel = getLocalizedText(page, 'services_hero_pricing_label', lang);
-  const price = getLocalizedText(page, 'services_hero_price', lang);
-  const cta = getLocalizedText(page, 'services_hero_cta', lang);
+  const title = getLocalizedText(page, 'services_hero_title', lang)
+  const priceLabel = getLocalizedText(page, 'services_hero_pricing_label', lang)
+  const price = getLocalizedText(page, 'services_hero_price', lang)
+  const cta = getLocalizedText(page, 'services_hero_cta', lang)
 
   const benefits = [
     getLocalizedText(page, 'services_hero_benefit_1', lang),
     getLocalizedText(page, 'services_hero_benefit_2', lang),
     getLocalizedText(page, 'services_hero_benefit_3', lang),
-  ].filter(b => b.trim().length > 0);
+  ].filter((b) => b.trim().length > 0)
 
-  const hasPrice = Boolean(priceLabel || price);
-  const hasCTA = Boolean(cta);
+  const hasPrice = Boolean(priceLabel || price)
+  const hasCTA = Boolean(cta)
 
   return (
     <section
       id="services-hero"
-      aria-label={t('services.hero.label', { defaultValue: 'Services Overview' })}
+      aria-label={t('services.hero.label', {
+        defaultValue: 'Services Overview',
+      })}
       className="relative flex items-center justify-center overflow-hidden min-h-[85vh] lg:min-h-[85vh] py-12"
     >
       {/* 1. BACKGROUND */}
@@ -166,8 +191,14 @@ export function ServicesHero() {
       )}
 
       {/* 2. OVERLAY */}
-      <div className="absolute inset-0 bg-stone-900/40 backdrop-contrast-[.90]" aria-hidden="true" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" aria-hidden="true" />
+      <div
+        className="absolute inset-0 bg-stone-900/40 backdrop-contrast-[.90]"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"
+        aria-hidden="true"
+      />
 
       {/* 3. CONTENT */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
@@ -182,7 +213,7 @@ export function ServicesHero() {
             {/* LEFT COLUMN */}
             <div className="flex flex-col gap-6 text-center lg:text-left">
               <span className="hidden lg:block text-xs font-bold tracking-[0.2em] text-sage-200 uppercase mb-[-0.5rem] drop-shadow-md">
-                {lang === "fr" ? "Bien-être au travail" : "Corporate Wellness"}
+                {lang === 'fr' ? 'Bien-être au travail' : 'Corporate Wellness'}
               </span>
 
               <h2 className="font-serif font-medium text-white leading-[1.15] text-4xl sm:text-5xl md:text-6xl drop-shadow-lg">
@@ -211,9 +242,11 @@ export function ServicesHero() {
                   <Button
                     variant="default"
                     size="lg"
-                    aria-label={cta || "Contact Corporate"}
+                    aria-label={cta || 'Contact Corporate'}
                     className="w-full sm:w-auto h-14 rounded-full shadow-lg hover:shadow-white/20 border border-white/10 transition-all px-10 text-base font-semibold tracking-wide"
-                    onClick={() => open("corporate", { defaultEventType: "corporate" })}
+                    onClick={() =>
+                      open('corporate', { defaultEventType: 'corporate' })
+                    }
                   >
                     {toSentenceCase(cta)}
                   </Button>
@@ -250,5 +283,5 @@ export function ServicesHero() {
         </motion.div>
       </div>
     </section>
-  );
+  )
 }

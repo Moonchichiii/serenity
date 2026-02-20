@@ -10,9 +10,9 @@ import toast from 'react-hot-toast'
 import Calendar from 'react-calendar'
 import { format, parse } from 'date-fns'
 import { isPastDate } from '@/lib/utils'
-import { cmsAPI, type WagtailService } from '@/api/cms'
 import { bookingsAPI } from '@/api/booking'
 import { API_URL } from '@/api/client'
+import { useCMSServices } from '@/lib/cmsSelectors' // ✅ Imported selector
 
 type BookingFormData = {
   name: string
@@ -28,11 +28,14 @@ const bookingSchema: yup.ObjectSchema<BookingFormData> = yup
   .object({
     name: yup.string().required('Name is required').min(2),
     email: yup.string().required('Email is required').email(),
-    phone: yup.string().required('Phone is required').matches(/^\+?[0-9\s-]{10,}$/, 'Invalid phone number'),
+    phone: yup
+      .string()
+      .required('Phone is required')
+      .matches(/^\+?[0-9\s-]{10,}$/, 'Invalid phone number'),
     service: yup.string().required('Please select a service'),
     date: yup.string().required('Please select a date'),
     time: yup.string().required('Please select a time'),
-    notes: yup.string().optional().transform(v => (v === '' ? undefined : v)),
+    notes: yup.string().optional().transform((v) => (v === '' ? undefined : v)),
   })
   .required()
 
@@ -44,7 +47,9 @@ const defaultTimeSlots = [
 
 export function Booking() {
   const { t, i18n } = useTranslation()
-  const [services, setServices] = useState<WagtailService[]>([])
+
+  // ✅ Read directly from store (pre-loaded)
+  const services = useCMSServices()
 
   const {
     register,
@@ -55,7 +60,6 @@ export function Booking() {
     setValue,
   } = useForm<BookingFormData>({
     resolver: yupResolver(bookingSchema),
-    defaultValues: { date: '', time: '' },
   })
 
   const selectedTime = watch('time')
@@ -72,16 +76,6 @@ export function Booking() {
     }),
     [activeStartDate]
   )
-
-  useEffect(() => {
-    cmsAPI
-      .getServices()
-      .then(setServices)
-      .catch(() => {
-        console.log('CMS services not ready, using fallback')
-        setServices([])
-      })
-  }, [])
 
   useEffect(() => {
     setIsBusyLoading(true)
@@ -121,7 +115,9 @@ export function Booking() {
       // Combine date + time into datetime for backend
       const dateTimeStr = `${data.date}T${data.time}:00`
       const startDate = parse(dateTimeStr, "yyyy-MM-dd'T'HH:mm:ss", new Date())
-      const endDate = new Date(startDate.getTime() + service.duration_minutes * 60000)
+      const endDate = new Date(
+        startDate.getTime() + service.duration_minutes * 60000
+      )
 
       const start_datetime = startDate.toISOString()
       const end_datetime = endDate.toISOString()
@@ -146,7 +142,6 @@ export function Booking() {
       reset()
       setSelectedDate(null)
       console.log('Booking created:', booking)
-
     } catch (error) {
       console.error('Booking error:', error)
       toast.error('Something went wrong. Please try again.')
@@ -180,7 +175,6 @@ export function Booking() {
         >
           <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-elevated border-2 border-sage-200/30">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-
               {/* Personal Information Section */}
               <div className="space-y-6">
                 <h3 className="text-2xl font-heading font-semibold text-charcoal flex items-center gap-2">
@@ -190,8 +184,12 @@ export function Booking() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label htmlFor="name" className="block text-sm font-medium text-charcoal">
-                      {t('booking.form.name')} <span className="text-terracotta-500">*</span>
+                    <label
+                      htmlFor="name"
+                      className="block text-sm font-medium text-charcoal"
+                    >
+                      {t('booking.form.name')}{' '}
+                      <span className="text-terracotta-500">*</span>
                     </label>
                     <input
                       {...register('name')}
@@ -200,12 +198,20 @@ export function Booking() {
                       className="w-full px-4 py-3 rounded-xl border-2 border-sage-200 focus:border-terracotta-300 focus:ring-2 focus:ring-terracotta-200 transition-all"
                       placeholder="Jane Doe"
                     />
-                    {errors.name && <p className="text-sm text-terracotta-500">{errors.name.message}</p>}
+                    {errors.name && (
+                      <p className="text-sm text-terracotta-500">
+                        {errors.name.message}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
-                    <label htmlFor="email" className="block text-sm font-medium text-charcoal">
-                      {t('booking.form.email')} <span className="text-terracotta-500">*</span>
+                    <label
+                      htmlFor="email"
+                      className="block text-sm font-medium text-charcoal"
+                    >
+                      {t('booking.form.email')}{' '}
+                      <span className="text-terracotta-500">*</span>
                     </label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-charcoal/40" />
@@ -217,13 +223,21 @@ export function Booking() {
                         placeholder="jane@example.com"
                       />
                     </div>
-                    {errors.email && <p className="text-sm text-terracotta-500">{errors.email.message}</p>}
+                    {errors.email && (
+                      <p className="text-sm text-terracotta-500">
+                        {errors.email.message}
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label htmlFor="phone" className="block text-sm font-medium text-charcoal">
-                    {t('booking.form.phone')} <span className="text-terracotta-500">*</span>
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-charcoal"
+                  >
+                    {t('booking.form.phone')}{' '}
+                    <span className="text-terracotta-500">*</span>
                   </label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-charcoal/40" />
@@ -235,7 +249,11 @@ export function Booking() {
                       placeholder="+33 6 00 00 00 00"
                     />
                   </div>
-                  {errors.phone && <p className="text-sm text-terracotta-500">{errors.phone.message}</p>}
+                  {errors.phone && (
+                    <p className="text-sm text-terracotta-500">
+                      {errors.phone.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -247,8 +265,12 @@ export function Booking() {
                 </h3>
 
                 <div className="space-y-2">
-                  <label htmlFor="service" className="block text-sm font-medium text-charcoal">
-                    {t('booking.form.service')} <span className="text-terracotta-500">*</span>
+                  <label
+                    htmlFor="service"
+                    className="block text-sm font-medium text-charcoal"
+                  >
+                    {t('booking.form.service')}{' '}
+                    <span className="text-terracotta-500">*</span>
                   </label>
                   <select
                     {...register('service')}
@@ -256,28 +278,31 @@ export function Booking() {
                     className="w-full px-4 py-3 rounded-xl border-2 border-sage-200 focus:border-terracotta-300 focus:ring-2 focus:ring-terracotta-200 transition-all"
                   >
                     <option value="">{t('booking.form.service')}</option>
-                    {services.length > 0 ? (
+                    {services && services.length > 0 ? (
                       services.map((service) => (
                         <option key={service.id} value={service.id}>
-                          {lang === 'fr' ? service.title_fr : service.title_en} - {service.duration_minutes} min - €{service.price}
+                          {lang === 'fr'
+                            ? service.title_fr
+                            : service.title_en}{' '}
+                          - {service.duration_minutes} min - €{service.price}
                         </option>
                       ))
                     ) : (
-                      <>
-                        <option value="swedish">{t('services.swedish.title')}</option>
-                        <option value="deep">{t('services.deep.title')}</option>
-                        <option value="therapeutic">{t('services.therapeutic.title')}</option>
-                        <option value="prenatal">{t('services.prenatal.title')}</option>
-                      </>
+                      <option disabled>Loading services...</option>
                     )}
                   </select>
-                  {errors.service && <p className="text-sm text-terracotta-500">{errors.service.message}</p>}
+                  {errors.service && (
+                    <p className="text-sm text-terracotta-500">
+                      {errors.service.message}
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-charcoal">
-                      {t('booking.form.date')} <span className="text-terracotta-500">*</span>
+                      {t('booking.form.date')}{' '}
+                      <span className="text-terracotta-500">*</span>
                     </label>
 
                     <input type="hidden" {...register('date')} />
@@ -287,11 +312,15 @@ export function Booking() {
                         <div className="flex items-center gap-2 text-charcoal">
                           <CalendarIcon className="w-5 h-5 text-terracotta-400" />
                           <span className="text-sm font-medium">
-                            {selectedDate ? format(selectedDate, 'PPP') : t('booking.form.date')}
+                            {selectedDate
+                              ? format(selectedDate, 'PPP')
+                              : t('booking.form.date')}
                           </span>
                         </div>
                         {isBusyLoading && (
-                          <span className="text-xs text-charcoal/60 animate-pulse">Loading…</span>
+                          <span className="text-xs text-charcoal/60 animate-pulse">
+                            Loading…
+                          </span>
                         )}
                       </div>
 
@@ -301,116 +330,10 @@ export function Booking() {
                           const date = Array.isArray(value) ? value[0] : value
                           setSelectedDate(date)
                           if (date) {
-                            setValue('date', format(date, 'yyyy-MM-dd'), { shouldValidate: true })
+                            setValue('date', format(date, 'yyyy-MM-dd'), {
+                              shouldValidate: true,
+                            })
                           }
                         }}
                         onActiveStartDateChange={({ activeStartDate }) => {
-                          if (activeStartDate) setActiveStartDate(activeStartDate)
-                        }}
-                        tileDisabled={({ date, view }) => {
-                          if (view !== 'month') return false
-                          const iso = format(date, 'yyyy-MM-dd')
-                          return isPastDate(date) || busyDates.has(iso)
-                        }}
-                        calendarType="iso8601"
-                        className="!w-full
-                          [&_.react-calendar__tile]:rounded-lg
-                          [&_.react-calendar__tile]:!text-charcoal
-                          [&_.react-calendar__tile]:hover:!bg-terracotta-100
-                          [&_.react-calendar__tile--active]:!bg-terracotta-400
-                          [&_.react-calendar__tile--active]:!text-white
-                          [&_.react-calendar__tile--now]:!bg-terracotta-100
-                          [&_.react-calendar__navigation__label]:!text-charcoal
-                          [&_.react-calendar__month-view__weekdays]:!text-charcoal/60
-                          [&_.react-calendar__tile--disabled]:!text-charcoal/30
-                          [&_.react-calendar__tile--disabled]:!bg-sand-100"
-                      />
-                    </div>
-
-                    {errors.date && <p className="text-sm text-terracotta-500">{errors.date.message}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-charcoal">
-                      {t('booking.form.time')} <span className="text-terracotta-500">*</span>
-                    </label>
-                    <input type="hidden" {...register('time')} />
-                    <div className={`grid grid-cols-3 gap-2 ${!selectedDate ? 'opacity-50 pointer-events-none' : ''}`}>
-                      {availableTimes.slice(0, 6).map((time) => (
-                        <button
-                          key={time}
-                          type="button"
-                          onClick={() => setValue('time', time, { shouldValidate: true })}
-                          className={`
-                            px-3 py-2 rounded-lg text-sm font-medium transition-all
-                            ${
-                              selectedTime === time
-                                ? 'bg-terracotta-400 text-white shadow-warm border-2 border-terracotta-500'
-                                : 'bg-sage-100 text-charcoal hover:bg-terracotta-100 border-2 border-transparent'
-                            }
-                          `}
-                        >
-                          {time}
-                        </button>
-                      ))}
-                    </div>
-                    <details className={`mt-2 ${!selectedDate ? 'opacity-50 pointer-events-none' : ''}`}>
-                      <summary className="text-sm text-charcoal/70 cursor-pointer hover:text-charcoal">
-                        More times...
-                      </summary>
-                      <div className="grid grid-cols-3 gap-2 mt-2">
-                        {availableTimes.slice(6).map((time) => (
-                          <button
-                            key={time}
-                            type="button"
-                            onClick={() => setValue('time', time, { shouldValidate: true })}
-                            className={`
-                              px-3 py-2 rounded-lg text-sm font-medium transition-all
-                              ${
-                                selectedTime === time
-                                  ? 'bg-terracotta-400 text-white shadow-warm border-2 border-terracotta-500'
-                                  : 'bg-sage-100 text-charcoal hover:bg-terracotta-100 border-2 border-transparent'
-                              }
-                            `}
-                          >
-                            {time}
-                          </button>
-                        ))}
-                      </div>
-                    </details>
-                    {errors.time && <p className="text-sm text-terracotta-500">{errors.time.message}</p>}
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="notes" className="block text-sm font-medium text-charcoal flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-charcoal/40" />
-                  {t('booking.form.notes')}
-                </label>
-                <textarea
-                  {...register('notes')}
-                  id="notes"
-                  rows={4}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-sage-200 focus:border-terracotta-300 focus:ring-2 focus:ring-terracotta-200 transition-all resize-none"
-                  placeholder="Any special requests or health considerations..."
-                />
-              </div>
-
-              <Button type="submit" size="lg" disabled={isSubmitting} className="w-full">
-                {isSubmitting ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="spinner w-5 h-5 border-2" />
-                    Processing...
-                  </span>
-                ) : (
-                  t('booking.form.submit')
-                )}
-              </Button>
-            </form>
-          </div>
-        </motion.div>
-      </div>
-    </section>
-  )
-}
+                          if (activeStartDate)
