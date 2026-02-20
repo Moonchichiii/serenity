@@ -1,55 +1,43 @@
-from django.http import JsonResponse
+from django.http import HttpRequest
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 
 from .selectors import get_busy_days, get_free_slots
+from .serializers import BusyDaysQuerySerializer, FreeSlotsQuerySerializer
 
 
-def busy(request):
-    """Return busy dates for a given year and month."""
-    raw_year = request.GET.get("year")
-    raw_month = request.GET.get("month")
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def busy(request: HttpRequest) -> Response:
+    """
+    Return busy dates for a given year and month.
 
-    if not raw_year or not raw_month:
-        return JsonResponse(
-            {"error": "Both 'year' and 'month' query params are required."},
-            status=400,
-        )
+    Query params:
+      - year: int
+      - month: int (1-12)
+    """
+    ser = BusyDaysQuerySerializer(data=request.query_params)
+    ser.is_valid(raise_exception=True)
 
-    try:
-        year = int(raw_year)
-        month = int(raw_month)
-    except (TypeError, ValueError):
-        return JsonResponse(
-            {"error": "'year' and 'month' must be integers."},
-            status=400,
-        )
-
-    if not (1 <= month <= 12):
-        return JsonResponse(
-            {"error": "'month' must be between 1 and 12."},
-            status=400,
-        )
-
-    busy_dates = get_busy_days(year=year, month=month)
-    return JsonResponse({"busy": busy_dates})
+    data = get_busy_days(
+        year=ser.validated_data["year"],
+        month=ser.validated_data["month"],
+    )
+    return Response({"busy": data})
 
 
-def slots(request):
-    """Return available time slots for a given date."""
-    date_iso = request.GET.get("date")
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def slots(request: HttpRequest) -> Response:
+    """
+    Return available time slots for a given date.
 
-    if not date_iso:
-        return JsonResponse(
-            {"error": "'date' query param is required."},
-            status=400,
-        )
+    Query params:
+      - date: YYYY-MM-DD
+    """
+    ser = FreeSlotsQuerySerializer(data=request.query_params)
+    ser.is_valid(raise_exception=True)
 
-    # Basic format check (YYYY-MM-DD)
-    parts = date_iso.split("-")
-    if len(parts) != 3 or not all(p.isdigit() for p in parts):
-        return JsonResponse(
-            {"error": "'date' must be in YYYY-MM-DD format."},
-            status=400,
-        )
-
-    times = get_free_slots(date_iso=date_iso)
-    return JsonResponse({"times": times})
+    times = get_free_slots(date_iso=ser.validated_data["date"].isoformat())
+    return Response({"times": times})

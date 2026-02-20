@@ -6,8 +6,6 @@ from wagtail.images.models import Image
 
 from apps.cms.pages import HomePage
 from apps.cms.settings import GiftSettings
-from apps.services.models import Service
-from apps.testimonials.models import Testimonial, TestimonialReply
 
 
 class WagtailImageSerializer(serializers.ModelSerializer):
@@ -141,83 +139,7 @@ class HomePageSerializer(serializers.ModelSerializer):
             return None
 
 
-class ServiceSerializer(serializers.ModelSerializer):
-    image = WagtailImageSerializer(required=False, allow_null=True)
-
-    class Meta:
-        model = Service
-        fields = [
-            "id",
-            "title_en",
-            "title_fr",
-            "description_en",
-            "description_fr",
-            "duration_minutes",
-            "price",
-            "image",
-            "is_available",
-        ]
-
-
-class ReplySerializer(serializers.ModelSerializer):
-    date = serializers.SerializerMethodField()
-
-    class Meta:
-        model = TestimonialReply
-        fields = ["id", "name", "text", "date"]
-
-    def get_date(self, obj):
-        if obj.created_at:
-            return obj.created_at.strftime("%Y-%m-%d")
-        return ""
-
-
-class TestimonialSerializer(serializers.ModelSerializer):
-    """Serializer matching frontend expectations: name, rating, text, date, avatar, replies."""
-
-    avatar = serializers.SerializerMethodField()
-    date = serializers.SerializerMethodField()
-    # NEW: Include replies
-    replies = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Testimonial
-        fields = ["id", "name", "rating", "text", "date", "avatar", "replies"]
-
-    def get_date(self, obj):
-        """Return creation date as YYYY-MM-DD or empty string."""
-        if obj.created_at:
-            return obj.created_at.strftime("%Y-%m-%d")
-        return ""
-
-    def get_avatar(self, obj):
-        """Return avatar URL from UI Avatars using the testimonial name."""
-        import urllib.parse
-
-        name = obj.name or "Anonymous"
-        encoded_name = urllib.parse.quote(name)
-        return f"https://ui-avatars.com/api/?name={encoded_name}&background=random&size=128"
-
-    def get_replies(self, obj):
-        approved_replies = obj.replies.filter(status="approved").order_by("created_at")
-        return ReplySerializer(approved_replies, many=True).data
-
-
-class TestimonialStatsSerializer(serializers.Serializer):
-    """Serializer for testimonial statistics."""
-
-    average_rating = serializers.FloatField()
-    total_reviews = serializers.IntegerField()
-    five_star_count = serializers.IntegerField()
-    four_star_count = serializers.IntegerField()
-    three_star_count = serializers.IntegerField()
-    two_star_count = serializers.IntegerField()
-    one_star_count = serializers.IntegerField()
-
-
-
 class GiftSettingsSerializer(serializers.ModelSerializer):
-    # Override floating_icon to return the custom optimized object
     floating_icon = serializers.SerializerMethodField()
 
     class Meta:
@@ -259,10 +181,7 @@ class GiftSettingsSerializer(serializers.ModelSerializer):
             return None
 
         try:
-            # In Django-Cloudinary-Storage, file.name is usually the Public ID
             public_id = obj.floating_icon.file.name
-
-            # Generate the URL using Cloudinary SDK
             url, _ = cloudinary.utils.cloudinary_url(
                 public_id,
                 width=150,
@@ -271,7 +190,6 @@ class GiftSettingsSerializer(serializers.ModelSerializer):
                 fetch_format="auto",
                 secure=True,
             )
-
             return {
                 "url": url,
                 "width": 150,

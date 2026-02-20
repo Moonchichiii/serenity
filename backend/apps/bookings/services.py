@@ -1,5 +1,6 @@
 """Write operations for bookings: creation, cancellation, and
-Google Calendar sync."""
+Google Calendar sync.
+"""
 
 import logging
 import secrets
@@ -116,9 +117,7 @@ def create_booking(data: dict) -> tuple:
         (None, error_string) on failure.
     """
     try:
-        service = Service.objects.get(
-            id=data["service_id"], is_available=True
-        )
+        service = Service.objects.get(id=data["service_id"], is_available=True)
     except Service.DoesNotExist:
         return None, "Service not found or unavailable"
 
@@ -152,9 +151,7 @@ def create_voucher_booking(data: dict) -> tuple:
         (None, error_string) on failure.
     """
     try:
-        service = Service.objects.get(
-            id=data["service_id"], is_available=True
-        )
+        service = Service.objects.get(id=data["service_id"], is_available=True)
     except Service.DoesNotExist:
         return None, "Service not found or unavailable"
 
@@ -206,7 +203,7 @@ def cancel_booking(confirmation_code: str) -> tuple:
             )
 
     booking.status = "cancelled"
-    booking.save()  # post_save signal handles cache invalidation
+    booking.save()  # no cache invalidation in this pass
 
     logger.info("Booking cancelled: %s", confirmation_code)
     return {"detail": "Booking cancelled successfully"}, None, 200

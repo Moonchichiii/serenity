@@ -6,5 +6,5 @@ class CmsConfig(AppConfig):
     name = "apps.cms"
     label = "cms"
 
-    def ready(self):
-        import apps.cms.signals  # noqa
+    def ready(self) -> None:
+        import apps.cms.signals  # noqa: F401

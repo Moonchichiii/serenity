@@ -29,7 +29,7 @@ class HeroSlide(Orderable):
         FieldPanel("subtitle_fr"),
     ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title_en or self.title_fr or f"Slide {self.pk}"
 
 
@@ -51,7 +51,7 @@ class Specialty(Orderable):
         FieldPanel("image"),
     ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title_en or self.title_fr or f"Specialty {self.pk}"
 
 
@@ -348,12 +348,8 @@ class HomePage(Page):
             [
                 FieldPanel("about_intro_en", heading="Introduction (English)"),
                 FieldPanel("about_intro_fr", heading="Introduction (Français)"),
-                FieldPanel(
-                    "about_certification_en", heading="Certification Badge (English)"
-                ),
-                FieldPanel(
-                    "about_certification_fr", heading="Certification Badge (Français)"
-                ),
+                FieldPanel("about_certification_en", heading="Certification Badge (English)"),
+                FieldPanel("about_certification_fr", heading="Certification Badge (Français)"),
             ],
             heading="👤 About Section - Introduction",
             help_text="Your professional introduction and credentials.",
@@ -361,18 +357,10 @@ class HomePage(Page):
         ),
         MultiFieldPanel(
             [
-                FieldPanel(
-                    "about_approach_title_en", heading="Approach Title (English)"
-                ),
-                FieldPanel(
-                    "about_approach_title_fr", heading="Approach Title (Français)"
-                ),
-                FieldPanel(
-                    "about_approach_text_en", heading="Approach Description (English)"
-                ),
-                FieldPanel(
-                    "about_approach_text_fr", heading="Approach Description (Français)"
-                ),
+                FieldPanel("about_approach_title_en", heading="Approach Title (English)"),
+                FieldPanel("about_approach_title_fr", heading="Approach Title (Français)"),
+                FieldPanel("about_approach_text_en", heading="Approach Description (English)"),
+                FieldPanel("about_approach_text_fr", heading="Approach Description (Français)"),
             ],
             heading="👤 About Section - Your Approach",
             help_text="Describe your unique approach to massage therapy.",
@@ -380,18 +368,9 @@ class HomePage(Page):
         ),
         MultiFieldPanel(
             [
-                FieldPanel(
-                    "about_specialties_title_en",
-                    heading="Section Title (English)",
-                ),
-                FieldPanel(
-                    "about_specialties_title_fr",
-                    heading="Section Title (Français)",
-                ),
-                InlinePanel(
-                    "specialties",
-                    label="Specialties (image + title)",
-                ),
+                FieldPanel("about_specialties_title_en", heading="Section Title (English)"),
+                FieldPanel("about_specialties_title_fr", heading="Section Title (Français)"),
+                InlinePanel("specialties", label="Specialties (image + title)"),
             ],
             heading="👤 About Section - Your Specialties",
             help_text="Order controls the display order on the site.",
@@ -424,18 +403,9 @@ class HomePage(Page):
                 FieldPanel("services_hero_benefit_2_fr"),
                 FieldPanel("services_hero_benefit_3_en"),
                 FieldPanel("services_hero_benefit_3_fr"),
-                FieldPanel(
-                    "services_hero_video_public_id",
-                    heading="Background video (Cloudinary public ID)",
-                ),
-                FieldPanel(
-                    "services_hero_video_file",
-                    heading="Background video file (MP4, optional)",
-                ),
-                FieldPanel(
-                    "services_hero_poster_image",
-                    heading="Poster image (Wagtail image)",
-                ),
+                FieldPanel("services_hero_video_public_id", heading="Background video (Cloudinary public ID)"),
+                FieldPanel("services_hero_video_file", heading="Background video file (MP4, optional)"),
+                FieldPanel("services_hero_poster_image", heading="Poster image (Wagtail image)"),
             ],
             heading="💼 Services Hero Section",
             classname="collapsible",
@@ -443,7 +413,7 @@ class HomePage(Page):
     ]
 
     parent_page_types = ["wagtailcore.Page"]
-    subpage_types = []
+    subpage_types: list[str] = []
     max_count = 1
 
     class Meta:

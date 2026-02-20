@@ -12,7 +12,6 @@ except ImportError:
     HomePage = None
     GiftSettings = None
 
-
 try:
     from apps.testimonials.models import Testimonial, TestimonialReply
 except ImportError:
@@ -87,7 +86,7 @@ def add_welcome_panel(request, panels):
                 "gift_settings_url": gift_settings_url,
             }
 
-            html = render_to_string("admin/serenity_welcome.html", context)
+            html = render_to_string("admin/wagtail_admin", context)
             return format_html("{}", mark_safe(html))
 
     panels.insert(0, WelcomePanel())

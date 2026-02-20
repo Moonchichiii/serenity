@@ -12,12 +12,8 @@ class BookingRequestSerializer(serializers.Serializer):
     client_name = serializers.CharField(max_length=200)
     client_email = serializers.EmailField()
     client_phone = serializers.CharField(max_length=64)
-    client_notes = serializers.CharField(
-        required=False, allow_blank=True, default=""
-    )
-    preferred_language = serializers.ChoiceField(
-        choices=[("fr", "fr"), ("en", "en")]
-    )
+    client_notes = serializers.CharField(required=False, allow_blank=True, default="")
+    preferred_language = serializers.ChoiceField(choices=[("fr", "fr"), ("en", "en")])
 
 
 class VoucherBookingRequestSerializer(serializers.Serializer):
@@ -29,12 +25,8 @@ class VoucherBookingRequestSerializer(serializers.Serializer):
     client_name = serializers.CharField(max_length=200)
     client_email = serializers.EmailField()
     client_phone = serializers.CharField(max_length=64)
-    client_notes = serializers.CharField(
-        required=False, allow_blank=True, default=""
-    )
-    preferred_language = serializers.ChoiceField(
-        choices=[("fr", "fr"), ("en", "en")]
-    )
+    client_notes = serializers.CharField(required=False, allow_blank=True, default="")
+    preferred_language = serializers.ChoiceField(choices=[("fr", "fr"), ("en", "en")])
     voucher_code = serializers.CharField(max_length=20)
 
 
