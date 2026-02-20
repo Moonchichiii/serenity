@@ -4,9 +4,9 @@ Local development settings.
 No .env file required — sensible defaults for everything.
 """
 
-import cloudinary as _cloudinary  # noqa: E402
+import cloudinary as _cloudinary
 
-from .base import *  # noqa: F403, F401
+from .base import *
 
 # ── Core ────────────────────────────────────────────
 DEBUG = True
@@ -16,7 +16,7 @@ ENVIRONMENT = "development"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",  # noqa: F405
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
@@ -37,7 +37,7 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
-MEDIA_ROOT = BASE_DIR / "media"  # noqa: F405
+MEDIA_ROOT = BASE_DIR / "media"
 
 # Dummy Cloudinary config so the SDK import doesn't crash
 _cloudinary.config(

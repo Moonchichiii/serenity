@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 from rest_framework import serializers
 
 from .models import Booking
@@ -37,7 +41,7 @@ class BookingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Booking
-        fields = [
+        fields = (
             "id",
             "service",
             "start_datetime",
@@ -48,9 +52,9 @@ class BookingSerializer(serializers.ModelSerializer):
             "client_email",
             "confirmation_code",
             "voucher_code",
-        ]
+        )
 
-    def get_service(self, obj):
+    def get_service(self, obj: Booking) -> dict[str, Any]:
         s = obj.service
         return {
             "id": s.id,

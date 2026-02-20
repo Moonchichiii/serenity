@@ -1,6 +1,6 @@
 import logging
 
-from .google_calendar import list_busy_days, list_free_slots
+from .calendar_gateway import list_busy_days, list_free_slots
 
 logger = logging.getLogger(__name__)
 

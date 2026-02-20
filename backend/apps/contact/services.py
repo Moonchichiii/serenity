@@ -15,7 +15,7 @@ def create_submission(
     *, request: HttpRequest, data: dict
 ) -> ContactSubmission:
     """
-    Persist a contact submission and send an email notification.
+    Persist a contact submission and attempt to send an email notification.
 
     `data` must already be validated (via ContactSubmissionSerializer).
     """
@@ -30,7 +30,13 @@ def create_submission(
         ip_address=ip_address,
     )
 
-    _send_notification_email(submission, ip_address)
+    try:
+        _send_notification_email(submission, ip_address)
+    except Exception:
+        logger.exception(
+            "Failed to send contact notification email (submission=%s)",
+            submission.pk,
+        )
 
     logger.info(
         "Contact submission created: %s (%s)", submission.pk, ip_address

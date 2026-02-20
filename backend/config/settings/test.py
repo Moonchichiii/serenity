@@ -3,14 +3,14 @@ Test runner settings — fast, isolated, no external services.
    ENVIRONMENT=test uv run manage.py test
 """
 
-import cloudinary as _cloudinary  # noqa: E402
+import cloudinary as _cloudinary
 
-from .base import *  # noqa: F403, F401
+from .base import *
 
 # ── Core ────────────────────────────────────────────
 DEBUG = False
 ENVIRONMENT = "test"
-SECRET_KEY = "test-secret-key-not-for-production"  # noqa: S105
+SECRET_KEY = "test-secret-key-not-for-production"
 
 # ── Database — in-memory SQLite ─────────────────────
 DATABASES = {

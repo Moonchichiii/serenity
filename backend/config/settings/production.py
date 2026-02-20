@@ -3,11 +3,11 @@ Production settings — Fly.io, Cloudinary, Redis.
 All secrets come from environment variables.
 """
 
-import cloudinary as _cloudinary  # noqa: E402
-import dj_database_url  # noqa: E402
-from decouple import config  # noqa: E402
+import cloudinary as _cloudinary
+import dj_database_url
+from decouple import config
 
-from .base import *  # noqa: F403, F401
+from .base import *
 
 # ── Core ────────────────────────────────────────────
 DEBUG = False

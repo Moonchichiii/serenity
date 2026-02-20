@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 from django.forms import Media
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
@@ -29,39 +33,39 @@ except ImportError:
     GiftVoucher = None
 
 
-def get_snippet_url(model, action="list"):
+def get_snippet_url(model: Any, action: str = 'list') -> str:
     """Generate Wagtail 7.x snippet URL, returning '#' on failure."""
     if not model:
-        return "#"
+        return '#'
 
     app_label = model._meta.app_label
     model_name = model._meta.model_name
-    url_name = f"wagtailsnippets_{app_label}_{model_name}:{action}"
+    url_name = f'wagtailsnippets_{app_label}_{model_name}:{action}'
 
     try:
         return reverse(url_name)
     except NoReverseMatch:
-        return "#"
+        return '#'
 
 
-@hooks.register("construct_homepage_panels")
-def add_welcome_panel(request, panels):
+@hooks.register('construct_homepage_panels')
+def add_welcome_panel(request: Any, panels: list[Any]) -> list[Any]:
     """Add custom welcome panel to Wagtail admin homepage."""
 
     class WelcomePanel:
-        order = 0
-        media = Media()
+        order: int = 0
+        media: Media = Media()
 
-        def render(self):
+        def render(self) -> str:
             # --- HomePage edit URL ---
-            edit_url = "/cms-admin/pages/"
+            edit_url = '/cms-admin/pages/'
             if HomePage:
                 homepage_obj = HomePage.objects.live().first()
                 if homepage_obj:
-                    edit_url = reverse("wagtailadmin_pages:edit", args=[homepage_obj.id])
+                    edit_url = reverse('wagtailadmin_pages:edit', args=[homepage_obj.id])
 
             # --- GiftSettings URL ---
-            gift_settings_url = "#"
+            gift_settings_url = '#'
 
             if GiftSettings is not None:
                 app_label = GiftSettings._meta.app_label
@@ -69,25 +73,25 @@ def add_welcome_panel(request, panels):
 
                 try:
                     gift_settings_url = reverse(
-                        "wagtailsettings:edit",
+                        'wagtailsettings:edit',
                         args=[app_label, model_name],
                     )
                 except NoReverseMatch:
-                    gift_settings_url = "#"
+                    gift_settings_url = '#'
 
             context = {
-                "edit_url": edit_url,
-                "testimonial_list_url": get_snippet_url(Testimonial, "list"),
-                "testimonial_add_url": get_snippet_url(Testimonial, "add"),
-                "reply_list_url": get_snippet_url(TestimonialReply, "list"),
-                "service_list_url": get_snippet_url(Service, "list"),
-                "service_add_url": get_snippet_url(Service, "add"),
-                "voucher_list_url": get_snippet_url(GiftVoucher, "list"),
-                "gift_settings_url": gift_settings_url,
+                'edit_url': edit_url,
+                'testimonial_list_url': get_snippet_url(Testimonial, 'list'),
+                'testimonial_add_url': get_snippet_url(Testimonial, 'add'),
+                'reply_list_url': get_snippet_url(TestimonialReply, 'list'),
+                'service_list_url': get_snippet_url(Service, 'list'),
+                'service_add_url': get_snippet_url(Service, 'add'),
+                'voucher_list_url': get_snippet_url(GiftVoucher, 'list'),
+                'gift_settings_url': gift_settings_url,
             }
 
-            html = render_to_string("admin/wagtail_admin", context)
-            return format_html("{}", mark_safe(html))
+            html = render_to_string('admin/wagtail_admin', context)
+            return format_html('{}', mark_safe(html))
 
     panels.insert(0, WelcomePanel())
     return panels

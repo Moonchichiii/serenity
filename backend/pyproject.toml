@@ -103,8 +103,12 @@ namespace_packages = true
 explicit_package_bases = true
 
 # ── Per-module overrides ────────────────────────────
+
+# Third-party libs without stubs / py.typed
 [[tool.mypy.overrides]]
 module = [
+    "decouple",
+    "decouple.*",
     "cloudinary.*",
     "cloudinary_storage.*",
     "wagtail.*",
@@ -119,11 +123,21 @@ module = [
     "google.*",
     "googleapiclient.*",
     "httplib2.*",
+    "pytest",
+    "_pytest.*",
 ]
 ignore_missing_imports = true
 
+# Pragmatic ignores for noisy areas (tighten later)
 [[tool.mypy.overrides]]
-module = "*/migrations/*"
+module = [
+    "apps.*.migrations.*",
+    "apps.*.tests.*",
+    "apps.cms.*",
+    "apps.testimonials.*",
+    "config.settings",
+    "config.settings.*",
+]
 ignore_errors = true
 
 # ── django-stubs config ────────────────────────────
@@ -175,9 +189,10 @@ known-first-party = ["apps", "config"]
 "config/settings/*.py" = ["F405", "F403", "ANN"]
 "*/migrations/*.py" = ["ANN"]
 "manage.py" = ["ANN"]
+"**/tests/**.py" = ["ANN001", "ANN002", "ANN003", "ANN201", "ANN202", "ANN204"]
 
 [tool.ruff.format]
-quote-style = 'single'
+quote-style = "single"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"

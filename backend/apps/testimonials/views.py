@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from rest_framework import status
 from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.response import Response
@@ -12,16 +16,19 @@ from .serializers import (
 )
 from .services import create_reply, create_testimonial
 
+if TYPE_CHECKING:
+    from rest_framework.request import Request
+
 
 class TestimonialSubmissionThrottle(AnonRateThrottle):
-    rate = "3/hour"
+    rate = '3/hour'
 
 
-@api_view(["GET"])
-def get_testimonials(request):
+@api_view(['GET'])
+def get_testimonials(request: Request) -> Response:
     """Return approved testimonials, optionally filtered by min_rating."""
     try:
-        min_rating = int(request.GET.get("min_rating", 0))
+        min_rating = int(request.query_params.get('min_rating', 0))
     except (TypeError, ValueError):
         min_rating = 0
 
@@ -30,9 +37,9 @@ def get_testimonials(request):
     return Response(data)
 
 
-@api_view(["POST"])
+@api_view(['POST'])
 @throttle_classes([TestimonialSubmissionThrottle])
-def submit_testimonial(request):
+def submit_testimonial(request: Request) -> Response:
     """Submit a new testimonial for moderation."""
     serializer = SubmitTestimonialSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -43,23 +50,23 @@ def submit_testimonial(request):
 
     return Response(
         {
-            "success": True,
-            "message": "Merci ! Votre avis sera publié après validation.",
-            "id": str(testimonial.id),
+            'success': True,
+            'message': 'Merci ! Votre avis sera publié après validation.',
+            'id': str(testimonial.id),
         },
         status=status.HTTP_201_CREATED,
     )
 
 
-@api_view(["POST"])
+@api_view(['POST'])
 @throttle_classes([TestimonialSubmissionThrottle])
-def submit_reply(request, testimonial_id):
+def submit_reply(request: Request, testimonial_id: int) -> Response:
     """Submit a reply to a testimonial for moderation."""
     try:
         parent = Testimonial.objects.get(id=testimonial_id)
     except Testimonial.DoesNotExist:
         return Response(
-            {"error": "Témoignage introuvable"},
+            {'error': 'Témoignage introuvable'},
             status=status.HTTP_404_NOT_FOUND,
         )
 
@@ -74,14 +81,14 @@ def submit_reply(request, testimonial_id):
 
     return Response(
         {
-            "success": True,
-            "message": "Réponse envoyée pour modération.",
+            'success': True,
+            'message': 'Réponse envoyée pour modération.',
         },
         status=status.HTTP_201_CREATED,
     )
 
 
-@api_view(["GET"])
-def testimonial_stats_view(request):
+@api_view(['GET'])
+def testimonial_stats_view(request: Request) -> Response:
     """Return aggregate statistics for approved testimonials."""
     return Response(get_testimonial_stats())

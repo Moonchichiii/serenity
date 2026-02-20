@@ -3,8 +3,8 @@ import os
 env = os.environ.get("ENVIRONMENT", "development")
 
 if env == "production":
-    from .production import *  # noqa: F403
+    from .production import *
 elif env == "test":
-    from .test import *  # noqa: F403
+    from .test import *
 else:
-    from .local import *  # noqa: F403
+    from .local import *

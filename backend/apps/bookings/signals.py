@@ -1,7 +1,7 @@
-"""Cache invalidation for bookings — clears availability caches when
-bookings are created, updated, or deleted."""
+from __future__ import annotations
 
 import logging
+from typing import Any
 
 from django.core.cache import cache
 from django.db.models.signals import post_delete, post_save
@@ -12,7 +12,7 @@ from .models import Booking
 logger = logging.getLogger(__name__)
 
 
-def _invalidate_booking_cache(booking):
+def _invalidate_booking_cache(booking: Booking) -> None:
     """Clear availability caches for the booking's date."""
     start_date = booking.start_datetime.date()
     keys = [
@@ -28,10 +28,10 @@ def _invalidate_booking_cache(booking):
 
 
 @receiver(post_save, sender=Booking)
-def booking_saved(sender, instance, **kwargs):
+def booking_saved(sender: type[Booking], instance: Booking, **kwargs: Any) -> None:
     _invalidate_booking_cache(instance)
 
 
 @receiver(post_delete, sender=Booking)
-def booking_deleted(sender, instance, **kwargs):
+def booking_deleted(sender: type[Booking], instance: Booking, **kwargs: Any) -> None:
     _invalidate_booking_cache(instance)

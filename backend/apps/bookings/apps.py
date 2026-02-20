@@ -6,5 +6,5 @@ class BookingsConfig(AppConfig):
     name = "apps.bookings"
     label = "bookings"
 
-    def ready(self):
+    def ready(self) -> None:
         import apps.bookings.signals  # noqa: F401

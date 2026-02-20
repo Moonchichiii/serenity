@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 from rest_framework import serializers
 
 from .models import Testimonial, TestimonialReply
@@ -8,34 +12,36 @@ class ReplySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TestimonialReply
-        fields = ["id", "name", "text", "date"]
+        # Fixed RUF012: Converted list to tuple
+        fields = ('id', 'name', 'text', 'date')
 
-    def get_date(self, obj):
+    def get_date(self, obj: TestimonialReply) -> str:
         return (
-            obj.created_at.strftime("%Y-%m-%d")
+            obj.created_at.strftime('%Y-%m-%d')
             if obj.created_at
-            else ""
+            else ''
         )
 
 
 class TestimonialSerializer(serializers.ModelSerializer):
-    date = serializers.CharField(source="date_display")
-    avatar = serializers.CharField(source="avatar_url")
+    date = serializers.CharField(source='date_display')
+    avatar = serializers.CharField(source='avatar_url')
     replies = serializers.SerializerMethodField()
 
     class Meta:
         model = Testimonial
-        fields = [
-            "id",
-            "name",
-            "rating",
-            "text",
-            "date",
-            "avatar",
-            "replies",
-        ]
+        # Fixed RUF012: Converted list to tuple
+        fields = (
+            'id',
+            'name',
+            'rating',
+            'text',
+            'date',
+            'avatar',
+            'replies',
+        )
 
-    def get_replies(self, obj):
+    def get_replies(self, obj: Testimonial) -> list[dict[str, Any]]:
         """
         Use .all() to leverage the prefetched approved-reply queryset
         set by selectors.get_approved_testimonials().
@@ -48,7 +54,7 @@ class TestimonialSerializer(serializers.ModelSerializer):
 
 class SubmitTestimonialSerializer(serializers.Serializer):
     name = serializers.CharField(min_length=2, max_length=100)
-    email = serializers.EmailField(required=False, default="")
+    email = serializers.EmailField(required=False, default='')
     rating = serializers.IntegerField(min_value=1, max_value=5)
     text = serializers.CharField(min_length=10, max_length=500)
 

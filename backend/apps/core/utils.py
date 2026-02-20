@@ -1,4 +1,9 @@
-from django.http import HttpRequest
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from django.http import HttpRequest
 
 
 def get_client_ip(request: HttpRequest) -> str:
@@ -8,25 +13,25 @@ def get_client_ip(request: HttpRequest) -> str:
     Priority:
       1. CF-Connecting-IP  (Cloudflare proxy)
       2. X-Forwarded-For   (generic reverse proxy — first entry)
-      3. REMOTE_ADDR        (direct connection)
+      3. REMOTE_ADDR       (direct connection)
     """
-    if cf_ip := request.META.get("HTTP_CF_CONNECTING_IP"):
-        return cf_ip
+    if cf_ip := request.META.get('HTTP_CF_CONNECTING_IP'):
+        return str(cf_ip)
 
-    if xff := request.META.get("HTTP_X_FORWARDED_FOR"):
-        return xff.split(",")[0].strip()
+    if xff := request.META.get('HTTP_X_FORWARDED_FOR'):
+        return str(xff.split(',')[0].strip())
 
-    return request.META.get("REMOTE_ADDR", "unknown")
+    return str(request.META.get('REMOTE_ADDR', 'unknown'))
 
 
-def safe_format(template: str, **kwargs) -> str:
+def safe_format(template: str, **kwargs: Any) -> str:
     """
     Format a CMS-authored string without crashing on malformed braces.
 
     Returns the original string if formatting fails.
     """
     if not template:
-        return ""
+        return ''
     try:
         return template.format(**kwargs)
     except (KeyError, IndexError, ValueError):

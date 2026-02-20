@@ -1,13 +1,9 @@
-"""
-Google Calendar API client for Serenity.
-
-Low-level functions for reading availability and managing booking events.
-Consumed by selectors.py (reads) and apps.bookings.services (writes).
-"""
+from __future__ import annotations
 
 import json
 import logging
 from datetime import datetime, timedelta
+from typing import Any
 from zoneinfo import ZoneInfo
 
 from decouple import config
@@ -23,7 +19,7 @@ CALENDAR_ID = config("GOOGLE_CALENDAR_ID", default="primary")
 TZ = ZoneInfo("Europe/Paris")
 
 
-def _get_credentials():
+def _get_credentials() -> Credentials | None:
     """Load credentials from environment and refresh if needed."""
     token_json = config("GOOGLE_OAUTH_TOKEN_JSON", default=None)
     if not token_json:
@@ -49,7 +45,7 @@ def _get_credentials():
         return None
 
 
-def _get_service():
+def _get_service() -> Any | None:
     """Get authenticated Calendar API service."""
     creds = _get_credentials()
     if not creds:
@@ -112,7 +108,7 @@ def list_busy_days(year: int, month: int) -> list[str]:
 def list_free_slots(
     date_iso: str,
     slot_minutes: int = 30,
-    work_hours: tuple = (9, 19),
+    work_hours: tuple[int, int] = (9, 19),
 ) -> list[str]:
     """Get available time slots (HH:MM) for a specific date."""
     service = _get_service()

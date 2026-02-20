@@ -7,9 +7,9 @@ from .pages import HeroSlide, HomePage, Specialty
 from .settings import GiftSettings, SerenitySettings
 
 __all__ = [
-    "HomePage",
-    "HeroSlide",
-    "Specialty",
-    "SerenitySettings",
     "GiftSettings",
+    "HeroSlide",
+    "HomePage",
+    "SerenitySettings",
+    "Specialty",
 ]

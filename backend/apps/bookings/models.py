@@ -1,66 +1,72 @@
+from __future__ import annotations
+
+from typing import ClassVar
+
 from django.db import models
 
 from apps.services.models import Service
 
 
 class Booking(models.Model):
-    """Represents a service booking with client details and calendar
-    integration. Supports both online and voucher-sourced bookings."""
+    """
+    Represents a service booking with client details and calendar
+    integration. Supports both online and voucher-sourced bookings.
+    """
 
-    STATUS_CHOICES = [
-        ("pending", "Pending"),
-        ("confirmed", "Confirmed"),
-        ("cancelled", "Cancelled"),
-        ("completed", "Completed"),
+    STATUS_CHOICES: ClassVar[list[tuple[str, str]]] = [
+        ('pending', 'Pending'),
+        ('confirmed', 'Confirmed'),
+        ('cancelled', 'Cancelled'),
+        ('completed', 'Completed'),
     ]
 
-    SOURCE_CHOICES = [
-        ("online", "Online"),
-        ("voucher", "Voucher"),
-        ("manual", "Manual"),
+    SOURCE_CHOICES: ClassVar[list[tuple[str, str]]] = [
+        ('online', 'Online'),
+        ('voucher', 'Voucher'),
+        ('manual', 'Manual'),
     ]
 
     # Core booking info
     service = models.ForeignKey(
-        Service, on_delete=models.PROTECT, related_name="bookings"
+        Service, on_delete=models.PROTECT, related_name='bookings'
     )
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
     status = models.CharField(
-        max_length=16, choices=STATUS_CHOICES, default="pending"
+        max_length=16, choices=STATUS_CHOICES, default='pending'
     )
     source = models.CharField(
         max_length=16,
         choices=SOURCE_CHOICES,
-        default="online",
-        help_text="How this booking originated",
+        default='online',
+        help_text='How this booking originated',
     )
 
     # Client details
     client_name = models.CharField(max_length=200)
     client_email = models.EmailField()
     client_phone = models.CharField(max_length=64)
-    client_notes = models.TextField(blank=True, default="")
-    preferred_language = models.CharField(max_length=2, default="fr")
+    client_notes = models.TextField(blank=True, default='')
+    preferred_language = models.CharField(max_length=2, default='fr')
 
     # Confirmation
     confirmation_code = models.CharField(max_length=12, unique=True)
 
-    # Voucher linkage (soft reference — no FK to avoid tight coupling)
+    # Voucher linkage (soft reference)
     voucher_code = models.CharField(
         max_length=20,
         blank=True,
-        default="",
+        default='',
         db_index=True,
-        help_text="Gift voucher code if booked via voucher redemption",
+        help_text='Gift voucher code if booked via voucher redemption',
     )
 
     # Google Calendar integration
     google_calendar_event_id = models.CharField(
         max_length=255,
         blank=True,
-        default="",
-        help_text="Google Calendar event ID for syncing",
+        default='',
+        help_text='Google Calendar event ID for syncing',
     )
 
     # Timestamps
@@ -68,21 +74,22 @@ class Booking(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["-created_at"]
-        indexes = [
-            models.Index(fields=["client_email"]),
-            models.Index(fields=["confirmation_code"]),
-            models.Index(fields=["status"]),
-            models.Index(fields=["source"]),
-        ]
+        # Changed to tuples to satisfy RUF012 (immutable class attributes)
+        ordering = ('-created_at',)
+        indexes = (
+            models.Index(fields=['client_email']),
+            models.Index(fields=['confirmation_code']),
+            models.Index(fields=['status']),
+            models.Index(fields=['source']),
+        )
 
-    def __str__(self):
+    def __str__(self) -> str:
         label = (
-            f"[{self.get_source_display()}] "
-            if self.source != "online"
-            else ""
+            f'[{self.get_source_display()}] '
+            if self.source != 'online'
+            else ''
         )
         return (
-            f"{label}{self.client_name} - {self.service} "
-            f"- {self.start_datetime:%Y-%m-%d %H:%M}"
+            f'{label}{self.client_name} - {self.service} '
+            f'- {self.start_datetime:%Y-%m-%d %H:%M}'
         )

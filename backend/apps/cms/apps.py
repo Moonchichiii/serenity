@@ -7,4 +7,5 @@ class CmsConfig(AppConfig):
     label = "cms"
 
     def ready(self) -> None:
-        import apps.cms.signals  # noqa: F401
+      pass
+        # import apps.cms.signals

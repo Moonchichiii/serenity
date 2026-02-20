@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django.db.models import Prefetch
-from django.http import HttpRequest
 from wagtail.models import Site
 
 from apps.cms.serializers import GiftSettingsSerializer, HomePageSerializer
+
+if TYPE_CHECKING:
+    from django.http import HttpRequest
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +22,7 @@ def get_site_for_request(request: HttpRequest) -> Site | None:
         return None
 
 
-def get_homepage_for_site(site: Site | None):
+def get_homepage_for_site(site: Site | None) -> Any | None:
     """
     Resolve the HomePage for a given site, falling back to first live HomePage.
 
@@ -42,22 +44,30 @@ def get_homepage_for_site(site: Site | None):
 
     # Re-fetch with proper prefetch/select_related for a fully-hydrated page.
     homepage_qs = (
-        page.__class__.objects.select_related("hero_image", "services_hero_poster_image")
+        page.__class__.objects.select_related(
+            "hero_image", "services_hero_poster_image"
+        )
         .prefetch_related(
             Prefetch(
                 "hero_slides",
-                queryset=HeroSlide.objects.select_related("image").order_by("sort_order"),
+                queryset=HeroSlide.objects.select_related("image").order_by(
+                    "sort_order"
+                ),
             ),
             Prefetch(
                 "specialties",
-                queryset=Specialty.objects.select_related("image").order_by("sort_order"),
+                queryset=Specialty.objects.select_related("image").order_by(
+                    "sort_order"
+                ),
             ),
         )
     )
     return homepage_qs.get(pk=page.pk)
 
 
-def get_homepage_payload(*, request: HttpRequest, site: Site | None) -> dict[str, Any] | None:
+def get_homepage_payload(
+    *, request: HttpRequest, site: Site | None
+) -> dict[str, Any] | None:
     page = get_homepage_for_site(site)
     if not page:
         return None
@@ -66,8 +76,8 @@ def get_homepage_payload(*, request: HttpRequest, site: Site | None) -> dict[str
 
 def get_services_payload(*, request: HttpRequest) -> list[dict[str, Any]]:
     """
-    Services list payload. Single source of truth for reads comes from apps.services.selectors.
-    Output schema comes from apps.services.serializers (NOT CMS).
+    Services list payload. Single source of truth for reads comes from
+    apps.services.selectors.
     """
     from apps.services.selectors import get_available_services
     from apps.services.serializers import ServiceSerializer
@@ -86,23 +96,25 @@ def get_globals_payload(*, site: Site | None) -> dict[str, Any]:
         try:
             gift_settings = GiftSettings.for_site(site)
         except Exception:
-            logger.exception("GiftSettings.for_site failed; falling back to first()")
+            logger.exception(
+                "GiftSettings.for_site failed; falling back to first()"
+            )
             gift_settings = GiftSettings.objects.first()
     else:
         gift_settings = GiftSettings.objects.first()
 
-    return {"gift": GiftSettingsSerializer(gift_settings).data if gift_settings else {"gift": None}}
+    return {
+        "gift": (
+            GiftSettingsSerializer(gift_settings).data
+            if gift_settings
+            else None
+        )
+    }
 
 
 def get_testimonials_payload(*, limit: int = 8) -> list[dict[str, Any]]:
     """
-    Top testimonials payload.
-
-    Rules (same as legacy behavior):
-      - approved only
-      - rating >= 4
-      - include approved replies
-      - newest first
+    Top testimonials payload based on approval and rating.
     """
     from apps.testimonials.selectors import get_approved_testimonials
     from apps.testimonials.serializers import TestimonialSerializer
@@ -111,15 +123,15 @@ def get_testimonials_payload(*, limit: int = 8) -> list[dict[str, Any]]:
     return TestimonialSerializer(qs, many=True).data
 
 
-def get_hydrated_homepage_payload(*, request: HttpRequest) -> dict[str, Any] | None:
+def get_hydrated_homepage_payload(
+    *, request: HttpRequest
+) -> dict[str, Any] | None:
     """
     Master endpoint payload:
       - page (homepage)
       - services
       - globals
       - testimonials
-
-    No caching in this pass.
     """
     site = get_site_for_request(request)
 

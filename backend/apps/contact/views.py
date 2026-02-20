@@ -1,5 +1,6 @@
 from rest_framework import status
 from rest_framework.decorators import api_view, throttle_classes
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
 
@@ -13,7 +14,7 @@ class ContactSubmissionThrottle(AnonRateThrottle):
 
 @api_view(["POST"])
 @throttle_classes([ContactSubmissionThrottle])
-def submit_contact(request):
+def submit_contact(request: Request) -> Response:
     """POST /api/contact/submit/"""
     serializer = ContactSubmissionSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)

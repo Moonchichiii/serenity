@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from rest_framework import serializers
 
 
@@ -12,5 +14,5 @@ class FreeSlotsQuerySerializer(serializers.Serializer):
 
     @property
     def date_iso(self) -> str:
-        # Convenience accessor after validation.
-        return self.validated_data["date"].isoformat()
+        # Fixed: Explicit cast to str to satisfy Mypy
+        return str(self.validated_data['date'].isoformat())

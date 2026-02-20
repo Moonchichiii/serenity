@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import logging
+from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
-from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
@@ -10,10 +12,15 @@ from apps.core.utils import safe_format
 
 from .models import GiftVoucher
 
+if TYPE_CHECKING:
+    from django.http import HttpRequest
+
+    from apps.cms.models import GiftSettings
+
 logger = logging.getLogger(__name__)
 
 
-def create_voucher(*, data: dict) -> GiftVoucher:
+def create_voucher(*, data: dict[str, Any]) -> GiftVoucher:
     """
     Create a gift voucher from validated data.
 
@@ -23,7 +30,7 @@ def create_voucher(*, data: dict) -> GiftVoucher:
     voucher.save()
 
     logger.info(
-        "Gift voucher created: %s for %s",
+        'Gift voucher created: %s for %s',
         voucher.code,
         voucher.recipient_name,
     )
@@ -42,10 +49,10 @@ def send_voucher_emails(
     lang = _resolve_language(request)
 
     tokens = {
-        "purchaser_name": voucher.purchaser_name,
-        "recipient_name": voucher.recipient_name,
-        "site_name": site_name,
-        "code": voucher.code,
+        'purchaser_name': voucher.purchaser_name,
+        'recipient_name': voucher.recipient_name,
+        'site_name': site_name,
+        'code': voucher.code,
     }
 
     context = _build_email_context(
@@ -64,11 +71,11 @@ def send_voucher_emails(
 # --- Private helpers ---
 
 
-def _resolve_gift_settings(request: HttpRequest) -> tuple:
+def _resolve_gift_settings(
+    request: HttpRequest,
+) -> tuple[GiftSettings | None, str, str]:
     """
     Resolve GiftSettings, site name, and voucher image URL.
-
-    Uses lazy import to avoid circular dependency with apps.cms.
     """
     from wagtail.models import Site
 
@@ -81,71 +88,69 @@ def _resolve_gift_settings(request: HttpRequest) -> tuple:
     except Exception:
         gift_settings = GiftSettings.objects.first()
 
-    site_name = getattr(site, "site_name", None) or "Serenity"
+    site_name = getattr(site, 'site_name', None) or 'Serenity'
 
-    image_url = ""
+    image_url = ''
     if gift_settings and gift_settings.voucher_image:
         try:
             image_url = gift_settings.voucher_image.file.url
         except Exception:
-            image_url = ""
+            image_url = ''
 
     return gift_settings, site_name, image_url
 
 
 def _resolve_language(request: HttpRequest) -> str:
     """Resolve language code, defaulting to 'en'."""
-    lang = getattr(request, "LANGUAGE_CODE", "en")
-    return lang if lang in ("en", "fr") else "en"
+    lang = getattr(request, 'LANGUAGE_CODE', 'en')
+    return lang if lang in ('en', 'fr') else 'en'
 
 
 def _build_email_context(
     *,
     voucher: GiftVoucher,
-    gift_settings,
+    gift_settings: GiftSettings | None,
     site_name: str,
     image_url: str,
     lang: str,
-    tokens: dict,
-) -> dict:
+    tokens: dict[str, str],
+) -> dict[str, Any]:
     """Build the template context shared by both email templates."""
-    fields = ("email_heading", "email_intro", "email_redeem", "email_closing")
+    fields = ('email_heading', 'email_intro', 'email_redeem', 'email_closing')
     formatted = {}
 
     for field in fields:
-        raw = ""
+        raw = ''
         if gift_settings:
-            raw = getattr(gift_settings, f"{field}_{lang}", "") or ""
+            raw = getattr(gift_settings, f'{field}_{lang}', '') or ''
         formatted[field] = safe_format(raw, **tokens)
 
     return {
-        "voucher": voucher,
-        "settings": gift_settings,
-        "image_url": image_url,
-        "site_name": site_name,
-        "lang": lang,
+        'voucher': voucher,
+        'settings': gift_settings,
+        'image_url': image_url,
+        'site_name': site_name,
+        'lang': lang,
         **formatted,
     }
 
 
 def _send_recipient_email(
     voucher: GiftVoucher,
-    gift_settings,
+    gift_settings: GiftSettings | None,
     lang: str,
-    tokens: dict,
-    context: dict,
+    tokens: dict[str, str],
+    context: dict[str, Any],
 ) -> None:
     """Send the gift voucher email to the recipient."""
-    raw_subject = ""
+    raw_subject = ''
     if gift_settings:
         raw_subject = (
-            getattr(gift_settings, f"email_subject_{lang}", "") or ""
+            getattr(gift_settings, f'email_subject_{lang}', '') or ''
         )
-    subject = safe_format(raw_subject, **tokens) or "Gift Voucher"
+    subject = safe_format(raw_subject, **tokens) or 'Gift Voucher'
 
-    html_content = render_to_string(
-        "vouchers/email_recipient.html", context
-    )
+    html_content = render_to_string('vouchers/email_recipient.html', context)
 
     msg = EmailMultiAlternatives(
         subject=subject,
@@ -153,35 +158,33 @@ def _send_recipient_email(
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=[voucher.recipient_email],
     )
-    msg.attach_alternative(html_content, "text/html")
+    msg.attach_alternative(html_content, 'text/html')
     msg.send()
 
     logger.info(
-        "Voucher recipient email sent: %s → %s",
+        'Voucher recipient email sent: %s → %s',
         voucher.code,
         voucher.recipient_email,
     )
 
 
 def _send_admin_email(
-    voucher: GiftVoucher, site_name: str, context: dict
+    voucher: GiftVoucher, site_name: str, context: dict[str, Any]
 ) -> None:
     """Send admin notification email about the new voucher purchase."""
     admin_email = settings.DEFAULT_FROM_EMAIL
     if settings.ADMINS:
         admin_email = settings.ADMINS[0][1]
 
-    html_content = render_to_string("vouchers/email_admin.html", context)
+    html_content = render_to_string('vouchers/email_admin.html', context)
 
     msg = EmailMultiAlternatives(
-        subject=f"New Gift Voucher Sold: {voucher.code}",
+        subject=f'New Gift Voucher Sold: {voucher.code}',
         body=strip_tags(html_content),
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=[admin_email],
     )
-    msg.attach_alternative(html_content, "text/html")
+    msg.attach_alternative(html_content, 'text/html')
     msg.send()
 
-    logger.info(
-        "Voucher admin email sent: %s → %s", voucher.code, admin_email
-    )
+    logger.info('Voucher admin email sent: %s → %s', voucher.code, admin_email)
