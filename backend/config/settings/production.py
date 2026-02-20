@@ -33,10 +33,10 @@ if REDIS_URL:
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
                 "IGNORE_EXCEPTIONS": True,
                 "CONNECTION_POOL_KWARGS": {
-                    "max_connections": 10,
+                    "max_connections": 50,
                     "health_check_interval": 30,
                     "retry_on_timeout": True,
-                },
+                    },
                 "SOCKET_CONNECT_TIMEOUT": 5,
                 "SOCKET_TIMEOUT": 5,
             },
