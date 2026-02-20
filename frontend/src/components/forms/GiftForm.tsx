@@ -1,78 +1,48 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { yupResolver } from '@hookform/resolvers/yup'
-import * as yup from 'yup'
+import { zodResolver } from '@hookform/resolvers/zod'
 import toast from 'react-hot-toast'
-import {
-  Calendar,
-  CheckCircle2,
-  Gift,
-  Mail,
-  MessageSquare,
-  User,
-} from 'lucide-react'
+import { Calendar, CheckCircle2, Gift, Mail, MessageSquare, User } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
-import { cmsAPI, type GlobalSettings } from '@/api/cms'
-
-type GiftFormData = {
-  purchaserName: string
-  purchaserEmail: string
-  recipientName: string
-  recipientEmail: string
-  message: string
-  preferredDate: string
-}
+import { cmsMutations, type GlobalSettings } from '@/api/cms'
+import {
+  createGiftSchema,
+  type GiftFormValues,
+} from '@/types/forms/gift'
 
 interface GiftFormProps {
   onSuccess?: () => void
   settings?: GlobalSettings['gift'] | null
 }
 
-/**
- * Handles gift voucher purchases with validation and CMS content overrides.
- */
 export function GiftForm({ onSuccess, settings }: GiftFormProps) {
   const { t, i18n } = useTranslation()
   const [successCode, setSuccessCode] = useState<string | null>(null)
 
   const lang: 'en' | 'fr' = i18n.language.startsWith('fr') ? 'fr' : 'en'
 
-  const schema = yup.object({
-    purchaserName: yup.string().required(t('gift.validation.required')),
-    purchaserEmail: yup
-      .string()
-      .email(t('gift.validation.email'))
-      .required(t('gift.validation.required')),
-    recipientName: yup.string().required(t('gift.validation.required')),
-    recipientEmail: yup
-      .string()
-      .email(t('gift.validation.email'))
-      .required(t('gift.validation.required')),
-    message: yup.string().default(''),
-    preferredDate: yup.string().default(''),
-  })
+  const schema = useMemo(() => createGiftSchema(t), [t])
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<GiftFormData>({
-    resolver: yupResolver(schema),
+  } = useForm<GiftFormValues>({
+    resolver: zodResolver(schema),
     defaultValues: {
       message: '',
       preferredDate: '',
     },
   })
 
-  // Selects CMS content if available, falling back to i18n
   const fromCms = (
     enValue: string | undefined,
     frValue: string | undefined,
     i18nKey: string,
-    defaultValue?: string
+    defaultValue?: string,
   ) => {
     const cmsValue = lang === 'fr' ? frValue : enValue
     if (cmsValue && cmsValue.trim().length > 0) return cmsValue
@@ -82,43 +52,42 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
   const messagePlaceholder = fromCms(
     settings?.form_message_placeholder_en,
     settings?.form_message_placeholder_fr,
-    'gift.form.messagePlaceholder'
+    'gift.form.messagePlaceholder',
   )
 
   const submitLabel = fromCms(
     settings?.form_submit_label_en,
     settings?.form_submit_label_fr,
-    'gift.form.submit'
+    'gift.form.submit',
   )
 
   const sendingLabel = fromCms(
     settings?.form_sending_label_en,
     settings?.form_sending_label_fr,
-    'gift.form.sending'
+    'gift.form.sending',
   )
 
   const successTitleText = fromCms(
     settings?.form_success_title_en,
     settings?.form_success_title_fr,
-    'gift.form.successTitle'
+    'gift.form.successTitle',
   )
 
   const successMessageText = fromCms(
     settings?.form_success_message_en,
     settings?.form_success_message_fr,
-    'gift.form.successMessage'
+    'gift.form.successMessage',
   )
 
   const codeLabelText = fromCms(
     settings?.form_code_label_en,
     settings?.form_code_label_fr,
-    'gift.form.codeLabel'
+    'gift.form.codeLabel',
   )
 
-  const onSubmit = async (data: GiftFormData) => {
+  const onSubmit = async (data: GiftFormValues) => {
     try {
-      // API expects camelCase; cmsAPI handles snake_case conversion
-      const res = await cmsAPI.submitVoucher({
+      const res = await cmsMutations.submitVoucher({
         purchaserName: data.purchaserName,
         purchaserEmail: data.purchaserEmail,
         recipientName: data.recipientName,
@@ -149,9 +118,7 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
         <h3 className="text-2xl font-heading font-bold text-charcoal">
           {successTitleText}
         </h3>
-        <p className="text-charcoal/70 max-w-sm mx-auto">
-          {successMessageText}
-        </p>
+        <p className="text-charcoal/70 max-w-sm mx-auto">{successMessageText}</p>
 
         <div className="bg-sand-50 border border-sage-200 rounded-xl p-6 max-w-xs mx-auto mt-6">
           <p className="text-xs uppercase tracking-widest text-charcoal/50 font-bold mb-2">
@@ -285,9 +252,8 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
           </div>
         </div>
       </div>
-<p className="mt-3 text-sm text-charcoal/70">
-  {t('gift.paymentNotice')}
-</p>
+
+      <p className="mt-3 text-sm text-charcoal/70">{t('gift.paymentNotice')}</p>
 
       <Button
         type="submit"
@@ -296,7 +262,6 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
       >
         {isSubmitting ? sendingLabel : submitLabel}
       </Button>
-
     </form>
   )
 }

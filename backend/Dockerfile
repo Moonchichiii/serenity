@@ -26,6 +26,7 @@ COPY . /app
 ENV PYTHONPATH=/app/backend
 WORKDIR /app/backend
 
+# Build-time: use base settings for collectstatic (no Redis/Upstash needed)
 ENV DJANGO_SETTINGS_MODULE=config.settings
 
 RUN --mount=type=secret,id=django_secret_key,required=false \
@@ -41,6 +42,7 @@ RUN --mount=type=secret,id=django_secret_key,required=false \
     mkdir -p /app/backend/staticfiles && \
     python manage.py collectstatic --noinput -v 1
 
+# Runtime: Fly's env var (config.settings.production) overrides this
 CMD ["bash","-lc","exec gunicorn config.asgi:application \
  -k uvicorn.workers.UvicornWorker \
  --bind 0.0.0.0:${PORT:-8000} \

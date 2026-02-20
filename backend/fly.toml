@@ -7,7 +7,7 @@ dockerfile = "Dockerfile"
 [env]
 PORT = "8000"
 ENVIRONMENT = "production"
-DJANGO_SETTINGS_MODULE = "config.settings"
+DJANGO_SETTINGS_MODULE = "config.settings.production"
 WEB_CONCURRENCY = "1"
 WEB_TIMEOUT = "60"
 
@@ -19,7 +19,7 @@ auto_stop_machines = false
 min_machines_running = 1
 
 [deploy]
-release_command = "bash -lc 'cd /app/backend && python manage.py migrate --noinput -v 2'"
+release_command = "bash -lc 'cd /app/backend && python manage.py migrate --noinit -v 2'"
 
 [[vm]]
 memory = "512mb"
