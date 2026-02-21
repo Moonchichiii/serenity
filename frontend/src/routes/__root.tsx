@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import { createRootRoute, Outlet } from '@tanstack/react-router'
 import { Layout } from '@/components/layout/Layout'
 import { ensureHydratedCMS } from '@/lib/cmsQuery'

@@ -3,7 +3,7 @@ import { Mail, MapPin, Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import AnimatedInstagramIcon from '@/components/ui/AnimatedInstagramIcon'
 import AnimatedFacebookIcon from '@/components/ui/AnimatedFacebookIcon'
-import { useModal } from '@/shared/hooks/useModal'
+import { useModal } from '@/hooks/useModal'
 
 const Footer: React.FC = () => {
   const { t } = useTranslation()

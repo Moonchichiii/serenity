@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react'
 import { useCallback, useRef } from 'react'
-import { useModal } from '@/shared/hooks/useModal'
+import { useModal } from '@/hooks/useModal'
 
 type SecretTriggerProps = PropsWithChildren<{
   modalId: 'cmsLogin' | 'contact'

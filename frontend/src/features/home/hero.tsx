@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 import { useCMSPage } from '@/lib/cmsSelectors'
-import CloudImage from '@/components/ResponsiveImage'
-import CookieConsent from '@/components/CookieConsent'
-import { useModal } from '@/shared/hooks/useModal'
-import { motion } from 'framer-motion'
+// CHANGED: Renamed import from CloudImage to ResponsiveImage
+import ResponsiveImage from '@/components/ui/ResponsiveImage'
+import CookieConsent from '@/components/ui/CookieConsent'
+import { useModal } from '@/hooks/useModal'
 
 export function Hero() {
   const { t, i18n } = useTranslation()
@@ -16,7 +17,9 @@ export function Hero() {
   const [active, setActive] = useState(0)
 
   const slides = useMemo(() => {
-    const s = (cmsData?.hero_slides || []).filter(s => s.image)
+    // Note: We keep the filter here to ensure we have an image object structure,
+    // even though ResponsiveImage handles nulls, the logic below relies on arrays of objects.
+    const s = (cmsData?.hero_slides || []).filter((s) => s.image)
     if (s.length) return s
     if (cmsData?.hero_image) return [{ image: cmsData.hero_image }]
     return null
@@ -24,28 +27,45 @@ export function Hero() {
 
   useEffect(() => {
     if (!slides || slides.length < 2) return
-    const id = setInterval(() => setActive(p => (p + 1) % slides.length), 5000)
+    const id = setInterval(
+      () => setActive((p) => (p + 1) % slides.length),
+      5000,
+    )
     return () => clearInterval(id)
   }, [slides])
 
-  const lang = (i18n.language === 'en' || i18n.language === 'fr') ? (i18n.language as 'en' | 'fr') : 'fr'
+  const lang =
+    i18n.language === 'en' || i18n.language === 'fr'
+      ? (i18n.language as 'en' | 'fr')
+      : 'fr'
 
-  // CMS-FIRST LOGIC (Simplified now that cmsData is guaranteed or null, not loading state)
-  const title = (lang === 'fr' ? cmsData?.hero_title_fr : cmsData?.hero_title_en) ?? t('hero.title')
-  const subtitle = (lang === 'fr' ? cmsData?.hero_subtitle_fr : cmsData?.hero_subtitle_en) ?? t('hero.subtitle')
+  // CMS-FIRST LOGIC
+  const title =
+    (lang === 'fr' ? cmsData?.hero_title_fr : cmsData?.hero_title_en) ??
+    t('hero.title')
+  const subtitle =
+    (lang === 'fr' ? cmsData?.hero_subtitle_fr : cmsData?.hero_subtitle_en) ??
+    t('hero.subtitle')
 
   const ctaPrivateText = t('hero.ctaPrivate')
   const ctaCorporateText = t('hero.ctaCorporate')
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-
+    <section
+      id="home"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
+    >
       {/* 1. BACKGROUND SLIDESHOW */}
       <div className="absolute inset-0 z-0">
         {slides ? (
           slides.map((s, idx) => {
+            // Safe access to title, fallback string provided
             const alt = s.image?.title || 'Hero background'
             const visible = active === idx
+
+            // CHANGED: Logic moved here for clarity.
+            // We render the component; if s.image is null internal logic handles it,
+            // but our filter above ensures s.image exists mostly.
             return (
               <div
                 key={idx}
@@ -55,8 +75,13 @@ export function Hero() {
                 aria-hidden="true"
               >
                 {/* Scale animation for breathing effect */}
-                <div className={`w-full h-full transition-transform duration-[6000ms] ease-linear ${visible ? 'scale-110' : 'scale-100'}`}>
-                  <CloudImage
+                <div
+                  className={`w-full h-full transition-transform duration-[6000ms] ease-linear ${
+                    visible ? 'scale-110' : 'scale-100'
+                  }`}
+                >
+                  {/* CHANGED: Swapped CloudImage for ResponsiveImage, removed manual null checks */}
+                  <ResponsiveImage
                     image={s.image}
                     alt={alt}
                     priority={idx === 0}
@@ -78,11 +103,8 @@ export function Hero() {
 
       {/* 3. CONTENT - Centered but Wider (max-w-5xl) */}
       <div className="relative z-10 container mx-auto px-4 lg:px-8 flex flex-col items-center justify-center text-center h-full">
-
         {/* Title */}
-        <motion.h1
-          className="text-5xl md:text-6xl lg:text-7xl font-serif font-medium text-stone-900 mb-6 drop-shadow-sm max-w-5xl"
-        >
+        <motion.h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-medium text-stone-900 mb-6 drop-shadow-sm max-w-5xl">
           {title}
         </motion.h1>
 

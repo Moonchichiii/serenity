@@ -12,7 +12,8 @@ import { getLocalizedText } from '@/api/cms'
 
 // Shared UI
 import TestimonialBanner from '@/features/testimonials/TestimonialBanner'
-import CloudImage from '@/components/ResponsiveImage'
+// CHANGED: Renamed import from CloudImage to ResponsiveImage
+import ResponsiveImage from '@/components/ui/ResponsiveImage'
 
 export function Services() {
   const { t, i18n } = useTranslation()
@@ -22,7 +23,6 @@ export function Services() {
 
   const lang = (i18n.language?.startsWith('fr') ? 'fr' : 'en') as 'en' | 'fr'
 
-  // Logic to highlight Chair Massage (Amma Assis)
   const highlightedServiceId = useMemo(() => {
     if (!services) return null
     return services.find((s) => {
@@ -82,12 +82,10 @@ export function Services() {
 
                 <div className="flex overflow-x-auto snap-x snap-mandatory gap-5 pb-8 -mx-4 px-6 no-scrollbar">
                   {services.map((service) => {
-                    const title = getLocalizedText(service, 'title', lang)
-                    const description = getLocalizedText(
-                      service,
-                      'description',
-                      lang
-                    )
+                    const title =
+                      getLocalizedText(service, 'title', lang) || 'Service'
+                    const description =
+                      getLocalizedText(service, 'description', lang) || ''
                     const isHighlighted = service.id === highlightedServiceId
 
                     return (
@@ -95,13 +93,13 @@ export function Services() {
                         key={service.id}
                         className="snap-center shrink-0 w-[85vw] relative flex flex-col overflow-hidden rounded-[2rem] bg-white shadow-lg shadow-stone-200/50 border border-stone-100"
                       >
-                        {service.image?.url && (
+                        {/* CHANGED: Check .src and use ResponsiveImage without fit="cover" */}
+                        {service.image?.src && (
                           <div className="relative w-full h-56 overflow-hidden">
-                            <CloudImage
+                            <ResponsiveImage
                               image={service.image}
                               alt={service.image.title || title}
                               className="w-full h-full object-cover"
-                              fit="cover"
                               sizes="(max-width: 640px) 90vw"
                             />
                             {/* Price Badge */}
@@ -146,12 +144,10 @@ export function Services() {
               {/* DESKTOP VIEW: Grid */}
               <div className="hidden md:grid grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-10 max-w-7xl mx-auto">
                 {services.map((service, index) => {
-                  const title = getLocalizedText(service, 'title', lang)
-                  const description = getLocalizedText(
-                    service,
-                    'description',
-                    lang
-                  )
+                  const title =
+                    getLocalizedText(service, 'title', lang) || 'Service'
+                  const description =
+                    getLocalizedText(service, 'description', lang) || ''
                   const isHighlighted = service.id === highlightedServiceId
 
                   return (
@@ -162,15 +158,15 @@ export function Services() {
                       viewport={{ once: true }}
                       transition={{ duration: 0.6, delay: index * 0.1 }}
                       whileHover={{ y: -8 }}
-                      className="relative flex flex-col overflow-hidden rounded-[2rem] bg-white shadow-xl shadow-stone-200/40 border border-stone-100 transition-all duration-500 hover:shadow-2xl hover:shadow-stone-200/60"
+                      className="group relative flex flex-col overflow-hidden rounded-[2rem] bg-white shadow-xl shadow-stone-200/40 border border-stone-100 transition-all duration-500 hover:shadow-2xl hover:shadow-stone-200/60"
                     >
-                      {service.image?.url && (
+                      {/* CHANGED: Check .src and use ResponsiveImage without fit="cover" */}
+                      {service.image?.src && (
                         <div className="relative w-full h-64 overflow-hidden">
-                          <CloudImage
+                          <ResponsiveImage
                             image={service.image}
                             alt={service.image.title || title}
                             className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
-                            fit="cover"
                             sizes="(max-width:1280px) 45vw, 400px"
                           />
 

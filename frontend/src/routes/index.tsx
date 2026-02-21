@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createRoute } from "@tanstack/react-router";
+import { createRoute, createFileRoute } from "@tanstack/react-router";
 import { Route as RootRoute } from "./__root";
 import { Hero } from "@/features/home/hero";
 import { Suspense, lazy } from "react";
@@ -33,7 +33,7 @@ function HomePage() {
   );
 }
 
-export const Route = createRoute({
+export const Route = createRoute("/")({
   getParentRoute: () => RootRoute,
   path: "/",
   component: HomePage,

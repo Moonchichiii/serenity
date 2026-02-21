@@ -7,7 +7,7 @@ import '@/styles/index.css'
 
 import { router } from './router'
 import { queryClient } from './query-client'
-import { ModalProvider } from '@/shared/hooks/useModal'
+import { ModalProvider } from '@/hooks/useModal'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 export function AppProviders() {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Modal from '@/components/ui/Modal'
-import { useModal } from '@/shared/hooks/useModal'
+import { useModal } from '@/hooks/useModal'
 import { GiftForm } from '@/components/forms/GiftForm'
 import { useTranslation } from 'react-i18next'
 import { cmsAPI } from '@/api/cms'

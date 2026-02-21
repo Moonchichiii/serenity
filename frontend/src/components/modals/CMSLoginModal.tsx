@@ -1,20 +1,26 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import * as yup from 'yup'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { Modal } from '@/components/ui/Modal'
-import { useModal } from '@/shared/hooks/useModal'
+import { useModal } from '@/hooks/useModal'
 import { Button } from '@/components/ui/Button'
 import { User, Lock } from 'lucide-react'
 import { apiClient, API_URL } from '@/api/client'
 import toast from 'react-hot-toast'
 
-type FormData = { username: string; password: string }
-
-const schema = yup.object({
-  username: yup.string().required('Username is required').min(2, 'Minimum 2 characters'),
-  password: yup.string().required('Password is required').min(6, 'Minimum 6 characters'),
+const schema = z.object({
+  username: z
+    .string()
+    .min(2, { message: 'Minimum 2 characters' })
+    .min(1, { message: 'Username is required' }),
+  password: z
+    .string()
+    .min(6, { message: 'Minimum 6 characters' })
+    .min(1, { message: 'Password is required' }),
 })
+
+type FormData = z.infer<typeof schema>
 
 export default function CMSLoginModal() {
   const { isOpen, close } = useModal()
@@ -32,7 +38,10 @@ export default function CMSLoginModal() {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<FormData>({ resolver: yupResolver(schema) })
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: { username: '', password: '' },
+  })
 
   useEffect(() => {
     if (!open) return
@@ -54,15 +63,17 @@ export default function CMSLoginModal() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      if (!csrfToken) {
+      let token = csrfToken
+      if (!token) {
         const csrfRes = await apiClient.get('/api/auth/csrf/')
-        setCsrfToken(csrfRes.data?.csrfToken || null)
+        token = csrfRes.data?.csrfToken || null
+        setCsrfToken(token)
       }
 
       await apiClient.post(
         '/api/auth/login/',
         { username: data.username, password: data.password },
-        { headers: { 'X-CSRFToken': csrfToken || '' } }
+        { headers: { 'X-CSRFToken': token || '' } }
       )
 
       const r = await apiClient.get('/api/auth/me/')
@@ -122,7 +133,9 @@ export default function CMSLoginModal() {
                 className="w-full pl-9 pr-3 py-2 rounded-xl border-2 border-sage-200 focus:border-terracotta-300 focus:ring-2 focus:ring-terracotta-200"
               />
             </div>
-            {errors.username && <p className="text-sm text-terracotta-500 mt-1">{errors.username.message}</p>}
+            {errors.username?.message && (
+              <p className="text-sm text-terracotta-500 mt-1">{errors.username.message}</p>
+            )}
           </div>
 
           <div>
@@ -137,7 +150,7 @@ export default function CMSLoginModal() {
                 className="w-full pl-9 pr-3 py-2 rounded-xl border-2 border-sage-200 focus:border-terracotta-300 focus:ring-2 focus:ring-terracotta-200"
               />
             </div>
-            {errors.password && (
+            {errors.password?.message && (
               <p className="text-sm text-terracotta-500 mt-1">{errors.password.message}</p>
             )}
           </div>

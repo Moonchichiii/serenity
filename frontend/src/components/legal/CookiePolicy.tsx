@@ -1,7 +1,7 @@
 import { Settings } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useModal } from '@/shared/hooks/useModal'
-import { requestCookieSettingsOpen } from '@/shared/consent'
+import { useModal } from '@/hooks/useModal'
+import { requestCookieSettingsOpen } from '@/components/ui/consent'
 
 export function CookiePolicy() {
   const { t } = useTranslation()

@@ -10,10 +10,12 @@ import { Heart, User, Award, Mail, ArrowRight } from 'lucide-react'
 
 import SecretTrigger from '@/components/secret/SecretTrigger'
 import { Button } from '@/components/ui/Button'
-import CloudImage from '@/components/ResponsiveImage'
-import { useModal } from '@/shared/hooks/useModal'
+// CHANGED: Renamed import from CloudImage to ResponsiveImage per instruction
+import ResponsiveImageComponent from '@/components/ui/ResponsiveImage'
+import { useModal } from '@/hooks/useModal'
 import { useCMSPage } from '@/lib/cmsSelectors'
-import type { WagtailImage, WagtailSpecialty } from '@/types/api'
+// CHANGED: Replaced WagtailImage with ResponsiveImage
+import type { ResponsiveImage, WagtailSpecialty } from '@/types/api'
 
 // Lazy-load map at module level (never inside a component)
 const LocationMap = lazy(() =>
@@ -25,7 +27,8 @@ const LocationMap = lazy(() =>
 // ── Types ────────────────────────────────────────────────────────────
 type GridItem = {
   title: string
-  image: WagtailImage | null | undefined
+  // CHANGED: Updated type definition
+  image: ResponsiveImage | null | undefined
 }
 
 // ── Extracted static components ──────────────────────────────────────
@@ -327,8 +330,10 @@ export function About() {
                         : 'aspect-square',
                     ].join(' ')}
                   >
-                    {sp.image?.url && (
-                      <CloudImage
+                    {/* CHANGED: Checked for .src instead of .url */}
+                    {sp.image?.src && (
+                      // CHANGED: Using ResponsiveImageComponent instead of CloudImage
+                      <ResponsiveImageComponent
                         image={sp.image}
                         alt={sp.title}
                         className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"

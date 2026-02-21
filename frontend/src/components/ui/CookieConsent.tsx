@@ -2,14 +2,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/Button'
-import { useModal } from '@/shared/hooks/useModal'
+import { useModal } from '@/hooks/useModal'
 import {
   getConsent,
   saveConsent,
   defaultConsent,
   CONSENT_VERSION,
   onCookieSettingsOpen,
-} from '@/shared/consent'
+} from '@/components/ui/consent'
 
 export default function CookieConsent({ className = '' }: { className?: string }) {
   const { t } = useTranslation()

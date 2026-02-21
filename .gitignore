@@ -181,3 +181,4 @@ staticfiles/
 *.swp
 *.swo
 gen.py
+.tanstack

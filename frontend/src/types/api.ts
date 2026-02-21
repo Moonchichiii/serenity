@@ -1,9 +1,10 @@
-export interface WagtailImage {
-  id?: number
+export interface ResponsiveImage {
   title: string
-  url: string
-  width?: number
-  height?: number
+  width?: number | null
+  height?: number | null
+  src: string | null
+  srcset?: string | null
+  sizes?: string | null
 }
 
 export interface WagtailHeroSlide {
@@ -11,13 +12,13 @@ export interface WagtailHeroSlide {
   title_fr?: string
   subtitle_en?: string
   subtitle_fr?: string
-  image: WagtailImage | null
+  image: ResponsiveImage | null
 }
 
 export interface WagtailSpecialty {
   title_en?: string
   title_fr?: string
-  image?: WagtailImage | null
+  image?: ResponsiveImage | null
 }
 
 export interface WagtailService {
@@ -28,7 +29,7 @@ export interface WagtailService {
   description_en: string
   duration_minutes: number
   price: string
-  image: WagtailImage | null
+  image: ResponsiveImage | null
   is_available: boolean
 }
 
@@ -37,8 +38,10 @@ export interface WagtailHomePage {
   hero_title_fr: string
   hero_subtitle_en: string
   hero_subtitle_fr: string
-  hero_image: WagtailImage | null
+
+  hero_image: ResponsiveImage | null
   hero_slides?: WagtailHeroSlide[]
+
   about_title_en: string
   about_title_fr: string
   about_subtitle_en: string
@@ -54,10 +57,12 @@ export interface WagtailHomePage {
   about_specialties_title_en: string
   about_specialties_title_fr: string
   specialties?: WagtailSpecialty[]
+
   phone: string
   email: string
   address_en: string
   address_fr: string
+
   services_hero_title_en: string
   services_hero_title_fr: string
   services_hero_pricing_label_en: string
@@ -72,11 +77,14 @@ export interface WagtailHomePage {
   services_hero_benefit_2_fr: string
   services_hero_benefit_3_en: string
   services_hero_benefit_3_fr: string
+
   services_hero_video_public_id: string | null
   services_hero_video_url?: string | null
-  services_hero_poster_image: WagtailImage | null
+
+  services_hero_poster_image: ResponsiveImage | null
 }
 
+// Testimonials etc unchanged
 export interface WagtailReply {
   id: number
   name: string
@@ -136,15 +144,14 @@ export interface ContactSubmissionResponse {
   message: string
 }
 
+// ✅ Make globals use the same image type
 export interface GlobalSettings {
   gift: {
     is_enabled: boolean
-    floating_icon: {
-      url: string
-      width: number
-      height: number
-      title: string
-    } | null
+    floating_icon: ResponsiveImage | null
+    // If you also have voucher_image, add it here:
+    // voucher_image: ResponsiveImage | null
+
     modal_title_en: string
     modal_title_fr: string
     modal_text_en: string

@@ -1,5 +1,5 @@
 import Modal from '@/components/ui/Modal'
-import { useModal } from '@/shared/hooks/useModal'
+import { useModal } from '@/hooks/useModal'
 import { CorporateBookingForm } from '@/components/forms/CorporateBookingForm'
 import { useTranslation } from 'react-i18next'
 

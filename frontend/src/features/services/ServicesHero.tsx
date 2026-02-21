@@ -4,13 +4,13 @@ import { Check } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useCMSPage } from '@/lib/cmsSelectors'
-import { useModal } from '@/shared/hooks/useModal'
+import { useModal } from '@/hooks/useModal'
 import { getLocalizedText } from '@/lib/localize'
-import {
-  getResponsivePosterUrl,
-  getOptimizedVideoUrl,
-} from '@/utils/cloudinary'
+// CHANGED: Removed getResponsivePosterUrl
+import { getOptimizedVideoUrl } from '@/utils/cloudinary'
 import { Button } from '@/components/ui/Button'
+// CHANGED: Imported ResponsiveImage
+import ResponsiveImage from '@/components/ui/ResponsiveImage'
 
 const FALLBACK_POSTER =
   'https://res.cloudinary.com/dbzlaawqt/image/upload/v1762274193/poster_zbbwz5.webp'
@@ -46,8 +46,8 @@ export function ServicesHero() {
   // ── Performance flags ──────────────────────────────────────────────
   const saveData =
     typeof navigator !== 'undefined' &&
-    (navigator as unknown as { connection?: NetworkInformation })
-      .connection?.saveData
+    (navigator as unknown as { connection?: NetworkInformation }).connection
+      ?.saveData
 
   const prefersReducedMotion =
     typeof window !== 'undefined' &&
@@ -57,22 +57,9 @@ export function ServicesHero() {
 
   const lang = i18n.language.startsWith('fr') ? 'fr' : 'en'
 
-  // ── Poster: derived via useMemo (no setState in effect) ────────────
-  const posterBaseUrl =
-    page?.services_hero_poster_image?.url ?? null
-
-  const posterUrl = useMemo(() => {
-    if (!posterBaseUrl) return FALLBACK_POSTER
-    const w =
-      typeof window !== 'undefined'
-        ? Math.max(window.innerWidth || 0, 360)
-        : 768
-    return getResponsivePosterUrl(posterBaseUrl, w, {
-      quality: 'eco',
-      min: 480,
-      max: 1440,
-    })
-  }, [posterBaseUrl])
+  // ── Poster Logic (Refactored) ──────────────────────────────────────
+  const poster = page?.services_hero_poster_image
+  const posterUrl = poster?.src ?? FALLBACK_POSTER
 
   // ── Video: setState only inside event callbacks ────────────────────
   useEffect(() => {
@@ -96,13 +83,9 @@ export function ServicesHero() {
 
     const buildVideoUrl = () => {
       const width =
-        typeof window !== 'undefined'
-          ? window.innerWidth || 1920
-          : 1920
-      if (width <= 640)
-        return getOptimizedVideoUrl(publicId, 640, 'eco')
-      if (width <= 1024)
-        return getOptimizedVideoUrl(publicId, 1024, 'eco')
+        typeof window !== 'undefined' ? window.innerWidth || 1920 : 1920
+      if (width <= 640) return getOptimizedVideoUrl(publicId, 640, 'eco')
+      if (width <= 1024) return getOptimizedVideoUrl(publicId, 1024, 'eco')
       return getOptimizedVideoUrl(publicId, 1920, 'eco')
     }
 
@@ -121,11 +104,7 @@ export function ServicesHero() {
 
   // ── Content extraction ─────────────────────────────────────────────
   const title = getLocalizedText(page, 'services_hero_title', lang)
-  const priceLabel = getLocalizedText(
-    page,
-    'services_hero_pricing_label',
-    lang,
-  )
+  const priceLabel = getLocalizedText(page, 'services_hero_pricing_label', lang)
   const price = getLocalizedText(page, 'services_hero_price', lang)
   const cta = getLocalizedText(page, 'services_hero_cta', lang)
 
@@ -159,13 +138,12 @@ export function ServicesHero() {
           preload="metadata"
         >
           <source src={videoSrc} type="video/mp4" />
-          {captionsUrl && (
-            <track kind="captions" src={captionsUrl} default />
-          )}
+          {captionsUrl && <track kind="captions" src={captionsUrl} default />}
         </video>
       ) : (
-        <img
-          src={posterUrl}
+        // CHANGED: Using ResponsiveImage for fallback
+        <ResponsiveImage
+          image={poster}
           alt=""
           aria-hidden="true"
           className="absolute inset-0 h-full w-full object-cover object-center"
@@ -195,9 +173,7 @@ export function ServicesHero() {
             {/* LEFT */}
             <div className="flex flex-col gap-6 text-center lg:text-left">
               <span className="hidden lg:block text-xs font-bold tracking-[0.2em] text-sage-200 uppercase mb-[-0.5rem] drop-shadow-md">
-                {lang === 'fr'
-                  ? 'Bien-être au travail'
-                  : 'Corporate Wellness'}
+                {lang === 'fr' ? 'Bien-être au travail' : 'Corporate Wellness'}
               </span>
 
               <h2 className="font-serif font-medium text-white leading-[1.15] text-4xl sm:text-5xl md:text-6xl drop-shadow-lg">

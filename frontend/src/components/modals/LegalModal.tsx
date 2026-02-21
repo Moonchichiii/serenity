@@ -1,6 +1,6 @@
 import { Suspense, lazy, useMemo } from 'react'
 import Modal from '@/components/ui/Modal'
-import { useModal } from '@/shared/hooks/useModal'
+import { useModal } from '@/hooks/useModal'
 import { useTranslation } from 'react-i18next'
 
 type LegalPageKey = 'legal' | 'privacy' | 'cookies' | 'terms' | 'accessibility'
