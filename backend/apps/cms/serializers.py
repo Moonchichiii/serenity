@@ -1,10 +1,3 @@
-"""
-apps.cms.serializers
-~~~~~~~~~~~~~~~~~~~~
-DRF serializers configured for high-performance hydration.
-Zero-query policy: Data must be prefetched by selectors.
-"""
-
 from __future__ import annotations
 
 from typing import Any
@@ -15,9 +8,7 @@ from apps.cms.pages import HomePage
 from apps.cms.settings import GiftSettings
 from apps.core.images import HERO_SIZES, SECTION_HERO_SIZES, serialize_image
 
-# ──────────────────────────────────────────────────────────────────────
 # Orderable serializers
-# ──────────────────────────────────────────────────────────────────────
 
 
 class HeroSlideSerializer(serializers.Serializer):
@@ -46,10 +37,7 @@ class SpecialtySerializer(serializers.Serializer):
         return serialize_image(getattr(obj, "image", None))
 
 
-# ──────────────────────────────────────────────────────────────────────
 # HomePage serializer
-# ──────────────────────────────────────────────────────────────────────
-
 
 class HomePageSerializer(serializers.ModelSerializer):
     hero_slides = HeroSlideSerializer(many=True, read_only=True)
@@ -130,11 +118,6 @@ class HomePageSerializer(serializers.ModelSerializer):
             return f.url if f else None
         except Exception:
             return None
-
-
-# ──────────────────────────────────────────────────────────────────────
-# Settings serializers
-# ──────────────────────────────────────────────────────────────────────
 
 
 class GiftSettingsSerializer(serializers.ModelSerializer):

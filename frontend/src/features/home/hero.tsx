@@ -6,7 +6,7 @@ import { useCMSPage } from '@/lib/cmsSelectors'
 // CHANGED: Renamed import from CloudImage to ResponsiveImage
 import ResponsiveImage from '@/components/ui/ResponsiveImage'
 import CookieConsent from '@/components/ui/CookieConsent'
-import { useModal } from '@/hooks/useModal'
+import { useModal } from '@/components/modal/useModal'
 
 export function Hero() {
   const { t, i18n } = useTranslation()

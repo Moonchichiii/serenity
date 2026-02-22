@@ -8,7 +8,7 @@ import { ServicesHero } from './ServicesHero'
 
 // ✅ Refactored: Import selector instead of fetch hook
 import { useCMSServices } from '@/lib/cmsSelectors'
-import { getLocalizedText } from '@/api/cms'
+import { getLocalizedText } from '@/api/cms'  this is not correct anymore???
 
 // Shared UI
 import TestimonialBanner from '@/features/testimonials/TestimonialBanner'

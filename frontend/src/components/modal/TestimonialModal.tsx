@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, MessageCircle, Send, Star } from 'lucide-react'
-import { cmsAPI, type WagtailTestimonial } from '@/api/cms'
+import { cmsAPI, type WagtailTestimonial } from '@/api/cms' this has to change!!! !
 
 interface Props {
   isOpen: boolean

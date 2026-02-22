@@ -10,7 +10,6 @@ class GiftVoucherInputSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GiftVoucher
-        # Fixed RUF012: Converted list to immutable tuple
         fields = (
             'purchaser_name',
             'purchaser_email',
@@ -26,6 +25,5 @@ class GiftVoucherResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GiftVoucher
-        # Fixed RUF012: Converted lists to immutable tuples
         fields = ('code', 'recipient_name', 'created_at')
         read_only_fields = ('code', 'recipient_name', 'created_at')
