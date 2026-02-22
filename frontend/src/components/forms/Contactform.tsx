@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/Button'
 import { Mail, Phone, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
-import { cmsAPI } from '@/api/cms'
 import {
   createContactSchema,
   type ContactFormValues,
 } from '@/types/forms/contact'
+import { useSubmitContact } from '@/queries/contact.mutations'
 
 interface ContactFormProps {
   onSuccess?: () => void
@@ -20,6 +20,8 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
   const { t } = useTranslation()
 
   const schema = useMemo(() => createContactSchema(t), [t])
+
+  const submit = useSubmitContact()
 
   const {
     register,
@@ -35,7 +37,7 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
 
   const onSubmit = async (data: ContactFormValues) => {
     try {
-      await cmsAPI.submitContact({
+      await submit.mutateAsync({
         name: data.name,
         email: data.email,
         phone: data.phone || '',
@@ -152,7 +154,10 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
         <input
           id="subject"
           type="text"
-          placeholder={t('contact.form.subject.placeholder', 'Appointment request')}
+          placeholder={t(
+            'contact.form.subject.placeholder',
+            'Appointment request',
+          )}
           aria-invalid={!!errors.subject}
           className="w-full px-4 py-2.5 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors text-base text-charcoal"
           {...register('subject')}
@@ -174,7 +179,10 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
         <textarea
           id="message"
           rows={4}
-          placeholder={t('contact.form.message.placeholder', 'Describe your needs...')}
+          placeholder={t(
+            'contact.form.message.placeholder',
+            'Describe your needs...',
+          )}
           aria-invalid={!!errors.message}
           className="w-full px-4 py-2.5 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors resize-none text-base text-charcoal"
           {...register('message')}
@@ -198,8 +206,12 @@ export function ContactForm({ onSuccess, defaultSubject }: ContactFormProps) {
         </p>
       </div>
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={isSubmitting || submit.isPending}
+      >
+        {isSubmitting || submit.isPending
           ? t('contact.form.sending', 'Sending...')
           : t('contact.form.send', 'Send Message')}
       </Button>

@@ -3,7 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { RouterProvider } from '@tanstack/react-router'
 import { Toaster } from 'react-hot-toast'
 import '@/i18n/config'
-import '@/styles/index.css'
+import '@/styles/globals.css'
 
 import { router } from './router'
 import { queryClient } from './query-client'

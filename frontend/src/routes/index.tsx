@@ -5,12 +5,12 @@ import { Hero } from "@/features/home/hero";
 import { Suspense, lazy } from "react";
 
 const About = lazy(() =>
-  import("@/features/about/about").then((m) => ({
+  import("@/features/about/AboutSection").then((m) => ({
     default: m.About,
   }))
 );
 const Services = lazy(() =>
-  import("@/features/services/Services").then((m) => ({
+  import("@/features/services/ServicesSection").then((m) => ({
     default: m.Services,
   }))
 );
