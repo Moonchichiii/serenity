@@ -5,26 +5,25 @@ from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
-    # 1. Auth / Core
     path("api/", include("apps.core.urls")),
 
-    # 2. Wagtail Admin
+    # Wagtail
     path("cms-admin/", include("wagtail.admin.urls")),
-    #path("cms-admin/settings/", include("wagtail.contrib.settings.urls")),
     path("documents/", include("wagtail.documents.urls")),
 
-    # 3. Documentation (Schema)
+    # Docs
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
 
-    # 4. Serenity Apps
-    path("api/", include("apps.cms.urls")),
-    path("api/", include("apps.testimonials.urls")),
+    # SPA boot (CMS)
+    path("api/", include("apps.cms.urls")),  # contains homepage/hydrated/
+
+    # Domain APIs
+    path("api/testimonials/", include("apps.testimonials.urls")),
     path("api/calendar/", include("apps.availability.urls")),
     path("api/bookings/", include("apps.bookings.urls")),
     path("api/contact/", include("apps.contact.urls")),
     path("api/vouchers/", include("apps.vouchers.urls")),
 
-    # 5. Django Admin
     path("admin/", admin.site.urls),
 ]
 
