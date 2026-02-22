@@ -1,50 +1,46 @@
-import type { PropsWithChildren } from 'react'
-import { createContext, useCallback, useMemo, useState } from 'react'
-import { ModalShell } from './ModalShell'
-import type { ModalId, ModalPayloadMap } from './modalTypes'
-import { modalRegistry, modalMeta } from './modalRegistry'
+import type { PropsWithChildren } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { ModalShell } from "./ModalShell";
+import type { ModalId, ModalPayloadMap } from "./modalTypes";
+import { modalRegistry, modalMeta } from "./modalRegistry";
+import { ModalContext } from "./ModalContext";
 
 type ModalState =
   | { id: null; payload: null }
-  | { id: ModalId; payload: ModalPayloadMap[ModalId] | null }
-
-type ModalContextValue = {
-  open: <K extends ModalId>(id: K, payload?: ModalPayloadMap[K]) => void
-  close: () => void
-  isOpen: (id: ModalId) => boolean
-  getPayload: <K extends ModalId>(id: K) => ModalPayloadMap[K] | null
-}
-
-export const ModalContext = createContext<ModalContextValue | null>(null)
+  | { id: ModalId; payload: ModalPayloadMap[ModalId] | null };
 
 export function ModalProvider({ children }: PropsWithChildren) {
-  const [state, setState] = useState<ModalState>({ id: null, payload: null })
+  const [state, setState] = useState<ModalState>({ id: null, payload: null });
 
   const open = useCallback(
     <K extends ModalId>(id: K, payload?: ModalPayloadMap[K]) => {
-      setState({ id, payload: (payload ?? null) as ModalPayloadMap[ModalId] | null })
+      setState({
+        id,
+        payload: (payload ?? null) as ModalPayloadMap[ModalId] | null,
+      });
     },
     [],
-  )
+  );
 
   const close = useCallback(() => {
-    setState({ id: null, payload: null })
-  }, [])
+    setState({ id: null, payload: null });
+  }, []);
 
-  const isOpen = useCallback((id: ModalId) => state.id === id, [state.id])
+  const isOpen = useCallback((id: ModalId) => state.id === id, [state.id]);
 
   const getPayload = useCallback(
-    <K extends ModalId>(id: K) => (state.id === id ? (state.payload as ModalPayloadMap[K] | null) : null),
+    <K extends ModalId>(id: K) =>
+      state.id === id ? (state.payload as ModalPayloadMap[K] | null) : null,
     [state.id, state.payload],
-  )
+  );
 
   const value = useMemo(
     () => ({ open, close, isOpen, getPayload }),
     [open, close, isOpen, getPayload],
-  )
+  );
 
-  const ActiveScreen = state.id ? modalRegistry[state.id] : null
-  const meta = state.id ? modalMeta[state.id] : undefined
+  const ActiveScreen = state.id ? modalRegistry[state.id] : null;
+  const meta = state.id ? modalMeta[state.id] : undefined;
 
   return (
     <ModalContext.Provider value={value}>
@@ -59,5 +55,5 @@ export function ModalProvider({ children }: PropsWithChildren) {
         {ActiveScreen ? <ActiveScreen /> : null}
       </ModalShell>
     </ModalContext.Provider>
-  )
+  );
 }

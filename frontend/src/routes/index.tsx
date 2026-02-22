@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createRoute, createFileRoute } from "@tanstack/react-router";
+import { createRoute } from "@tanstack/react-router";
 import { Route as RootRoute } from "./__root";
 import { Hero } from "@/features/home/hero";
 import { Suspense, lazy } from "react";
@@ -7,17 +7,19 @@ import { Suspense, lazy } from "react";
 const About = lazy(() =>
   import("@/features/about/AboutSection").then((m) => ({
     default: m.About,
-  }))
+  })),
 );
+
 const Services = lazy(() =>
   import("@/features/services/ServicesSection").then((m) => ({
     default: m.Services,
-  }))
+  })),
 );
+
 const ReviewTrigger = lazy(() =>
-  import(
-    "@/features/testimonials/components/ReviewTrigger"
-  ).then((m) => ({ default: m.ReviewTrigger }))
+  import("@/features/testimonials/components/ReviewTrigger").then((m) => ({
+    default: m.ReviewTrigger,
+  })),
 );
 
 function HomePage() {

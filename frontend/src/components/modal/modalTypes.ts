@@ -1,21 +1,22 @@
 export type LegalPageKey =
-  | "legal"
-  | "privacy"
-  | "cookies"
-  | "terms"
-  | "accessibility";
+  | 'legal'
+  | 'privacy'
+  | 'cookies'
+  | 'terms'
+  | 'accessibility'
 
-export type ModalId = "contact" | "corporate" | "gift" | "legal" | "cmsLogin";
+export type ModalId = 'contact' | 'corporate' | 'gift' | 'legal' | 'cmsLogin'
 
-export type ModalPayloads = {
-  contact: { defaultSubject?: string } | undefined;
-  corporate: { defaultEventType?: "corporate" | "team" | "expo" | "private" | "other" } | undefined;
-  gift: undefined;
-  legal: { page?: LegalPageKey } | undefined;
-  cmsLogin: undefined;
-};
+// Modal payloads: undefined if no payload, object if payload exists.
+export type ModalPayloadMap = {
+  contact: { defaultSubject?: string }
+  corporate: { defaultEventType?: 'corporate' | 'team' | 'expo' | 'private' | 'other' }
+  gift: undefined
+  legal: { page?: LegalPageKey }
+  cmsLogin: undefined
+}
 
-export type ModalState<K extends ModalId = ModalId> = {
-  id: K;
-  payload?: ModalPayloads[K];
-};
+// Modal state shape.
+export type ModalState =
+  | { id: null; payload: null }
+  | { id: ModalId; payload: ModalPayloadMap[ModalId] | null }
