@@ -1,5 +1,5 @@
 import { calendarApi } from "@/api/calendar.api"
-import { qk } from "./keys"
+import { qk } from '@/lib/queryKeys'
 
 export const busyDaysQuery = (year: number, month: number) => ({
   queryKey: qk.calendarBusy(year, month),

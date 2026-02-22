@@ -1,5 +1,5 @@
 import { bookingsApi } from "@/api/bookings.api"
-import { qk } from "./keys"
+import { qk } from '@/lib/queryKeys'
 
 export const bookingsByEmailQuery = (email: string) => ({
   queryKey: qk.bookingsByEmail(email),

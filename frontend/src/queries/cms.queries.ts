@@ -1,5 +1,5 @@
 import { cmsApi } from "@/api/cms.api"
-import { qk } from "./keys"
+import { qk } from '@/lib/queryKeys'
 
 export const cmsHydratedQuery = () => ({
   queryKey: qk.cmsHydrated(),
