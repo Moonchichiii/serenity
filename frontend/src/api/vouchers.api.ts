@@ -1,20 +1,31 @@
 import { apiClient } from "./client"
 import { endpoints } from "./endpoints"
+import type { GiftVoucherSubmission, GiftVoucherResponse } from "@/types/api"
 
-export type VoucherCreateInput = {
+type VoucherCreatePayload = {
   purchaser_name: string
   purchaser_email: string
   recipient_name: string
   recipient_email: string
-  message?: string
-  preferred_date?: string | null
+  message: string
+  preferred_date: string | null
 }
 
-export type VoucherCreateResponse = { code: string }
-
 export const vouchersApi = {
-  create: async (data: VoucherCreateInput): Promise<VoucherCreateResponse> => {
-    const res = await apiClient.post<VoucherCreateResponse>(endpoints.voucherCreate(), data)
+  create: async (data: GiftVoucherSubmission): Promise<GiftVoucherResponse> => {
+    const payload: VoucherCreatePayload = {
+      purchaser_name: data.purchaserName,
+      purchaser_email: data.purchaserEmail,
+      recipient_name: data.recipientName,
+      recipient_email: data.recipientEmail,
+      message: data.message ?? "",
+      preferred_date: data.preferredDate ? data.preferredDate : null,
+    }
+
+    const res = await apiClient.post<GiftVoucherResponse>(
+      endpoints.voucherCreate(),
+      payload,
+    )
     return res.data
   },
 }
