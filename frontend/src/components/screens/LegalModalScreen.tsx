@@ -1,7 +1,6 @@
 import { Suspense, lazy, useMemo } from 'react'
-import Modal from '@/components/ui/Modal'
-import { useModal } from '@/hooks/useModal'
 import { useTranslation } from 'react-i18next'
+import { useModal } from '@/components/modal/useModal'
 
 type LegalPageKey = 'legal' | 'privacy' | 'cookies' | 'terms' | 'accessibility'
 
@@ -11,14 +10,13 @@ const CookiePolicy = lazy(() => import('@/components/legal/CookiePolicy').then(m
 const TermsAndConditions = lazy(() => import('@/components/legal/TermsAndConditions').then(m => ({ default: m.TermsAndConditions })))
 const AccessibilityStatement = lazy(() => import('@/components/legal/AccessibilityStatement').then(m => ({ default: m.AccessibilityStatement })))
 
-export function LegalModal() {
+export default function LegalModalScreen() {
   const { t } = useTranslation()
-  const { isOpen, close, getPayload } = useModal()
+  const { getPayload } = useModal()
 
-  const open = isOpen('legal')
   const page = (getPayload('legal')?.page ?? 'legal') as LegalPageKey
 
-  const Title = useMemo(() => {
+  const title = useMemo(() => {
     switch (page) {
       case 'privacy':
         return t('legalPages.privacy.title')
@@ -51,15 +49,14 @@ export function LegalModal() {
   }, [page])
 
   return (
-    <Modal
-      isOpen={open}
-      onClose={() => close('legal')}
-      title={Title}
-      className="max-w-4xl"
-    >
-      <Suspense fallback={<div className="p-6 text-center text-charcoal/70">Loading…</div>}>
+    <div className="space-y-4">
+      <h2 className="text-lg sm:text-xl font-heading font-semibold text-charcoal">
+        {title}
+      </h2>
+
+      <Suspense fallback={<div className="p-2 text-center text-charcoal/70">Loading…</div>}>
         <Content />
       </Suspense>
-    </Modal>
+    </div>
   )
 }

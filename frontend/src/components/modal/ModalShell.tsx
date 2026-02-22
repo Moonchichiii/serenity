@@ -1,48 +1,39 @@
-import { useEffect, useRef } from 'react'
-import { createPortal } from 'react-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-type Props = {
-  isOpen: boolean
-  onClose: () => void
-  title?: string
-  children: React.ReactNode
-  className?: string
-  scrollable?: boolean
-}
+type ModalShellProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+  children: React.ReactNode;
+  className?: string;
+};
 
-export function Modal({
-  isOpen,
-  onClose,
-  title,
-  children,
-  className,
-}: Props) {
-  const overlayRef = useRef<HTMLDivElement>(null)
+export function ModalShell({ isOpen, onClose, title, children, className }: ModalShellProps) {
+  const overlayRef = useRef<HTMLDivElement>(null);
 
-  // Close on Escape
   useEffect(() => {
-    if (!isOpen) return
+    if (!isOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [isOpen, onClose])
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen, onClose]);
 
-  // Lock background scroll
   useEffect(() => {
-    if (!isOpen) return
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    if (!isOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = prev
-    }
-  }, [isOpen])
+      document.body.style.overflow = prev;
+    };
+  }, [isOpen]);
 
-  const overlay = (
+  const ui = (
     <AnimatePresence>
       {isOpen && (
         <div
@@ -56,7 +47,7 @@ export function Modal({
           aria-modal="true"
           role="dialog"
           onMouseDown={(e) => {
-            if (e.target === overlayRef.current) onClose()
+            if (e.target === overlayRef.current) onClose();
           }}
         >
           <motion.div
@@ -68,16 +59,16 @@ export function Modal({
 
           <motion.div
             className={cn(
-              'relative z-10 bg-white flex flex-col',
-              'shadow-elevated border-t-2 sm:border-2 border-sage-200/50',
-              'w-full sm:w-[92vw] max-w-lg',
-              'max-h-[85dvh] sm:max-h-[85vh]',
-              'rounded-t-2xl sm:rounded-2xl',
+              "relative z-10 bg-white flex flex-col",
+              "shadow-elevated border-t-2 sm:border-2 border-sage-200/50",
+              "w-full sm:w-[92vw] max-w-lg",
+              "max-h-[85dvh] sm:max-h-[85vh]",
+              "rounded-t-2xl sm:rounded-2xl",
               className,
             )}
-            initial={{ y: '100%', opacity: 0 }}
+            initial={{ y: "100%", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: '100%', opacity: 0 }}
+            exit={{ y: "100%", opacity: 0 }}
             transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
           >
             <div className="flex items-center justify-between px-5 py-4 border-b border-sage-100 shrink-0 bg-white rounded-t-2xl">
@@ -88,6 +79,7 @@ export function Modal({
               ) : (
                 <span aria-hidden />
               )}
+
               <button
                 onClick={onClose}
                 className="rounded-lg p-2 -mr-2 text-charcoal/60 hover:text-charcoal hover:bg-sand-100 transition"
@@ -107,9 +99,7 @@ export function Modal({
         </div>
       )}
     </AnimatePresence>
-  )
+  );
 
-  return createPortal(overlay, document.body)
+  return createPortal(ui, document.body);
 }
-
-export default Modal

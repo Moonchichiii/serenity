@@ -2,29 +2,21 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Modal } from '@/components/ui/Modal'
-import { useModal } from '@/hooks/useModal'
 import { Button } from '@/components/ui/Button'
 import { User, Lock } from 'lucide-react'
 import { apiClient, API_URL } from '@/api/client'
 import toast from 'react-hot-toast'
+import { useModal } from '@/components/modal/useModal'
 
 const schema = z.object({
-  username: z
-    .string()
-    .min(2, { message: 'Minimum 2 characters' })
-    .min(1, { message: 'Username is required' }),
-  password: z
-    .string()
-    .min(6, { message: 'Minimum 6 characters' })
-    .min(1, { message: 'Password is required' }),
+  username: z.string().min(2, { message: 'Minimum 2 characters' }).min(1, { message: 'Username is required' }),
+  password: z.string().min(6, { message: 'Minimum 6 characters' }).min(1, { message: 'Password is required' }),
 })
 
 type FormData = z.infer<typeof schema>
 
-export default function CMSLoginModal() {
-  const { isOpen, close } = useModal()
-  const open = isOpen('cmsLogin')
+export default function CMSLoginModalScreen() {
+  const { close } = useModal()
 
   const [csrfToken, setCsrfToken] = useState<string | null>(null)
   const [me, setMe] = useState<{
@@ -44,8 +36,6 @@ export default function CMSLoginModal() {
   })
 
   useEffect(() => {
-    if (!open) return
-
     const fetchSessionData = async () => {
       try {
         const csrfRes = await apiClient.get('/api/auth/csrf/')
@@ -59,7 +49,7 @@ export default function CMSLoginModal() {
     }
 
     fetchSessionData()
-  }, [open])
+  }, [])
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -73,7 +63,7 @@ export default function CMSLoginModal() {
       await apiClient.post(
         '/api/auth/login/',
         { username: data.username, password: data.password },
-        { headers: { 'X-CSRFToken': token || '' } }
+        { headers: { 'X-CSRFToken': token || '' } },
       )
 
       const r = await apiClient.get('/api/auth/me/')
@@ -98,14 +88,27 @@ export default function CMSLoginModal() {
   }
 
   return (
-    <Modal isOpen={open} onClose={() => close('cmsLogin')} title="CMS Login">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="text-lg sm:text-xl font-heading font-semibold text-charcoal">
+          CMS Login
+        </h2>
+        <button
+          onClick={close}
+          className="text-sm underline text-charcoal/70 hover:text-charcoal"
+          type="button"
+        >
+          Close
+        </button>
+      </div>
+
       {me?.isAuthenticated ? (
         <div className="space-y-4">
           <p className="text-charcoal/80">
             Signed in as <strong>{me.username}</strong>
             {me.isStaff ? ' (staff)' : null}
           </p>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <a
               href={`${API_URL}/cms-admin/`}
               target="_blank"
@@ -159,9 +162,11 @@ export default function CMSLoginModal() {
             {isSubmitting ? 'Signing in…' : 'Sign in'}
           </Button>
 
-          <p className="text-xs text-charcoal/60">Staff only. Use your Wagtail admin username.</p>
+          <p className="text-xs text-charcoal/60">
+            Staff only. Use your Wagtail admin username.
+          </p>
         </form>
       )}
-    </Modal>
+    </div>
   )
 }

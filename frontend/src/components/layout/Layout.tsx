@@ -32,6 +32,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <GiftVoucherModal />
       <LegalModal />
 
+      {/*<ModalRoot />*/}
 
       {/* Floating Actions */}
       <FloatingGiftButton />

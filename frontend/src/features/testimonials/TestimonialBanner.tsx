@@ -5,7 +5,7 @@ import { Star, MessageCircle, Quote } from 'lucide-react'
 
 import { useCMSTestimonials } from '@/lib/cmsSelectors'
 import type { WagtailTestimonial } from '@/types/api'
-import { TestimonialModal } from '@/components/modals/TestimonialModal'
+import { TestimonialModal } from '@/components/modal/TestimonialModal'
 
 export function TestimonialBanner() {
   const { t } = useTranslation()
