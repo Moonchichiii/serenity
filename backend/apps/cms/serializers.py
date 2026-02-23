@@ -73,11 +73,6 @@ class HomePageSerializer(serializers.ModelSerializer):
             "about_specialties_title_en",
             "about_specialties_title_fr",
             "specialties",
-            # Contact
-            "phone",
-            "email",
-            "address_en",
-            "address_fr",
             # Services hero
             "services_hero_title_en",
             "services_hero_title_fr",

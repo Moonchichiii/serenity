@@ -51,11 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
           desc: "Approve or reject replies to testimonials.",
           btn1: "Manage Replies",
         },
-        contact: {
-          title: "Contact Info",
-          desc: "Update your contact details shown in the footer and throughout the site.",
-          btn1: "Edit Contact",
-        },
       },
     },
     fr: {
@@ -102,11 +97,6 @@ document.addEventListener("DOMContentLoaded", () => {
           title: "Réponses aux Avis",
           desc: "Approuvez ou rejetez les réponses de la communauté.",
           btn1: "Gérer Réponses",
-        },
-        contact: {
-          title: "Info Contact",
-          desc: "Mettez à jour vos coordonnées affichées dans le pied de page.",
-          btn1: "Modifier Contact",
         },
       },
     },

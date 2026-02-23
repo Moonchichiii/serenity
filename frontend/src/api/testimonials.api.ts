@@ -31,3 +31,33 @@ export const testimonialsApi = {
     return res.data
   },
 }
+
+
+
+
+
+
+/* Tiny optional cleanups (worth doing for consistency)
+1) Stick to one quote style + spacing
+
+You’re mixing " and ' and sometimes long lines. Not “wrong”, but if you want extremely tight, pick one (I’d use single quotes everywhere).
+
+2) vouchers.api.ts: normalize payload mapping style
+
+This is already fine. If you want it slightly cleaner:
+
+Use data.preferredDate ?? null
+
+Use data.message ?? ''
+
+preferred_date: data.preferredDate ?? null,
+message: data.message ?? '',
+3) testimonials.api.ts: naming consistency for params
+
+You use min_rating (snake) to match backend query param — good. Internally you could use minRating and map to min_rating, but either is fine. If you want consistency with TS style:
+
+list: async (minRating = 0) => {
+  params: { min_rating: minRating }
+}
+
+Not required, just polish. */

@@ -37,10 +37,6 @@ export interface WagtailHomePage {
   about_specialties_title_fr: string
   specialties?: WagtailSpecialty[]
 
-  phone: string
-  email: string
-  address_en: string
-  address_fr: string
 
   services_hero_title_en: string
   services_hero_title_fr: string

@@ -135,13 +135,6 @@ _ABOUT_SPECIALTIES_PANELS: list = [
     InlinePanel("specialties", label="Specialties (image + title)"),
 ]
 
-_CONTACT_PANELS: list = [
-    FieldPanel("phone", heading="Phone Number (with country code)"),
-    FieldPanel("email", heading="Email Address"),
-    FieldPanel("address_en", heading="Address (English)"),
-    FieldPanel("address_fr", heading="Address (Français)"),
-]
-
 _SERVICES_HERO_PANELS: list = [
     FieldPanel("services_hero_title_en"),
     FieldPanel("services_hero_title_fr"),
@@ -180,6 +173,7 @@ class HomePage(Page):
     Multilingual homepage for the React SPA.
     """
 
+    # ── Hero ──────────────────────────────────────────────
     hero_title_en = models.CharField(
         max_length=200,
         blank=True,
@@ -222,6 +216,7 @@ class HomePage(Page):
         ),
     )
 
+    # ── About ─────────────────────────────────────────────
     about_title_en = models.CharField(
         max_length=200,
         blank=True,
@@ -246,7 +241,6 @@ class HomePage(Page):
         default="",
         help_text="Sous-titre (ex : 'Dédiée à Votre Bien-Être').",
     )
-
     about_intro_en = RichTextField(
         blank=True,
         default="",
@@ -278,7 +272,6 @@ class HomePage(Page):
             "(ex : 'Massothérapeute Professionnelle Certifiée')."
         ),
     )
-
     about_approach_title_en = models.CharField(
         max_length=200,
         blank=True,
@@ -301,7 +294,6 @@ class HomePage(Page):
         default="",
         help_text="Décrivez votre approche unique du massage thérapeutique.",
     )
-
     about_specialties_title_en = models.CharField(
         max_length=200,
         blank=True,
@@ -315,6 +307,7 @@ class HomePage(Page):
         help_text="Titre des spécialités (ex : 'Spécialités').",
     )
 
+    # ── Services Hero ─────────────────────────────────────
     services_hero_video_public_id = models.CharField(
         max_length=255,
         blank=True,
@@ -341,7 +334,6 @@ class HomePage(Page):
         related_name="+",
         help_text="Poster image shown before/instead of video.",
     )
-
     services_hero_title_en = models.CharField(
         max_length=255,
         blank=True,
@@ -390,7 +382,6 @@ class HomePage(Page):
         default="Demander un Devis",
         help_text="CTA button text (Français).",
     )
-
     services_hero_benefit_1_en = models.CharField(
         max_length=200,
         blank=True,
@@ -422,30 +413,7 @@ class HomePage(Page):
         default="Améliorez le bien-être et le moral de l'équipe",
     )
 
-    phone = models.CharField(
-        max_length=64,
-        blank=True,
-        default="",
-        help_text="Phone number with country code (e.g. +33 6 00 00 00 00).",
-    )
-    email = models.EmailField(
-        blank=True,
-        default="",
-        help_text="Professional email address for bookings and inquiries.",
-    )
-    address_en = models.CharField(
-        max_length=300,
-        blank=True,
-        default="",
-        help_text="Business address in English.",
-    )
-    address_fr = models.CharField(
-        max_length=300,
-        blank=True,
-        default="",
-        help_text="Adresse professionnelle en français.",
-    )
-
+    # ── Search ────────────────────────────────────────────
     search_fields: ClassVar[list] = [
         *Page.search_fields,
         index.SearchField("hero_title_en"),
@@ -456,6 +424,7 @@ class HomePage(Page):
         index.SearchField("about_approach_text_fr"),
     ]
 
+    # ── Admin panels ──────────────────────────────────────
     content_panels: ClassVar[list] = [
         *Page.content_panels,
         MultiFieldPanel(
@@ -488,12 +457,6 @@ class HomePage(Page):
             _ABOUT_SPECIALTIES_PANELS,
             heading="👤 About — Specialties",
             help_text="Order controls display order on the site.",
-            classname="collapsible",
-        ),
-        MultiFieldPanel(
-            _CONTACT_PANELS,
-            heading="📞 Contact Information",
-            help_text="Displayed in the footer and contact sections.",
             classname="collapsible",
         ),
         MultiFieldPanel(
