@@ -6,17 +6,15 @@ from typing import Any
 import cloudinary.utils
 from wagtail.images.models import Image
 
-# Responsive widths (tune if you want fewer variants)
 IMG_WIDTHS: tuple[int, ...] = (360, 480, 640, 768, 1024, 1280, 1536)
 
 DEFAULT_SIZES = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-
-# Requested contracts
 HERO_SIZES = "100vw"
 SECTION_HERO_SIZES = "(max-width: 1024px) 100vw, 1280px"
 
 
 def _file_url(img: Image) -> str | None:
+    """Return the direct file URL or None."""
     try:
         f = getattr(img, "file", None)
         return getattr(f, "url", None) if f else None
@@ -25,36 +23,24 @@ def _file_url(img: Image) -> str | None:
 
 
 def _cloudinary_public_id(img: Image) -> str | None:
-    """
-    django-cloudinary-storage stores the Cloudinary public_id in file.name.
-    In local dev (FileSystemStorage) this will be a path-like name; we treat that
-    as 'no cloudinary' and fall back to file.url.
-    """
+    """Extract the Cloudinary public_id from the image file name."""
     try:
         f = getattr(img, "file", None)
         name = getattr(f, "name", None) if f else None
         if not name:
             return None
-
-        # Heuristic: local storage paths typically look like "media/..."
         if name.startswith(("media/", "media\\", "/")):
             return None
-
         return str(name)
     except Exception:
         return None
 
 
-def _cloudinary_image_url(public_id: str, width: int, *, quality: str = "eco") -> str:
-    """
-    Performance defaults:
-    - fetch_format="auto" -> AVIF/WebP when supported, else best fallback
-    - quality="auto:eco"/"auto:good" -> Cloudinary chooses best tradeoff
-    - crop="fill", gravity="auto" -> stable layout + smart cropping
-    - flags="progressive" -> helps JPEGs (no harm to webp/avif)
-    """
+def _cloudinary_image_url(
+    public_id: str, width: int, *, quality: str = "eco"
+) -> str:
+    """Build an optimised Cloudinary delivery URL."""
     q = "auto:eco" if quality == "eco" else "auto:good"
-
     url, _ = cloudinary.utils.cloudinary_url(
         public_id,
         width=width,
@@ -75,6 +61,7 @@ def serialize_image(
     widths: Iterable[int] = IMG_WIDTHS,
     quality: str = "eco",
 ) -> dict[str, Any] | None:
+    """Serialize a Wagtail Image into a responsive-ready dictionary."""
     if not img:
         return None
 
@@ -84,7 +71,6 @@ def serialize_image(
 
     public_id = _cloudinary_public_id(img)
 
-    # Local-dev fallback: serve direct file url (still includes width/height).
     if not public_id:
         return {
             "title": title,
@@ -99,15 +85,18 @@ def serialize_image(
     if not widths_list:
         widths_list = [640]
 
-    # Choose a sensible default "src" width (mid-ish), not the smallest.
     default_src_width = widths_list[min(2, len(widths_list) - 1)]
 
-    src = _cloudinary_image_url(public_id, default_src_width, quality=quality)
-
-    srcset = ", ".join(
-        f"{_cloudinary_image_url(public_id, w, quality=quality)} {w}w"
-        for w in widths_list
-    )
+    try:
+        src = _cloudinary_image_url(
+            public_id, default_src_width, quality=quality
+        )
+        srcset = ", ".join(
+            f"{_cloudinary_image_url(public_id, w, quality=quality)} {w}w"
+            for w in widths_list
+        )
+    except Exception:
+        return None
 
     return {
         "title": title,

@@ -79,24 +79,19 @@ def _require_testimonials(*, limit: int) -> list[dict[str, Any]]:
 
 
 def _require_globals(*, site: Site | None) -> dict[str, Any]:
-    """
-    Ensures global settings are present with a stable dictionary shape.
-    """
-    from apps.cms.serializers import GiftSettingsSerializer
-    from apps.cms.settings import GiftSettings
+    from apps.cms.serializers import GiftSettingsSerializer, SerenitySettingsSerializer
+    from apps.cms.settings import GiftSettings, SerenitySettings
 
-    gift_settings = None
-    if site:
-        gift_settings = GiftSettings.for_site(site)
+    if not site:
+        # strict: no site = no globals (or raise if you prefer)
+        return {"gift": None, "site": None}
 
-    if not gift_settings:
-        gift_settings = GiftSettings.objects.first()
+    gift_obj = GiftSettings.objects.filter(site=site).first()
+    serenity_obj = SerenitySettings.objects.filter(site=site).first()
 
     return {
-        "gift": (
-            GiftSettingsSerializer(gift_settings).data
-            if gift_settings else None
-        ),
+        "gift": GiftSettingsSerializer(gift_obj).data if gift_obj else None,
+        "site": SerenitySettingsSerializer(serenity_obj).data if serenity_obj else None,
     }
 
 

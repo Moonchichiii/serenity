@@ -5,10 +5,14 @@ from typing import Any
 from rest_framework import serializers
 
 from apps.cms.pages import HomePage
-from apps.cms.settings import GiftSettings
-from apps.core.images import HERO_SIZES, SECTION_HERO_SIZES, serialize_image
+from apps.cms.settings import GiftSettings, SerenitySettings
+from apps.core.images import (
+    HERO_SIZES,
+    SECTION_HERO_SIZES,
+    serialize_image,
+)
 
-# Orderable serializers
+# ── Orderable serializers ───────────────────────────────────────────
 
 
 class HeroSlideSerializer(serializers.Serializer):
@@ -19,7 +23,6 @@ class HeroSlideSerializer(serializers.Serializer):
     image = serializers.SerializerMethodField()
 
     def get_image(self, obj: Any) -> dict[str, Any] | None:
-        # Hero backgrounds: higher quality is worth it
         return serialize_image(
             getattr(obj, "image", None),
             sizes=HERO_SIZES,
@@ -33,16 +36,16 @@ class SpecialtySerializer(serializers.Serializer):
     image = serializers.SerializerMethodField()
 
     def get_image(self, obj: Any) -> dict[str, Any] | None:
-        # Defaults should be "eco" in serialize_image()
         return serialize_image(getattr(obj, "image", None))
 
 
-# HomePage serializer
+# ── HomePage serializer ────────────────────────────────────────────
+
 
 class HomePageSerializer(serializers.ModelSerializer):
     hero_slides = HeroSlideSerializer(many=True, read_only=True)
     hero_image = serializers.SerializerMethodField()
-    specialties = SpecialtySerializer(many=True, required=False, read_only=True)
+    specialties = SpecialtySerializer(many=True, read_only=True)
 
     services_hero_poster_image = serializers.SerializerMethodField()
     services_hero_video_url = serializers.SerializerMethodField()
@@ -51,6 +54,8 @@ class HomePageSerializer(serializers.ModelSerializer):
         model = HomePage
         fields = (
             # Hero
+            "id",
+            "slug",
             "hero_title_en",
             "hero_title_fr",
             "hero_subtitle_en",
@@ -100,19 +105,37 @@ class HomePageSerializer(serializers.ModelSerializer):
             quality="good",
         )
 
-    def get_services_hero_poster_image(self, obj: HomePage) -> dict[str, Any] | None:
+    def get_services_hero_poster_image(
+        self, obj: HomePage
+    ) -> dict[str, Any] | None:
         return serialize_image(
             obj.services_hero_poster_image,
             sizes=SECTION_HERO_SIZES,
             quality="good",
         )
 
-    def get_services_hero_video_url(self, obj: HomePage) -> str | None:
+    def get_services_hero_video_url(
+        self, obj: HomePage
+    ) -> str | None:
         f = getattr(obj, "services_hero_video_file", None)
         try:
             return f.url if f else None
         except Exception:
             return None
+
+
+# ── Globals serializers ─────────────────────────────────────────────
+
+
+class SerenitySettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SerenitySettings
+        fields = (
+            "brand",
+            "instagram_url",
+            "facebook_url",
+            "business_hours",
+        )
 
 
 class GiftSettingsSerializer(serializers.ModelSerializer):
@@ -151,8 +174,9 @@ class GiftSettingsSerializer(serializers.ModelSerializer):
             "email_closing_fr",
         )
 
-    def get_floating_icon(self, obj: GiftSettings) -> dict[str, Any] | None:
-        # Small UI icons: limit srcset widths + fixed sizes
+    def get_floating_icon(
+        self, obj: GiftSettings
+    ) -> dict[str, Any] | None:
         return serialize_image(
             obj.floating_icon,
             widths=(150, 300),
@@ -160,8 +184,9 @@ class GiftSettingsSerializer(serializers.ModelSerializer):
             quality="eco",
         )
 
-    def get_voucher_image(self, obj: GiftSettings) -> dict[str, Any] | None:
-        # Useful for SPA modal preview (even if email also uses it)
+    def get_voucher_image(
+        self, obj: GiftSettings
+    ) -> dict[str, Any] | None:
         return serialize_image(
             obj.voucher_image,
             sizes="(max-width: 640px) 90vw, 600px",

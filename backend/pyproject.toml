@@ -211,3 +211,6 @@ pythonpath = ["."]
 testpaths = ["apps"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
+markers = [
+    "performance: performance/queries tests",
+]

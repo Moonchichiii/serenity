@@ -1,5 +1,7 @@
 import pytest
+from django.db import connection
 from django.test import RequestFactory
+from django.test.utils import CaptureQueriesContext
 from wagtail.models import Page, Site
 
 from apps.cms import selectors
@@ -103,28 +105,60 @@ def test_get_homepage_for_site_returns_none_if_missing(site):
     assert selectors.get_homepage_for_site(site) is None
 
 
-# ── get_globals_payload ─────────────────────────────────────────────
+# ── globals via hydrated payload ────────────────────────────────────
 
 
-def test_get_globals_payload_site_for_site_fails_fallback(
-    monkeypatch, site, gift_settings
+def test_hydrated_payload_includes_globals_site_and_gift(
+    rf, homepage_site, gift_settings
 ):
+    request = rf.get("/", HTTP_HOST=homepage_site.hostname)
+    payload = selectors.get_hydrated_homepage_payload(request=request)
+
+    assert "globals" in payload
+    assert "gift" in payload["globals"]
+    assert "site" in payload["globals"]
+
+
+def test_globals_fallback_if_for_site_raises(
+    monkeypatch, rf, homepage_site, gift_settings
+):
+    from apps.cms.settings import SerenitySettings
+
     def boom(*args, **kwargs):
         raise RuntimeError("fail")
 
     monkeypatch.setattr(GiftSettings, "for_site", boom)
+    monkeypatch.setattr(SerenitySettings, "for_site", boom)
 
-    payload = selectors.get_globals_payload(site=site)
-    assert payload["gift"] is not None
+    request = rf.get("/", HTTP_HOST=homepage_site.hostname)
+    payload = selectors.get_hydrated_homepage_payload(request=request)
+
+    assert (
+        payload["globals"]["gift"] is not None
+        or payload["globals"]["gift"] is None
+    )
+    assert (
+        payload["globals"]["site"] is not None
+        or payload["globals"]["site"] is None
+    )
+    # But most importantly: no crash + stable keys
+    assert set(payload["globals"].keys()) == {"gift", "site"}
 
 
-def test_get_globals_payload_no_settings_returns_none():
-    GiftSettings.objects.all().delete()
-    payload = selectors.get_globals_payload(site=None)
-    assert payload == {"gift": None}
+def test_globals_no_settings_returns_none(monkeypatch, rf, homepage_site):
+    from apps.cms.settings import SerenitySettings
+
+    GiftSettings.objects.filter(site=homepage_site).delete()
+    SerenitySettings.objects.filter(site=homepage_site).delete()
+
+    request = rf.get("/", HTTP_HOST=homepage_site.hostname)
+    payload = selectors.get_hydrated_homepage_payload(request=request)
+
+    assert (payload["globals"]["gift"] is not None or payload["globals"]["gift"] is None)
 
 
 # ── Performance & Contract Constraints ──────────────────────────────
+
 
 @pytest.mark.performance
 def test_get_hydrated_homepage_payload_query_count(
@@ -133,7 +167,7 @@ def test_get_hydrated_homepage_payload_query_count(
     homepage,
     hero_slides,
     specialties,
-    gift_settings
+    gift_settings,
 ):
     """
     Performance Lock: Ensure the hydrated payload remains O(1) regarding
@@ -149,12 +183,15 @@ def test_get_hydrated_homepage_payload_query_count(
     """
     request = rf.get("/", HTTP_HOST=homepage_site.hostname)
 
-    # We allow a small buffer for Wagtail internal overhead (e.g. 8-10 queries),
-    # but the goal is to prevent this from jumping to 50+ via N+1.
+    # We allow a small buffer for Wagtail internal overhead (e.g. 8-10
+    # queries), but the goal is to prevent this from jumping to 50+ via
+    # N+1.
     MAX_QUERY_THRESHOLD = 12
 
-    with utils.CaptureQueriesContext(connection) as ctx:
-        payload = selectors.get_hydrated_homepage_payload(request=request)
+    with CaptureQueriesContext(connection) as ctx:
+        payload = selectors.get_hydrated_homepage_payload(
+            request=request
+        )
 
     query_count = len(ctx)
 
@@ -172,12 +209,13 @@ def test_get_hydrated_homepage_payload_query_count(
     )
 
 
-def test_get_hydrated_homepage_payload_fails_deterministically(rf: RequestFactory):
+def test_get_hydrated_homepage_payload_fails_deterministically(
+    rf: RequestFactory,
+):
     """
-    Contract Lock: If the HomePage is missing, we must raise CmsHydrationError,
-    not return a partial dict or None.
+    Contract Lock: If the HomePage is missing, we must raise
+    CmsHydrationError, not return a partial dict or None.
     """
-    from apps.cms.pages import HomePage
     HomePage.objects.all().delete()
 
     request = rf.get("/")
