@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import { createRoute } from "@tanstack/react-router";
 import { Route as RootRoute } from "./__root";
 import { Hero } from "@/features/home/hero";

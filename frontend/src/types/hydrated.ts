@@ -3,11 +3,11 @@ import type {
   WagtailService,
   WagtailTestimonial,
   GlobalSettings,
-} from "./api";
+} from '@/types/api'
 
 export interface HydratedPayload {
-  page: WagtailHomePage;
-  services: WagtailService[];
-  testimonials: WagtailTestimonial[];
-  globals: GlobalSettings;
+  page: WagtailHomePage
+  services: WagtailService[]
+  testimonials: WagtailTestimonial[]
+  globals: GlobalSettings
 }
