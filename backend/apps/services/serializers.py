@@ -34,7 +34,6 @@ class ServiceSerializer(serializers.ModelSerializer):
         )
 
     def get_image(self, obj: Service) -> dict[str, Any] | None:
-        # Services are usually cards/list items -> eco is ideal
         return serialize_image(
             getattr(obj, "image", None),
             sizes=DEFAULT_SIZES,

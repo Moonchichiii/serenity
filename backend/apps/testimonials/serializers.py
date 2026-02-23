@@ -12,7 +12,7 @@ class ReplySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TestimonialReply
-        # Fixed RUF012: Converted list to tuple
+
         fields = ('id', 'name', 'text', 'date')
 
     def get_date(self, obj: TestimonialReply) -> str:
@@ -30,7 +30,7 @@ class TestimonialSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Testimonial
-        # Fixed RUF012: Converted list to tuple
+
         fields = (
             'id',
             'name',

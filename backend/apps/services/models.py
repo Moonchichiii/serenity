@@ -25,7 +25,6 @@ class Service(models.Model):
     )
     is_available = models.BooleanField(default=True)
 
-    # Fixed RUF012: Annotate mutable class attribute with ClassVar
     panels: ClassVar[list] = [
         FieldPanel('title_en'),
         FieldPanel('title_fr'),
@@ -42,5 +41,4 @@ class Service(models.Model):
         verbose_name_plural = 'Services'
 
     def __str__(self) -> str:
-        # Fixed ANN204: Added return type annotation
         return str(self.title_en)

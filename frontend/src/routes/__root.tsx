@@ -1,8 +1,9 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
+import type { QueryClient } from '@tanstack/react-query'
 import { Layout } from '@/components/layout/Layout'
-import { ensureHydratedCMS } from '@/lib/cmsQuery'
+import { ensureHydratedCMS } from '@/loaders/cms.loader'
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   loader: async ({ context }) => {
     await ensureHydratedCMS(context.queryClient)
   },
