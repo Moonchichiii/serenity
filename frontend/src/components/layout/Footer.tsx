@@ -1,143 +1,192 @@
-import React from 'react'
-import { Mail, MapPin, Clock } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
-import AnimatedInstagramIcon from '@/components/ui/AnimatedInstagramIcon'
-import AnimatedFacebookIcon from '@/components/ui/AnimatedFacebookIcon'
-import { useModal } from '@/components/modal/useModal'
+import React from "react";
+import { Mail, MapPin, Clock } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import AnimatedInstagramIcon from "@/components/ui/AnimatedInstagramIcon";
+import AnimatedFacebookIcon from "@/components/ui/AnimatedFacebookIcon";
+import { useModal } from "@/components/modal/useModal";
 
 const Footer: React.FC = () => {
-  const { t } = useTranslation()
-  const { open } = useModal()
-  const currentYear = new Date().getFullYear()
-
-  // Updated Colors: Still Dark Green, but borders are cleaner
-  const footerBgColor = 'bg-[#2a3c30]'
+  const { t } = useTranslation();
+  const { open } = useModal();
+  const currentYear = new Date().getFullYear();
 
   const linkBtnClass =
-    'cursor-pointer text-white/70 hover:text-white transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-md text-left text-sm py-1'
+    "cursor-pointer text-white/60 hover:text-white transition-colors" +
+    " duration-300 focus-visible:outline-none focus-visible:ring-2" +
+    " focus-visible:ring-white/40 rounded-md text-left text-[15px]" +
+    " leading-snug py-1.5";
 
   return (
     <footer id="site-footer" className="relative mt-0 contain-content">
-      {/* Main Footer Content */}
-      <div className={`${footerBgColor} text-white pt-20 pb-32 md:pb-12`}>
-        <div className="container mx-auto px-6 lg:px-12">
+      <div className="bg-[#1a2921] text-white pt-24 pb-36 md:pb-14">
+        <div className="container mx-auto px-6 lg:px-16">
+          {/* ── Brand hero row ── */}
+          <div
+            className="flex flex-col md:flex-row md:items-end
+              md:justify-between gap-8 pb-16
+              border-b border-white/[0.08]"
+          >
+            <div>
+              <h3
+                className="font-serif text-5xl md:text-6xl text-white
+                  tracking-wide leading-tight"
+              >
+                La Serenity
+              </h3>
+              <p
+                className="mt-5 text-[15px] text-white/50 leading-relaxed
+                  max-w-md font-light"
+              >
+                {t("footer.tagline")}
+              </p>
+            </div>
 
-          {/* Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-12 border-b border-white/10 pb-16 text-left">
+            <div className="flex items-center gap-5">
+              <AnimatedInstagramIcon
+                magnetic
+                size={48}
+                href="https://www.instagram.com/laserenity_marseille/"
+              />
+              <AnimatedFacebookIcon
+                magnetic
+                size={48}
+                href="https://facebook.com/yourpage"
+              />
+            </div>
+          </div>
 
-            {/* COLUMN 1: Brand */}
-            <div className="md:col-span-5 flex flex-col items-start space-y-8">
-              <div>
-                <h3 className="font-serif text-4xl text-white tracking-wide">
-                  La Serenity
-                </h3>
-                <p className="mt-4 text-sm text-white/60 leading-relaxed max-w-sm font-light">
-                  {t('footer.tagline')}
-                </p>
-              </div>
+          {/* ── Info grid ── */}
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
+              gap-12 lg:gap-16 pt-16 pb-16
+              border-b border-white/[0.08]"
+          >
+            {/* Contact */}
+            <div>
+              <h4
+                className="text-xs font-bold uppercase tracking-[0.2em]
+                  text-white/40 mb-7"
+              >
+                {t("footer.contactTitle")}
+              </h4>
 
-              <div className="flex items-center gap-6">
-                <AnimatedInstagramIcon
-                  magnetic
-                  size={44}
-                  href="https://www.instagram.com/laserenity_marseille/"
-                />
-                <AnimatedFacebookIcon
-                  magnetic
-                  size={44}
-                  href="https://facebook.com/yourpage"
-                />
+              <div className="space-y-5">
+                <a
+                  href={`mailto:${t("footer.email")}`}
+                  className="flex items-center gap-4 text-white/70
+                    hover:text-white transition-colors group text-[15px]"
+                >
+                  <div
+                    className="p-2.5 rounded-xl bg-white/[0.06]
+                      group-hover:bg-white/[0.12] transition-colors"
+                  >
+                    <Mail className="w-[18px] h-[18px]" />
+                  </div>
+                  <span className="font-light">
+                    {t("footer.email")}
+                  </span>
+                </a>
+
+                <div
+                  className="flex items-start gap-4 text-white/70
+                    text-[15px]"
+                >
+                  <div className="p-2.5 rounded-xl bg-white/[0.06]">
+                    <MapPin className="w-[18px] h-[18px]" />
+                  </div>
+                  <span className="font-light leading-relaxed pt-1">
+                    {t("footer.addressFull")}
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* COLUMN 2: Legal Links */}
-            <div className="md:col-span-3">
-              <h4 className="text-sm font-bold uppercase tracking-[0.15em] text-white/60 mb-6">
-                {t('footer.info')}
+            {/* Hours */}
+            <div>
+              <h4
+                className="text-xs font-bold uppercase tracking-[0.2em]
+                  text-white/40 mb-7"
+              >
+                {t("footer.hours")}
               </h4>
-              <ul className="flex flex-col gap-2">
+
+              <div className="flex items-start gap-4 text-[15px]">
+                <div className="p-2.5 rounded-xl bg-white/[0.06]">
+                  <Clock className="w-[18px] h-[18px] text-white/70" />
+                </div>
+                <span className="block text-white font-medium text-base pt-1">
+                  {t("footer.hoursValue")}
+                </span>
+              </div>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h4
+                className="text-xs font-bold uppercase tracking-[0.2em]
+                  text-white/40 mb-7"
+              >
+                {t("footer.info")}
+              </h4>
+
+              <ul className="flex flex-col gap-1.5">
                 <li>
-                  <button type="button" onClick={() => open('legal', { page: 'legal' })} className={linkBtnClass}>
-                    {t('footer.legalNotice')}
+                  <button
+                    type="button"
+                    onClick={() => open("legal", { page: "legal" })}
+                    className={linkBtnClass}
+                  >
+                    {t("footer.legalNotice")}
                   </button>
                 </li>
                 <li>
-                  <button type="button" onClick={() => open('legal', { page: 'privacy' })} className={linkBtnClass}>
-                    {t('footer.privacy')}
+                  <button
+                    type="button"
+                    onClick={() => open("legal", { page: "privacy" })}
+                    className={linkBtnClass}
+                  >
+                    {t("footer.privacy")}
                   </button>
                 </li>
                 <li>
-                  <button type="button" onClick={() => open('legal', { page: 'terms' })} className={linkBtnClass}>
-                    {t('footer.cgv')}
+                  <button
+                    type="button"
+                    onClick={() => open("legal", { page: "terms" })}
+                    className={linkBtnClass}
+                  >
+                    {t("footer.cgv")}
                   </button>
                 </li>
                 <li>
-                  <button type="button" onClick={() => open('legal', { page: 'cookies' })} className={linkBtnClass}>
-                    {t('footer.cookies')}
+                  <button
+                    type="button"
+                    onClick={() => open("legal", { page: "cookies" })}
+                    className={linkBtnClass}
+                  >
+                    {t("footer.cookies")}
                   </button>
                 </li>
               </ul>
             </div>
-
-            {/* COLUMN 3: Contact */}
-            <div className="md:col-span-4">
-              <h4 className="text-sm font-bold uppercase tracking-[0.15em] text-white/60 mb-6">
-                {t('footer.contactTitle')}
-              </h4>
-
-              <div className="space-y-6 text-sm text-white/80 font-light">
-                {/* Email */}
-                <a
-                  href={`mailto:${t('footer.email')}`}
-                  className="flex items-center gap-4 hover:text-white transition-colors group"
-                >
-                  <div className="p-2 rounded-full bg-white/5 group-hover:bg-white/10 transition-colors">
-                    <Mail className="w-4 h-4" />
-                  </div>
-                  <span>{t('footer.email')}</span>
-                </a>
-
-                {/* Address */}
-                <div className="flex items-start gap-4">
-                  <div className="p-2 rounded-full bg-white/5 mt-[-2px]">
-                    <MapPin className="w-4 h-4" />
-                  </div>
-                  <span className="leading-relaxed">
-                    {t('footer.addressFull')}
-                  </span>
-                </div>
-
-                {/* Hours */}
-                <div className="flex items-start gap-4">
-                  <div className="p-2 rounded-full bg-white/5 mt-[-2px]">
-                    <Clock className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <span className="block font-medium text-white mb-0.5">
-                      {t('footer.hours')}
-                    </span>
-                    <span className="block text-white/60">
-                      {t('footer.hoursValue')}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
-          {/* Bottom Bar */}
-          <div className="pt-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-[11px] text-white/60 uppercase tracking-wider font-medium">
+          {/* ── Bottom bar ── */}
+          <div
+            className="pt-8 flex flex-col md:flex-row justify-between
+              items-start md:items-center gap-4 text-[11px]
+              text-white/40 uppercase tracking-[0.15em] font-medium"
+          >
             <p>
-              © {currentYear} Serenity. {t('footer.allRights')}
+              © {currentYear} Serenity. {t("footer.allRights")}
             </p>
 
-            <p className="flex items-center gap-1">
-              <span>{t('footer.designedBy')}</span>
+            <p className="flex items-center gap-1.5">
+              <span>{t("footer.designedBy")}</span>
               <a
                 href="https://www.nordiccodeworks.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white/60 hover:text-white transition-colors ml-1"
+                className="text-white/50 hover:text-white transition-colors"
                 aria-label="Nordic Code Works"
               >
                 Nordic Code Works
@@ -147,7 +196,7 @@ const Footer: React.FC = () => {
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;

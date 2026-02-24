@@ -24,9 +24,17 @@ export const createGiftSchema = (t: TFunction) =>
       .min(1, t('gift.validation.required', 'Required field'))
       .email(t('gift.validation.email', 'Invalid email address')),
 
-    // keep these as strings; defaults handled via RHF + schema default
-    message: z.string().optional().default(''),
-    preferredDate: z.string().optional().default(''),
+    message: z
+      .union([z.string(), z.literal('')])
+      .transform((v) => v.trim())
+      .transform((v) => (v === '' ? undefined : v))
+      .optional(),
+
+    preferredDate: z
+      .union([z.string(), z.literal('')])
+      .transform((v) => v.trim())
+      .transform((v) => (v === '' ? undefined : v))
+      .optional(),
   })
 
 export type GiftFormValues = z.infer<ReturnType<typeof createGiftSchema>>

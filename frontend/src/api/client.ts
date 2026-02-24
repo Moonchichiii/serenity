@@ -1,10 +1,8 @@
 import axios from "axios";
 
 export const API_URL =
-  import.meta.env.VITE_API_URL ??
-  (import.meta.env.PROD
-    ? "https://serenity.fly.dev"
-    : "http://localhost:8000");
+  import.meta.env['VITE_API_URL'] ??
+  (import.meta.env.PROD ? 'https://serenity.fly.dev' : 'http://localhost:8000')
 
 function getCookie(name: string): string | undefined {
   const match = document.cookie

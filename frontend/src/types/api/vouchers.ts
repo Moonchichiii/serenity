@@ -8,6 +8,5 @@ export interface GiftVoucherSubmission {
 }
 
 export interface GiftVoucherResponse {
-  ok: boolean
   code: string
 }

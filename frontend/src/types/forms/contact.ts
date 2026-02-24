@@ -16,14 +16,11 @@ export const createContactSchema = (t: TFunction) =>
       .min(1, t('contact.form.validation.emailRequired', 'Email is required'))
       .email(t('contact.form.validation.emailInvalid', 'Invalid email')),
 
-    phone: z.preprocess(
-      (v) => {
-        if (typeof v !== 'string') return undefined
-        const trimmed = v.trim()
-        return trimmed === '' ? undefined : trimmed
-      },
-      z.string().optional(),
-    ),
+    phone: z
+      .union([z.string(), z.literal('')])
+      .transform((v) => v.trim())
+      .transform((v) => (v === '' ? undefined : v))
+      .optional(),
 
     subject: z
       .string()
@@ -40,10 +37,7 @@ export const createContactSchema = (t: TFunction) =>
       )
       .min(
         10,
-        t(
-          'contact.form.validation.messageTooShort',
-          'Message is too short',
-        ),
+        t('contact.form.validation.messageTooShort', 'Message is too short'),
       ),
   })
 

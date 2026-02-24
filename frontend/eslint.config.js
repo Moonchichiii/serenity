@@ -18,6 +18,9 @@ export default tseslint.config(
       sourceType: 'module',
       parserOptions: {
         ecmaFeatures: { jsx: true },
+        // --- REQUIRED FOR STRICT BUILDER RULES ---
+        project: ['./tsconfig.json', './tsconfig.node.json', './tsconfig.app.json'], // Adjust these to match your actual TS config filenames
+        tsconfigRootDir: import.meta.dirname,
       },
       globals: globals.browser,
     },
@@ -33,11 +36,7 @@ export default tseslint.config(
     },
     extends: [
       js.configs.recommended,
-      ...tseslint.configs.recommended, // typescript-eslint base
-      // If your eslint-plugin-react supports flat configs, these work:
-      // react.configs['flat/recommended'],
-      // react.configs['flat/jsx-runtime'],
-      // For wide compatibility we enable key rules manually below.
+      ...tseslint.configs.recommended,
     ],
     rules: {
       // React 19 / automatic runtime: no need to import React
@@ -53,11 +52,20 @@ export default tseslint.config(
       'jsx-a11y/no-autofocus': 'off',
 
       // TS niceties
-      '@typescript-eslint/no-unused-vars': ['error', {
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-      }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
+      ],
       '@typescript-eslint/consistent-type-imports': 'error',
+
+      // --- STRICT BUILDER RULES ---
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-misused-promises': ['error', { checksVoidReturn: false }],
+      '@typescript-eslint/await-thenable': 'error',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'error',
     },
-  }
+  },
 )
