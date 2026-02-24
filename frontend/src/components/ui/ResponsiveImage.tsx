@@ -2,6 +2,12 @@ import type { ImgHTMLAttributes } from 'react'
 import type { ResponsiveImage } from '@/types/api'
 import { cn } from '@/lib/utils'
 
+declare module 'react' {
+  interface ImgHTMLAttributes<T> {
+    fetchPriority?: 'high' | 'low' | 'auto'
+  }
+}
+
 type Props = {
   image: ResponsiveImage | null | undefined
   alt?: string
@@ -41,11 +47,9 @@ export default function ResponsiveImage({
       alt={a}
       loading={priority ? 'eager' : 'lazy'}
       decoding={decoding}
+      fetchPriority={priority ? 'high' : 'auto'}
       className={cn(className)}
       {...rest}
-      {...({
-        fetchPriority: priority ? 'high' : 'auto',
-      } as unknown)}
     />
   )
 }

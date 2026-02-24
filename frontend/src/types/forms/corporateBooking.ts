@@ -16,7 +16,6 @@ export type CorporateEventType = (typeof corporateEventTypes)[number]
  */
 export const createCorporateBookingSchema = (t: TFunction) =>
   z.object({
-    // contact
     name: z
       .string()
       .min(1, t('corp.form.validation.nameRequired', 'Name is required'))
@@ -27,13 +26,8 @@ export const createCorporateBookingSchema = (t: TFunction) =>
       .min(1, t('corp.form.validation.emailRequired', 'Email is required'))
       .email(t('corp.form.validation.emailInvalid', 'Invalid email')),
 
-    phone: z
-      .union([z.string(), z.literal('')])
-      .transform((v) => v.trim())
-      .transform((v) => (v === '' ? undefined : v))
-      .optional(),
+    phone: z.string().optional(),
 
-    // company & event
     company: z
       .string()
       .min(
@@ -43,24 +37,27 @@ export const createCorporateBookingSchema = (t: TFunction) =>
 
     eventType: z.enum(corporateEventTypes),
 
-    attendees: z
-      .union([z.coerce.number(), z.literal(''), z.undefined()])
-      .transform((v) => (v === '' || v === undefined ? undefined : v))
-      .refine((v) => v === undefined || (Number.isFinite(v) && v >= 1), {
-        message: t('corp.form.validation.attendeesMin', 'At least 1 attendee'),
-      })
-      .optional(),
+    attendees: z.preprocess(
+      (val) => {
+        if (val === '' || val === undefined || val === null) return undefined
+        const n = Number(val)
+        return Number.isNaN(n) ? val : n
+      },
+      z
+        .number()
+        .min(
+          1,
+          t('corp.form.validation.attendeesMin', 'At least 1 attendee'),
+        )
+        .optional(),
+    ),
 
     date: z.string().optional(),
     endDate: z.string().optional(),
     duration: z.string().optional(),
     onSiteAddress: z.string().optional(),
 
-    notes: z
-      .union([z.string(), z.literal('')])
-      .transform((v) => v.trim())
-      .transform((v) => (v === '' ? undefined : v))
-      .optional(),
+    notes: z.string().optional(),
 
     budget: z.string().optional(),
     services: z.string().optional(),

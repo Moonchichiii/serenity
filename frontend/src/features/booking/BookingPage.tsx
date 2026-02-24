@@ -16,8 +16,8 @@ import toast from "react-hot-toast";
 import Calendar from "react-calendar";
 import { format, parse } from "date-fns";
 import { isPastDate } from "@/lib/utils";
-import { bookingsAPI } from "@/api/booking";
-import { useCMSServices } from "@/lib/cmsSelectors";
+import { bookingsApi as bookingsAPI } from "@/api/bookings.api";
+import { useCMSServices } from "@/hooks/useCMS";
 
 import {
   bookingSchema,

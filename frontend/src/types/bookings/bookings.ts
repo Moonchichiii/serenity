@@ -9,13 +9,9 @@ export const bookingSchema = z.object({
   service: z.string().min(1, "Please select a service"),
   date: z.string().min(1, "Please select a date"),
   time: z.string().min(1, "Please select a time"),
-  notes: z
-    .string()
-    .optional()
-    .transform((v) => (v === "" ? undefined : v)),
+  notes: z.string().optional(),
 });
 
-// Automatically infer the type from the Zod schema
 export type BookingFormData = z.infer<typeof bookingSchema>;
 
 export const defaultTimeSlots = [

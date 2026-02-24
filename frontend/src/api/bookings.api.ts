@@ -1,7 +1,12 @@
 import { apiClient } from "./client"
 import { endpoints } from "./endpoints"
-import type { BookingRequest, VoucherBookingRequest, BookingResponse } from '@/types/api'
+import type {
+  BookingRequest,
+  VoucherBookingRequest,
+  BookingResponse,
+} from '@/types/api'
 
+export type { BookingRequest, VoucherBookingRequest, BookingResponse }
 export const bookingsApi = {
   create: async (data: BookingRequest): Promise<BookingResponse> => {
     const res = await apiClient.post<BookingResponse>(

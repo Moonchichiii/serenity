@@ -57,6 +57,10 @@ export function CorporateBookingForm({
     "w-full px-4 py-2.5 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors";
 
   const onSubmit = async (data: CorporateBookingFormValues) => {
+    // Normalize optional fields
+    const phone = data.phone?.trim() || undefined;
+    const notes = data.notes?.trim() || undefined;
+
     // “Marked differently” = deterministic subject prefix
     const subject = `[CORPORATE] ${t(
       "corp.subjectPrefix",
@@ -64,9 +68,7 @@ export function CorporateBookingForm({
     )} • ${data.company} • ${data.eventType}`;
 
     const lines = [
-      `Contact: ${data.name} (${data.email}${
-        data.phone ? `, ${data.phone}` : ""
-      })`,
+      `Contact: ${data.name} (${data.email}${phone ? `, ${phone}` : ""})`,
       `Company: ${data.company}`,
       `Event type: ${data.eventType}`,
       data.attendees ? `Attendees: ${data.attendees}` : null,
@@ -79,7 +81,7 @@ export function CorporateBookingForm({
       data.budget ? `Budget: ${data.budget}` : null,
       "",
       "Notes:",
-      data.notes || "-",
+      notes || "-",
     ]
       .filter(Boolean)
       .join("\n");
@@ -88,7 +90,7 @@ export function CorporateBookingForm({
       await submit.mutateAsync({
         name: data.name,
         email: data.email,
-        phone: data.phone || "",
+        phone: phone || "",
         subject,
         message: lines,
       });
@@ -108,7 +110,7 @@ export function CorporateBookingForm({
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmit as any)}
       className="space-y-4 sm:space-y-5"
       noValidate
     >
@@ -422,7 +424,8 @@ export function CorporateBookingForm({
           <span className="font-semibold text-charcoal">
             {t("corp.form.gdpr.title", "Privacy notice")}:
           </span>{" "}
-          {t("corp.form.gdpr.text",
+          {t(
+            "corp.form.gdpr.text",
             "This form emails your request directly. We do not store your data; it is used only to reply to you."
           )}
         </p>
