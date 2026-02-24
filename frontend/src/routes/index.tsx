@@ -1,12 +1,9 @@
-import { createRoute } from "@tanstack/react-router";
-import { Route as RootRoute } from "./__root";
+import { createFileRoute } from "@tanstack/react-router";
 import { Hero } from "@/features/home/hero";
 import { Suspense, lazy } from "react";
 
 const About = lazy(() =>
-  import("@/features/about/AboutSection").then((m) => ({
-    default: m.About,
-  })),
+  import("@/features/about/AboutSection").then((m) => ({ default: m.About })),
 );
 
 const Services = lazy(() =>
@@ -34,8 +31,6 @@ function HomePage() {
   );
 }
 
-export const Route = createRoute("/")({
-  getParentRoute: () => RootRoute,
-  path: "/",
+export const Route = createFileRoute("/")({
   component: HomePage,
 });

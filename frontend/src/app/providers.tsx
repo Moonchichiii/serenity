@@ -7,7 +7,7 @@ import '@/styles/globals.css'
 
 import { router } from './router'
 import { queryClient } from '../lib/queryClient'
-import { ModalProvider } from '@/components/modal/ModalProvider'
+import { ModalProvider } from '@/components/modal'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 export function AppProviders() {

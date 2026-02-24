@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, MessageCircle, Send, Star } from 'lucide-react'
-import { cmsAPI, type WagtailTestimonial } from '@/api/cms' this has to change!!! !
+import { useReplyToTestimonial } from '@/hooks/useTestimonials'
+import type { WagtailTestimonial } from '@/types/api'
 
 interface Props {
   isOpen: boolean
@@ -10,28 +11,42 @@ interface Props {
   testimonial: WagtailTestimonial | null
 }
 
-export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
+export function TestimonialModal({
+  isOpen,
+  onClose,
+  testimonial,
+}: Props) {
   const { t } = useTranslation()
   const [replyText, setReplyText] = useState('')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success'>('idle')
+
+  const replyMutation = useReplyToTestimonial()
 
   if (!testimonial) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setStatus('submitting')
     try {
-      await cmsAPI.submitReply(testimonial.id, { name, email, text: replyText })
-      setStatus('success')
+      await replyMutation.mutateAsync({
+        id: testimonial.id,
+        data: { name, email, text: replyText },
+      })
       setReplyText('')
-    } catch (err) {
-      console.error(err)
-      setStatus('idle')
-      alert(t('testimonials.modal.error', 'Error submitting reply'))
+      setName('')
+      setEmail('')
+    } catch {
+      alert(
+        t('testimonials.modal.error', 'Error submitting reply')
+      )
     }
   }
+
+  const status = replyMutation.isPending
+    ? 'submitting'
+    : replyMutation.isSuccess
+      ? 'success'
+      : 'idle'
 
   return (
     <AnimatePresence>
@@ -67,10 +82,19 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
                     </div>
                   )}
                   <div>
-                    <h3 className="font-heading font-bold text-lg text-charcoal">{testimonial.name}</h3>
+                    <h3 className="font-heading font-bold text-lg text-charcoal">
+                      {testimonial.name}
+                    </h3>
                     <div className="flex gap-0.5">
                       {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className={`w-3.5 h-3.5 ${i < testimonial.rating ? 'fill-honey-400 text-honey-400' : 'text-charcoal/20'}`} />
+                        <Star
+                          key={i}
+                          className={`w-3.5 h-3.5 ${
+                            i < testimonial.rating
+                              ? 'fill-honey-400 text-honey-400'
+                              : 'text-charcoal/20'
+                          }`}
+                        />
                       ))}
                     </div>
                   </div>
@@ -78,7 +102,10 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
 
                 <button
                   onClick={onClose}
-                  aria-label={t('testimonials.modal.close', 'Close modal')}
+                  aria-label={t(
+                    'testimonials.modal.close',
+                    'Close modal'
+                  )}
                   className="p-2 hover:bg-black/5 rounded-full transition-colors"
                 >
                   <X className="w-5 h-5 text-charcoal/60" />
@@ -86,9 +113,11 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
               </div>
 
               <p className="text-charcoal/80 text-lg leading-relaxed italic">
-                "{testimonial.text}"
+                &ldquo;{testimonial.text}&rdquo;
               </p>
-              <p className="text-xs text-charcoal/50 mt-4 uppercase tracking-wider font-medium">{testimonial.date}</p>
+              <p className="text-xs text-charcoal/50 mt-4 uppercase tracking-wider font-medium">
+                {testimonial.date}
+              </p>
             </div>
 
             {/* Discussion Area */}
@@ -98,23 +127,37 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
                 {t('testimonials.modal.discussion', 'Discussion')}
               </h4>
 
-              {/* Existing Replies */}
               <div className="space-y-6 mb-8">
-                {testimonial.replies && testimonial.replies.length > 0 ? (
-                   testimonial.replies.map((reply) => (
-                    <div key={reply.id} className="pl-4 border-l-2 border-sage-200">
+                {testimonial.replies &&
+                testimonial.replies.length > 0 ? (
+                  testimonial.replies.map((reply) => (
+                    <div
+                      key={reply.id}
+                      className="pl-4 border-l-2 border-sage-200"
+                    >
                       <div className="flex justify-between items-baseline mb-1">
-                        <span className="font-semibold text-charcoal text-sm">{reply.name}</span>
+                        <span className="font-semibold text-charcoal text-sm">
+                          {reply.name}
+                        </span>
                         <span className="text-xs text-charcoal/40">
-                          {reply.date || t('testimonials.modal.earlier', 'Earlier')}
+                          {reply.date ||
+                            t(
+                              'testimonials.modal.earlier',
+                              'Earlier'
+                            )}
                         </span>
                       </div>
-                      <p className="text-charcoal/70 text-sm leading-relaxed">{reply.text}</p>
+                      <p className="text-charcoal/70 text-sm leading-relaxed">
+                        {reply.text}
+                      </p>
                     </div>
-                   ))
+                  ))
                 ) : (
                   <p className="text-charcoal/40 text-sm italic text-center py-4">
-                    {t('testimonials.modal.empty', 'No replies yet. Be the first to respond!')}
+                    {t(
+                      'testimonials.modal.empty',
+                      'No replies yet. Be the first to respond!'
+                    )}
                   </p>
                 )}
               </div>
@@ -124,19 +167,37 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
                 {status === 'success' ? (
                   <div className="text-center py-4 text-sage-600">
                     <p className="font-medium">
-                      {t('testimonials.modal.successTitle', 'Thank you for your reply!')}
+                      {t(
+                        'testimonials.modal.successTitle',
+                        'Thank you for your reply!'
+                      )}
                     </p>
                     <p className="text-sm">
-                      {t('testimonials.modal.successMessage', 'It has been sent for moderation.')}
+                      {t(
+                        'testimonials.modal.successMessage',
+                        'It has been sent for moderation.'
+                      )}
                     </p>
-                    <button onClick={() => setStatus('idle')} className="mt-3 text-xs underline">
-                      {t('testimonials.modal.writeAnother', 'Write another')}
+                    <button
+                      onClick={() => replyMutation.reset()}
+                      className="mt-3 text-xs underline"
+                    >
+                      {t(
+                        'testimonials.modal.writeAnother',
+                        'Write another'
+                      )}
                     </button>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-3">
+                  <form
+                    onSubmit={handleSubmit}
+                    className="space-y-3"
+                  >
                     <p className="text-sm font-semibold text-charcoal/80 mb-2">
-                      {t('testimonials.modal.form.title', 'Join the conversation')}
+                      {t(
+                        'testimonials.modal.form.title',
+                        'Join the conversation'
+                      )}
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <input
@@ -145,10 +206,13 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
                         id="reply_name"
                         autoComplete="name"
                         required
-                        placeholder={t('testimonials.modal.form.namePlaceholder', 'Your Name')}
+                        placeholder={t(
+                          'testimonials.modal.form.namePlaceholder',
+                          'Your Name'
+                        )}
                         className="bg-white px-4 py-2 rounded-xl border border-sage-200 text-sm focus:outline-none focus:border-sage-400"
                         value={name}
-                        onChange={e => setName(e.target.value)}
+                        onChange={(e) => setName(e.target.value)}
                       />
                       <input
                         type="email"
@@ -156,21 +220,27 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
                         id="reply_email"
                         autoComplete="email"
                         required
-                        placeholder={t('testimonials.modal.form.emailPlaceholder', 'Email (Private)')}
+                        placeholder={t(
+                          'testimonials.modal.form.emailPlaceholder',
+                          'Email (Private)'
+                        )}
                         className="bg-white px-4 py-2 rounded-xl border border-sage-200 text-sm focus:outline-none focus:border-sage-400"
                         value={email}
-                        onChange={e => setEmail(e.target.value)}
+                        onChange={(e) => setEmail(e.target.value)}
                       />
                     </div>
                     <textarea
                       name="reply_text"
                       id="reply_text"
                       required
-                      placeholder={t('testimonials.modal.form.textPlaceholder', 'Write your response...')}
+                      placeholder={t(
+                        'testimonials.modal.form.textPlaceholder',
+                        'Write your response...'
+                      )}
                       rows={3}
                       className="w-full bg-white px-4 py-2 rounded-xl border border-sage-200 text-sm focus:outline-none focus:border-sage-400 resize-none"
                       value={replyText}
-                      onChange={e => setReplyText(e.target.value)}
+                      onChange={(e) => setReplyText(e.target.value)}
                     />
                     <div className="flex justify-end">
                       <button
@@ -179,9 +249,14 @@ export function TestimonialModal({ isOpen, onClose, testimonial }: Props) {
                         className="flex items-center gap-2 bg-charcoal text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-charcoal/80 transition-colors disabled:opacity-50"
                       >
                         {status === 'submitting'
-                          ? t('testimonials.modal.form.submitting', 'Sending...')
-                          : t('testimonials.modal.form.submit', 'Post Reply')
-                        }
+                          ? t(
+                              'testimonials.modal.form.submitting',
+                              'Sending...'
+                            )
+                          : t(
+                              'testimonials.modal.form.submit',
+                              'Post Reply'
+                            )}
                         <Send className="w-3.5 h-3.5" />
                       </button>
                     </div>

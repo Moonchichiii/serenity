@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TicketPercent } from 'lucide-react'
-import { useModal } from '@/hooks/useModal'
+import { useModal } from '@/components/modal/useModal'
 import { useTranslation } from 'react-i18next'
-import { cmsAPI } from '@/api/cms'
+import { useCMSPage } from "@/hooks/useCMS"
 import ResponsiveImage from '@/components/ui/ResponsiveImage'
 import type { ResponsiveImage as ResponsiveImageType } from '@/types/api'
 
@@ -15,19 +15,15 @@ export function FloatingGiftButton() {
   const [loaded, setLoaded] = useState(false)
   const [icon, setIcon] = useState<ResponsiveImageType | null>(null)
 
+  const { data: cmsData } = useCMSPage('globals')
+
   useEffect(() => {
-    cmsAPI
-      .getGlobals()
-      .then((data) => {
-        setEnabled(data.gift.is_enabled)
-        setIcon(data.gift.floating_icon ?? null)
-        setLoaded(true)
-      })
-      .catch(() => {
-        setEnabled(true)
-        setLoaded(true)
-      })
-  }, [])
+    if (cmsData) {
+      setEnabled(cmsData.gift.is_enabled)
+      setIcon(cmsData.gift.floating_icon ?? null)
+      setLoaded(true)
+    }
+  }, [cmsData])
 
   if (!loaded || !enabled) return null
 

@@ -3,8 +3,8 @@ import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useCMSPage } from '@/lib/cmsSelectors'
-import { useModal } from '@/hooks/useModal'
+ import { useCMSPage } from '@/hooks/useCMS'
+import { useModal } from '@/components/modal'
 import { getLocalizedText } from '@/lib/localize'
 // CHANGED: Removed getResponsivePosterUrl
 import { getOptimizedVideoUrl } from '@/utils/cloudinary'

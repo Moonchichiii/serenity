@@ -7,8 +7,9 @@ import { Clock, Euro, ArrowRight } from 'lucide-react'
 import { ServicesHero } from './ServicesHero'
 
 // ✅ Refactored: Import selector instead of fetch hook
-import { useCMSServices } from '@/lib/cmsSelectors'
-import { getLocalizedText } from '@/api/cms'  this is not correct anymore???
+import { useCMSServices } from '@/hooks/useCMS'
+import { getLocalizedText } from '@/lib/localize'
+
 
 // Shared UI
 import TestimonialBanner from '@/features/testimonials/TestimonialBanner'

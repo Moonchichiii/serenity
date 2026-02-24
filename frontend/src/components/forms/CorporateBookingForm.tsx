@@ -15,7 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { useSubmitContact } from "@/queries/contact.mutations";
+import { useSubmitContact } from '@/hooks/useContact'
 import {
   createCorporateBookingSchema,
   corporateEventTypes,

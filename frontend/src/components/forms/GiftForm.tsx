@@ -8,7 +8,7 @@ import { Calendar, CheckCircle2, Gift, Mail, MessageSquare, User } from "lucide-
 import { Button } from "@/components/ui/Button"
 import type { GlobalSettings, GiftVoucherSubmission } from "@/types/api"
 import { createGiftSchema, type GiftFormValues } from "@/types/forms/gift"
-import { useCreateVoucher } from "@/queries/vouchers.mutations"
+import { useCreateVoucher } from "@/hooks/useVouchers"
 import { normalizeHttpError } from "@/api/httpError"
 
 interface GiftFormProps {

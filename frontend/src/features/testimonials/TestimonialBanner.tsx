@@ -3,18 +3,13 @@ import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Star, MessageCircle, Quote } from 'lucide-react'
 
-import { useCMSTestimonials } from '@/lib/cmsSelectors'
+import { useTestimonials } from '@/hooks/useTestimonials'
 import type { WagtailTestimonial } from '@/types/api'
 import { TestimonialModal } from '@/components/modal/TestimonialModal'
 
 export function TestimonialBanner() {
   const { t } = useTranslation()
-  const allTestimonials = useCMSTestimonials()
-
-  const testimonials = useMemo(
-    () => (allTestimonials || []).filter((item) => item.rating >= 4),
-    [allTestimonials],
-  )
+  const { data: testimonials = [] } = useTestimonials(4)
 
   const [selectedTestimonial, setSelectedTestimonial] =
     useState<WagtailTestimonial | null>(null)
@@ -47,8 +42,6 @@ export function TestimonialBanner() {
 
   const [paused, setPaused] = useState(false)
 
-  // ✅ Removed unused `xTranslation` ref
-
   if (!testimonials || testimonials.length === 0) return null
 
   const handleCardClick = (testimonial: WagtailTestimonial) => {
@@ -61,10 +54,7 @@ export function TestimonialBanner() {
     setPaused(false)
   }
 
-  const renderCard = (
-    testimonial: WagtailTestimonial,
-    index: number,
-  ) => (
+  const renderCard = (testimonial: WagtailTestimonial, index: number) => (
     <article
       key={`${testimonial.id}-${index}`}
       onClick={() => handleCardClick(testimonial)}
@@ -112,9 +102,7 @@ export function TestimonialBanner() {
       {testimonial.replies && testimonial.replies.length > 0 && (
         <div className="mt-4 sm:mt-6 pt-4 border-t border-stone-50 flex items-center gap-2 text-xs font-medium text-sage-600">
           <MessageCircle className="w-3.5 h-3.5" />
-          <span>
-            {t('testimonials.reply', { defaultValue: 'Read reply' })}
-          </span>
+          <span>{t('testimonials.reply', { defaultValue: 'Read reply' })}</span>
         </div>
       )}
     </article>
@@ -134,8 +122,7 @@ export function TestimonialBanner() {
         </h2>
         <p className="text-base sm:text-lg text-stone-500 max-w-xl mx-auto font-light">
           {t('testimonials.subtitle', {
-            defaultValue:
-              'Experiences shared by our community',
+            defaultValue: 'Experiences shared by our community',
           })}
         </p>
       </div>
@@ -162,9 +149,7 @@ export function TestimonialBanner() {
               <motion.div
                 className="flex gap-6 w-max"
                 animate={
-                  prefersReduced || paused
-                    ? undefined
-                    : { x: [0, -1000] }
+                  prefersReduced || paused ? undefined : { x: [0, -1000] }
                 }
                 transition={{
                   x: {
@@ -185,9 +170,7 @@ export function TestimonialBanner() {
               <motion.div
                 className="flex gap-6 w-max"
                 animate={
-                  prefersReduced || paused
-                    ? undefined
-                    : { x: [-1000, 0] }
+                  prefersReduced || paused ? undefined : { x: [-1000, 0] }
                 }
                 transition={{
                   x: {

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Menu, X, Globe, Check, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
-import { useModal } from '@/hooks/useModal'
+import { useModal } from '@/components/modal/useModal'
 
 export function Header() {
   const { t, i18n } = useTranslation()

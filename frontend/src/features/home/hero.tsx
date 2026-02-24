@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
-import { useCMSPage } from '@/lib/cmsSelectors'
+import { useCMSPage } from "@/hooks/useCMS"
 // CHANGED: Renamed import from CloudImage to ResponsiveImage
 import ResponsiveImage from '@/components/ui/ResponsiveImage'
 import CookieConsent from '@/components/ui/CookieConsent'

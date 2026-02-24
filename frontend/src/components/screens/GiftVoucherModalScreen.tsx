@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GiftForm } from '@/components/forms/GiftForm'
-import { useHydratedCMS } from '@/hooks/useHydratedCMS'
+import { useHydratedCMS } from '@/hooks/useCMS'
 import { useModal } from '@/components/modal/useModal'
 
 export default function GiftVoucherModalScreen() {

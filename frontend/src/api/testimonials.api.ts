@@ -33,10 +33,6 @@ export const testimonialsApi = {
 }
 
 
-
-
-
-
 /* Tiny optional cleanups (worth doing for consistency)
 1) Stick to one quote style + spacing
 

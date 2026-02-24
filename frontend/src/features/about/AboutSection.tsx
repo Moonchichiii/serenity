@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/Button'
 // CHANGED: Renamed import from CloudImage to ResponsiveImage per instruction
 import ResponsiveImageComponent from '@/components/ui/ResponsiveImage'
 import { useModal } from '@/components/modal/useModal'
-import { useCMSPage } from '@/lib/cmsSelectors'
+import { useCMSPage } from '@/hooks/useCMS'
 // CHANGED: Replaced WagtailImage with ResponsiveImage
 import type { ResponsiveImage, WagtailSpecialty } from '@/types/api'
 

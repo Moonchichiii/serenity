@@ -10,9 +10,17 @@ type ModalShellProps = {
   title?: string;
   children: React.ReactNode;
   className?: string;
+  scrollable?: boolean;
 };
 
-export function ModalShell({ isOpen, onClose, title, children, className }: ModalShellProps) {
+export function ModalShell({
+  isOpen,
+  onClose,
+  title,
+  children,
+  className,
+  scrollable = true,
+}: ModalShellProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -89,7 +97,12 @@ export function ModalShell({ isOpen, onClose, title, children, className }: Moda
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto min-h-0 overscroll-contain">
+            <div
+              className={cn(
+                "flex-1 min-h-0 overscroll-contain",
+                scrollable ? "overflow-y-auto" : "overflow-hidden",
+              )}
+            >
               <div className="p-5 sm:p-6 pb-safe-area-bottom">
                 {children}
                 <div className="h-6 sm:h-2" aria-hidden="true" />

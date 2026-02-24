@@ -9,7 +9,7 @@ import {
   createContactSchema,
   type ContactFormValues,
 } from '@/types/forms/contact'
-import { useSubmitContact } from '@/queries/contact.mutations'
+import { useSubmitContact } from '@/hooks/useContact'
 
 interface ContactFormProps {
   onSuccess?: () => void

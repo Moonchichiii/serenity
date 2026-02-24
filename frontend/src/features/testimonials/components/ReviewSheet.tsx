@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Star, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { cmsMutations } from "@/api/cms";
+import { useSubmitTestimonial } from "@/hooks/useTestimonials";
 
 interface ReviewSheetProps {
   open: boolean;
@@ -11,12 +11,13 @@ interface ReviewSheetProps {
 
 export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
   const { t } = useTranslation();
+  const submitMutation = useSubmitTestimonial();
+
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [text, setText] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -54,12 +55,10 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
       return;
     }
 
-    setIsSubmitting(true);
-
     try {
-      const response = await cmsMutations.submitTestimonial({
+      const response = await submitMutation.mutateAsync({
         name: name.trim(),
-        email: email.trim(),
+        email: email.trim() || undefined,
         rating,
         text: text.trim(),
       });
@@ -73,17 +72,9 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
         setText("");
         setSuccessMessage("");
         onOpenChange(false);
-
-        if (rating >= 4) {
-          window.dispatchEvent(
-            new CustomEvent("testimonialSubmitted")
-          );
-        }
       }, 2000);
     } catch (error: unknown) {
       setErrorMessage(getErrorMessage(error));
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -139,9 +130,7 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                   animate={{ opacity: 1, y: 0 }}
                   className="mb-4 p-4 bg-sage-100 border border-sage-300 rounded-lg"
                 >
-                  <p className="text-sage-800 text-sm">
-                    {successMessage}
-                  </p>
+                  <p className="text-sage-800 text-sm">{successMessage}</p>
                 </motion.div>
               )}
 
@@ -177,7 +166,11 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                         type="button"
                         role="radio"
                         aria-checked={star === rating}
-                        aria-label={`${star} ${star > 1 ? t("review.rating.stars") : t("review.rating.star")}`}
+                        aria-label={`${star} ${
+                          star > 1
+                            ? t("review.rating.stars")
+                            : t("review.rating.star")
+                        }`}
                         onClick={() => setRating(star)}
                         onMouseEnter={() => setHoveredRating(star)}
                         onMouseLeave={() => setHoveredRating(0)}
@@ -215,7 +208,7 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                     placeholder={t("review.form.namePlaceholder")}
                     maxLength={100}
                     required
-                    disabled={isSubmitting}
+                    disabled={submitMutation.isPending}
                     className="w-full px-4 py-3 border-2 border-sage-200 rounded-xl focus:outline-none focus:border-sage-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
@@ -234,7 +227,7 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={t("review.form.emailPlaceholder")}
-                    disabled={isSubmitting}
+                    disabled={submitMutation.isPending}
                     className="w-full px-4 py-3 border-2 border-sage-200 rounded-xl focus:outline-none focus:border-sage-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   <p className="text-xs text-charcoal/60 mt-1">
@@ -261,7 +254,7 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                     rows={5}
                     maxLength={500}
                     required
-                    disabled={isSubmitting}
+                    disabled={submitMutation.isPending}
                     className="w-full px-4 py-3 border-2 border-sage-200 rounded-xl focus:outline-none focus:border-sage-500 transition-colors resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   <p className="text-xs text-charcoal/60 mt-1">
@@ -273,11 +266,7 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                 <div className="bg-sage-50 rounded-lg p-4 border border-sage-200">
                   <p className="text-xs text-charcoal/80 leading-relaxed">
                     <span className="font-semibold text-charcoal">
-                      {t(
-                        "review.form.gdpr.title",
-                        "Privacy Notice"
-                      )}
-                      :
+                      {t("review.form.gdpr.title", "Privacy Notice")}:
                     </span>{" "}
                     {t(
                       "review.form.gdpr.text",
@@ -289,10 +278,10 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={submitMutation.isPending}
                   className="w-full bg-sage-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-sage-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting
+                  {submitMutation.isPending
                     ? t("review.form.submitting")
                     : t("review.form.submit")}
                 </button>
