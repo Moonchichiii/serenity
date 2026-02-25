@@ -71,3 +71,7 @@ CSRF_COOKIE_SAMESITE = "Lax"
 
 # ── CSP — disabled for local dev ───────────────────
 CONTENT_SECURITY_POLICY = None
+
+
+# ── Rate limiting — disabled for tests/dev ──────────
+RATELIMIT_ENABLE = False

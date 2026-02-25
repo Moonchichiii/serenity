@@ -17,11 +17,19 @@ if TYPE_CHECKING:
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def create_voucher_view(request: Request) -> Response:
-    """Create a gift voucher and send notification emails."""
+    """Create a gift voucher and optionally book a calendar slot."""
     serializer = GiftVoucherInputSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
-    voucher = create_voucher(data=serializer.validated_data)
+    voucher, booking_confirmation = create_voucher(
+        data=serializer.validated_data
+    )
     send_voucher_emails(voucher=voucher, request=request)
 
-    return Response({'code': voucher.code}, status=status.HTTP_201_CREATED)
+    return Response(
+        {
+            'code': voucher.code,
+            'booking_confirmation': booking_confirmation,
+        },
+        status=status.HTTP_201_CREATED,
+    )

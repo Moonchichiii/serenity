@@ -20,21 +20,90 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def create_voucher(*, data: dict[str, Any]) -> GiftVoucher:
-    """
-    Create a gift voucher from validated data.
+# ──────────────────────────────────────────────
+# Public API
+# ──────────────────────────────────────────────
 
-    `data` must already be validated via GiftVoucherInputSerializer.
+
+def create_voucher(
+    *, data: dict[str, Any]
+) -> tuple[GiftVoucher, str]:
     """
+    Create a gift voucher.  If booking fields (service_id,
+    start_datetime, end_datetime) are present, also create a
+    calendar booking via the bookings app.
+
+    Returns (voucher, booking_confirmation_code | '').
+    """
+    # Pop booking-only keys before passing to model constructor
+    service_id = data.pop('service_id', None)
+    start_dt = data.pop('start_datetime', None)
+    end_dt = data.pop('end_datetime', None)
+
     voucher = GiftVoucher(**data)
     voucher.save()
-
     logger.info(
         'Gift voucher created: %s for %s',
         voucher.code,
         voucher.recipient_name,
     )
-    return voucher
+
+    booking_confirmation = ''
+
+    if service_id and start_dt and end_dt:
+        booking_confirmation = _create_linked_booking(
+            voucher=voucher,
+            service_id=service_id,
+            start_dt=start_dt,
+            end_dt=end_dt,
+        )
+
+    return voucher, booking_confirmation
+
+
+def _create_linked_booking(
+    *,
+    voucher: GiftVoucher,
+    service_id: int,
+    start_dt: Any,
+    end_dt: Any,
+) -> str:
+    """Delegate to the bookings service to create a voucher booking."""
+    from apps.bookings.services import create_voucher_booking
+
+    booking_data = {
+        'service_id': service_id,
+        'start_datetime': start_dt,
+        'end_datetime': end_dt,
+        'client_name': voucher.recipient_name,
+        'client_email': voucher.recipient_email,
+        'client_phone': '',  # not collected on gift form
+        'client_notes': voucher.message or '',
+        'preferred_language': 'fr',
+        'voucher_code': voucher.code,
+    }
+
+    booking, error = create_voucher_booking(booking_data)
+
+    if error:
+        logger.warning(
+            'Voucher %s created but booking failed: %s',
+            voucher.code,
+            error,
+        )
+        return ''
+
+    logger.info(
+        'Calendar booking %s created for voucher %s',
+        booking.confirmation_code,
+        voucher.code,
+    )
+    return booking.confirmation_code
+
+
+# ──────────────────────────────────────────────
+# Emails (unchanged below — kept for completeness)
+# ──────────────────────────────────────────────
 
 
 def send_voucher_emails(
@@ -42,8 +111,6 @@ def send_voucher_emails(
 ) -> None:
     """
     Send recipient + admin notification emails for a purchased voucher.
-
-    Reads GiftSettings from the CMS for email copy and branding.
     """
     gift_settings, site_name, image_url = _resolve_gift_settings(request)
     lang = _resolve_language(request)
@@ -68,15 +135,12 @@ def send_voucher_emails(
     _send_admin_email(voucher, site_name, context)
 
 
-# --- Private helpers ---
+# --- Private helpers (email) ---
 
 
 def _resolve_gift_settings(
     request: HttpRequest,
 ) -> tuple[GiftSettings | None, str, str]:
-    """
-    Resolve GiftSettings, site name, and voucher image URL.
-    """
     from wagtail.models import Site
 
     from apps.cms.models import GiftSettings
@@ -101,7 +165,6 @@ def _resolve_gift_settings(
 
 
 def _resolve_language(request: HttpRequest) -> str:
-    """Resolve language code, defaulting to 'en'."""
     lang = getattr(request, 'LANGUAGE_CODE', 'en')
     return lang if lang in ('en', 'fr') else 'en'
 
@@ -115,7 +178,6 @@ def _build_email_context(
     lang: str,
     tokens: dict[str, str],
 ) -> dict[str, Any]:
-    """Build the template context shared by both email templates."""
     fields = ('email_heading', 'email_intro', 'email_redeem', 'email_closing')
     formatted = {}
 
@@ -142,7 +204,6 @@ def _send_recipient_email(
     tokens: dict[str, str],
     context: dict[str, Any],
 ) -> None:
-    """Send the gift voucher email to the recipient."""
     raw_subject = ''
     if gift_settings:
         raw_subject = (
@@ -171,7 +232,6 @@ def _send_recipient_email(
 def _send_admin_email(
     voucher: GiftVoucher, site_name: str, context: dict[str, Any]
 ) -> None:
-    """Send admin notification email about the new voucher purchase."""
     admin_email = settings.DEFAULT_FROM_EMAIL
     if settings.ADMINS:
         admin_email = settings.ADMINS[0][1]

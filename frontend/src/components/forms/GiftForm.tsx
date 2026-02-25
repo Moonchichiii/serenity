@@ -1,91 +1,162 @@
-import { useMemo, useState } from "react"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import { zodResolver } from "@hookform/resolvers/zod"
-import toast from "react-hot-toast"
-import { Calendar, CheckCircle2, Gift, Mail, MessageSquare, User } from "lucide-react"
+import { useMemo, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
+import {
+  Calendar as CalendarIcon,
+  CheckCircle2,
+  Gift,
+  Mail,
+  MessageSquare,
+  User,
+  Clock,
+} from "lucide-react";
+import Calendar from "react-calendar";
+import { format } from "date-fns";
 
-import { Button } from "@/components/ui/Button"
-import type { GlobalSettings, GiftVoucherSubmission } from "@/types/api"
-import { createGiftSchema, type GiftFormValues } from "@/types/forms/gift"
-import { useCreateVoucher } from "@/hooks/useVouchers"
-import { normalizeHttpError } from "@/api/httpError"
+import { Button } from "@/components/ui/Button";
+import type {
+  GlobalSettings,
+  GiftVoucherSubmission,
+} from "@/types/api";
+import {
+  createGiftSchema,
+  type GiftFormValues,
+} from "@/types/forms/gift";
+import { useCreateVoucher } from "@/hooks/useVouchers";
+import { useBusyDays, useFreeSlots } from "@/hooks/useCalendar";
+import { useCMSServices } from "@/hooks/useCMS";
+import { normalizeHttpError } from "@/api/httpError";
+import { isPastDate } from "@/lib/utils";
 
 interface GiftFormProps {
-  onSuccess?: () => void
-  settings?: GlobalSettings["gift"] | null
+  onSuccess?: () => void;
+  settings?: GlobalSettings["gift"] | null;
 }
 
 export function GiftForm({ onSuccess, settings }: GiftFormProps) {
-  const { t, i18n } = useTranslation()
-  const [successCode, setSuccessCode] = useState<string | null>(null)
+  const { t, i18n } = useTranslation();
+  const [successCode, setSuccessCode] = useState<string | null>(null);
+  const [bookingConfirmation, setBookingConfirmation] = useState("");
+  const [wantsBooking, setWantsBooking] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [activeStartDate, setActiveStartDate] = useState(new Date());
 
-  const lang: "en" | "fr" = i18n.language.startsWith("fr") ? "fr" : "en"
-  const schema = useMemo(() => createGiftSchema(t), [t])
-
-  const submit = useCreateVoucher()
+  const lang: "en" | "fr" = i18n.language.startsWith("fr") ? "fr" : "en";
+  const schema = useMemo(() => createGiftSchema(t), [t]);
+  const services = useCMSServices();
+  const submit = useCreateVoucher();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
+    control,
   } = useForm<GiftFormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       message: "",
       preferredDate: "",
     },
-  })
+  });
 
+  const selectedTime = useWatch({ control, name: "selectedTime" });
+  const selectedServiceId = useWatch({ control, name: "serviceId" });
+
+  // Calendar data
+  const ym = useMemo(
+    () => ({
+      year: activeStartDate.getFullYear(),
+      month: activeStartDate.getMonth() + 1,
+    }),
+    [activeStartDate],
+  );
+
+  const { data: busyData, isFetching: busyFetching } = useBusyDays(
+    ym.year,
+    ym.month,
+  );
+  const busyDates = useMemo(
+    () => new Set(busyData?.busy ?? []),
+    [busyData],
+  );
+
+  const selectedDateIso = selectedDate
+    ? format(selectedDate, "yyyy-MM-dd")
+    : "";
+  const { data: slotsData, isFetching: slotsFetching } =
+    useFreeSlots(selectedDateIso);
+  const availableTimes = slotsData?.times ?? [];
+
+  // CMS helpers
   const fromCms = (
     enValue: string | undefined,
     frValue: string | undefined,
     i18nKey: string,
     defaultValue?: string,
   ) => {
-    const cmsValue = lang === "fr" ? frValue : enValue
-    if (cmsValue && cmsValue.trim().length > 0) return cmsValue
-    return defaultValue !== undefined ? t(i18nKey, defaultValue) : t(i18nKey)
-  }
-
-  const messagePlaceholder = fromCms(
-    settings?.form_message_placeholder_en,
-    settings?.form_message_placeholder_fr,
-    "gift.form.messagePlaceholder",
-  )
+    const cmsValue = lang === "fr" ? frValue : enValue;
+    if (cmsValue && cmsValue.trim().length > 0) return cmsValue;
+    return defaultValue !== undefined
+      ? t(i18nKey, defaultValue)
+      : t(i18nKey);
+  };
 
   const submitLabel = fromCms(
     settings?.form_submit_label_en,
     settings?.form_submit_label_fr,
     "gift.form.submit",
-  )
-
+  );
   const sendingLabel = fromCms(
     settings?.form_sending_label_en,
     settings?.form_sending_label_fr,
     "gift.form.sending",
-  )
-
+  );
   const successTitleText = fromCms(
     settings?.form_success_title_en,
     settings?.form_success_title_fr,
     "gift.form.successTitle",
-  )
-
+  );
   const successMessageText = fromCms(
     settings?.form_success_message_en,
     settings?.form_success_message_fr,
     "gift.form.successMessage",
-  )
-
+  );
   const codeLabelText = fromCms(
     settings?.form_code_label_en,
     settings?.form_code_label_fr,
     "gift.form.codeLabel",
-  )
+  );
+  const messagePlaceholder = fromCms(
+    settings?.form_message_placeholder_en,
+    settings?.form_message_placeholder_fr,
+    "gift.form.messagePlaceholder",
+  );
 
   const onSubmit = async (data: GiftFormValues) => {
+    let startDatetime: string | undefined;
+    let endDatetime: string | undefined;
+
+    if (
+      wantsBooking &&
+      data.serviceId &&
+      data.selectedDate &&
+      data.selectedTime
+    ) {
+      const service = services.find((s) => s.id === data.serviceId);
+      const start = new Date(
+        `${data.selectedDate}T${data.selectedTime}:00`,
+      );
+      const end = new Date(
+        start.getTime() + (service?.duration_minutes ?? 60) * 60_000,
+      );
+      startDatetime = start.toISOString();
+      endDatetime = end.toISOString();
+    }
+
     const payload: GiftVoucherSubmission = {
       purchaserName: data.purchaserName,
       purchaserEmail: data.purchaserEmail,
@@ -93,30 +164,46 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
       recipientEmail: data.recipientEmail,
       message: data.message || "",
       preferredDate: data.preferredDate || undefined,
-    }
+      ...(startDatetime && {
+        serviceId: data.serviceId,
+        startDatetime,
+        endDatetime,
+      }),
+    };
 
     try {
-      const res = await submit.mutateAsync(payload)
-      setSuccessCode(res.code)
-      toast.success(successTitleText)
-      reset()
+      const res = await submit.mutateAsync(payload);
+      setSuccessCode(res.code);
+      setBookingConfirmation(res.booking_confirmation ?? "");
+      toast.success(successTitleText);
+      reset();
+      setSelectedDate(null);
+      setWantsBooking(false);
     } catch (err) {
-      const apiErr = normalizeHttpError(err)
-      console.error("Voucher purchase error:", apiErr)
-
+      const apiErr = normalizeHttpError(err);
       if (apiErr.status === 429) {
-        toast.error(t("gift.form.rateLimited", "Too many attempts. Please try later."))
-        return
+        toast.error(
+          t(
+            "gift.form.rateLimited",
+            "Too many attempts. Please try later.",
+          ),
+        );
+        return;
       }
-
-      toast.error(apiErr.message || t("gift.form.error", "Something went wrong."))
+      toast.error(
+        apiErr.message ||
+          t("gift.form.error", "Something went wrong."),
+      );
     }
-  }
+  };
 
   const inputClass =
-    "w-full pl-10 pr-4 py-3 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors text-base text-charcoal bg-white"
-  const labelClass = "block text-sm font-medium text-charcoal mb-1.5"
+    "w-full pl-10 pr-4 py-3 rounded-xl border-2 border-sage-200 " +
+    "focus:border-sage-400 focus:ring-2 focus:ring-sage-200 " +
+    "transition-colors text-base text-charcoal bg-white";
+  const labelClass = "block text-sm font-medium text-charcoal mb-1.5";
 
+  // ── Success screen ──
   if (successCode) {
     return (
       <div className="text-center py-8 px-4 space-y-6 animate-fade-in">
@@ -127,8 +214,9 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
         <h3 className="text-2xl font-heading font-bold text-charcoal">
           {successTitleText}
         </h3>
-
-        <p className="text-charcoal/70 max-w-sm mx-auto">{successMessageText}</p>
+        <p className="text-charcoal/70 max-w-sm mx-auto">
+          {successMessageText}
+        </p>
 
         <div className="bg-sand-50 border border-sage-200 rounded-xl p-6 max-w-xs mx-auto mt-6">
           <p className="text-xs uppercase tracking-widest text-charcoal/50 font-bold mb-2">
@@ -139,24 +227,41 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
           </p>
         </div>
 
+        {bookingConfirmation && (
+          <div className="bg-sage-50 border border-sage-200 rounded-xl p-4 max-w-xs mx-auto">
+            <p className="text-xs uppercase tracking-widest text-charcoal/50 font-bold mb-1">
+              {t("gift.form.bookingConfirmation", "Booking ref.")}
+            </p>
+            <p className="text-lg font-mono font-bold text-charcoal">
+              {bookingConfirmation}
+            </p>
+          </div>
+        )}
+
         <Button onClick={onSuccess} className="w-full mt-6">
           {t("gift.form.close")}
         </Button>
       </div>
-    )
+    );
   }
 
+  // ── Form ──
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-4 sm:space-y-5"
+    >
+      {/* ── Purchaser section ── */}
       <div className="bg-sage-50/50 p-4 rounded-2xl space-y-3 border border-sage-100">
         <h4 className="text-xs font-bold uppercase tracking-wider text-charcoal/60 flex items-center gap-2">
           <User className="w-3.5 h-3.5" />
           {t("gift.form.purchaserSection")}
         </h4>
-
         <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
           <div>
-            <label className={labelClass}>{t("gift.form.purchaserName")}</label>
+            <label className={labelClass}>
+              {t("gift.form.purchaserName")}
+            </label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40" />
               <input
@@ -172,9 +277,10 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
               </p>
             )}
           </div>
-
           <div>
-            <label className={labelClass}>{t("gift.form.purchaserEmail")}</label>
+            <label className={labelClass}>
+              {t("gift.form.purchaserEmail")}
+            </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40" />
               <input
@@ -193,15 +299,17 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
         </div>
       </div>
 
+      {/* ── Recipient section ── */}
       <div className="space-y-4">
         <h4 className="text-xs font-bold uppercase tracking-wider text-charcoal/60 flex items-center gap-2 px-1">
           <Gift className="w-3.5 h-3.5" />
           {t("gift.form.recipientSection")}
         </h4>
-
         <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
           <div>
-            <label className={labelClass}>{t("gift.form.recipientName")}</label>
+            <label className={labelClass}>
+              {t("gift.form.recipientName")}
+            </label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40" />
               <input
@@ -217,9 +325,10 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
               </p>
             )}
           </div>
-
           <div>
-            <label className={labelClass}>{t("gift.form.recipientEmail")}</label>
+            <label className={labelClass}>
+              {t("gift.form.recipientEmail")}
+            </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40" />
               <input
@@ -238,7 +347,9 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
         </div>
 
         <div>
-          <label className={labelClass}>{t("gift.form.message")}</label>
+          <label className={labelClass}>
+            {t("gift.form.message")}
+          </label>
           <div className="relative">
             <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-charcoal/40" />
             <textarea
@@ -249,17 +360,167 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
             />
           </div>
         </div>
-
-        <div>
-          <label className={labelClass}>{t("gift.form.date")}</label>
-          <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40" />
-            <input type="date" {...register("preferredDate")} className={inputClass} />
-          </div>
-        </div>
       </div>
 
-      <p className="mt-3 text-sm text-charcoal/70">{t("gift.paymentNotice")}</p>
+      {/* ── Optional booking section ── */}
+      <div className="border border-sage-200 rounded-2xl p-4 space-y-4">
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={wantsBooking}
+            onChange={(e) => {
+              setWantsBooking(e.target.checked);
+              if (!e.target.checked) {
+                setValue("serviceId", undefined);
+                setValue("selectedDate", undefined);
+                setValue("selectedTime", undefined);
+                setSelectedDate(null);
+              }
+            }}
+            className="w-4 h-4 rounded border-sage-300 text-terracotta-400 focus:ring-terracotta-300"
+          />
+          <span className="text-sm font-medium text-charcoal flex items-center gap-2">
+            <CalendarIcon className="w-4 h-4 text-terracotta-400" />
+            {t(
+              "gift.form.bookSlot",
+              "Book an appointment slot now",
+            )}
+          </span>
+        </label>
+
+        {wantsBooking && (
+          <div className="space-y-4 animate-fade-in">
+            {/* Service picker */}
+            <div>
+              <label className={labelClass}>
+                {t("gift.form.service", "Service")}
+              </label>
+              <select
+                value={selectedServiceId ?? ""}
+                onChange={(e) => {
+                  const id = e.target.value
+                    ? Number(e.target.value)
+                    : undefined;
+                  setValue("serviceId", id);
+                }}
+                className="w-full px-4 py-3 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors text-base text-charcoal bg-white"
+              >
+                <option value="">
+                  {t("gift.form.selectService", "Select a service")}
+                </option>
+                {services.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {lang === "fr" ? s.title_fr : s.title_en} -{" "}
+                    {s.duration_minutes} min - €{s.price}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Calendar */}
+            <div className="rounded-2xl border-2 border-sage-200 p-3 bg-white">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2 text-charcoal">
+                  <CalendarIcon className="w-5 h-5 text-terracotta-400" />
+                  <span className="text-sm font-medium">
+                    {selectedDate
+                      ? format(selectedDate, "PPP")
+                      : t("gift.form.pickDate", "Pick a date")}
+                  </span>
+                </div>
+                {busyFetching && (
+                  <span className="text-xs text-charcoal/60 animate-pulse">
+                    Loading…
+                  </span>
+                )}
+              </div>
+
+              <Calendar
+                value={selectedDate}
+                onChange={(value) => {
+                  const date = Array.isArray(value)
+                    ? value[0]
+                    : value;
+                  setSelectedDate(date);
+                  if (date) {
+                    setValue(
+                      "selectedDate",
+                      format(date, "yyyy-MM-dd"),
+                    );
+                    setValue("selectedTime", undefined);
+                  }
+                }}
+                onActiveStartDateChange={({ activeStartDate: d }) => {
+                  if (d) setActiveStartDate(d);
+                }}
+                tileDisabled={({ date, view }) => {
+                  if (view !== "month") return false;
+                  const iso = format(date, "yyyy-MM-dd");
+                  return isPastDate(date) || busyDates.has(iso);
+                }}
+                calendarType="iso8601"
+                className="!w-full
+                  [&_.react-calendar__tile]:rounded-lg
+                  [&_.react-calendar__tile]:!text-charcoal
+                  [&_.react-calendar__tile]:hover:!bg-terracotta-100
+                  [&_.react-calendar__tile--active]:!bg-terracotta-400
+                  [&_.react-calendar__tile--active]:!text-white
+                  [&_.react-calendar__tile--now]:!bg-terracotta-100
+                  [&_.react-calendar__navigation__label]:!text-charcoal
+                  [&_.react-calendar__month-view__weekdays]:!text-charcoal/60
+                  [&_.react-calendar__tile--disabled]:!text-charcoal/30
+                  [&_.react-calendar__tile--disabled]:!bg-sand-100"
+              />
+            </div>
+
+            {/* Time slots */}
+            {selectedDate && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-charcoal flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-terracotta-400" />
+                  {t("gift.form.pickTime", "Pick a time")}
+                </label>
+
+                {slotsFetching ? (
+                  <p className="text-xs text-charcoal/60 animate-pulse">
+                    Loading slots…
+                  </p>
+                ) : availableTimes.length === 0 ? (
+                  <p className="text-sm text-charcoal/50">
+                    {t(
+                      "gift.form.noSlots",
+                      "No slots available on this date.",
+                    )}
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                    {availableTimes.map((time) => (
+                      <button
+                        key={time}
+                        type="button"
+                        onClick={() =>
+                          setValue("selectedTime", time)
+                        }
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                          selectedTime === time
+                            ? "bg-terracotta-400 text-white shadow-warm border-2 border-terracotta-500"
+                            : "bg-sage-100 text-charcoal hover:bg-terracotta-100 border-2 border-transparent"
+                        }`}
+                      >
+                        {time}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <p className="mt-3 text-sm text-charcoal/70">
+        {t("gift.paymentNotice")}
+      </p>
 
       <Button
         type="submit"
@@ -269,5 +530,5 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
         {submit.isPending ? sendingLabel : submitLabel}
       </Button>
     </form>
-  )
+  );
 }

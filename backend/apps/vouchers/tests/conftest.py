@@ -24,3 +24,26 @@ def voucher_factory(db):
         return GiftVoucher.objects.create(**defaults)
 
     return _create
+
+
+@pytest.fixture()
+def available_service(db):
+    """A bookable service for booking-linked voucher tests."""
+    from apps.services.models import Service
+
+    return Service.objects.create(
+        title_en="Relaxation Massage",
+        title_fr="Massage Relaxant",
+        duration_minutes=60,
+        price=80,
+        is_available=True,
+    )
+
+
+@pytest.fixture()
+def _mock_voucher_emails(monkeypatch):
+    """Silence send_voucher_emails in view tests."""
+    monkeypatch.setattr(
+        "apps.vouchers.views.send_voucher_emails",
+        lambda **kwargs: None,
+    )

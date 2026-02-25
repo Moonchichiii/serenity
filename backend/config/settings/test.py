@@ -59,3 +59,6 @@ PASSWORD_HASHERS = [
 
 # ── CSP — off ──────────────────────────────────────
 CONTENT_SECURITY_POLICY = None
+
+# ── Rate limiting — disabled for tests/dev ──────────
+RATELIMIT_ENABLE = False

@@ -7,9 +7,6 @@ export const qk = {
   calendarSlots: (dateIso: string) =>
     ['calendar', 'slots', dateIso] as const,
 
-  bookingsByEmail: (email: string) =>
-    ['bookings', 'byEmail', email] as const,
-
   testimonials: (minRating: number) =>
     ['testimonials', 'list', minRating] as const,
 
