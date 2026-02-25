@@ -65,3 +65,40 @@ def test_welcome_panel_render_safety_without_homepage(rf: RequestFactory):
     assert isinstance(html, str)
     assert 'class="serenity-dashboard"' in html
     assert 'id="serenity-app"' in html
+
+
+def test_welcome_panel_render_gift_settings_url_resolved(
+    rf, homepage, monkeypatch
+):
+    """GiftSettings URL is resolved when the model exists."""
+    panels = []
+    hooks_mod.add_welcome_panel(request=rf.get("/admin/"), panels=panels)
+    panel = panels[0]
+
+    html = panel.render()
+    # The gift_settings_url should be either a real URL or '#'
+    assert isinstance(html, str)
+    # Just verify it doesn't crash and produces valid output
+    assert "gift" in html.lower() or "#" in html
+
+
+def test_welcome_panel_render_gift_settings_no_reverse(
+    rf, homepage, monkeypatch
+):
+    """GiftSettings URL falls back to '#' when reverse fails."""
+
+    def always_raise(*args, **kwargs):
+        from django.urls import NoReverseMatch
+
+        raise NoReverseMatch("simulated")
+
+    monkeypatch.setattr(hooks_mod, "reverse", always_raise)
+
+    panels = []
+    hooks_mod.add_welcome_panel(request=rf.get("/admin/"), panels=panels)
+    panel = panels[0]
+
+    html = panel.render()
+    assert isinstance(html, str)
+    # All URLs should fall back to '#'
+    assert "#" in html

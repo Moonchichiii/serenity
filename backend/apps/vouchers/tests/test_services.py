@@ -275,3 +275,329 @@ class TestBuildCalendarDescription:
             voucher_code="",
         )
         assert "Voucher Code" not in desc
+
+# ── Email helpers (private) ──────────────────────────────────
+
+
+class TestResolveGiftSettings:
+    @pytest.mark.django_db
+    def test_returns_settings_site_name_and_image_url(
+        self, rf, monkeypatch
+    ):
+        mock_settings = MagicMock()
+        mock_file = MagicMock()
+        mock_file.url = "/media/voucher.jpg"
+        mock_settings.voucher_image.file = mock_file
+
+        mock_site = MagicMock()
+        mock_site.site_name = "TestSite"
+
+        monkeypatch.setattr(
+            "wagtail.models.Site.find_for_request",
+            lambda req: mock_site,
+        )
+        monkeypatch.setattr(
+            "apps.cms.models.GiftSettings.for_site",
+            lambda site: mock_settings,
+        )
+
+        request = rf.get("/")
+        gs, name, url = voucher_services._resolve_gift_settings(request)
+
+        assert gs is mock_settings
+        assert name == "TestSite"
+        assert url == "/media/voucher.jpg"
+
+    @pytest.mark.django_db
+    def test_fallback_when_for_site_raises(self, rf, monkeypatch):
+        mock_site = MagicMock()
+        mock_site.site_name = "Fallback"
+
+        monkeypatch.setattr(
+            "wagtail.models.Site.find_for_request",
+            lambda req: mock_site,
+        )
+        monkeypatch.setattr(
+            "apps.cms.models.GiftSettings.for_site",
+            MagicMock(side_effect=RuntimeError("boom")),
+        )
+        monkeypatch.setattr(
+            "apps.cms.models.GiftSettings.objects",
+            MagicMock(first=MagicMock(return_value=None)),
+        )
+
+        request = rf.get("/")
+        gs, name, url = voucher_services._resolve_gift_settings(request)
+
+        assert gs is None
+        assert name == "Fallback"
+        assert url == ""
+
+    @pytest.mark.django_db
+    def test_site_name_defaults_to_serenity(self, rf, monkeypatch):
+        mock_site = MagicMock()
+        mock_site.site_name = None
+
+        monkeypatch.setattr(
+            "wagtail.models.Site.find_for_request",
+            lambda req: mock_site,
+        )
+        monkeypatch.setattr(
+            "apps.cms.models.GiftSettings.for_site",
+            lambda site: None,
+        )
+
+        request = rf.get("/")
+        _, name, _ = voucher_services._resolve_gift_settings(request)
+        assert name == "Serenity"
+
+    @pytest.mark.django_db
+    def test_image_url_empty_when_no_voucher_image(self, rf, monkeypatch):
+        mock_settings = MagicMock()
+        mock_settings.voucher_image = None
+
+        mock_site = MagicMock()
+        mock_site.site_name = "S"
+
+        monkeypatch.setattr(
+            "wagtail.models.Site.find_for_request",
+            lambda req: mock_site,
+        )
+        monkeypatch.setattr(
+            "apps.cms.models.GiftSettings.for_site",
+            lambda site: mock_settings,
+        )
+
+        request = rf.get("/")
+        _, _, url = voucher_services._resolve_gift_settings(request)
+        assert url == ""
+
+    @pytest.mark.django_db
+    def test_image_url_empty_when_file_raises(self, rf, monkeypatch):
+        mock_image = MagicMock()
+        type(mock_image).file = property(
+            lambda self: (_ for _ in ()).throw(ValueError("no file"))
+        )
+        mock_settings = MagicMock()
+        mock_settings.voucher_image = mock_image
+
+        mock_site = MagicMock()
+        mock_site.site_name = "S"
+
+        monkeypatch.setattr(
+            "wagtail.models.Site.find_for_request",
+            lambda req: mock_site,
+        )
+        monkeypatch.setattr(
+            "apps.cms.models.GiftSettings.for_site",
+            lambda site: mock_settings,
+        )
+
+        request = rf.get("/")
+        _, _, url = voucher_services._resolve_gift_settings(request)
+        assert url == ""
+
+
+class TestResolveLanguage:
+    def test_returns_fr(self, rf):
+        request = rf.get("/")
+        request.LANGUAGE_CODE = "fr"
+        assert voucher_services._resolve_language(request) == "fr"
+
+    def test_returns_en(self, rf):
+        request = rf.get("/")
+        request.LANGUAGE_CODE = "en"
+        assert voucher_services._resolve_language(request) == "en"
+
+    def test_defaults_to_en_for_unknown(self, rf):
+        request = rf.get("/")
+        request.LANGUAGE_CODE = "de"
+        assert voucher_services._resolve_language(request) == "en"
+
+    def test_defaults_to_en_when_attr_missing(self, rf):
+        request = rf.get("/")
+        if hasattr(request, "LANGUAGE_CODE"):
+            delattr(request, "LANGUAGE_CODE")
+        assert voucher_services._resolve_language(request) == "en"
+
+
+class TestBuildEmailContext:
+    def test_with_gift_settings(self):
+        mock_gs = MagicMock()
+        mock_gs.email_heading_en = "Hello {recipient_name}"
+        mock_gs.email_intro_en = "From {purchaser_name}"
+        mock_gs.email_redeem_en = "Code: {code}"
+        mock_gs.email_closing_en = "Thanks from {site_name}"
+
+        tokens = {
+            "purchaser_name": "Alice",
+            "recipient_name": "Bob",
+            "site_name": "Spa",
+            "code": "ABC123",
+        }
+
+        ctx = voucher_services._build_email_context(
+            voucher=MagicMock(),
+            gift_settings=mock_gs,
+            site_name="Spa",
+            image_url="/img.jpg",
+            lang="en",
+            tokens=tokens,
+        )
+
+        assert ctx["email_heading"] == "Hello Bob"
+        assert ctx["email_intro"] == "From Alice"
+        assert ctx["email_redeem"] == "Code: ABC123"
+        assert ctx["email_closing"] == "Thanks from Spa"
+        assert ctx["site_name"] == "Spa"
+        assert ctx["image_url"] == "/img.jpg"
+        assert ctx["lang"] == "en"
+
+    def test_without_gift_settings(self):
+        tokens = {
+            "purchaser_name": "A",
+            "recipient_name": "B",
+            "site_name": "S",
+            "code": "X",
+        }
+
+        ctx = voucher_services._build_email_context(
+            voucher=MagicMock(),
+            gift_settings=None,
+            site_name="S",
+            image_url="",
+            lang="fr",
+            tokens=tokens,
+        )
+
+        assert ctx["email_heading"] == ""
+        assert ctx["email_intro"] == ""
+        assert ctx["lang"] == "fr"
+
+
+class TestSendRecipientEmail:
+    @pytest.mark.django_db
+    def test_sends_email_with_subject(self, monkeypatch, voucher_factory):
+        voucher = voucher_factory()
+
+        mock_gs = MagicMock()
+        mock_gs.email_subject_en = "Gift for {recipient_name}"
+
+        tokens = {
+            "purchaser_name": voucher.purchaser_name,
+            "recipient_name": voucher.recipient_name,
+            "site_name": "Spa",
+            "code": voucher.code,
+        }
+        context = {"voucher": voucher, "lang": "en"}
+
+        monkeypatch.setattr(
+            "apps.vouchers.services.render_to_string",
+            lambda tpl, ctx: "<html>test</html>",
+        )
+
+        sent = []
+        monkeypatch.setattr(
+            "apps.vouchers.services.EmailMultiAlternatives",
+            lambda **kwargs: MagicMock(
+                send=lambda: sent.append(kwargs)
+            ),
+        )
+
+        voucher_services._send_recipient_email(
+            voucher, mock_gs, "en", tokens, context
+        )
+
+        assert len(sent) == 1
+        assert voucher.recipient_name in sent[0]["subject"]
+
+    @pytest.mark.django_db
+    def test_fallback_subject_when_no_settings(
+        self, monkeypatch, voucher_factory
+    ):
+        voucher = voucher_factory()
+        tokens = {
+            "purchaser_name": "A",
+            "recipient_name": "B",
+            "site_name": "S",
+            "code": "X",
+        }
+
+        monkeypatch.setattr(
+            "apps.vouchers.services.render_to_string",
+            lambda tpl, ctx: "<html></html>",
+        )
+
+        captured = {}
+
+        def fake_email(**kwargs):
+            captured.update(kwargs)
+            return MagicMock(send=lambda: None)
+
+        monkeypatch.setattr(
+            "apps.vouchers.services.EmailMultiAlternatives",
+            fake_email,
+        )
+
+        voucher_services._send_recipient_email(
+            voucher, None, "en", tokens, {}
+        )
+
+        assert captured["subject"] == "Gift Voucher"
+
+
+class TestSendAdminEmail:
+    @pytest.mark.django_db
+    def test_sends_to_admins_setting(
+        self, monkeypatch, settings, voucher_factory
+    ):
+        voucher = voucher_factory()
+        settings.ADMINS = [("Admin", "admin@example.com")]
+
+        monkeypatch.setattr(
+            "apps.vouchers.services.render_to_string",
+            lambda tpl, ctx: "<html>admin</html>",
+        )
+
+        captured = {}
+
+        def fake_email(**kwargs):
+            captured.update(kwargs)
+            return MagicMock(send=lambda: None)
+
+        monkeypatch.setattr(
+            "apps.vouchers.services.EmailMultiAlternatives",
+            fake_email,
+        )
+
+        voucher_services._send_admin_email(voucher, "Spa", {})
+
+        assert captured["to"] == ["admin@example.com"]
+        assert voucher.code in captured["subject"]
+
+    @pytest.mark.django_db
+    def test_falls_back_to_default_from_email(
+        self, monkeypatch, settings, voucher_factory
+    ):
+        voucher = voucher_factory()
+        settings.ADMINS = []
+
+        monkeypatch.setattr(
+            "apps.vouchers.services.render_to_string",
+            lambda tpl, ctx: "<html></html>",
+        )
+
+        captured = {}
+
+        def fake_email(**kwargs):
+            captured.update(kwargs)
+            return MagicMock(send=lambda: None)
+
+        monkeypatch.setattr(
+            "apps.vouchers.services.EmailMultiAlternatives",
+            fake_email,
+        )
+
+        voucher_services._send_admin_email(voucher, "Spa", {})
+
+        assert captured["to"] == [settings.DEFAULT_FROM_EMAIL]

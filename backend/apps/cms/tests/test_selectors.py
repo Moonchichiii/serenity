@@ -224,3 +224,48 @@ def test_get_hydrated_homepage_payload_fails_deterministically(
         selectors.get_hydrated_homepage_payload(request=request)
 
     assert "No HomePage found" in str(excinfo.value)
+
+# ── _require_services import error ──────────────────────────────────
+
+
+def test_require_services_raises_on_import_error(rf, monkeypatch):
+    import apps.cms.selectors as sel
+
+    original_import = __builtins__.__import__ if hasattr(__builtins__, '__import__') else __import__
+
+    def fake_import(name, *args, **kwargs):
+        if "apps.services" in name:
+            raise ImportError("no services module")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr("builtins.__import__", fake_import)
+
+    with pytest.raises(sel.CmsHydrationError, match="Services dependency"):
+        sel._require_services(request=rf.get("/"))
+
+
+# ── _require_testimonials import error ──────────────────────────────
+
+
+def test_require_testimonials_raises_on_import_error(monkeypatch):
+    import apps.cms.selectors as sel
+
+    original_import = __builtins__.__import__ if hasattr(__builtins__, '__import__') else __import__
+
+    def fake_import(name, *args, **kwargs):
+        if "apps.testimonials" in name:
+            raise ImportError("no testimonials module")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr("builtins.__import__", fake_import)
+
+    with pytest.raises(sel.CmsHydrationError, match="Testimonials dependency"):
+        sel._require_testimonials(limit=8)
+
+
+# ── _require_globals with site=None ─────────────────────────────────
+
+
+def test_require_globals_returns_nones_when_no_site():
+    result = selectors._require_globals(site=None)
+    assert result == {"gift": None, "site": None}
