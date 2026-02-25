@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -14,7 +15,26 @@ if TYPE_CHECKING:
     from rest_framework.request import Request
 
 
-@api_view(['POST'])
+@extend_schema(
+    operation_id="voucher_create",
+    tags=["vouchers"],
+    request=GiftVoucherInputSerializer,
+    responses={
+        201: OpenApiResponse(
+            description="Voucher created",
+            response={
+                "type": "object",
+                "properties": {
+                    "code": {"type": "string"},
+                    "booking_confirmation": {"type": "string", "nullable": True},
+                },
+            },
+        ),
+        400: OpenApiResponse(description="Validation Error"),
+    },
+    summary="Buy/Create gift voucher",
+)
+@api_view(["POST"])
 @permission_classes([AllowAny])
 def create_voucher_view(request: Request) -> Response:
     """Create a gift voucher and optionally book a calendar slot."""
@@ -28,8 +48,8 @@ def create_voucher_view(request: Request) -> Response:
 
     return Response(
         {
-            'code': voucher.code,
-            'booking_confirmation': booking_confirmation,
+            "code": voucher.code,
+            "booking_confirmation": booking_confirmation,
         },
         status=status.HTTP_201_CREATED,
     )

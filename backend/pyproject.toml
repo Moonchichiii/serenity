@@ -11,37 +11,28 @@ dependencies = [
     "django-filter>=24,<26",
     "django-csp>=4.0,<5",
     "django-ratelimit>=4.1,<5",
-
     # Database
     "psycopg2-binary>=2.9.10,<3",
     "dj-database-url>=2.3,<3",
-
     # Config
     "python-decouple>=3.8,<4",
-
     # Date / Time
     "python-dateutil>=2.9,<3",
-
     # Wagtail CMS
     "wagtail>=7.3,<8",
     "wagtail-localize>=1.10,<2",
-
     # Images
     "Pillow>=11.0,<12",
-
     # Cloudinary (media storage in production)
     "cloudinary>=1.40,<2",
     "django-cloudinary-storage>=0.3.0,<1",
-
     # Google Calendar integration
     "google-auth>=2.37,<3",
     "google-auth-oauthlib>=1.2,<2",
     "google-auth-httplib2>=0.2,<1",
     "google-api-python-client>=2.158,<3",
-
     # API docs
     "drf-spectacular>=0.28,<1",
-
     # Production server & static files
     "gunicorn>=23,<24",
     "whitenoise>=6.8,<7",
@@ -58,24 +49,22 @@ prod = [
 dev = [
     # Linting & formatting
     "ruff>=0.8.6",
-
     # Type checking
     "mypy>=1.13,<2",
     "django-stubs>=5.1,<6",
     "djangorestframework-stubs>=3.15,<4",
     "types-python-dateutil>=2.9,<3",
     "types-requests>=2.32,<3",
-
     # Testing
     "pytest>=8.0.0",
     "pytest-django>=4.8.0",
     "pytest-asyncio>=0.23.0",
     "pytest-cov>=5.0.0",
     "faker>=22.0.0",
-
     # Dev tools
     "django-extensions>=3.2,<4",
     "ipython>=8.31,<9",
+    "schemathesis>=4.10.2",
 ]
 
 [build-system]
@@ -208,7 +197,7 @@ line-ending = "auto"
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings"
 pythonpath = ["."]
-testpaths = ["apps"]
+testpaths = ["apps", "e2e"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 markers = [

@@ -5,14 +5,12 @@ from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
+    # Core API wrapper
     path("api/", include("apps.core.urls")),
 
     # Wagtail
     path("cms-admin/", include("wagtail.admin.urls")),
     path("documents/", include("wagtail.documents.urls")),
-
-    # Docs
-    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
 
     # SPA boot (CMS)
     path("api/", include("apps.cms.urls")),  # contains homepage/hydrated/
@@ -27,9 +25,20 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 ]
 
-# Swagger UI only in DEBUG
+# Schema and Swagger UI
+# Ideally, keep the raw schema available for CI/Building, or wrap in DEBUG as requested
 if settings.DEBUG:
     urlpatterns += [
-        path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema")),
+        path(
+            "api/schema/",
+            SpectacularAPIView.as_view(),
+            name="schema",
+        ),
+        path(
+            "api/docs/",
+            SpectacularSwaggerView.as_view(url_name="schema"),
+            name="swagger-ui",
+        ),
+        # Serving media files in development
+        *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
     ]
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

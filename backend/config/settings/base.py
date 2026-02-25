@@ -64,7 +64,7 @@ INSTALLED_APPS = [
     'apps.vouchers',
 ]
 
-# Optional: rate limiting (Fixed RUF005: used unpacking)
+# Optional: rate limiting
 if config('RATELIMIT_ENABLE', cast=bool, default=False):
     INSTALLED_APPS = [*INSTALLED_APPS, 'django_ratelimit']
 
@@ -131,8 +131,20 @@ REST_FRAMEWORK = {
     ],
 }
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Serenity API',
-    'VERSION': '1.0.0',
+    "TITLE": "Serenity API",
+    "DESCRIPTION": "Wellness & spa platform — bookings, vouchers, CMS, availability",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SCHEMA_PATH_PREFIX": r"/api/",
+    "TAGS": [
+        {"name": "cms", "description": "CMS & hydrated homepage"},
+        {"name": "bookings", "description": "Booking CRUD"},
+        {"name": "vouchers", "description": "Gift voucher operations"},
+        {"name": "availability", "description": "Google Calendar availability"},
+        {"name": "testimonials", "description": "Testimonial submission & listing"},
+        {"name": "contact", "description": "Contact form"},
+    ],
 }
 
 # ── CORS ────────────────────────────────────────────
