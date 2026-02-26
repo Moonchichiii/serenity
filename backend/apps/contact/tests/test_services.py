@@ -14,7 +14,9 @@ EMAIL_BACKEND_LOCMEM = (
 
 @pytest.mark.django_db
 class TestCreateSubmission:
-    def test_creates_with_correct_fields(self, rf, valid_contact_data):
+    def test_creates_with_correct_fields(
+        self, rf, valid_contact_data
+    ):
         request = rf.post("/")
         request.META["REMOTE_ADDR"] = "192.168.1.1"
 
@@ -43,7 +45,9 @@ class TestCreateSubmission:
         sub = create_submission(request=request, data=data)
         assert sub.phone == ""
 
-    def test_uses_cf_connecting_ip(self, rf, valid_contact_data):
+    def test_uses_cf_connecting_ip(
+        self, rf, valid_contact_data
+    ):
         request = rf.post("/")
         request.META["HTTP_CF_CONNECTING_IP"] = "203.0.113.50"
 
@@ -92,12 +96,17 @@ class TestCreateSubmission:
 
         import logging
 
-        with caplog.at_level(logging.ERROR, logger="apps.contact.services"):
+        with caplog.at_level(
+            logging.ERROR, logger="apps.contact.services"
+        ):
             create_submission(
                 request=request, data=valid_contact_data
             )
 
-        assert "Failed to send contact notification email" in caplog.text
+        assert (
+            "Failed to send contact notification email"
+            in caplog.text
+        )
 
 
 @pytest.mark.django_db
@@ -121,7 +130,10 @@ class TestSendNotificationEmail:
 
         assert len(mail.outbox) == 1
         email = mail.outbox[0]
-        assert email.subject == "[Serenity] Nouvelle demande: Question"
+        assert (
+            email.subject
+            == "[Serenity] Nouvelle demande: Question"
+        )
         assert email.from_email == "noreply@serenity.test"
         assert email.to == ["admin@serenity.test"]
         assert email.reply_to == ["marie@example.com"]
@@ -169,5 +181,7 @@ class TestSendNotificationEmail:
             "apps.contact.services.EmailMessage.send",
             side_effect=Exception("connection refused"),
         ):
-            with pytest.raises(Exception, match="connection refused"):
+            with pytest.raises(
+                Exception, match="connection refused"
+            ):
                 _send_notification_email(sub, "1.1.1.1")

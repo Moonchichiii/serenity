@@ -18,7 +18,6 @@ urlpatterns = [
     # Domain APIs
     path("api/testimonials/", include("apps.testimonials.urls")),
     path("api/calendar/", include("apps.availability.urls")),
-    path("api/bookings/", include("apps.bookings.urls")),
     path("api/contact/", include("apps.contact.urls")),
     path("api/vouchers/", include("apps.vouchers.urls")),
 

@@ -30,7 +30,9 @@ class TestSubmitContactView:
             "email": "jean@example.com",
             "phone": "+33612345678",
             "subject": "Rendez-vous",
-            "message": "Bonjour, je voudrais prendre rendez-vous.",
+            "message": (
+                "Bonjour, je voudrais prendre rendez-vous."
+            ),
         }
 
         with patch(
@@ -50,13 +52,17 @@ class TestSubmitContactView:
             "name": "Marie",
             "email": "marie@example.com",
             "subject": "Question",
-            "message": "Message assez long pour passer la validation.",
+            "message": (
+                "Message assez long pour passer la validation."
+            ),
         }
 
         with patch(
             "apps.contact.services._send_notification_email"
         ):
-            api_client.post(SUBMIT_URL, payload, format="json")
+            api_client.post(
+                SUBMIT_URL, payload, format="json"
+            )
 
         sub = ContactSubmission.objects.first()
         assert sub.name == "Marie"
@@ -71,7 +77,9 @@ class TestSubmitContactView:
             "message": "A long enough message here.",
         }
 
-        resp = api_client.post(SUBMIT_URL, payload, format="json")
+        resp = api_client.post(
+            SUBMIT_URL, payload, format="json"
+        )
         assert resp.status_code == 400
         assert "name" in resp.data
 
@@ -83,7 +91,9 @@ class TestSubmitContactView:
             "message": "A long enough message here.",
         }
 
-        resp = api_client.post(SUBMIT_URL, payload, format="json")
+        resp = api_client.post(
+            SUBMIT_URL, payload, format="json"
+        )
         assert resp.status_code == 400
         assert "email" in resp.data
 
@@ -95,14 +105,14 @@ class TestSubmitContactView:
             "message": "Short",
         }
 
-        resp = api_client.post(SUBMIT_URL, payload, format="json")
+        resp = api_client.post(
+            SUBMIT_URL, payload, format="json"
+        )
         assert resp.status_code == 400
         assert "message" in resp.data
 
     def test_empty_body_returns_400(self, api_client):
-        resp = api_client.post(
-            SUBMIT_URL, {}, format="json"
-        )
+        resp = api_client.post(SUBMIT_URL, {}, format="json")
         assert resp.status_code == 400
 
     def test_get_method_not_allowed(self, api_client):
@@ -117,6 +127,8 @@ class TestSubmitContactView:
             "message": "A long enough message here.",
         }
 
-        resp = api_client.post(SUBMIT_URL, payload, format="json")
+        resp = api_client.post(
+            SUBMIT_URL, payload, format="json"
+        )
         assert resp.status_code == 400
         assert "name" in resp.data

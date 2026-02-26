@@ -73,7 +73,9 @@ class TestMeView:
         assert data["isAuthenticated"] is False
         assert "username" not in data
 
-    def test_authenticated_staff(self, client: Client, staff_user):
+    def test_authenticated_staff(
+        self, client: Client, staff_user
+    ):
         client.force_login(staff_user)
         resp = client.get("/api/auth/me/")
         assert resp.status_code == 200
@@ -84,7 +86,9 @@ class TestMeView:
         assert data["isStaff"] is True
         assert data["isSuperuser"] is False
 
-    def test_authenticated_non_staff(self, client: Client, non_staff_user):
+    def test_authenticated_non_staff(
+        self, client: Client, non_staff_user
+    ):
         client.force_login(non_staff_user)
         resp = client.get("/api/auth/me/")
         data = resp.json()
@@ -103,33 +107,50 @@ class TestLoginView:
             content_type="application/json",
         )
 
-    def test_successful_staff_login(self, client: Client, staff_user):
+    def test_successful_staff_login(
+        self, client: Client, staff_user
+    ):
         resp = self._post_login(
-            client, {"username": "staffuser", "password": "testpass123"}
+            client,
+            {"username": "staffuser", "password": "testpass123"},
         )
         assert resp.status_code == 200
         assert resp.json()["detail"] == "ok"
 
-    def test_login_by_email(self, client: Client, staff_user):
+    def test_login_by_email(
+        self, client: Client, staff_user
+    ):
         resp = self._post_login(
-            client, {"email": "staff@example.com", "password": "testpass123"}
+            client,
+            {
+                "email": "staff@example.com",
+                "password": "testpass123",
+            },
         )
         assert resp.status_code == 200
 
-    def test_invalid_credentials(self, client: Client, staff_user):
+    def test_invalid_credentials(
+        self, client: Client, staff_user
+    ):
         resp = self._post_login(
-            client, {"username": "staffuser", "password": "wrong"}
+            client,
+            {"username": "staffuser", "password": "wrong"},
         )
         assert resp.status_code == 401
 
-    def test_non_staff_rejected(self, client: Client, non_staff_user):
+    def test_non_staff_rejected(
+        self, client: Client, non_staff_user
+    ):
         resp = self._post_login(
-            client, {"username": "regular", "password": "testpass123"}
+            client,
+            {"username": "regular", "password": "testpass123"},
         )
         assert resp.status_code == 403
 
     def test_missing_credentials(self, client: Client):
-        resp = self._post_login(client, {"username": "staffuser"})
+        resp = self._post_login(
+            client, {"username": "staffuser"}
+        )
         assert resp.status_code == 400
 
     def test_empty_body(self, client: Client):
@@ -161,7 +182,9 @@ class TestLoginView:
 
 
 class TestLogoutView:
-    def test_logout_authenticated_user(self, client: Client, staff_user):
+    def test_logout_authenticated_user(
+        self, client: Client, staff_user
+    ):
         client.force_login(staff_user)
         resp = client.post("/api/auth/logout/")
         assert resp.status_code == 200
@@ -170,7 +193,9 @@ class TestLogoutView:
         me_resp = client.get("/api/auth/me/")
         assert me_resp.json()["isAuthenticated"] is False
 
-    def test_logout_unauthenticated_user(self, client: Client):
+    def test_logout_unauthenticated_user(
+        self, client: Client
+    ):
         resp = client.post("/api/auth/logout/")
         assert resp.status_code == 200
         assert resp.json()["detail"] == "ok"

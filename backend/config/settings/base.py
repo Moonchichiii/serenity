@@ -59,7 +59,6 @@ INSTALLED_APPS = [
     'apps.services.apps.ServicesConfig',
     'apps.testimonials',
     'apps.availability',
-    'apps.bookings',
     'apps.contact',
     'apps.vouchers',
 ]
@@ -139,7 +138,6 @@ SPECTACULAR_SETTINGS = {
     "SCHEMA_PATH_PREFIX": r"/api/",
     "TAGS": [
         {"name": "cms", "description": "CMS & hydrated homepage"},
-        {"name": "bookings", "description": "Booking CRUD"},
         {"name": "vouchers", "description": "Gift voucher operations"},
         {"name": "availability", "description": "Google Calendar availability"},
         {"name": "testimonials", "description": "Testimonial submission & listing"},

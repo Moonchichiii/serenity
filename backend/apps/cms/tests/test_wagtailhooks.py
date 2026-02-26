@@ -6,7 +6,9 @@ import apps.cms.wagtail_hooks as hooks_mod
 
 pytestmark = pytest.mark.django_db
 
+
 # Snippet URL utility
+
 
 def test_get_snippet_url_returns_hash_when_model_missing():
     """Return '#' when model is None."""
@@ -29,21 +31,31 @@ def test_get_snippet_url_returns_hash_on_reverse_failure(monkeypatch):
     monkeypatch.setattr(hooks_mod, "reverse", raise_reverse_error)
     assert hooks_mod.get_snippet_url(DummyModel, "list") == "#"
 
+
 # Dashboard panels
 
-def test_construct_homepage_panels_inserts_custom_panel(rf: RequestFactory):
+
+def test_construct_homepage_panels_inserts_custom_panel(
+    rf: RequestFactory,
+):
     """Custom WelcomePanel is injected into the admin."""
     panels = []
-    out = hooks_mod.add_welcome_panel(request=rf.get("/admin/"), panels=panels)
+    out = hooks_mod.add_welcome_panel(
+        request=rf.get("/admin/"), panels=panels
+    )
 
     assert len(out) == 1
     assert out[0].__class__.__name__ == "WelcomePanel"
 
 
-def test_welcome_panel_render_safety_with_homepage(rf: RequestFactory, homepage):
+def test_welcome_panel_render_safety_with_homepage(
+    rf: RequestFactory, homepage
+):
     """WelcomePanel renders HTML when the CMS tree is populated."""
     panels = []
-    hooks_mod.add_welcome_panel(request=rf.get("/admin/"), panels=panels)
+    hooks_mod.add_welcome_panel(
+        request=rf.get("/admin/"), panels=panels
+    )
     panel = panels[0]
 
     html = panel.render()
@@ -51,14 +63,20 @@ def test_welcome_panel_render_safety_with_homepage(rf: RequestFactory, homepage)
     assert 'class="serenity-dashboard"' in html
     assert 'id="serenity-app"' in html
 
-    expected_edit_url = reverse("wagtailadmin_pages:edit", args=[homepage.id])
+    expected_edit_url = reverse(
+        "wagtailadmin_pages:edit", args=[homepage.id]
+    )
     assert expected_edit_url in html
 
 
-def test_welcome_panel_render_safety_without_homepage(rf: RequestFactory):
+def test_welcome_panel_render_safety_without_homepage(
+    rf: RequestFactory,
+):
     """WelcomePanel renders HTML when no HomePage exists."""
     panels = []
-    hooks_mod.add_welcome_panel(request=rf.get("/admin/"), panels=panels)
+    hooks_mod.add_welcome_panel(
+        request=rf.get("/admin/"), panels=panels
+    )
     panel = panels[0]
 
     html = panel.render()
@@ -72,33 +90,43 @@ def test_welcome_panel_render_gift_settings_url_resolved(
 ):
     """GiftSettings URL is resolved when the model exists."""
     panels = []
-    hooks_mod.add_welcome_panel(request=rf.get("/admin/"), panels=panels)
+    hooks_mod.add_welcome_panel(
+        request=rf.get("/admin/"), panels=panels
+    )
     panel = panels[0]
 
     html = panel.render()
-    # The gift_settings_url should be either a real URL or '#'
     assert isinstance(html, str)
-    # Just verify it doesn't crash and produces valid output
     assert "gift" in html.lower() or "#" in html
+
+
+# ── FIX 3: selective monkeypatch — only break wagtailsettings reverse ──
 
 
 def test_welcome_panel_render_gift_settings_no_reverse(
     rf, homepage, monkeypatch
 ):
-    """GiftSettings URL falls back to '#' when reverse fails."""
+    """GiftSettings URL falls back to '#' when reverse fails for settings."""
+    _real_reverse = reverse
 
-    def always_raise(*args, **kwargs):
-        from django.urls import NoReverseMatch
+    def _selective_reverse(viewname, *args, **kwargs):
+        if "wagtailsettings" in viewname:
+            raise NoReverseMatch(f"simulated failure for {viewname}")
+        return _real_reverse(viewname, *args, **kwargs)
 
-        raise NoReverseMatch("simulated")
-
-    monkeypatch.setattr(hooks_mod, "reverse", always_raise)
+    monkeypatch.setattr(hooks_mod, "reverse", _selective_reverse)
 
     panels = []
-    hooks_mod.add_welcome_panel(request=rf.get("/admin/"), panels=panels)
+    hooks_mod.add_welcome_panel(
+        request=rf.get("/admin/"), panels=panels
+    )
     panel = panels[0]
 
     html = panel.render()
     assert isinstance(html, str)
-    # All URLs should fall back to '#'
-    assert "#" in html
+    assert 'class="serenity-dashboard"' in html
+    # Homepage edit URL should still resolve
+    expected_edit_url = _real_reverse(
+        "wagtailadmin_pages:edit", args=[homepage.id]
+    )
+    assert expected_edit_url in html

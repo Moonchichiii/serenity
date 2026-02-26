@@ -1,55 +1,32 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
-from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
+from rest_framework.request import Request
 from rest_framework.response import Response
 
-from .serializers import GiftVoucherInputSerializer
-from .services import create_voucher, send_voucher_emails
-
-if TYPE_CHECKING:
-    from rest_framework.request import Request
+from .serializers import GiftVoucherInputSerializer, GiftVoucherResponseSerializer
+from .services import cancel_booking, create_voucher, send_voucher_emails
 
 
-@extend_schema(
-    operation_id="voucher_create",
-    tags=["vouchers"],
-    request=GiftVoucherInputSerializer,
-    responses={
-        201: OpenApiResponse(
-            description="Voucher created",
-            response={
-                "type": "object",
-                "properties": {
-                    "code": {"type": "string"},
-                    "booking_confirmation": {"type": "string", "nullable": True},
-                },
-            },
-        ),
-        400: OpenApiResponse(description="Validation Error"),
-    },
-    summary="Buy/Create gift voucher",
-)
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def create_voucher_view(request: Request) -> Response:
-    """Create a gift voucher and optionally book a calendar slot."""
     serializer = GiftVoucherInputSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
-    voucher, booking_confirmation = create_voucher(
-        data=serializer.validated_data
-    )
-    send_voucher_emails(voucher=voucher, request=request)
+    voucher = create_voucher(serializer.validated_data)
+    send_voucher_emails(voucher)
 
-    return Response(
-        {
-            "code": voucher.code,
-            "booking_confirmation": booking_confirmation,
-        },
-        status=status.HTTP_201_CREATED,
-    )
+    response_serializer = GiftVoucherResponseSerializer(voucher)
+    return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["DELETE"])
+@permission_classes([AllowAny])
+def cancel_booking_view(
+    request: Request, confirmation_code: str
+) -> Response:
+    data, error, status_code = cancel_booking(confirmation_code)
+    if error:
+        return Response({"detail": error}, status=status_code)
+    return Response(data, status=status_code)

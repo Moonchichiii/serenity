@@ -1,60 +1,72 @@
-from __future__ import annotations
-
 from rest_framework import serializers
 
-from .models import GiftVoucher
+from .models import Booking, GiftVoucher
 
 
-class GiftVoucherInputSerializer(serializers.ModelSerializer):
-    """Validates voucher purchase input with optional booking details."""
+class GiftVoucherInputSerializer(serializers.Serializer):
+    recipient_name = serializers.CharField(max_length=200)
+    recipient_email = serializers.EmailField()
+    sender_name = serializers.CharField(max_length=200)
+    sender_email = serializers.EmailField()
+    message = serializers.CharField(required=False, default="")
+    amount = serializers.DecimalField(max_digits=8, decimal_places=2)
+    preferred_language = serializers.ChoiceField(
+        choices=["fr", "en"], default="fr"
+    )
+    service_id = serializers.IntegerField(required=False)
+    start_datetime = serializers.DateTimeField(required=False)
+    end_datetime = serializers.DateTimeField(required=False)
 
-    # Optional booking fields — if provided the backend will create
-    # a calendar booking alongside the voucher.
-    service_id = serializers.IntegerField(required=False, default=None)
-    start_datetime = serializers.DateTimeField(required=False, default=None)
-    end_datetime = serializers.DateTimeField(required=False, default=None)
-
-    class Meta:
-        model = GiftVoucher
-        fields = (
-            'purchaser_name',
-            'purchaser_email',
-            'recipient_name',
-            'recipient_email',
-            'message',
-            'preferred_date',
-            # booking extras (not on the model)
-            'service_id',
-            'start_datetime',
-            'end_datetime',
-        )
-
-    def validate(self, attrs: dict) -> dict:
-        """If any booking field is set, all three must be present."""
-        booking_fields = (
-            attrs.get('service_id'),
-            attrs.get('start_datetime'),
-            attrs.get('end_datetime'),
-        )
-        has_any = any(f is not None for f in booking_fields)
-        has_all = all(f is not None for f in booking_fields)
-
-        if has_any and not has_all:
+    def validate(self, attrs):
+        booking_fields = ["service_id", "start_datetime", "end_datetime"]
+        provided = [f for f in booking_fields if attrs.get(f)]
+        if provided and len(provided) != len(booking_fields):
             raise serializers.ValidationError(
-                'service_id, start_datetime and end_datetime must all '
-                'be provided together to create a calendar booking.'
+                "If booking a slot, provide service_id, "
+                "start_datetime, and end_datetime together."
             )
         return attrs
 
 
 class GiftVoucherResponseSerializer(serializers.ModelSerializer):
-    """Minimal read serializer for the purchase response."""
-
-    booking_confirmation = serializers.CharField(
-        read_only=True, required=False, default=''
-    )
-
     class Meta:
         model = GiftVoucher
-        fields = ('code', 'recipient_name', 'created_at', 'booking_confirmation')
-        read_only_fields = fields
+        fields = [
+            "id",
+            "code",
+            "recipient_name",
+            "recipient_email",
+            "sender_name",
+            "sender_email",
+            "message",
+            "amount",
+            "preferred_language",
+            "booking_confirmation",
+            "created_at",
+        ]
+
+
+class BookingSerializer(serializers.ModelSerializer):
+    service = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Booking
+        fields = [
+            "id",
+            "service",
+            "start_datetime",
+            "end_datetime",
+            "status",
+            "source",
+            "client_name",
+            "client_email",
+            "confirmation_code",
+            "voucher_code",
+        ]
+
+    def get_service(self, obj) -> dict:
+        return {
+            "id": obj.service.id,
+            "title_fr": obj.service.title_fr,
+            "title_en": obj.service.title_en,
+        }

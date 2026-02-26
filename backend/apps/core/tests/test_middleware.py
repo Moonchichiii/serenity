@@ -28,7 +28,9 @@ class TestCacheHeaderMiddleware:
 
     @override_settings(DEBUG=True)
     def test_hit_header_when_debug_and_cache_hit(self):
-        mw = _make_middleware(response_attrs={"_cache_hit": True})
+        mw = _make_middleware(
+            response_attrs={"_cache_hit": True}
+        )
         request = RequestFactory().get("/")
         resp = mw(request)
         assert resp["X-Cache-Status"] == "HIT"
@@ -42,7 +44,9 @@ class TestCacheHeaderMiddleware:
 
     @override_settings(DEBUG=True)
     def test_cache_hit_false_treated_as_miss(self):
-        mw = _make_middleware(response_attrs={"_cache_hit": False})
+        mw = _make_middleware(
+            response_attrs={"_cache_hit": False}
+        )
         request = RequestFactory().get("/")
         resp = mw(request)
         assert resp["X-Cache-Status"] == "MISS"

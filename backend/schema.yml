@@ -4,63 +4,6 @@ info:
   version: 1.0.0
   description: Wellness & spa platform — bookings, vouchers, CMS, availability
 paths:
-  /api/bookings/:
-    get:
-      operationId: bookings_retrieve
-      description: 'GET: list bookings (filter by ?email=). POST: create online booking.'
-      tags:
-      - bookings
-      security:
-      - cookieAuth: []
-      - basicAuth: []
-      - {}
-      responses:
-        '200':
-          description: No response body
-    post:
-      operationId: bookings_create
-      description: 'GET: list bookings (filter by ?email=). POST: create online booking.'
-      tags:
-      - bookings
-      security:
-      - cookieAuth: []
-      - basicAuth: []
-      - {}
-      responses:
-        '200':
-          description: No response body
-  /api/bookings/cancel/{confirmation_code}/:
-    delete:
-      operationId: bookings_cancel_destroy
-      description: Cancel a booking by confirmation code.
-      parameters:
-      - in: path
-        name: confirmation_code
-        schema:
-          type: string
-        required: true
-      tags:
-      - bookings
-      security:
-      - cookieAuth: []
-      - basicAuth: []
-      - {}
-      responses:
-        '204':
-          description: No response body
-  /api/bookings/voucher/:
-    post:
-      operationId: bookings_voucher_create
-      description: Create a booking from a voucher redemption.
-      tags:
-      - bookings
-      security:
-      - cookieAuth: []
-      - basicAuth: []
-      - {}
-      responses:
-        '200':
-          description: No response body
   /api/calendar/busy/:
     get:
       operationId: calendar_busy_retrieve
@@ -183,6 +126,52 @@ paths:
       responses:
         '200':
           description: No response body
+  /api/vouchers/cancel/{confirmation_code}/:
+    delete:
+      operationId: vouchers_cancel_destroy
+      description: Cancel a booking by confirmation code.
+      parameters:
+      - in: path
+        name: confirmation_code
+        schema:
+          type: string
+        required: true
+      tags:
+      - vouchers
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        "200":
+          description: Booking cancelled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  confirmation_code:
+                    type: string
+                  status:
+                    type: string
+        "400":
+          description: Cannot cancel booking in current status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+        "404":
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
   /cms-admin/api/main/documents/:
     get:
       operationId: cms_admin_api_main_documents_retrieve
@@ -473,8 +462,6 @@ components:
 tags:
 - name: cms
   description: CMS & hydrated homepage
-- name: bookings
-  description: Booking CRUD
 - name: vouchers
   description: Gift voucher operations
 - name: availability

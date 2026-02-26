@@ -3,24 +3,31 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
+from django.contrib import admin
 from django.utils import timezone
 
 from apps.vouchers.admin import GiftVoucherAdmin
-from apps.vouchers.models import GiftVoucher
+from apps.vouchers.models import Booking, GiftVoucher
 
 pytestmark = pytest.mark.django_db
 
 
 class TestMarkAsRedeemed:
-    def test_bulk_marks_vouchers_redeemed(self, voucher_factory):
+    def test_bulk_marks_vouchers_redeemed(
+        self, voucher_factory
+    ):
         v1 = voucher_factory()
         v2 = voucher_factory()
         assert not v1.is_redeemed
         assert not v2.is_redeemed
 
-        qs = GiftVoucher.objects.filter(pk__in=[v1.pk, v2.pk])
-        admin = GiftVoucherAdmin(GiftVoucher, None)
-        admin.mark_as_redeemed(request=MagicMock(), queryset=qs)
+        qs = GiftVoucher.objects.filter(
+            pk__in=[v1.pk, v2.pk]
+        )
+        admin_instance = GiftVoucherAdmin(GiftVoucher, None)
+        admin_instance.mark_as_redeemed(
+            request=MagicMock(), queryset=qs
+        )
 
         v1.refresh_from_db()
         v2.refresh_from_db()
@@ -35,23 +42,30 @@ class TestSaveModelToggle:
         form.changed_data = changed
         return form
 
-    def test_toggling_redeemed_on_sets_timestamp(self, voucher_factory):
+    def test_toggling_redeemed_on_sets_timestamp(
+        self, voucher_factory
+    ):
         voucher = voucher_factory()
         assert voucher.redeemed_at is None
 
         voucher.is_redeemed = True
         form = self._make_form(["is_redeemed"])
 
-        admin = GiftVoucherAdmin(GiftVoucher, None)
-        admin.save_model(
-            request=MagicMock(), obj=voucher, form=form, change=True
+        admin_instance = GiftVoucherAdmin(GiftVoucher, None)
+        admin_instance.save_model(
+            request=MagicMock(),
+            obj=voucher,
+            form=form,
+            change=True,
         )
 
         voucher.refresh_from_db()
         assert voucher.is_redeemed is True
         assert voucher.redeemed_at is not None
 
-    def test_toggling_redeemed_off_clears_timestamp(self, voucher_factory):
+    def test_toggling_redeemed_off_clears_timestamp(
+        self, voucher_factory
+    ):
         voucher = voucher_factory()
         voucher.is_redeemed = True
         voucher.redeemed_at = timezone.now()
@@ -60,9 +74,12 @@ class TestSaveModelToggle:
         voucher.is_redeemed = False
         form = self._make_form(["is_redeemed"])
 
-        admin = GiftVoucherAdmin(GiftVoucher, None)
-        admin.save_model(
-            request=MagicMock(), obj=voucher, form=form, change=True
+        admin_instance = GiftVoucherAdmin(GiftVoucher, None)
+        admin_instance.save_model(
+            request=MagicMock(),
+            obj=voucher,
+            form=form,
+            change=True,
         )
 
         voucher.refresh_from_db()
@@ -80,10 +97,22 @@ class TestSaveModelToggle:
 
         form = self._make_form(["message"])
 
-        admin = GiftVoucherAdmin(GiftVoucher, None)
-        admin.save_model(
-            request=MagicMock(), obj=voucher, form=form, change=True
+        admin_instance = GiftVoucherAdmin(GiftVoucher, None)
+        admin_instance.save_model(
+            request=MagicMock(),
+            obj=voucher,
+            form=form,
+            change=True,
         )
 
         voucher.refresh_from_db()
         assert voucher.redeemed_at == original_ts
+
+
+@pytest.mark.django_db
+class TestVoucherAdmin:
+    def test_gift_voucher_admin_registered(self):
+        assert GiftVoucher in admin.site._registry
+
+    def test_booking_admin_registered(self):
+        assert Booking in admin.site._registry
