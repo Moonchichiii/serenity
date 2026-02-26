@@ -1,6 +1,15 @@
 La Serenity – Enterprise Wellness Platform
 
 
+
+
+
+
+
+
+
+
+
 A high-performance, multilingual wellness ecosystem featuring a Django/Wagtail headless CMS and a React-based SPA. This platform facilitates professional massage service management, integrated voucher-linked booking systems, and automated media pipelines.
 
 🏗 High-Level Architecture
@@ -13,36 +22,36 @@ The system follows a modern decoupled architecture designed for low latency, hig
 
 - Frontend: React 19 / TanStack Router / TanStack Query (v5)
 
-- Infrastructure: Containerized via Docker, deployed on Fly.io (Backend) and Cloudflare Pages (Frontend).
+- Infrastructure: Containerized via Docker, deployed on Fly.io (Backend) and Cloudflare Pages (Frontend)
 
-- Persistence: Serverless PostgreSQL (Neon) & Upstash Redis (Caching).
+- Persistence: Serverless PostgreSQL (Neon) & Upstash Redis (Caching)
 
 
 ---
 
 🚀 Recent Refactor & Improvements
 
-1. Unified Booking & Voucher Engine
+1. Unified Voucher & Booking Engine
 
-- Atomic Bookings: The bookings app is now tightly coupled with the vouchers system. Successful booking flows now trigger real-time calendar placement and voucher validation/redemption in a single transactional flow.
+- Atomic Logic: The legacy bookings app has been merged into apps/vouchers/. Successful transactions now trigger real-time calendar placement and voucher validation in a single flow.
 
-- Service Layer Pattern: Business logic moved from views to services.py and selectors.py for better testability and reuse.
+- Service Layer Pattern: Business logic resides in services.py and selectors.py for maximum testability.
 
-- Availability Logic: Dedicated availability app with a calendar_gateway.py to manage complex scheduling constraints.
+- Availability Logic: Dedicated availability app with calendar_gateway.py to manage complex Google Calendar scheduling.
 
 2. High-Performance Toolchain
 
 - Backend: Migrated from pip to uv. Dependency resolution and environment syncing are now near-instant.
 
-- Frontend: Swapped pnpm for bun. Leverages Bun's high-speed runtime for a leaner CI/CD pipeline and faster local development.
+- Frontend: Swapped pnpm for bun. Leverages Bun's high-speed runtime for leaner CI/CD and local development.
 
 3. Frontend Architecture Evolution
 
-- TanStack Router: Fully type-safe routing with routeTree.gen.ts. Replaced traditional navigation with a robust, tree-based routing system.
+- TanStack Router: Fully type-safe routing with routeTree.gen.ts.
 
-- TanStack Query (React-Query): Centralized all server state in src/queries/. Replaced disparate useEffect hooks with declarative queries and mutations, providing zero-boilerplate data fetching and optimized cache invalidation.
+- TanStack Query: Centralized all server state in src/queries/, providing declarative mutations and optimized cache invalidation.
 
-- Domain-Driven Design: Organized the frontend by features/ (Booking, Testimonials, Home) and api/ clients to mirror the backend's modularity.
+- Corporate Rename: Audited and renamed all corporate booking symbols to CorporateInquiry to align with the contact-based data flow.
 
 
 ---
@@ -65,26 +74,25 @@ Media	Cloudinary (CDN + Optimization)
 
 Backend Layout (/apps)
 
-	├── availability/    # Calendar gateway & scheduling logic
-	├── bookings/        # Booking lifecycle & service coordination
-	├── cms/             # Headless Wagtail models, Pages, & Serializers
-	├── contact/         # Transactional email services
-	├── core/            # Middleware, CSP, & Custom Image Handling
-	├── payments/        # Stripe/Payment integration logic
-	├── services/        # Service definitions & business logic
-	├── testimonials/    # Moderated client reviews
-	└── vouchers/        # Gift voucher generation & redemption
+	├── availability/    # Google Calendar gateway & scheduling
+	├── cms/             # Headless Wagtail models & Serializers
+	├── contact/         # Email services (Contact & Corporate Inquiry)
+	├── core/            # Middleware, CSP, & Custom Image handling
+	├── payments/        # Stripe integration placeholder
+	├── services/        # Service definitions (via CMS)
+	├── testimonials/    # Moderated client reviews & replies
+	└── vouchers/        # Gift voucher creation & booking redemption
 
 Frontend Layout (/src)
 
-	├── api/             # Axios clients for all sub-services
-	├── app/             # Global Providers & Router initialization
-	├── components/      # UI, Modal System, & Legal components
-	├── features/        # Feature-sliced modules (Booking, Home, etc.)
-	├── hooks/           # Domain-specific logic hooks
+	├── api/             # Fetch wrappers per backend app
+	├── app/             # Providers & Router initialization
+	├── components/      # UI, Modal System (Registry), & Forms
+	├── features/        # Feature-sliced sections (Testimonials, Home)
+	├── hooks/           # Domain-specific React hooks
 	├── queries/         # TanStack Query (Queries & Mutations)
 	├── routes/          # TanStack Router tree
-	└── types/           # Centralized API & Form type definitions
+	└── types/           # API Responses & Zod Form Schemas
 
 
 ---
@@ -92,10 +100,6 @@ Frontend Layout (/src)
 🚦 Development & Testing
 
 Installation
-
-
-The project uses uv and bun for maximum performance.
-
 
 	# Backend
 	uv sync
@@ -107,11 +111,29 @@ The project uses uv and bun for maximum performance.
 
 Testing & Quality Assurance
 
-- Unit Testing: Backend utilizes pytest across all apps (bookings, availability, cms, etc.) with comprehensive conftest.py setups.
+- Unit Testing: Backend utilizes pytest with 70+ tests covering CMS, Availability, and Vouchers.
 
-- E2E Testing: Currently in progress for the new TanStack data flow to ensure seamless integration between React Query mutations and the Django service layer.
+- E2E Testing: Integrated schemathesis for API contract validation and TanStack-based flow testing.
 
-- Code Style: Enforced via Prettier (FE) and standard Python linting.
+
+---
+
+📊 Test Suite Results
+
+
+Current Backend Coverage: 66%
+
+
+	========================= test session starts =========================
+	collected 73 items
+
+	apps/availability/  .... (100%)
+	apps/cms/           ........................ (100%)
+	apps/contact/       .... (75%)
+	apps/testimonials/  .... (52%)
+	apps/vouchers/      .... (57%)
+
+	================ 73 passed, 5 warnings in 17.51s =================
 
 
 ---
@@ -122,25 +144,19 @@ Testing & Quality Assurance
 
 -  Routing: Implementation of TanStack Router.
 
--  State: Centralize all data fetching with TanStack Query.
+-  State: Centralize data fetching with TanStack Query.
 
--  Testing: Complete E2E suite for the refined Booking-Voucher flow.
+-  Audit: Finalize E2E data flow audit for the merged Voucher-Booking flow.
 
--  UI/UX Cleanup:
-	- Systematic removal of legacy useEffect patterns.
-
-	- Performance optimization for Framer Motion transitions.
-
-	- Global UI/UX polish.
-
+-  UI/UX: Performance optimization for Framer Motion transitions.
 
 
 ---
 
 🔒 Security & Compliance
 
-- GDPR: Form submissions are handled via services.py to ensure transactional data integrity without unnecessary persistence.
+- GDPR: Form submissions handled via services.py for transactional integrity without unnecessary PII persistence.
 
 - Security Headers: Strict CSP and CORS configurations managed via core/middleware.py.
 
-- Media: All assets served via Cloudinary with automated HTTPS and optimization.
+- Media: Assets served via Cloudinary with automated HTTPS.

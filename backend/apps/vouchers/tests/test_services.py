@@ -5,7 +5,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from apps.bookings.models import Booking
 from apps.vouchers import services as voucher_services
 
 NOW = datetime(2026, 3, 1, 10, 0, tzinfo=UTC)

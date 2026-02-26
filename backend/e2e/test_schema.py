@@ -26,7 +26,6 @@ class TestOpenAPISchema:
 
         critical = [
             "/api/homepage/hydrated/",
-            "/api/bookings/",
             "/api/vouchers/",
             "/api/availability/",
             "/api/testimonials/",

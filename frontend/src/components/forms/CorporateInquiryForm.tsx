@@ -15,27 +15,27 @@ import {
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { useSubmitContact } from '@/hooks/useContact'
+import { useSubmitContact } from "@/hooks/useContact";
 import {
-  createCorporateBookingSchema,
+  createCorporateInquirySchema,
   corporateEventTypes,
-  type CorporateBookingFormValues,
+  type CorporateInquiryFormValues,
   type CorporateEventType,
-} from "@/types/forms/corporateBooking";
+} from "@/types/forms/corporateInquiry";
 
-interface CorporateBookingFormProps {
+interface CorporateInquiryFormProps {
   onSuccess?: () => void;
   defaultEventType?: CorporateEventType;
 }
 
-export function CorporateBookingForm({
+export function CorporateInquiryForm({
   onSuccess,
   defaultEventType = "corporate",
-}: CorporateBookingFormProps) {
+}: CorporateInquiryFormProps) {
   const { t } = useTranslation();
   const [showMore, setShowMore] = useState(false);
 
-  const schema = useMemo(() => createCorporateBookingSchema(t), [t]);
+  const schema = useMemo(() => createCorporateInquirySchema(t), [t]);
 
   const submit = useSubmitContact();
 
@@ -44,7 +44,7 @@ export function CorporateBookingForm({
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<CorporateBookingFormValues>({
+  } = useForm<CorporateInquiryFormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       eventType: defaultEventType,
@@ -56,15 +56,13 @@ export function CorporateBookingForm({
   const inputPlain =
     "w-full px-4 py-2.5 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors";
 
-  const onSubmit = async (data: CorporateBookingFormValues) => {
-    // Normalize optional fields
+  const onSubmit = async (data: CorporateInquiryFormValues) => {
     const phone = data.phone?.trim() || undefined;
     const notes = data.notes?.trim() || undefined;
 
-    // “Marked differently” = deterministic subject prefix
     const subject = `[CORPORATE] ${t(
       "corp.subjectPrefix",
-      "Corporate/Event Booking"
+      "Corporate/Event Booking",
     )} • ${data.company} • ${data.eventType}`;
 
     const lines = [
@@ -96,14 +94,20 @@ export function CorporateBookingForm({
       });
 
       toast.success(
-        t("corp.form.success", "Request sent! I will get back to you shortly. ✨")
+        t(
+          "corp.form.success",
+          "Request sent! I will get back to you shortly. ✨",
+        ),
       );
       reset();
       onSuccess?.();
     } catch (err) {
-      console.error("Corporate booking error:", err);
+      console.error("Corporate inquiry error:", err);
       toast.error(
-        t("corp.form.error", "Could not send your request. Please try again.")
+        t(
+          "corp.form.error",
+          "Could not send your request. Please try again.",
+        ),
       );
     }
   };
@@ -238,7 +242,8 @@ export function CorporateBookingForm({
                   t("corp.form.eventType.expo", "Fair / expo / booth")}
                 {v === "private" &&
                   t("corp.form.eventType.private", "Private event")}
-                {v === "other" && t("corp.form.eventType.other", "Other")}
+                {v === "other" &&
+                  t("corp.form.eventType.other", "Other")}
               </option>
             ))}
           </select>
@@ -319,7 +324,7 @@ export function CorporateBookingForm({
             className={input}
             placeholder={t(
               "corp.form.location.placeholder",
-              "Company address or venue"
+              "Company address or venue",
             )}
             {...register("onSiteAddress")}
           />
@@ -333,7 +338,10 @@ export function CorporateBookingForm({
           className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-charcoal"
         >
           <span>
-            {t("corp.form.moreDetailsLabel", "Additional details (optional)")}
+            {t(
+              "corp.form.moreDetailsLabel",
+              "Additional details (optional)",
+            )}
           </span>
           {showMore ? (
             <ChevronUp className="w-4 h-4 text-charcoal/60" />
@@ -374,7 +382,7 @@ export function CorporateBookingForm({
                   className={inputPlain}
                   placeholder={t(
                     "corp.form.services.placeholder",
-                    "Chair massage, 10-min rotations, 2 practitioners…"
+                    "Chair massage, 10-min rotations, 2 practitioners…",
                   )}
                   {...register("services")}
                 />
@@ -410,7 +418,7 @@ export function CorporateBookingForm({
                 className="w-full px-4 py-2.5 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors resize-none"
                 placeholder={t(
                   "corp.form.notes.placeholder",
-                  "Ambiance / space available, parking, access badges, etc."
+                  "Ambiance / space available, parking, access badges, etc.",
                 )}
                 {...register("notes")}
               />
@@ -426,7 +434,7 @@ export function CorporateBookingForm({
           </span>{" "}
           {t(
             "corp.form.gdpr.text",
-            "This form emails your request directly. We do not store your data; it is used only to reply to you."
+            "This form emails your request directly. We do not store your data; it is used only to reply to you.",
           )}
         </p>
       </div>
@@ -444,7 +452,7 @@ export function CorporateBookingForm({
       <p className="text-sm text-charcoal/80 text-center">
         {t(
           "corp.form.notice",
-          "We reply within one business day for corporate requests."
+          "We reply within one business day for corporate requests.",
         )}
       </p>
     </form>
