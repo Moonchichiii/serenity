@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
@@ -48,14 +49,17 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          "react-vendor": ["react", "react-dom", "react/jsx-runtime"],
+          "react-vendor": [
+            "react",
+            "react-dom",
+            "react/jsx-runtime",
+          ],
           router: ["@tanstack/react-router"],
           query: ["@tanstack/react-query"],
           motion: ["framer-motion"],
           "ui-libs": ["lucide-react", "clsx", "tailwind-merge"],
         },
         assetFileNames: (assetInfo) => {
-          // Rollup 4: .names is string[], .name is deprecated
           const name =
             assetInfo.names?.[0] ?? assetInfo.name ?? "asset";
           const ext = name.split(".").pop() ?? "";
@@ -71,5 +75,14 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
+  },
+
+  // ✅ Test configuration
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: ["./src/test/setup.ts"],
+    include: ["src/**/*.test.{ts,tsx}"],
+    css: false,
   },
 });

@@ -310,3 +310,67 @@ class TestSendAdminEmail:
         assert len(sent) == 1
         assert sent[0]["to"] == ["admin@example.com"]
         assert voucher.code in sent[0]["subject"]
+
+
+# ── Hardening / Edge Case Tests ──────────────────────────────────
+
+class TestEnsureTzHardening:
+    def test_ensure_tz_handles_strings_gracefully(self):
+        """
+        Risk #1: Passing a string used to crash.
+        Now it should parse the string into a datetime.
+        """
+        dt_str = "2026-06-01T10:00:00"
+        result = voucher_services._ensure_tz(dt_str)
+
+        assert isinstance(result, datetime)
+        assert result.year == 2026
+        assert result.hour == 10
+        assert result.tzinfo is not None  # Should be timezone-aware now
+
+    def test_ensure_tz_handles_naive_datetimes(self):
+        """
+        Risk #2: Naive datetimes (without tzinfo) used to be unsafe
+        or rejectable depending on policy.
+        The fix ensures they are assigned the system timezone (Europe/Paris).
+        """
+        naive_dt = datetime(2026, 6, 1, 10, 0, 0) # No tzinfo
+        result = voucher_services._ensure_tz(naive_dt)
+
+        assert result.tzinfo is not None
+        assert str(result.tzinfo) == "Europe/Paris"
+        # The time itself should remain 10:00
+        assert result.hour == 10
+
+    def test_ensure_tz_raises_value_error_on_bad_string(self):
+        """
+        Ensures garbage strings don't slip through silently.
+        """
+        with pytest.raises(ValueError):
+            voucher_services._ensure_tz("not-a-date")
+
+
+class TestCreateLinkedBookingHardening:
+    @pytest.mark.django_db
+    def test_does_not_crash_on_string_inputs(self, available_service, voucher_factory):
+        """
+        Integration check: The main service function should now handle
+        strings passed from API serializers without crashing.
+        """
+        voucher = voucher_factory()
+
+        # We mock Google Sync to focus purely on the datetime parsing logic
+        with patch.object(voucher_services, "_sync_to_google_calendar"):
+            confirmation = voucher_services._create_linked_booking(
+                voucher=voucher,
+                service_id=available_service.pk,
+                # Passing strings simulates a raw serializer output
+                start_dt="2026-06-01T10:00:00",
+                end_dt="2026-06-01T11:00:00",
+            )
+
+        assert confirmation != ""
+        booking = Booking.objects.get(confirmation_code=confirmation)
+        # Ensure it was saved as a real datetime in the DB
+        assert isinstance(booking.start_datetime, datetime)
+        assert booking.start_datetime.year == 2026
