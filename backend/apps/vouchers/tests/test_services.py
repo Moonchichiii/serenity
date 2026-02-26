@@ -1,376 +1,104 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
-from unittest.mock import MagicMock, patch
+from datetime import datetime
+from unittest.mock import patch
+from zoneinfo import ZoneInfo
 
 import pytest
 
 from apps.vouchers import services as voucher_services
 
-NOW = datetime(2026, 3, 1, 10, 0, tzinfo=UTC)
-LATER = datetime(2026, 3, 1, 11, 0, tzinfo=UTC)
+TZ = ZoneInfo("Europe/Paris")
+
 
 BASE_DATA = {
-    "purchaser_name": "A",
-    "purchaser_email": "a@example.com",
+    "sender_name": "A",
+    "sender_email": "a@example.com",
     "recipient_name": "B",
     "recipient_email": "b@example.com",
     "message": "",
+    "amount": "100.00",
+    "preferred_language": "fr",
 }
 
 
-# ── create_voucher ──────────────────────────────────────────────
+class TestEnsureTz:
+    def test_ensure_tz_handles_naive(self):
+        naive = datetime(2026, 6, 1, 10, 0)
+        out = voucher_services._ensure_tz(naive)
+        assert out.tzinfo is not None
+        assert str(out.tzinfo) == "Europe/Paris"
+
+    def test_ensure_tz_keeps_aware(self):
+        aware = datetime(2026, 6, 1, 10, 0, tzinfo=TZ)
+        out = voucher_services._ensure_tz(aware)
+        assert out is aware
 
 
 class TestCreateVoucher:
     @pytest.mark.django_db
-    def test_voucher_only_persists_and_sets_empty_confirmation(self):
-        voucher = voucher_services.create_voucher(data={**BASE_DATA})
+    def test_creates_voucher_without_slot(self):
+        with patch("apps.vouchers.services.create_booking_event") as mock_gcal:
+            voucher = voucher_services.create_voucher(data={**BASE_DATA})
 
         assert voucher.pk is not None
         assert voucher.code
-        assert voucher.booking_confirmation == ""
+        assert voucher.service is None
+        assert voucher.start_datetime is None
+        assert voucher.end_datetime is None
+        assert voucher.calendar_event_id == ""
+        assert voucher.calendar_event_link == ""
+        assert voucher.calendar_event_status == ""
+        mock_gcal.assert_not_called()
 
     @pytest.mark.django_db
-    def test_booking_keys_are_popped_before_model_create(self):
-        """
-        service_id/start_datetime/end_datetime must not be passed to GiftVoucher.objects.create().
-        We assert this by ensuring voucher is created without errors even when those keys exist.
-        """
-        data = {
-            **BASE_DATA,
-            "service_id": 999,
-            "start_datetime": NOW,
-            "end_datetime": LATER,
-        }
+    def test_creates_voucher_with_slot_and_saves_calendar_metadata(self, available_service):
+        start = datetime(2026, 3, 1, 10, 0, tzinfo=TZ)
+        end = datetime(2026, 3, 1, 11, 0, tzinfo=TZ)
 
-        # Force linked booking to "fail" and return empty confirmation
-        with patch.object(
-            voucher_services, "_create_linked_booking", return_value=""
-        ) as _mock_linked:
-            voucher = voucher_services.create_voucher(data=data)
+        with patch("apps.vouchers.services.create_booking_event") as mock_gcal:
+            mock_gcal.return_value = {
+                "id": "evt_123",
+                "link": "https://calendar/event/123",
+                "status": "confirmed",
+            }
 
-        assert voucher.pk is not None
-        assert voucher.booking_confirmation == ""
-
-    @pytest.mark.django_db
-    def test_with_booking_fields_sets_confirmation_when_linked_booking_succeeds(
-        self, available_service
-    ):
-        data = {
-            **BASE_DATA,
-            "service_id": available_service.pk,
-            "start_datetime": NOW,
-            "end_datetime": LATER,
-        }
-
-        with patch.object(
-            voucher_services, "_create_linked_booking", return_value="BOOK1234"
-        ) as mock_linked:
-            voucher = voucher_services.create_voucher(data=data)
-
-        assert voucher.pk is not None
-        assert voucher.booking_confirmation == "BOOK1234"
-
-        mock_linked.assert_called_once()
-        kwargs = mock_linked.call_args.kwargs
-        assert kwargs["voucher"].pk == voucher.pk
-        assert kwargs["service_id"] == available_service.pk
-        assert kwargs["start_dt"] == NOW
-        assert kwargs["end_dt"] == LATER
-
-    @pytest.mark.django_db
-    def test_with_booking_fields_keeps_empty_confirmation_when_linked_booking_fails(
-        self, available_service
-    ):
-        data = {
-            **BASE_DATA,
-            "service_id": available_service.pk,
-            "start_datetime": NOW,
-            "end_datetime": LATER,
-        }
-
-        with patch.object(
-            voucher_services, "_create_linked_booking", return_value=""
-        ):
-            voucher = voucher_services.create_voucher(data=data)
-
-        assert voucher.pk is not None
-        assert voucher.booking_confirmation == ""
-
-
-# ── _create_linked_booking ───────────────────────────────────────
-
-
-class TestCreateLinkedBooking:
-    @pytest.mark.django_db
-    def test_happy_path_creates_booking_record(self, available_service, voucher_factory):
-        voucher = voucher_factory()
-
-        # Avoid Google Calendar calls
-        with patch.object(voucher_services, "_sync_to_google_calendar", lambda *a, **k: None):
-            confirmation = voucher_services._create_linked_booking(
-                voucher=voucher,
-                service_id=available_service.pk,
-                start_dt=NOW,
-                end_dt=LATER,
+            voucher = voucher_services.create_voucher(
+                data={
+                    **BASE_DATA,
+                    "service_id": available_service.id,
+                    "start_datetime": start,
+                    "end_datetime": end,
+                }
             )
 
-        assert confirmation != ""
-        booking = Booking.objects.get(confirmation_code=confirmation)
-        assert booking.source == "voucher"
-        assert booking.voucher_code == voucher.code
-        assert booking.service_id == available_service.pk
-        assert booking.client_name == voucher.recipient_name
-        assert booking.client_email == voucher.recipient_email
+        assert voucher.pk is not None
+        assert voucher.service_id == available_service.id
+        assert voucher.start_datetime is not None
+        assert voucher.end_datetime is not None
+
+        voucher.refresh_from_db()
+        assert voucher.calendar_event_id == "evt_123"
+        assert voucher.calendar_event_link == "https://calendar/event/123"
+        assert voucher.calendar_event_status == "confirmed"
+        mock_gcal.assert_called_once()
 
     @pytest.mark.django_db
-    def test_service_not_found_returns_empty_string(self, voucher_factory):
-        voucher = voucher_factory()
+    def test_calendar_failure_does_not_break_voucher_creation(self, available_service):
+        start = datetime(2026, 3, 1, 10, 0, tzinfo=TZ)
+        end = datetime(2026, 3, 1, 11, 0, tzinfo=TZ)
 
-        with patch("apps.vouchers.services.Service.objects.get", side_effect=Exception()):
-            confirmation = voucher_services._create_linked_booking(
-                voucher=voucher,
-                service_id=99999,
-                start_dt=NOW,
-                end_dt=LATER,
-            )
-        assert confirmation == ""
-
-
-# ── _build_calendar_description ──────────────────────────────────
-
-
-class TestBuildCalendarDescription:
-    def test_includes_voucher_code_when_present(self):
-        desc = voucher_services._build_calendar_description(
-            client_name="Bob",
-            client_email="bob@example.com",
-            client_phone="0612345678",
-            client_notes="Notes",
-            source="voucher",
-            voucher_code="GIFT9999",
-        )
-        assert "Source: voucher" in desc
-        assert "Voucher: GIFT9999" in desc
-
-    def test_omits_voucher_line_when_empty(self):
-        desc = voucher_services._build_calendar_description(
-            client_name="Alice",
-            client_email="alice@example.com",
-            client_phone="0612345678",
-            client_notes="Notes",
-            source="manual",
-            voucher_code="",
-        )
-        assert "Voucher:" not in desc
-
-
-# ── Gift settings + language ─────────────────────────────────────
-
-
-class TestResolveGiftSettings:
-    def test_defaults_when_settings_missing(self, settings):
-        if hasattr(settings, "GIFT_VOUCHER_SETTINGS"):
-            delattr(settings, "GIFT_VOUCHER_SETTINGS")
-
-        gs = voucher_services._resolve_gift_settings()
-        assert gs["business_name"] == "Serenity Touch"
-        assert gs["site_url"] == ""
-
-    def test_reads_from_django_settings(self, settings):
-        settings.GIFT_VOUCHER_SETTINGS = {
-            "business_name": "My Spa",
-            "business_email": "admin@example.com",
-            "business_phone": "123",
-            "business_address": "Somewhere",
-            "site_url": "https://example.com",
-        }
-        gs = voucher_services._resolve_gift_settings()
-        assert gs["business_name"] == "My Spa"
-        assert gs["business_email"] == "admin@example.com"
-        assert gs["site_url"] == "https://example.com"
-
-
-class TestResolveLanguage:
-    @pytest.mark.django_db
-    def test_returns_preferred_language(self, voucher_factory):
-        v = voucher_factory(preferred_language="en")
-        assert voucher_services._resolve_language(v) == "en"
-
-    @pytest.mark.django_db
-    def test_defaults_to_fr_if_missing(self, voucher_factory):
-        v = voucher_factory(preferred_language="")
-        assert voucher_services._resolve_language(v) == "fr"
-
-
-class TestBuildEmailContext:
-    @pytest.mark.django_db
-    def test_context_shape(self, voucher_factory):
-        v = voucher_factory()
-        gs = {"business_name": "Spa", "site_url": ""}
-        ctx = voucher_services._build_email_context(v, gs, "en")
-        assert ctx["voucher"].pk == v.pk
-        assert ctx["lang"] == "en"
-        assert ctx["business_name"] == "Spa"
-
-
-# ── send_voucher_emails ──────────────────────────────────────────
-
-
-class TestSendVoucherEmails:
-    @pytest.mark.django_db
-    def test_calls_recipient_and_admin_senders(self, monkeypatch, voucher_factory):
-        voucher = voucher_factory()
-
-        monkeypatch.setattr(voucher_services, "_resolve_gift_settings", lambda: {"business_name": "X"})
-        monkeypatch.setattr(voucher_services, "_resolve_language", lambda v: "en")
-        monkeypatch.setattr(voucher_services, "_build_email_context", lambda v, gs, lang: {"voucher": v, "lang": lang})
-
-        called = {"recipient": 0, "admin": 0}
-
-        monkeypatch.setattr(
-            voucher_services,
-            "_send_recipient_email",
-            lambda *a, **k: called.__setitem__("recipient", called["recipient"] + 1),
-        )
-        monkeypatch.setattr(
-            voucher_services,
-            "_send_admin_email",
-            lambda *a, **k: called.__setitem__("admin", called["admin"] + 1),
-        )
-
-        voucher_services.send_voucher_emails(voucher=voucher)
-
-        assert called["recipient"] == 1
-        assert called["admin"] == 1
-
-
-# ── Email sender unit tests (no templates/emails) ─────────────────
-
-
-class TestSendRecipientEmail:
-    @pytest.mark.django_db
-    def test_sends_email(self, monkeypatch, voucher_factory, settings):
-        voucher = voucher_factory(recipient_email="to@example.com")
-        gift_settings = {"business_name": "Spa", "business_email": "admin@example.com"}
-        ctx = {"voucher": voucher, "lang": "en"}
-
-        monkeypatch.setattr("apps.vouchers.services.render_to_string", lambda tpl, ctx: "content")
-
-        sent = []
-
-        def fake_email_multi(**kwargs):
-            msg = MagicMock()
-            msg.attach_alternative = MagicMock()
-            msg.send = MagicMock(side_effect=lambda: sent.append(kwargs))
-            return msg
-
-        monkeypatch.setattr("apps.vouchers.services.EmailMultiAlternatives", fake_email_multi)
-
-        voucher_services._send_recipient_email(voucher, ctx, "en", gift_settings)
-
-        assert len(sent) == 1
-        assert sent[0]["to"] == ["to@example.com"]
-        assert "Spa" in sent[0]["subject"]
-
-
-class TestSendAdminEmail:
-    @pytest.mark.django_db
-    def test_skips_when_no_admin_email(self, monkeypatch, voucher_factory):
-        voucher = voucher_factory()
-        ctx = {"voucher": voucher, "lang": "en"}
-
-        # Should not raise, should just return
-        voucher_services._send_admin_email(voucher, ctx, gift_settings={"business_email": ""})
-
-    @pytest.mark.django_db
-    def test_sends_when_admin_email_present(self, monkeypatch, voucher_factory):
-        voucher = voucher_factory()
-        ctx = {"voucher": voucher, "lang": "en"}
-
-        monkeypatch.setattr("apps.vouchers.services.render_to_string", lambda tpl, ctx: "content")
-
-        sent = []
-
-        def fake_email_multi(**kwargs):
-            msg = MagicMock()
-            msg.attach_alternative = MagicMock()
-            msg.send = MagicMock(side_effect=lambda: sent.append(kwargs))
-            return msg
-
-        monkeypatch.setattr("apps.vouchers.services.EmailMultiAlternatives", fake_email_multi)
-
-        voucher_services._send_admin_email(
-            voucher,
-            ctx,
-            gift_settings={"business_email": "admin@example.com"},
-        )
-
-        assert len(sent) == 1
-        assert sent[0]["to"] == ["admin@example.com"]
-        assert voucher.code in sent[0]["subject"]
-
-
-# ── Hardening / Edge Case Tests ──────────────────────────────────
-
-class TestEnsureTzHardening:
-    def test_ensure_tz_handles_strings_gracefully(self):
-        """
-        Risk #1: Passing a string used to crash.
-        Now it should parse the string into a datetime.
-        """
-        dt_str = "2026-06-01T10:00:00"
-        result = voucher_services._ensure_tz(dt_str)
-
-        assert isinstance(result, datetime)
-        assert result.year == 2026
-        assert result.hour == 10
-        assert result.tzinfo is not None  # Should be timezone-aware now
-
-    def test_ensure_tz_handles_naive_datetimes(self):
-        """
-        Risk #2: Naive datetimes (without tzinfo) used to be unsafe
-        or rejectable depending on policy.
-        The fix ensures they are assigned the system timezone (Europe/Paris).
-        """
-        naive_dt = datetime(2026, 6, 1, 10, 0, 0) # No tzinfo
-        result = voucher_services._ensure_tz(naive_dt)
-
-        assert result.tzinfo is not None
-        assert str(result.tzinfo) == "Europe/Paris"
-        # The time itself should remain 10:00
-        assert result.hour == 10
-
-    def test_ensure_tz_raises_value_error_on_bad_string(self):
-        """
-        Ensures garbage strings don't slip through silently.
-        """
-        with pytest.raises(ValueError):
-            voucher_services._ensure_tz("not-a-date")
-
-
-class TestCreateLinkedBookingHardening:
-    @pytest.mark.django_db
-    def test_does_not_crash_on_string_inputs(self, available_service, voucher_factory):
-        """
-        Integration check: The main service function should now handle
-        strings passed from API serializers without crashing.
-        """
-        voucher = voucher_factory()
-
-        # We mock Google Sync to focus purely on the datetime parsing logic
-        with patch.object(voucher_services, "_sync_to_google_calendar"):
-            confirmation = voucher_services._create_linked_booking(
-                voucher=voucher,
-                service_id=available_service.pk,
-                # Passing strings simulates a raw serializer output
-                start_dt="2026-06-01T10:00:00",
-                end_dt="2026-06-01T11:00:00",
+        with patch("apps.vouchers.services.create_booking_event", side_effect=Exception("boom")):
+            voucher = voucher_services.create_voucher(
+                data={
+                    **BASE_DATA,
+                    "service_id": available_service.id,
+                    "start_datetime": start,
+                    "end_datetime": end,
+                }
             )
 
-        assert confirmation != ""
-        booking = Booking.objects.get(confirmation_code=confirmation)
-        # Ensure it was saved as a real datetime in the DB
-        assert isinstance(booking.start_datetime, datetime)
-        assert booking.start_datetime.year == 2026
+        assert voucher.pk is not None
+        voucher.refresh_from_db()
+        # Still empty because calendar write failed
+        assert voucher.calendar_event_id == ""

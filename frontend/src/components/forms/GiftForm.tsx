@@ -16,14 +16,8 @@ import Calendar from "react-calendar";
 import { format } from "date-fns";
 
 import { Button } from "@/components/ui/Button";
-import type {
-  GlobalSettings,
-  GiftVoucherSubmission,
-} from "@/types/api";
-import {
-  createGiftSchema,
-  type GiftFormValues,
-} from "@/types/forms/gift";
+import type { GlobalSettings, GiftVoucherSubmission } from "@/types/api";
+import { createGiftSchema, type GiftFormValues } from "@/types/forms/gift";
 import { useCreateVoucher } from "@/hooks/useVouchers";
 import { useBusyDays, useFreeSlots } from "@/hooks/useCalendar";
 import { useCMSServices } from "@/hooks/useCMS";
@@ -38,7 +32,11 @@ interface GiftFormProps {
 export function GiftForm({ onSuccess, settings }: GiftFormProps) {
   const { t, i18n } = useTranslation();
   const [successCode, setSuccessCode] = useState<string | null>(null);
-  const [bookingConfirmation, setBookingConfirmation] = useState("");
+  const [calendarMeta, setCalendarMeta] = useState<{
+    id: string;
+    link: string;
+    status: string;
+  } | null>(null);
   const [wantsBooking, setWantsBooking] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [activeStartDate, setActiveStartDate] = useState(new Date());
@@ -59,7 +57,6 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
     resolver: zodResolver(schema),
     defaultValues: {
       message: "",
-      preferredDate: "",
     },
   });
 
@@ -158,23 +155,28 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
     }
 
     const payload: GiftVoucherSubmission = {
-      purchaserName: data.purchaserName,
-      purchaserEmail: data.purchaserEmail,
+      senderName: data.senderName,
+      senderEmail: data.senderEmail,
       recipientName: data.recipientName,
       recipientEmail: data.recipientEmail,
       message: data.message || "",
-      preferredDate: data.preferredDate || undefined,
-      ...(startDatetime && {
-        serviceId: data.serviceId,
-        startDatetime,
-        endDatetime,
-      }),
+      ...(startDatetime && endDatetime && typeof data.serviceId === "number"
+        ? { serviceId: data.serviceId, startDatetime, endDatetime }
+        : {}),
     };
 
     try {
       const res = await submit.mutateAsync(payload);
       setSuccessCode(res.code);
-      setBookingConfirmation(res.booking_confirmation ?? "");
+      setCalendarMeta(
+        res.calendar_event_id
+          ? {
+          id: res.calendar_event_id,
+          link: res.calendar_event_link,
+          status: res.calendar_event_status,
+        }
+          : null,
+      );
       toast.success(successTitleText);
       reset();
       setSelectedDate(null);
@@ -227,14 +229,28 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
           </p>
         </div>
 
-        {bookingConfirmation && (
+        {calendarMeta?.id && (
           <div className="bg-sage-50 border border-sage-200 rounded-xl p-4 max-w-xs mx-auto">
             <p className="text-xs uppercase tracking-widest text-charcoal/50 font-bold mb-1">
-              {t("gift.form.bookingConfirmation", "Booking ref.")}
+              {t("gift.form.calendarRef", "Calendar ref.")}
             </p>
             <p className="text-lg font-mono font-bold text-charcoal">
-              {bookingConfirmation}
+              {calendarMeta.id}
             </p>
+
+            {calendarMeta.link && (
+              <a
+                href={calendarMeta.link}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 inline-block text-sm text-terracotta-600 underline"
+              >
+                {t(
+                  "gift.form.openCalendar",
+                  "Open calendar event",
+                )}
+              </a>
+            )}
           </div>
         )}
 
@@ -251,7 +267,7 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
       onSubmit={handleSubmit(onSubmit)}
       className="space-y-4 sm:space-y-5"
     >
-      {/* ── Purchaser section ── */}
+      {/* ── Sender section ── */}
       <div className="bg-sage-50/50 p-4 rounded-2xl space-y-3 border border-sage-100">
         <h4 className="text-xs font-bold uppercase tracking-wider text-charcoal/60 flex items-center gap-2">
           <User className="w-3.5 h-3.5" />
@@ -266,14 +282,14 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40" />
               <input
                 type="text"
-                {...register("purchaserName")}
+                {...register("senderName")}
                 className={inputClass}
                 placeholder={t("gift.form.purchaserNamePlaceholder")}
               />
             </div>
-            {errors.purchaserName && (
+            {errors.senderName && (
               <p className="text-xs text-terracotta-500 mt-1">
-                {errors.purchaserName.message}
+                {errors.senderName.message}
               </p>
             )}
           </div>
@@ -285,14 +301,14 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40" />
               <input
                 type="email"
-                {...register("purchaserEmail")}
+                {...register("senderEmail")}
                 className={inputClass}
                 placeholder={t("gift.form.purchaserEmailPlaceholder")}
               />
             </div>
-            {errors.purchaserEmail && (
+            {errors.senderEmail && (
               <p className="text-xs text-terracotta-500 mt-1">
-                {errors.purchaserEmail.message}
+                {errors.senderEmail.message}
               </p>
             )}
           </div>
@@ -406,7 +422,10 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
                 className="w-full px-4 py-3 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors text-base text-charcoal bg-white"
               >
                 <option value="">
-                  {t("gift.form.selectService", "Select a service")}
+                  {t(
+                    "gift.form.selectService",
+                    "Select a service",
+                  )}
                 </option>
                 {services.map((s) => (
                   <option key={s.id} value={s.id}>
@@ -450,7 +469,9 @@ export function GiftForm({ onSuccess, settings }: GiftFormProps) {
                     setValue("selectedTime", undefined);
                   }
                 }}
-                onActiveStartDateChange={({ activeStartDate: d }) => {
+                onActiveStartDateChange={({
+                  activeStartDate: d,
+                }) => {
                   if (d) setActiveStartDate(d);
                 }}
                 tileDisabled={({ date, view }) => {

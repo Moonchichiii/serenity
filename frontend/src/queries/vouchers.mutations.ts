@@ -1,10 +1,14 @@
 import { mutationOptions } from '@tanstack/react-query'
 import { vouchersApi } from '@/api/vouchers.api'
 import { normalizeHttpError, type ApiError } from '@/api/httpError'
-import type { GiftVoucherSubmission, GiftVoucherResponse } from '@/types/api'
+
+// Derive types from the API function
+type CreateVoucherFn = typeof vouchersApi.create
+type CreateVoucherInput = Parameters<CreateVoucherFn>[0]
+type CreateVoucherOutput = Awaited<ReturnType<CreateVoucherFn>>
 
 export const createVoucherMutationOptions = () =>
-  mutationOptions<GiftVoucherResponse, ApiError, GiftVoucherSubmission>({
+  mutationOptions<CreateVoucherOutput, ApiError, CreateVoucherInput>({
     mutationKey: ['vouchers', 'create'],
     mutationFn: async (payload) => {
       try {

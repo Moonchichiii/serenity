@@ -63,27 +63,52 @@ export const ContactSubmissionResponseSchema = z.object({
 });
 
 // ─── Corporate (reuses contact endpoint, stricter subject) ──────
-export const CorporateSubmissionSchema = ContactSubmissionSchema.refine(
-  (data) => data.subject.startsWith("[CORPORATE]"),
-  { message: "Corporate subject must start with [CORPORATE]" }
-);
+export const CorporateSubmissionSchema =
+  ContactSubmissionSchema.refine(
+    (data) => data.subject.startsWith("[CORPORATE]"),
+    { message: "Corporate subject must start with [CORPORATE]" },
+  );
 
 // ─── Vouchers ───────────────────────────────────────────────────
-export const GiftVoucherPayloadSchema = z.object({
-  purchaser_name: z.string().min(1),
-  purchaser_email: z.string().email(),
-  recipient_name: z.string().min(1),
-  recipient_email: z.string().email(),
-  service_id: z.number().nullable(),
-  message: z.string(),
-  preferred_date: z.string().nullable(),
-  start_datetime: z.string().nullable(),
-  end_datetime: z.string().nullable(),
-});
+export const GiftVoucherPayloadSchema = z
+  .object({
+    sender_name: z.string().min(1),
+    sender_email: z.string().email(),
+    recipient_name: z.string().min(1),
+    recipient_email: z.string().email(),
+    message: z.string(),
+
+    service_id: z.number().optional(),
+    start_datetime: z.string().optional(),
+    end_datetime: z.string().optional(),
+  })
+  .superRefine((val, ctx) => {
+    const any = !!(
+      val.service_id ||
+      val.start_datetime ||
+      val.end_datetime
+    );
+    const all = !!(
+      val.service_id &&
+      val.start_datetime &&
+      val.end_datetime
+    );
+    if (any && !all) {
+      ctx.addIssue({
+        code: "custom",
+        message:
+          "service_id/start_datetime/end_datetime must be provided together",
+        path: ["service_id"],
+      });
+    }
+  });
 
 export const GiftVoucherResponseSchema = z.object({
   code: z.string().min(1),
-  booking_confirmation: z.string().optional(),
+
+  calendar_event_id: z.string(),
+  calendar_event_link: z.string(),
+  calendar_event_status: z.string(),
 });
 
 // ─── Testimonials ───────────────────────────────────────────────

@@ -33,10 +33,15 @@ class TestCreateVoucherViewSuccess:
 
     @patch("apps.vouchers.services.send_voucher_emails")
     @patch("apps.vouchers.services.create_booking_event")
-    def test_with_booking_fields(
+    def test_with_slot_fields_creates_calendar_event_metadata(
         self, mock_gcal, mock_emails, api_client, available_service
     ):
-        mock_gcal.return_value = {"id": "gcal-99"}
+        mock_gcal.return_value = {
+            "id": "evt_999",
+            "link": "https://calendar/item",
+            "status": "confirmed",
+        }
+
         url = reverse("create_voucher")
         now = datetime.now(tz=TZ)
         data = {
@@ -47,13 +52,15 @@ class TestCreateVoucherViewSuccess:
             "amount": "100.00",
             "service_id": available_service.id,
             "start_datetime": (now + timedelta(days=1)).isoformat(),
-            "end_datetime": (
-                now + timedelta(days=1, hours=1)
-            ).isoformat(),
+            "end_datetime": (now + timedelta(days=1, hours=1)).isoformat(),
         }
         response = api_client.post(url, data, format="json")
         assert response.status_code == 201
-        assert response.data["booking_confirmation"] != ""
+
+        # New response fields (voucher-owned)
+        assert response.data["calendar_event_id"] == "evt_999"
+        assert response.data["calendar_event_link"] == "https://calendar/item"
+        assert response.data["calendar_event_status"] == "confirmed"
 
 
 @pytest.mark.django_db
@@ -63,7 +70,7 @@ class TestCreateVoucherViewValidation:
         response = api_client.post(url, {}, format="json")
         assert response.status_code == 400
 
-    def test_partial_booking_fields_rejected(self, api_client):
+    def test_partial_slot_fields_rejected(self, api_client):
         url = reverse("create_voucher")
         data = {
             "recipient_name": "Alice",
@@ -83,51 +90,3 @@ class TestCreateVoucherViewMethodNotAllowed:
         url = reverse("create_voucher")
         response = api_client.get(url)
         assert response.status_code == 405
-
-
-@pytest.mark.django_db
-class TestCancelBookingView:
-    def test_cancel_success(self, api_client, booking_factory):
-        booking = booking_factory(
-            status="confirmed",
-            google_calendar_event_id="gcal-del",
-        )
-        with patch(
-            "apps.vouchers.services.delete_booking_event"
-        ) as mock_del:
-            mock_del.return_value = True
-            url = reverse(
-                "cancel_booking",
-                args=[booking.confirmation_code],
-            )
-            response = api_client.delete(url)
-
-        assert response.status_code == 200
-        assert response.data["status"] == "cancelled"
-
-    def test_cancel_not_found(self, api_client):
-        url = reverse("cancel_booking", args=["FAKECODE99"])
-        response = api_client.delete(url)
-        assert response.status_code == 404
-
-    def test_cancel_already_cancelled(
-        self, api_client, booking_factory
-    ):
-        booking = booking_factory(status="cancelled")
-        url = reverse(
-            "cancel_booking",
-            args=[booking.confirmation_code],
-        )
-        response = api_client.delete(url)
-        assert response.status_code == 400
-
-    def test_cancel_completed_rejected(
-        self, api_client, booking_factory
-    ):
-        booking = booking_factory(status="completed")
-        url = reverse(
-            "cancel_booking",
-            args=[booking.confirmation_code],
-        )
-        response = api_client.delete(url)
-        assert response.status_code == 400

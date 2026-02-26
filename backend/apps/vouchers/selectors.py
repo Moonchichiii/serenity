@@ -1,19 +1,9 @@
-from .models import Booking
+from .models import GiftVoucher
 
-_BASE_QS = Booking.objects.select_related("service")
+_BASE_QS = GiftVoucher.objects.select_related("service")
 
-
-def get_all_bookings() -> list[Booking]:
+def get_all_vouchers() -> list[GiftVoucher]:
     return list(_BASE_QS.order_by("-created_at"))
 
-
-def get_bookings_by_email(email: str) -> list[Booking]:
-    return list(
-        _BASE_QS.filter(client_email__iexact=email).order_by(
-            "-created_at"
-        )
-    )
-
-
-def get_booking_by_confirmation_code(code: str) -> Booking | None:
-    return _BASE_QS.filter(confirmation_code=code).first()
+def get_voucher_by_code(code: str) -> GiftVoucher | None:
+    return _BASE_QS.filter(code=code).first()

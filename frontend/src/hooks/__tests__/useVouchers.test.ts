@@ -9,27 +9,22 @@ import {
 } from "@/test/schemas";
 
 const voucherWithBooking = {
-  purchaser_name: "Alice",
-  purchaser_email: "alice@example.com",
+  sender_name: "Alice",
+  sender_email: "alice@example.com",
   recipient_name: "Bob",
   recipient_email: "bob@example.com",
   service_id: 1,
   message: "Happy birthday!",
-  preferred_date: "2026-03-06",
   start_datetime: "2026-03-06T09:00:00Z",
   end_datetime: "2026-03-06T10:00:00Z",
 };
 
 const voucherWithoutBooking = {
-  purchaser_name: "Charlie",
-  purchaser_email: "charlie@example.com",
+  sender_name: "Charlie",
+  sender_email: "charlie@example.com",
   recipient_name: "Diana",
   recipient_email: "diana@example.com",
-  service_id: null,
   message: "Enjoy!",
-  preferred_date: null,
-  start_datetime: null,
-  end_datetime: null,
 };
 
 describe("useVouchers — Flow 6: Gift Voucher Purchase", () => {
@@ -44,7 +39,7 @@ describe("useVouchers — Flow 6: Gift Voucher Purchase", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     const body = requestLog.find((r) =>
-      r.url.includes("/api/vouchers/create/")
+      r.url.includes("/api/vouchers/create/"),
     )?.body;
 
     const parsed = GiftVoucherPayloadSchema.safeParse(body);
@@ -61,7 +56,7 @@ describe("useVouchers — Flow 6: Gift Voucher Purchase", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     const parsed = GiftVoucherResponseSchema.safeParse(
-      result.current.data
+      result.current.data,
     );
     expect(parsed.success).toBe(true);
     expect(result.current.data?.code).toBeTruthy();
@@ -77,26 +72,30 @@ describe("useVouchers — Flow 6: Gift Voucher Purchase", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     const body = requestLog.find((r) =>
-      r.url.includes("/api/vouchers/create/")
+      r.url.includes("/api/vouchers/create/"),
     )?.body as Record<string, unknown>;
 
     // Must have snake_case keys
-    expect(body).toHaveProperty("purchaser_name");
-    expect(body).toHaveProperty("purchaser_email");
+    expect(body).toHaveProperty("sender_name");
+    expect(body).toHaveProperty("sender_email");
     expect(body).toHaveProperty("recipient_name");
     expect(body).toHaveProperty("recipient_email");
     expect(body).toHaveProperty("service_id");
     expect(body).toHaveProperty("start_datetime");
     expect(body).toHaveProperty("end_datetime");
 
-    // Must NOT have camelCase keys
-    expect(body).not.toHaveProperty("purchaserName");
+    // Must NOT have old or camelCase keys
+    expect(body).not.toHaveProperty("purchaser_name");
+    expect(body).not.toHaveProperty("purchaser_email");
+    expect(body).not.toHaveProperty("preferred_date");
+    expect(body).not.toHaveProperty("senderName");
+    expect(body).not.toHaveProperty("senderEmail");
     expect(body).not.toHaveProperty("serviceId");
     expect(body).not.toHaveProperty("startDatetime");
   });
 
   // ── Category 1: Boundary — no booking variant ───────────────
-  it("sends null for service_id, start/end_datetime when no booking", async () => {
+  it("omits booking keys entirely when no booking requested", async () => {
     const { result } = renderHookWithQuery(() => useCreateVoucher());
 
     await act(async () => {
@@ -106,13 +105,16 @@ describe("useVouchers — Flow 6: Gift Voucher Purchase", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     const body = requestLog.find((r) =>
-      r.url.includes("/api/vouchers/create/")
+      r.url.includes("/api/vouchers/create/"),
     )?.body as Record<string, unknown>;
 
-    expect(body.service_id).toBeNull();
-    expect(body.start_datetime).toBeNull();
-    expect(body.end_datetime).toBeNull();
-    expect(body.preferred_date).toBeNull();
+    // Booking keys must be absent, not null
+    expect(body).not.toHaveProperty("service_id");
+    expect(body).not.toHaveProperty("start_datetime");
+    expect(body).not.toHaveProperty("end_datetime");
+
+    // Removed field must never appear
+    expect(body).not.toHaveProperty("preferred_date");
   });
 
   // ── Category 2: Call Count ──────────────────────────────────
@@ -128,14 +130,14 @@ describe("useVouchers — Flow 6: Gift Voucher Purchase", () => {
     const posts = requestLog.filter(
       (r) =>
         r.url.includes("/api/vouchers/create/") &&
-        r.method === "POST"
+        r.method === "POST",
     );
     expect(posts).toHaveLength(1);
   });
 
   it("does NOT trigger any query invalidations", async () => {
     const { result, queryClient } = renderHookWithQuery(() =>
-      useCreateVoucher()
+      useCreateVoucher(),
     );
 
     // Pre-seed a cache entry to see if it gets invalidated
@@ -153,7 +155,7 @@ describe("useVouchers — Flow 6: Gift Voucher Purchase", () => {
       sentinel: true,
     });
     expect(
-      queryClient.getQueryData(["testimonials", "list", 4])
+      queryClient.getQueryData(["testimonials", "list", 4]),
     ).toEqual([]);
   });
 });

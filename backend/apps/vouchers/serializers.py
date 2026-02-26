@@ -1,6 +1,10 @@
+from __future__ import annotations
+
 from rest_framework import serializers
 
-from .models import Booking, GiftVoucher
+from apps.services.models import Service
+
+from .models import GiftVoucher
 
 
 class GiftVoucherInputSerializer(serializers.Serializer):
@@ -8,27 +12,39 @@ class GiftVoucherInputSerializer(serializers.Serializer):
     recipient_email = serializers.EmailField()
     sender_name = serializers.CharField(max_length=200)
     sender_email = serializers.EmailField()
+
     message = serializers.CharField(required=False, default="")
     amount = serializers.DecimalField(max_digits=8, decimal_places=2)
-    preferred_language = serializers.ChoiceField(
-        choices=["fr", "en"], default="fr"
-    )
-    service_id = serializers.IntegerField(required=False)
-    start_datetime = serializers.DateTimeField(required=False)
-    end_datetime = serializers.DateTimeField(required=False)
+
+    preferred_language = serializers.ChoiceField(choices=["fr", "en"], default="fr")
+
+    service_id = serializers.IntegerField(required=False, allow_null=True)
+    start_datetime = serializers.DateTimeField(required=False, allow_null=True)
+    end_datetime = serializers.DateTimeField(required=False, allow_null=True)
 
     def validate(self, attrs):
-        booking_fields = ["service_id", "start_datetime", "end_datetime"]
-        provided = [f for f in booking_fields if attrs.get(f)]
-        if provided and len(provided) != len(booking_fields):
+        service_id = attrs.get("service_id")
+        start_dt = attrs.get("start_datetime")
+        end_dt = attrs.get("end_datetime")
+
+        # If any booking field is provided => require all 3
+        provided = [v for v in (service_id, start_dt, end_dt) if v]
+        if provided and not (service_id and start_dt and end_dt):
             raise serializers.ValidationError(
-                "If booking a slot, provide service_id, "
-                "start_datetime, and end_datetime together."
+                "If booking a slot, provide service_id, start_datetime, and end_datetime together."
             )
+
+        # If service_id is provided, ensure it exists + available
+        if service_id:
+            if not Service.objects.filter(id=service_id, is_available=True).exists():
+                raise serializers.ValidationError({"service_id": "Invalid or unavailable service."})
+
         return attrs
 
 
 class GiftVoucherResponseSerializer(serializers.ModelSerializer):
+    service_id = serializers.IntegerField(source="service.id", allow_null=True, required=False)
+
     class Meta:
         model = GiftVoucher
         fields = [
@@ -41,32 +57,11 @@ class GiftVoucherResponseSerializer(serializers.ModelSerializer):
             "message",
             "amount",
             "preferred_language",
-            "booking_confirmation",
-            "created_at",
-        ]
-
-
-class BookingSerializer(serializers.ModelSerializer):
-    service = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Booking
-        fields = [
-            "id",
-            "service",
+            "service_id",
             "start_datetime",
             "end_datetime",
-            "status",
-            "source",
-            "client_name",
-            "client_email",
-            "confirmation_code",
-            "voucher_code",
+            "calendar_event_id",
+            "calendar_event_link",
+            "calendar_event_status",
+            "created_at",
         ]
-
-    def get_service(self, obj) -> dict:
-        return {
-            "id": obj.service.id,
-            "title_fr": obj.service.title_fr,
-            "title_en": obj.service.title_en,
-        }

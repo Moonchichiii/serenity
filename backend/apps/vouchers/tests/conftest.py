@@ -1,15 +1,13 @@
 import itertools
-from datetime import datetime, timedelta
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 import pytest
 
 from apps.services.models import Service
-from apps.vouchers.models import Booking, GiftVoucher
+from apps.vouchers.models import GiftVoucher
 
 TZ = ZoneInfo("Europe/Paris")
-
 _service_counter = itertools.count(1)
 
 
@@ -65,32 +63,6 @@ def voucher_factory(db):
         }
         defaults.update(overrides)
         return GiftVoucher.objects.create(**defaults)
-
-    return _create
-
-
-@pytest.fixture()
-def booking_factory(db, service_factory):
-    _counter = itertools.count(1)
-
-    def _create(**overrides):
-        n = next(_counter)
-        service = overrides.pop("service", None) or service_factory()
-        now = datetime.now(tz=TZ)
-        defaults = {
-            "service": service,
-            "start_datetime": now + timedelta(days=n),
-            "end_datetime": now + timedelta(days=n, hours=1),
-            "status": "pending",
-            "source": "voucher",
-            "client_name": f"Client {n}",
-            "client_email": f"client{n}@example.com",
-            "client_phone": "0600000000",
-            "preferred_language": "fr",
-            "confirmation_code": f"CODE{n:04d}",
-        }
-        defaults.update(overrides)
-        return Booking.objects.create(**defaults)
 
     return _create
 

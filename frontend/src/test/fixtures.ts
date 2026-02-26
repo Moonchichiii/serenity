@@ -6,46 +6,47 @@ import type {
 } from "./schemas";
 
 // ─── CMS ────────────────────────────────────────────────────────
-export const cmsHydratedFixture: z.infer<typeof HydratedResponseSchema> =
-  {
-    page: {
+export const cmsHydratedFixture: z.infer<
+  typeof HydratedResponseSchema
+> = {
+  page: {
+    id: 1,
+    title: "Serenity Wellness",
+    hero_title: "Find Your Peace",
+    hero_subtitle: "Professional massage therapy",
+  },
+  services: [
+    {
       id: 1,
-      title: "Serenity Wellness",
-      hero_title: "Find Your Peace",
-      hero_subtitle: "Professional massage therapy",
-    },
-    services: [
-      {
-        id: 1,
-        title: "Swedish Massage",
-        slug: "swedish-massage",
-        description: "A classic full-body massage",
-        duration_minutes: 60,
-        price: "85.00",
-        image: {
-          url: "https://example.com/swedish.jpg",
-          alt: "Swedish massage",
-        },
+      title: "Swedish Massage",
+      slug: "swedish-massage",
+      description: "A classic full-body massage",
+      duration_minutes: 60,
+      price: "85.00",
+      image: {
+        url: "https://example.com/swedish.jpg",
+        alt: "Swedish massage",
       },
-      {
-        id: 2,
-        title: "Deep Tissue",
-        slug: "deep-tissue",
-        description: "Targeted deep pressure massage",
-        duration_minutes: 90,
-        price: "120.00",
-        image: null,
-      },
-    ],
-    globals: {
-      site_name: "Serenity Wellness",
-      phone: "+32 123 456 789",
-      email: "info@serenity.example",
-      address: "123 Rue de la Paix, Brussels",
-      facebook_url: "https://facebook.com/serenity",
-      instagram_url: "https://instagram.com/serenity",
     },
-  };
+    {
+      id: 2,
+      title: "Deep Tissue",
+      slug: "deep-tissue",
+      description: "Targeted deep pressure massage",
+      duration_minutes: 90,
+      price: "120.00",
+      image: null,
+    },
+  ],
+  globals: {
+    site_name: "Serenity Wellness",
+    phone: "+32 123 456 789",
+    email: "info@serenity.example",
+    address: "123 Rue de la Paix, Brussels",
+    facebook_url: "https://facebook.com/serenity",
+    instagram_url: "https://instagram.com/serenity",
+  },
+};
 
 // ─── Calendar ───────────────────────────────────────────────────
 export const busyDaysFixture = [
@@ -68,12 +69,17 @@ export const contactSuccessFixture = {
 
 // ─── Vouchers ───────────────────────────────────────────────────
 export const voucherSuccessFixture = {
-  code: "GIFT-ABC123",
-  booking_confirmation: "Booking confirmed for March 6, 2026 at 09:00",
+  code: "ABCD123456",
+  calendar_event_id: "evt_999",
+  calendar_event_link: "https://calendar/item",
+  calendar_event_status: "confirmed",
 };
 
 export const voucherNoBookingFixture = {
   code: "GIFT-XYZ789",
+  calendar_event_id: "",
+  calendar_event_link: "",
+  calendar_event_status: "",
 };
 
 // ─── Testimonials ───────────────────────────────────────────────

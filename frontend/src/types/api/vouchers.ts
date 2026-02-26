@@ -1,11 +1,11 @@
 export interface GiftVoucherSubmission {
-  purchaserName: string;
-  purchaserEmail: string;
+  senderName: string;
+  senderEmail: string;
   recipientName: string;
   recipientEmail: string;
   message?: string;
-  preferredDate?: string;
-  // Optional booking fields
+
+  // Optional booking/slot fields
   serviceId?: number;
   startDatetime?: string;
   endDatetime?: string;
@@ -13,5 +13,14 @@ export interface GiftVoucherSubmission {
 
 export interface GiftVoucherResponse {
   code: string;
-  booking_confirmation?: string;
+
+  // Slot metadata (voucher-owned)
+  calendar_event_id: string;
+  calendar_event_link: string;
+  calendar_event_status: string;
+
+  // Optional echoes (if you include them in backend response)
+  service_id?: number | null;
+  start_datetime?: string | null;
+  end_datetime?: string | null;
 }
