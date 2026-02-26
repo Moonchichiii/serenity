@@ -1,43 +1,311 @@
-import { useMemo } from 'react'
+import { useMemo, type FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { motion } from 'framer-motion'
+import {
+  motion,
+  useReducedMotion,
+  type Variants,
+  type Transition,
+} from 'framer-motion'
 import { Clock, Euro, ArrowRight } from 'lucide-react'
 
-// ✅ Sibling Import
 import { ServicesHero } from './ServicesHero'
-
-// ✅ Refactored: Import selector instead of fetch hook
 import { useCMSServices } from '@/hooks/useCMS'
 import { getLocalizedText } from '@/lib/localize'
-
-
-// Shared UI
 import TestimonialBanner from '@/features/testimonials/TestimonialBanner'
-// CHANGED: Renamed import from CloudImage to ResponsiveImage
 import ResponsiveImage from '@/components/ui/ResponsiveImage'
+import type { ResponsiveImage as ResponsiveImageType } from '@/types/api'
+import { cn } from '@/lib/utils'
 
-export function Services() {
-  const { t, i18n } = useTranslation()
+// ── Constants ────────────────────────────────────────────────────────
+const FADE_IN_TRANSITION: Transition = { duration: 0.6 }
 
-  // ✅ Read directly from store (pre-loaded)
+const CARD_ENTRANCE: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  show: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, delay: i * 0.1 },
+  }),
+}
+
+/** Keywords used to detect the "highlighted" service (e.g. amma). */
+const HIGHLIGHT_KEYWORDS_EN = ['chair', 'amma', 'seated'] as const
+const HIGHLIGHT_KEYWORDS_FR = ['amma', 'assis'] as const
+
+const MOBILE_IMAGE_SIZES = '(max-width: 640px) 90vw'
+const DESKTOP_IMAGE_SIZES = '(max-width: 1280px) 45vw, 400px'
+
+type SupportedLang = 'fr' | 'en'
+
+// ── Types ────────────────────────────────────────────────────────────
+interface ServiceItem {
+  id: number
+  title_en?: string
+  title_fr?: string
+  description_en?: string
+  description_fr?: string
+  duration_minutes: number
+  price: string
+  image: ResponsiveImageType | null
+}
+
+interface ResolvedService {
+  id: number
+  title: string
+  description: string
+  durationMinutes: number
+  price: string
+  image: ResponsiveImageType | null
+  isHighlighted: boolean
+}
+
+// ── Utilities ────────────────────────────────────────────────────────
+function resolveLang(language: string): SupportedLang {
+  return language.startsWith('fr') ? 'fr' : 'en'
+}
+
+function matchesHighlightKeywords(service: ServiceItem): boolean {
+  const en = (service.title_en || '').toLowerCase()
+  const fr = (service.title_fr || '').toLowerCase()
+
+  return (
+    HIGHLIGHT_KEYWORDS_EN.some((kw) => en.includes(kw)) ||
+    HIGHLIGHT_KEYWORDS_FR.some((kw) => fr.includes(kw))
+  )
+}
+
+function resolveServices(
+  raw: ServiceItem[],
+  lang: SupportedLang,
+): ResolvedService[] {
+  const highlightedId = raw.find(matchesHighlightKeywords)?.id ?? null
+
+  return raw.map((s) => ({
+    id: s.id,
+    title: getLocalizedText(s, 'title', lang) || 'Service',
+    description: getLocalizedText(s, 'description', lang) || '',
+    durationMinutes: s.duration_minutes,
+    price: s.price,
+    image: s.image ?? null,
+    isHighlighted: s.id === highlightedId,
+  }))
+}
+
+// ── Hooks ────────────────────────────────────────────────────────────
+function useResolvedServices(): ResolvedService[] | null {
   const services = useCMSServices()
+  const { i18n } = useTranslation()
+  const lang = resolveLang(i18n.language)
 
-  const lang = (i18n.language?.startsWith('fr') ? 'fr' : 'en') as 'en' | 'fr'
+  return useMemo(() => {
+    if (!services || services.length === 0) return null
+    return resolveServices(services, lang)
+  }, [services, lang])
+}
 
-  const highlightedServiceId = useMemo(() => {
-    if (!services) return null
-    return services.find((s) => {
-      const en = (s.title_en || '').toLowerCase()
-      const fr = (s.title_fr || '').toLowerCase()
-      return (
-        en.includes('chair') ||
-        en.includes('amma') ||
-        en.includes('seated') ||
-        fr.includes('amma') ||
-        fr.includes('assis')
+// ── Sub-components ───────────────────────────────────────────────────
+
+/** Shared price badge overlay for card images. */
+const PriceBadge: FC<{
+  price: string
+  highlighted?: boolean
+  className?: string
+}> = ({ price, highlighted, className }) => (
+  <div
+    className={cn(
+      'absolute inline-flex items-center gap-1 rounded-full bg-white/95 backdrop-blur-md px-3 py-1.5 text-[11px] font-bold tracking-wide text-stone-800 shadow-sm',
+      highlighted && 'ring-2 ring-rose-200',
+      className,
+    )}
+  >
+    <Euro className="h-3 w-3 text-sage-600" />
+    {price}
+  </div>
+)
+
+/** Shared duration + price footer row. */
+const CardFooter: FC<{
+  durationMinutes: number
+  price: string
+  isHighlighted: boolean
+  popularLabel: string
+  showPopular?: boolean
+}> = ({
+  durationMinutes,
+  price,
+  isHighlighted,
+  popularLabel,
+  showPopular = false,
+}) => (
+  <div className="mt-auto flex items-center justify-between border-t border-stone-100 pt-5">
+    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-stone-600">
+      <Clock className="h-3.5 w-3.5" />
+      <span>{durationMinutes} min</span>
+    </div>
+
+    {showPopular && isHighlighted ? (
+      <span className="rounded bg-sage-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-sage-600">
+        {popularLabel}
+      </span>
+    ) : (
+      !showPopular && (
+        <span className="font-serif text-sm font-semibold text-stone-900">
+          {price} €
+        </span>
       )
-    })?.id
-  }, [services])
+    )}
+  </div>
+)
+
+/** Mobile snap-scroll card. */
+const MobileServiceCard: FC<{
+  service: ResolvedService
+}> = ({ service }) => (
+  <article className="flex w-[85vw] shrink-0 snap-center flex-col overflow-hidden rounded-[2rem] border border-stone-100 bg-white shadow-lg shadow-stone-200/50">
+    {service.image?.src && (
+      <div className="relative h-56 w-full overflow-hidden">
+        <ResponsiveImage
+          image={service.image}
+          alt={service.image.title || service.title}
+          className="h-full w-full object-cover"
+          sizes={MOBILE_IMAGE_SIZES}
+        />
+        <PriceBadge
+          price={service.price}
+          highlighted={service.isHighlighted}
+          className="top-4 right-4"
+        />
+      </div>
+    )}
+
+    <div className="flex flex-1 flex-col p-6">
+      <div className="mb-6">
+        <h3 className="mb-3 font-serif text-2xl font-medium text-stone-900">
+          {service.title}
+        </h3>
+        <p className="line-clamp-4 text-sm leading-relaxed text-stone-500">
+          {service.description}
+        </p>
+      </div>
+
+      <CardFooter
+        durationMinutes={service.durationMinutes}
+        price={service.price}
+        isHighlighted={service.isHighlighted}
+        popularLabel=""
+      />
+    </div>
+  </article>
+)
+
+/** Desktop grid card with entrance animation. */
+const DesktopServiceCard: FC<{
+  service: ResolvedService
+  index: number
+  variants: Variants | undefined
+  popularLabel: string
+}> = ({ service, index, variants, popularLabel }) => (
+  <motion.article
+    variants={variants}
+    custom={index}
+    initial="hidden"
+    whileInView="show"
+    viewport={{ once: true }}
+    whileHover={{ y: -8 }}
+    className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-stone-100 bg-white shadow-xl shadow-stone-200/40 transition-all duration-500 hover:shadow-2xl hover:shadow-stone-200/60"
+  >
+    {service.image?.src && (
+      <div className="relative h-64 w-full overflow-hidden">
+        <ResponsiveImage
+          image={service.image}
+          alt={service.image.title || service.title}
+          className="h-full w-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
+          sizes={DESKTOP_IMAGE_SIZES}
+        />
+        <div className="absolute top-5 right-5 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-4 py-1.5 text-xs font-bold text-stone-800 shadow-lg backdrop-blur">
+          <span>{service.price} €</span>
+        </div>
+      </div>
+    )}
+
+    <div className="flex flex-1 flex-col p-8">
+      <div className="mb-6">
+        <h3 className="mb-3 font-serif text-2xl font-medium text-stone-900">
+          {service.title}
+        </h3>
+        <p className="text-base font-light leading-relaxed text-stone-500">
+          {service.description}
+        </p>
+      </div>
+
+      <CardFooter
+        durationMinutes={service.durationMinutes}
+        price={service.price}
+        isHighlighted={service.isHighlighted}
+        popularLabel={popularLabel}
+        showPopular
+      />
+    </div>
+  </motion.article>
+)
+
+const MobileCarousel: FC<{
+  services: ResolvedService[]
+  slideLabel: string
+}> = ({ services, slideLabel }) => (
+  <div className="relative md:hidden">
+    <div className="mb-3 flex justify-end px-4">
+      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-stone-600">
+        <span>{slideLabel}</span>
+        <ArrowRight className="h-3 w-3" />
+      </div>
+    </div>
+
+    <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-8">
+      {services.map((s) => (
+        <MobileServiceCard key={s.id} service={s} />
+      ))}
+      <div className="w-2 shrink-0" aria-hidden="true" />
+    </div>
+  </div>
+)
+
+const DesktopGrid: FC<{
+  services: ResolvedService[]
+  cardVariants: Variants | undefined
+  popularLabel: string
+}> = ({ services, cardVariants, popularLabel }) => (
+  <div className="hidden max-w-7xl gap-8 md:grid md:grid-cols-2 lg:gap-10 xl:grid-cols-3 mx-auto">
+    {services.map((s, i) => (
+      <DesktopServiceCard
+        key={s.id}
+        service={s}
+        index={i}
+        variants={cardVariants}
+        popularLabel={popularLabel}
+      />
+    ))}
+  </div>
+)
+
+const EmptyState: FC = () => (
+  <div className="py-20 text-center">
+    <p className="text-stone-500">No services available yet.</p>
+  </div>
+)
+
+// ── Main component ───────────────────────────────────────────────────
+export const Services: FC = () => {
+  const { t } = useTranslation()
+  const reduceMotion = useReducedMotion()
+  const services = useResolvedServices()
+
+  const cardVariants = reduceMotion ? undefined : CARD_ENTRANCE
+
+  const slideLabel = t('services.slide', { defaultValue: 'SLIDE' })
+  const popularLabel = t('services.mostPopular', {
+    defaultValue: 'Popular',
+  })
 
   return (
     <div className="services-page bg-stone-50/30">
@@ -45,7 +313,8 @@ export function Services() {
 
       <section
         id="services"
-        className="pt-20 lg:pt-32 pb-16 lg:pb-20 overflow-hidden"
+        aria-labelledby="services-heading"
+        className="overflow-hidden pt-20 pb-16 lg:pt-32 lg:pb-20"
       >
         <div className="container mx-auto px-4 lg:px-8">
           {/* Header */}
@@ -53,158 +322,36 @@ export function Services() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-left md:text-center mb-12 md:mb-20 px-1"
+            transition={
+              reduceMotion ? { duration: 0 } : FADE_IN_TRANSITION
+            }
+            className="mb-12 px-1 text-left md:mb-20 md:text-center"
           >
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-serif font-medium text-stone-900 mb-4 md:mb-6">
+            <h2
+              id="services-heading"
+              className="mb-4 font-serif text-4xl font-medium text-stone-900 sm:text-5xl md:mb-6 md:text-6xl"
+            >
               {t('services.title')}
             </h2>
-            <p className="text-lg md:text-xl text-stone-600 max-w-2xl md:mx-auto leading-relaxed">
+            <p className="text-lg leading-relaxed text-stone-600 md:mx-auto md:text-xl max-w-2xl">
               {t('services.subtitle')}
             </p>
           </motion.div>
 
-          {!services || services.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-stone-500">No services available yet.</p>
-            </div>
+          {/* Cards */}
+          {!services ? (
+            <EmptyState />
           ) : (
             <>
-              {/* MOBILE VIEW: Snap Scroll */}
-              <div className="md:hidden relative">
-                <div className="flex justify-end px-4 mb-3">
-                  <div className="flex items-center gap-2 text-[10px] font-bold text-stone-600 tracking-[0.2em] uppercase">
-                    <span>
-                      {t('services.slide', { defaultValue: 'SLIDE' })}
-                    </span>
-                    <ArrowRight className="w-3 h-3" />
-                  </div>
-                </div>
-
-                <div className="flex overflow-x-auto snap-x snap-mandatory gap-5 pb-8 -mx-4 px-6 no-scrollbar">
-                  {services.map((service) => {
-                    const title =
-                      getLocalizedText(service, 'title', lang) || 'Service'
-                    const description =
-                      getLocalizedText(service, 'description', lang) || ''
-                    const isHighlighted = service.id === highlightedServiceId
-
-                    return (
-                      <article
-                        key={service.id}
-                        className="snap-center shrink-0 w-[85vw] relative flex flex-col overflow-hidden rounded-[2rem] bg-white shadow-lg shadow-stone-200/50 border border-stone-100"
-                      >
-                        {/* CHANGED: Check .src and use ResponsiveImage without fit="cover" */}
-                        {service.image?.src && (
-                          <div className="relative w-full h-56 overflow-hidden">
-                            <ResponsiveImage
-                              image={service.image}
-                              alt={service.image.title || title}
-                              className="w-full h-full object-cover"
-                              sizes="(max-width: 640px) 90vw"
-                            />
-                            {/* Price Badge */}
-                            <div
-                              className={`absolute top-4 right-4 inline-flex items-center gap-1 rounded-full bg-white/95 backdrop-blur-md px-3 py-1.5 text-[11px] font-bold tracking-wide text-stone-800 shadow-sm ${
-                                isHighlighted ? 'ring-2 ring-rose-200' : ''
-                              }`}
-                            >
-                              <Euro className="w-3 h-3 text-sage-600" />
-                              {service.price}
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="flex-1 flex flex-col p-6">
-                          <div className="mb-6">
-                            <h3 className="text-2xl font-serif font-medium text-stone-900 mb-3">
-                              {title}
-                            </h3>
-                            <p className="text-sm text-stone-500 leading-relaxed line-clamp-4">
-                              {description}
-                            </p>
-                          </div>
-
-                          <div className="mt-auto pt-5 border-t border-stone-100 flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-xs font-medium text-stone-600 uppercase tracking-wider">
-                              <Clock className="w-3.5 h-3.5" />
-                              <span>{service.duration_minutes} min</span>
-                            </div>
-                            <div className="text-sm font-serif font-semibold text-stone-900">
-                              {service.price} €
-                            </div>
-                          </div>
-                        </div>
-                      </article>
-                    )
-                  })}
-                  <div className="w-2 shrink-0" />
-                </div>
-              </div>
-
-              {/* DESKTOP VIEW: Grid */}
-              <div className="hidden md:grid grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-10 max-w-7xl mx-auto">
-                {services.map((service, index) => {
-                  const title =
-                    getLocalizedText(service, 'title', lang) || 'Service'
-                  const description =
-                    getLocalizedText(service, 'description', lang) || ''
-                  const isHighlighted = service.id === highlightedServiceId
-
-                  return (
-                    <motion.article
-                      key={service.id}
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.6, delay: index * 0.1 }}
-                      whileHover={{ y: -8 }}
-                      className="group relative flex flex-col overflow-hidden rounded-[2rem] bg-white shadow-xl shadow-stone-200/40 border border-stone-100 transition-all duration-500 hover:shadow-2xl hover:shadow-stone-200/60"
-                    >
-                      {/* CHANGED: Check .src and use ResponsiveImage without fit="cover" */}
-                      {service.image?.src && (
-                        <div className="relative w-full h-64 overflow-hidden">
-                          <ResponsiveImage
-                            image={service.image}
-                            alt={service.image.title || title}
-                            className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
-                            sizes="(max-width:1280px) 45vw, 400px"
-                          />
-
-                          <div className="absolute top-5 right-5 inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-4 py-1.5 text-xs font-bold text-stone-800 shadow-lg">
-                            <span>{service.price} €</span>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex-1 flex flex-col p-8">
-                        <div className="mb-6">
-                          <h3 className="text-2xl font-serif font-medium text-stone-900 mb-3">
-                            {title}
-                          </h3>
-                          <p className="text-base text-stone-500 leading-relaxed font-light">
-                            {description}
-                          </p>
-                        </div>
-
-                        <div className="mt-auto pt-6 border-t border-stone-100 flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-xs font-bold text-stone-600 uppercase tracking-widest">
-                            <Clock className="w-3.5 h-3.5" />
-                            <span>{service.duration_minutes} min</span>
-                          </div>
-                          {isHighlighted && (
-                            <span className="text-[10px] font-bold text-sage-600 bg-sage-50 px-2 py-1 rounded uppercase tracking-wider">
-                              {t('services.mostPopular', {
-                                defaultValue: 'Popular',
-                              })}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </motion.article>
-                  )
-                })}
-              </div>
+              <MobileCarousel
+                services={services}
+                slideLabel={slideLabel}
+              />
+              <DesktopGrid
+                services={services}
+                cardVariants={cardVariants}
+                popularLabel={popularLabel}
+              />
             </>
           )}
         </div>

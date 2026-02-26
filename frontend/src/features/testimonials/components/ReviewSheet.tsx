@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Star, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSubmitTestimonial } from "@/hooks/useTestimonials";
+import { normalizeHttpError } from "@/utils/normalizeHttpError";
 
 interface ReviewSheetProps {
   open: boolean;
@@ -20,24 +21,6 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
   const [text, setText] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
-  const getErrorMessage = (error: unknown) => {
-    type UnknownErr = {
-      response?: {
-        data?: {
-          errors?: Record<string, string>;
-          message?: string;
-        };
-      };
-    };
-    const err = error as UnknownErr;
-    return (
-      err.response?.data?.errors?.["text"] ||
-      err.response?.data?.errors?.["name"] ||
-      err.response?.data?.message ||
-      t("review.error")
-    );
-  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -74,7 +57,9 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
         onOpenChange(false);
       }, 2000);
     } catch (error: unknown) {
-      setErrorMessage(getErrorMessage(error));
+      setErrorMessage(
+        normalizeHttpError(error).message || t("review.error")
+      );
     }
   };
 
@@ -130,7 +115,9 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                   animate={{ opacity: 1, y: 0 }}
                   className="mb-4 p-4 bg-sage-100 border border-sage-300 rounded-lg"
                 >
-                  <p className="text-sage-800 text-sm">{successMessage}</p>
+                  <p className="text-sage-800 text-sm">
+                    {successMessage}
+                  </p>
                 </motion.div>
               )}
 
@@ -266,7 +253,11 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                 <div className="bg-sage-50 rounded-lg p-4 border border-sage-200">
                   <p className="text-xs text-charcoal/80 leading-relaxed">
                     <span className="font-semibold text-charcoal">
-                      {t("review.form.gdpr.title", "Privacy Notice")}:
+                      {t(
+                        "review.form.gdpr.title",
+                        "Privacy Notice"
+                      )}
+                      :
                     </span>{" "}
                     {t(
                       "review.form.gdpr.text",

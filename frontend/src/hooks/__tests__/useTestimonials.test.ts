@@ -41,9 +41,7 @@ describe("useTestimonials — Flow 7: Testimonials List", () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    const call = requestLog.find((r) =>
-      r.url.includes("/api/testimonials/")
-    );
+    const call = requestLog.find((r) => r.url.includes("/api/testimonials/"));
     expect(call).toBeDefined();
 
     const url = new URL(call!.url);
@@ -68,7 +66,7 @@ describe("useTestimonials — Flow 7: Testimonials List", () => {
     // Fixture has one 5-star and one 4-star; min_rating=5 should
     // return only the 5-star
     const fiveStarCount = testimonialListFixture.filter(
-      (t) => t.rating >= 5
+      (t) => t.rating >= 5,
     ).length;
     expect(result.current.data).toHaveLength(fiveStarCount);
   });
@@ -84,15 +82,13 @@ describe("useTestimonials — Flow 7: Testimonials List", () => {
         r.url.includes("/api/testimonials/") &&
         !r.url.includes("/stats") &&
         !r.url.includes("/submit") &&
-        !r.url.includes("/reply")
+        !r.url.includes("/reply"),
     );
     expect(calls).toHaveLength(1);
   });
 
   it("does NOT refetch on re-render", async () => {
-    const { result, rerender } = renderHookWithQuery(() =>
-      useTestimonials(4)
-    );
+    const { result, rerender } = renderHookWithQuery(() => useTestimonials(4));
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -104,7 +100,7 @@ describe("useTestimonials — Flow 7: Testimonials List", () => {
         r.url.includes("/api/testimonials/") &&
         !r.url.includes("/stats") &&
         !r.url.includes("/submit") &&
-        !r.url.includes("/reply")
+        !r.url.includes("/reply"),
     );
     expect(calls).toHaveLength(1);
   });
@@ -115,22 +111,16 @@ describe("useTestimonials — Flow 7: Testimonials List", () => {
 // ═════════════════════════════════════════════════════════════════
 describe("useTestimonialStats — Flow 8: Stats", () => {
   it("returns data matching TestimonialStatsSchema", async () => {
-    const { result } = renderHookWithQuery(() =>
-      useTestimonialStats()
-    );
+    const { result } = renderHookWithQuery(() => useTestimonialStats());
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    const parsed = TestimonialStatsSchema.safeParse(
-      result.current.data
-    );
+    const parsed = TestimonialStatsSchema.safeParse(result.current.data);
     expect(parsed.success).toBe(true);
   });
 
   it("contains all 7 expected stat fields", async () => {
-    const { result } = renderHookWithQuery(() =>
-      useTestimonialStats()
-    );
+    const { result } = renderHookWithQuery(() => useTestimonialStats());
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -145,14 +135,12 @@ describe("useTestimonialStats — Flow 8: Stats", () => {
   });
 
   it("fires exactly 1 GET", async () => {
-    const { result } = renderHookWithQuery(() =>
-      useTestimonialStats()
-    );
+    const { result } = renderHookWithQuery(() => useTestimonialStats());
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     const calls = requestLog.filter((r) =>
-      r.url.includes("/api/testimonials/stats/")
+      r.url.includes("/api/testimonials/stats/"),
     );
     expect(calls).toHaveLength(1);
   });
@@ -177,9 +165,7 @@ describe("useSubmitTestimonial — Flow 9: Review Submit", () => {
 
   // ── Category 1: Schema ──────────────────────────────────────
   it("sends payload matching expected shape", async () => {
-    const { result } = renderHookWithQuery(() =>
-      useSubmitTestimonial()
-    );
+    const { result } = renderHookWithQuery(() => useSubmitTestimonial());
 
     await act(async () => {
       result.current.mutate(validReview);
@@ -188,7 +174,7 @@ describe("useSubmitTestimonial — Flow 9: Review Submit", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     const body = requestLog.find((r) =>
-      r.url.includes("/api/testimonials/submit/")
+      r.url.includes("/api/testimonials/submit/"),
     )?.body as Record<string, unknown>;
 
     expect(body.name).toBe("Eve");
@@ -197,9 +183,7 @@ describe("useSubmitTestimonial — Flow 9: Review Submit", () => {
   });
 
   it("response matches TestimonialSubmissionResponseSchema", async () => {
-    const { result } = renderHookWithQuery(() =>
-      useSubmitTestimonial()
-    );
+    const { result } = renderHookWithQuery(() => useSubmitTestimonial());
 
     await act(async () => {
       result.current.mutate(validReview);
@@ -208,15 +192,13 @@ describe("useSubmitTestimonial — Flow 9: Review Submit", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     const parsed = TestimonialSubmissionResponseSchema.safeParse(
-      result.current.data
+      result.current.data,
     );
     expect(parsed.success).toBe(true);
   });
 
   it("email is optional — omitting it still succeeds", async () => {
-    const { result } = renderHookWithQuery(() =>
-      useSubmitTestimonial()
-    );
+    const { result } = renderHookWithQuery(() => useSubmitTestimonial());
 
     await act(async () => {
       result.current.mutate(reviewNoEmail);
@@ -225,7 +207,7 @@ describe("useSubmitTestimonial — Flow 9: Review Submit", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     const body = requestLog.find((r) =>
-      r.url.includes("/api/testimonials/submit/")
+      r.url.includes("/api/testimonials/submit/"),
     )?.body as Record<string, unknown>;
 
     // email should be undefined or not present, NOT empty string
@@ -234,9 +216,7 @@ describe("useSubmitTestimonial — Flow 9: Review Submit", () => {
 
   // ── Category 2: Call Count ──────────────────────────────────
   it("fires exactly 1 POST per submit", async () => {
-    const { result } = renderHookWithQuery(() =>
-      useSubmitTestimonial()
-    );
+    const { result } = renderHookWithQuery(() => useSubmitTestimonial());
 
     await act(async () => {
       result.current.mutate(validReview);
@@ -246,8 +226,7 @@ describe("useSubmitTestimonial — Flow 9: Review Submit", () => {
 
     const posts = requestLog.filter(
       (r) =>
-        r.url.includes("/api/testimonials/submit/") &&
-        r.method === "POST"
+        r.url.includes("/api/testimonials/submit/") && r.method === "POST",
     );
     expect(posts).toHaveLength(1);
   });
@@ -255,13 +234,13 @@ describe("useSubmitTestimonial — Flow 9: Review Submit", () => {
   // ── Category 3: Cache Invalidation (preview) ────────────────
   it("invalidates testimonial stats after submit", async () => {
     const { result, queryClient } = renderHookWithQuery(() =>
-      useSubmitTestimonial()
+      useSubmitTestimonial(),
     );
 
     // Seed stats cache
     queryClient.setQueryData(
       ["testimonials", "stats"],
-      testimonialStatsFixture
+      testimonialStatsFixture,
     );
 
     await act(async () => {
@@ -273,10 +252,7 @@ describe("useSubmitTestimonial — Flow 9: Review Submit", () => {
     // Stats should be invalidated (state becomes stale/refetching).
     // Since there's no active observer, the data may still exist
     // but the query state should be invalidated.
-    const statsState = queryClient.getQueryState([
-      "testimonials",
-      "stats",
-    ]);
+    const statsState = queryClient.getQueryState(["testimonials", "stats"]);
 
     // After invalidation, isInvalidated should be true
     expect(statsState?.isInvalidated).toBe(true);
@@ -288,17 +264,17 @@ describe("useSubmitTestimonial — Flow 9: Review Submit", () => {
 // ═════════════════════════════════════════════════════════════════
 describe("useReplyToTestimonial — Flow 10: Reply Submit", () => {
   const validReply = {
-    testimonialId: 1,
-    name: "Serenity Team",
-    email: "team@serenity.example",
-    text: "Thank you for your kind words!",
+    id: 1,
+    data: {
+      name: "Serenity Team",
+      email: "team@serenity.example",
+      text: "Thank you for your kind words!",
+    },
   };
 
   // ── Category 1: Schema ──────────────────────────────────────
   it("sends POST to /api/testimonials/{id}/reply/", async () => {
-    const { result } = renderHookWithQuery(() =>
-      useReplyToTestimonial()
-    );
+    const { result } = renderHookWithQuery(() => useReplyToTestimonial());
 
     await act(async () => {
       result.current.mutate(validReply);
@@ -307,16 +283,14 @@ describe("useReplyToTestimonial — Flow 10: Reply Submit", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     const call = requestLog.find((r) =>
-      r.url.includes("/api/testimonials/1/reply/")
+      r.url.includes("/api/testimonials/1/reply/"),
     );
     expect(call).toBeDefined();
     expect(call!.method).toBe("POST");
   });
 
   it("payload matches ReplySubmission shape (name, email, text)", async () => {
-    const { result } = renderHookWithQuery(() =>
-      useReplyToTestimonial()
-    );
+    const { result } = renderHookWithQuery(() => useReplyToTestimonial());
 
     await act(async () => {
       result.current.mutate(validReply);
@@ -325,20 +299,21 @@ describe("useReplyToTestimonial — Flow 10: Reply Submit", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     const body = requestLog.find((r) =>
-      r.url.includes("/reply/")
+      r.url.includes("/reply/"),
     )?.body as Record<string, unknown>;
 
     expect(body).toHaveProperty("name");
     expect(body).toHaveProperty("email");
     expect(body).toHaveProperty("text");
-    // testimonialId should NOT be in the body (it's in the URL)
+    // id and data wrapper should NOT be in the body (id is in the URL,
+    // data is unwrapped by the mutationFn)
+    expect(body).not.toHaveProperty("id");
     expect(body).not.toHaveProperty("testimonialId");
+    expect(body).not.toHaveProperty("data");
   });
 
   it("response matches ReplyResponseSchema", async () => {
-    const { result } = renderHookWithQuery(() =>
-      useReplyToTestimonial()
-    );
+    const { result } = renderHookWithQuery(() => useReplyToTestimonial());
 
     await act(async () => {
       result.current.mutate(validReply);
@@ -352,9 +327,7 @@ describe("useReplyToTestimonial — Flow 10: Reply Submit", () => {
 
   // ── Category 2: Call Count ──────────────────────────────────
   it("fires exactly 1 POST", async () => {
-    const { result } = renderHookWithQuery(() =>
-      useReplyToTestimonial()
-    );
+    const { result } = renderHookWithQuery(() => useReplyToTestimonial());
 
     await act(async () => {
       result.current.mutate(validReply);
@@ -363,7 +336,7 @@ describe("useReplyToTestimonial — Flow 10: Reply Submit", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     const posts = requestLog.filter(
-      (r) => r.url.includes("/reply/") && r.method === "POST"
+      (r) => r.url.includes("/reply/") && r.method === "POST",
     );
     expect(posts).toHaveLength(1);
   });
@@ -371,17 +344,17 @@ describe("useReplyToTestimonial — Flow 10: Reply Submit", () => {
   // ── Category 3: Cache Invalidation (preview) ────────────────
   it("invalidates broad ['testimonials'] prefix after reply", async () => {
     const { result, queryClient } = renderHookWithQuery(() =>
-      useReplyToTestimonial()
+      useReplyToTestimonial(),
     );
 
     // Seed both list and stats caches
     queryClient.setQueryData(
       ["testimonials", "list", 4],
-      testimonialListFixture
+      testimonialListFixture,
     );
     queryClient.setQueryData(
       ["testimonials", "stats"],
-      testimonialStatsFixture
+      testimonialStatsFixture,
     );
 
     await act(async () => {
@@ -391,15 +364,8 @@ describe("useReplyToTestimonial — Flow 10: Reply Submit", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     // Both should be invalidated (broad prefix match)
-    const listState = queryClient.getQueryState([
-      "testimonials",
-      "list",
-      4,
-    ]);
-    const statsState = queryClient.getQueryState([
-      "testimonials",
-      "stats",
-    ]);
+    const listState = queryClient.getQueryState(["testimonials", "list", 4]);
+    const statsState = queryClient.getQueryState(["testimonials", "stats"]);
 
     expect(listState?.isInvalidated).toBe(true);
     expect(statsState?.isInvalidated).toBe(true);

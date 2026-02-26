@@ -42,11 +42,14 @@ export default {
       approachLabel: "My Approach",
     },
     services: {
-      title: "Services",
-      subtitle: "Wellness massage tailored to your needs",
-      slide: "SLIDE",
-      mostPopular: "Most popular",
-    },
+  title: "Services",
+  subtitle: "Wellness massage tailored to your needs",
+  slide: "SLIDE",
+  mostPopular: "Most popular",
+  hero: {
+    label: "Services overview",
+  },
+},
     review: {
       trigger: "Leave a review",
       title: "Leave a review",

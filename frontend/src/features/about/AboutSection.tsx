@@ -1,4 +1,4 @@
-import { useMemo, lazy, Suspense } from 'react'
+import { useMemo, lazy, Suspense, type FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   motion,
@@ -6,139 +6,302 @@ import {
   type Variants,
   type Transition,
 } from 'framer-motion'
-import { Heart, User, Award, Mail, ArrowRight } from 'lucide-react'
+import { Heart, User, Award, Mail, ArrowRight, type LucideIcon } from 'lucide-react'
 
 import SecretTrigger from '@/components/secret/SecretTrigger'
 import { Button } from '@/components/ui/Button'
-// CHANGED: Renamed import from CloudImage to ResponsiveImage per instruction
 import ResponsiveImageComponent from '@/components/ui/ResponsiveImage'
 import { useModal } from '@/components/modal/useModal'
-import { useCMSPage } from '@/hooks/useCMS'
-// CHANGED: Replaced WagtailImage with ResponsiveImage
+import { useCMSPage, useCMSGlobals } from '@/hooks/useCMS'
 import type { ResponsiveImage, WagtailSpecialty } from '@/types/api'
+import { cmsText } from '@/lib/cmsText'
+import { cn } from '@/lib/utils'
 
-// Lazy-load map at module level (never inside a component)
+// ── Lazy imports ─────────────────────────────────────────────────────
 const LocationMap = lazy(() =>
   import('@/components/ui/LocationMap').then((m) => ({
     default: m.LocationMap,
   })),
 )
 
-// ── Types ────────────────────────────────────────────────────────────
-type GridItem = {
-  title: string
-  // CHANGED: Updated type definition
-  image: ResponsiveImage | null | undefined
+// ── Constants ────────────────────────────────────────────────────────
+const SECRET_TRIGGER_TAPS = 3
+const SECRET_TRIGGER_WINDOW_MS = 900
+
+const SPRING_TRANSITION: Transition = {
+  type: 'spring',
+  stiffness: 220,
+  damping: 22,
 }
 
-// ── Extracted static components ──────────────────────────────────────
-// Moved OUTSIDE About() so React never recreates it on re-render
-// (fixes react-hooks/static-components)
+const FADE_IN_TRANSITION = { duration: 0.6 } as const
 
-function MapCard({ address }: { address: string }) {
+const GRID_STAGGER: Variants = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.08, delayChildren: 0.12 },
+  },
+}
+
+const CARD_ENTRANCE: Variants = {
+  hidden: { opacity: 0, y: 18, scale: 0.97 },
+  show: { opacity: 1, y: 0, scale: 1, transition: SPRING_TRANSITION },
+}
+
+const WIDE_CARD_INDEX = 2
+
+// ── Types ────────────────────────────────────────────────────────────
+interface GridItem {
+  title: string
+  image: ResponsiveImage | null
+}
+
+interface GuideItem {
+  icon: LucideIcon
+  titleKey: string
+  bodyKey: string
+}
+
+interface AboutContent {
+  title: string
+  subtitle: string
+  intro: string
+  certification: string
+  approachTitle: string
+  approachText: string
+  specialtiesTitle: string
+  studioDescription: string
+  address: string
+  specialtiesGrid: GridItem[]
+}
+
+type SupportedLang = 'fr' | 'en'
+
+// ── Guide definitions ────────────────────────────────────────────────
+const GUIDES: readonly GuideItem[] = [
+  {
+    icon: User,
+    titleKey: 'about.guide.clientCareTitle',
+    bodyKey: 'about.guide.clientCareBody',
+  },
+  {
+    icon: Award,
+    titleKey: 'about.guide.excellenceTitle',
+    bodyKey: 'about.guide.excellenceBody',
+  },
+  {
+    icon: Heart,
+    titleKey: 'about.guide.holisticTitle',
+    bodyKey: 'about.guide.holisticBody',
+  },
+] as const
+
+// ── Utilities ────────────────────────────────────────────────────────
+function stripHtml(html?: string | null): string {
+  if (!html) return ''
+  const el = document.createElement('div')
+  el.innerHTML = html
+  return el.textContent ?? el.innerText ?? ''
+}
+
+function resolveLang(language: string): SupportedLang {
+  return language.startsWith('fr') ? 'fr' : 'en'
+}
+
+function pickLocalized<T>(lang: SupportedLang, fr: T, en: T): T {
+  return lang === 'fr' ? fr : en
+}
+
+function buildSpecialtiesGrid(
+  specialties: WagtailSpecialty[],
+  lang: SupportedLang,
+): GridItem[] {
+  return specialties
+    .map(
+      (sp): GridItem => ({
+        title: pickLocalized(lang, sp.title_fr ?? '', sp.title_en ?? ''),
+        image: sp.image ?? null,
+      }),
+    )
+    .filter((s) => s.title.trim().length > 0)
+}
+
+// ── Sub-components ───────────────────────────────────────────────────
+const MapFallback: FC = () => (
+  <div className="w-full h-[220px] animate-pulse rounded-2xl bg-stone-100" />
+)
+
+const MapCard: FC<{ address: string }> = ({ address }) => (
+  <div className="p-1">
+    <Suspense fallback={<MapFallback />}>
+      <LocationMap />
+    </Suspense>
+    <div className="mt-3 px-1">
+      <p className="whitespace-pre-line text-xs leading-relaxed text-stone-500">
+        {address}
+      </p>
+    </div>
+  </div>
+)
+
+const GuideEntry: FC<{ item: GuideItem }> = ({ item }) => {
+  const { t } = useTranslation()
+  const Icon = item.icon
+
   return (
-    <div className="p-1">
-      <Suspense
-        fallback={
-          <div className="w-full h-[220px] bg-stone-100 animate-pulse rounded-2xl" />
-        }
-      >
-        <LocationMap />
-      </Suspense>
-
-      <div className="mt-3 px-1">
-        <p className="text-xs text-stone-500 leading-relaxed">{address}</p>
+    <div className="flex items-start gap-4">
+      <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sage-50">
+        <Icon className="h-5 w-5 text-sage-700" />
+      </div>
+      <div>
+        <h4 className="mb-0.5 font-semibold text-foreground">
+          {t(item.titleKey)}
+        </h4>
+        <p className="text-sm leading-relaxed text-foreground/70">
+          {t(item.bodyKey)}
+        </p>
       </div>
     </div>
   )
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────
-const stripHtml = (html?: string | null): string => {
-  if (!html) return ''
-  const tmp = document.createElement('div')
-  tmp.innerHTML = html
-  return tmp.textContent || tmp.innerText || ''
+const SpecialtyCard: FC<{
+  item: GridItem
+  index: number
+  variants: Variants | undefined
+}> = ({ item, index, variants }) => (
+  <motion.div
+    variants={variants}
+    className={cn(
+      'group relative overflow-hidden rounded-[24px] border border-stone-100 bg-stone-100 shadow-sm',
+      'transition-all duration-500 hover:-translate-y-1 hover:shadow-warm',
+      index === WIDE_CARD_INDEX ? 'col-span-2 aspect-[2/1]' : 'aspect-square',
+    )}
+  >
+    {item.image?.src && (
+      <ResponsiveImageComponent
+        image={item.image}
+        alt={item.title}
+        className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        sizes="(max-width:1024px) 50vw, 33vw"
+      />
+    )}
+    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-transparent to-transparent p-5">
+      <span className="font-serif text-lg font-medium tracking-wide text-white">
+        {item.title}
+      </span>
+    </div>
+  </motion.div>
+)
+
+const CertificationBadge: FC<{ label: string; value: string }> = ({
+  label,
+  value,
+}) => (
+  <div className="inline-flex items-center gap-3 border-l-2 border-sage-300 py-2 pl-1 pr-6">
+    <div>
+      <p className="text-sm font-bold uppercase tracking-wider text-foreground">
+        {label}
+      </p>
+      <p className="text-xs text-foreground/60">{value}</p>
+    </div>
+  </div>
+)
+
+const ContactCard: FC<{ onContact: () => void }> = ({ onContact }) => {
+  const { t } = useTranslation()
+
+  return (
+    <div className="mb-8 flex items-center justify-between rounded-[24px] border border-sage-100/50 bg-sage-50/50 p-6 shadow-sm transition-shadow hover:shadow-md">
+      <div className="flex items-center gap-4">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sage-600 shadow-sm">
+          <Mail className="h-5 w-5" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-foreground">
+            {t('contact.form.title')}
+          </p>
+          <p className="text-xs text-stone-500">{t('about.byAppointment')}</p>
+        </div>
+      </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        aria-label={t('contact.open', {
+          defaultValue: 'Open contact form',
+        })}
+        onClick={onContact}
+        className="text-sage-700 hover:bg-sage-100 hover:text-sage-800"
+      >
+        <ArrowRight className="h-5 w-5" />
+      </Button>
+    </div>
+  )
+}
+
+// ── Content builder hook ─────────────────────────────────────────────
+function useAboutContent(): AboutContent | null {
+  const { t, i18n } = useTranslation()
+  const cmsData = useCMSPage()
+  const globals = useCMSGlobals()
+  const lang = resolveLang(i18n.language)
+
+  return useMemo(() => {
+    if (!cmsData) return null
+
+    const pick = <T,>(fr: T, en: T): T => pickLocalized(lang, fr, en)
+    const txt = (fr: unknown, en: unknown, fallback: string): string =>
+      cmsText(pick(fr, en) as string | undefined, fallback)
+
+    return {
+      title: txt(cmsData.about_title_fr, cmsData.about_title_en, t('about.title')),
+      subtitle: txt(
+        cmsData.about_subtitle_fr,
+        cmsData.about_subtitle_en,
+        t('about.subtitle'),
+      ),
+      intro: txt(cmsData.about_intro_fr, cmsData.about_intro_en, t('about.intro')),
+      certification: txt(
+        cmsData.about_certification_fr,
+        cmsData.about_certification_en,
+        '',
+      ),
+      approachTitle: txt(
+        cmsData.about_approach_title_fr,
+        cmsData.about_approach_title_en,
+        t('about.approachTitle'),
+      ),
+      approachText: txt(
+        cmsData.about_approach_text_fr,
+        cmsData.about_approach_text_en,
+        t('about.approachText'),
+      ),
+      specialtiesTitle: txt(
+        cmsData.about_specialties_title_fr,
+        cmsData.about_specialties_title_en,
+        t('about.specialtiesTitle'),
+      ),
+      studioDescription: t('about.studioDescriptionFallback'),
+      address: globals?.site?.address_full?.trim() || t('footer.addressFull'),
+      specialtiesGrid: buildSpecialtiesGrid(cmsData.specialties ?? [], lang),
+    }
+  }, [cmsData, globals, lang, t])
 }
 
 // ── Main component ──────────────────────────────────────────────────
-export function About() {
-  const { t, i18n } = useTranslation()
+export const About: FC = () => {
+  const { t } = useTranslation()
   const { open } = useModal()
   const reduceMotion = useReducedMotion()
+  const content = useAboutContent()
 
-  const cmsData = useCMSPage()
+  const gridVariants = reduceMotion ? undefined : GRID_STAGGER
+  const cardVariants = reduceMotion ? undefined : CARD_ENTRANCE
 
-  const lang = i18n.language.startsWith('fr') ? 'fr' : 'en'
+  const openContactDefault = () =>
+    open('contact', { defaultSubject: t('contact.form.subjectDefault') })
 
-  const content = useMemo(() => {
-    if (!cmsData) return null
-
-    const specialtiesGrid = (cmsData.specialties || [])
-      .map(
-        (sp: WagtailSpecialty): GridItem => ({
-          title:
-            lang === 'fr'
-              ? (sp.title_fr ?? '')
-              : (sp.title_en ?? ''),
-          image: sp.image ?? null,
-        }),
-      )
-      .filter((s) => s.title.trim().length > 0)
-
-    return {
-      title:
-        (lang === 'fr'
-          ? cmsData.about_title_fr
-          : cmsData.about_title_en) ?? t('about.title'),
-      subtitle:
-        (lang === 'fr'
-          ? cmsData.about_subtitle_fr
-          : cmsData.about_subtitle_en) ?? t('about.subtitle'),
-      intro:
-        (lang === 'fr'
-          ? cmsData.about_intro_fr
-          : cmsData.about_intro_en) ?? t('about.intro'),
-      certification:
-        (lang === 'fr'
-          ? cmsData.about_certification_fr
-          : cmsData.about_certification_en) ?? '',
-      approachTitle:
-        (lang === 'fr'
-          ? cmsData.about_approach_title_fr
-          : cmsData.about_approach_title_en) ?? t('about.approachTitle'),
-      approachText:
-        (lang === 'fr'
-          ? cmsData.about_approach_text_fr
-          : cmsData.about_approach_text_en) ?? t('about.approachText'),
-      specialtiesTitle:
-        (lang === 'fr'
-          ? cmsData.about_specialties_title_fr
-          : cmsData.about_specialties_title_en) ??
-        t('about.specialtiesTitle'),
-      studioDescription: t('about.studioDescriptionFallback'),
-      address: cmsData.address ?? t('footer.address'),
-      specialtiesGrid,
-    }
-  }, [cmsData, lang, t])
-
-  const spring: Transition = { type: 'spring', stiffness: 220, damping: 22 }
-
-  const gridVariants: Variants | undefined = reduceMotion
-    ? undefined
-    : {
-        hidden: {},
-        show: {
-          transition: { staggerChildren: 0.08, delayChildren: 0.12 },
-        },
-      }
-
-  const cardVariants: Variants | undefined = reduceMotion
-    ? undefined
-    : {
-        hidden: { opacity: 0, y: 18, scale: 0.97 },
-        show: { opacity: 1, y: 0, scale: 1, transition: spring },
-      }
+  const openContact = () => open('contact')
 
   if (!content) return null
 
@@ -149,36 +312,34 @@ export function About() {
       aria-labelledby="about-heading"
     >
       <div className="container mx-auto px-4 sm:px-6 md:px-12 lg:px-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
-          {/* ─── LEFT COLUMN ─────────────────────────────────────── */}
+        <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-20">
+          {/* ─── LEFT COLUMN ─────────────────────────────────── */}
           <motion.article
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col h-full"
+            transition={FADE_IN_TRANSITION}
+            className="flex h-full flex-col"
           >
-            {/* 1. Header & Intro */}
-            <div className="space-y-6 mb-10">
+            {/* Header & Intro */}
+            <div className="mb-10 space-y-6">
               <h2
                 id="about-heading"
-                className="text-4xl sm:text-5xl font-serif text-foreground min-h-[1em]"
+                className="min-h-[1em] font-serif text-4xl text-foreground sm:text-5xl"
               >
                 {content.title}
               </h2>
 
-              <div className="text-lg text-foreground/80 leading-relaxed max-w-xl min-h-[4em]">
+              <div className="min-h-[4em] max-w-xl text-lg leading-relaxed text-foreground/80">
                 <div>
-                  <span className="inline">
-                    {stripHtml(content.intro)}
-                  </span>
-                  <span className="inline-block ml-1 opacity-20 hover:opacity-100 transition-opacity align-baseline">
+                  <span className="inline">{stripHtml(content.intro)}</span>
+                  <span className="ml-1 inline-block align-baseline opacity-20 transition-opacity hover:opacity-100">
                     <SecretTrigger
                       modalId="cmsLogin"
-                      times={3}
-                      windowMs={900}
+                      times={SECRET_TRIGGER_TAPS}
+                      windowMs={SECRET_TRIGGER_WINDOW_MS}
                     >
-                      <span className="text-[10px] uppercase tracking-widest text-[#2e2e2e] font-bold cursor-default select-none">
+                      <span className="cursor-default select-none text-[10px] font-bold uppercase tracking-widest text-[#2e2e2e]">
                         Serenity.
                       </span>
                     </SecretTrigger>
@@ -187,127 +348,62 @@ export function About() {
               </div>
             </div>
 
-            {/* 2. Guides */}
-            <div className="space-y-6 border-t border-stone-200/60 pt-8 mb-10">
+            {/* Guides */}
+            <div className="mb-10 space-y-6 border-t border-stone-200/60 pt-8">
               <h3 className="font-serif text-2xl text-foreground">
                 {t('about.guidesTitle')}
               </h3>
               <div className="grid gap-6">
-                {[
-                  {
-                    icon: User,
-                    title: 'about.guide.clientCareTitle',
-                    body: 'about.guide.clientCareBody',
-                  },
-                  {
-                    icon: Award,
-                    title: 'about.guide.excellenceTitle',
-                    body: 'about.guide.excellenceBody',
-                  },
-                  {
-                    icon: Heart,
-                    title: 'about.guide.holisticTitle',
-                    body: 'about.guide.holisticBody',
-                  },
-                ].map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-sage-50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <item.icon className="w-5 h-5 text-sage-700" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-0.5">
-                        {t(item.title)}
-                      </h4>
-                      <p className="text-sm text-foreground/70 leading-relaxed">
-                        {t(item.body)}
-                      </p>
-                    </div>
-                  </div>
+                {GUIDES.map((item) => (
+                  <GuideEntry key={item.titleKey} item={item} />
                 ))}
               </div>
             </div>
 
-            {/* 3. CTA */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-12">
+            {/* CTA */}
+            <div className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-center">
               <div className="min-h-[60px]">
-                {content.certification ? (
-                  <div className="inline-flex items-center gap-3 pl-1 pr-6 py-2 border-l-2 border-sage-300">
-                    <div>
-                      <p className="text-sm font-bold text-foreground uppercase tracking-wider">
-                        {t('about.certificationLabel')}
-                      </p>
-                      <p className="text-xs text-foreground/60">
-                        {stripHtml(content.certification)}
-                      </p>
-                    </div>
-                  </div>
-                ) : null}
+                {content.certification && (
+                  <CertificationBadge
+                    label={t('about.certificationLabel')}
+                    value={stripHtml(content.certification)}
+                  />
+                )}
               </div>
               <div>
                 <Button
                   size="lg"
-                  className="shadow-warm hover:shadow-elevated transition-all"
+                  className="shadow-warm transition-all hover:shadow-elevated"
                   aria-label={t('contact.open', {
                     defaultValue: 'Open contact form',
                   })}
-                  onClick={() =>
-                    open('contact', {
-                      defaultSubject: t('contact.form.subjectDefault'),
-                    })
-                  }
+                  onClick={openContactDefault}
                 >
-                  {t('about.cta')}{' '}
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                  {t('about.cta')}
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
             </div>
 
-            {/* 4. Approach + Contact + Map */}
-            <div className="mt-6 pt-10 border-t border-stone-200/60">
-              <h3 className="text-3xl font-serif text-foreground mb-4 min-h-[1.2em]">
+            {/* Approach + Contact + Map */}
+            <div className="mt-6 border-t border-stone-200/60 pt-10">
+              <h3 className="mb-4 min-h-[1.2em] font-serif text-3xl text-foreground">
                 {content.approachTitle}
               </h3>
 
-              <div className="text-base text-foreground/75 leading-relaxed space-y-4 mb-8">
+              <div className="mb-8 space-y-4 text-base leading-relaxed text-foreground/75">
                 <p>{stripHtml(content.approachText)}</p>
               </div>
 
-              {/* Contact Card */}
-              <div className="p-6 bg-sage-50/50 rounded-[24px] border border-sage-100/50 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow mb-8">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-sage-600">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground text-sm">
-                      {t('contact.form.title')}
-                    </p>
-                    <p className="text-xs text-stone-500">
-                      {t('about.byAppointment')}
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  aria-label={t('contact.open', {
-                    defaultValue: 'Open contact form',
-                  })}
-                  onClick={() => open('contact')}
-                  className="text-sage-700 hover:text-sage-800 hover:bg-sage-100"
-                >
-                  <ArrowRight className="w-5 h-5" />
-                </Button>
-              </div>
-
+              <ContactCard onContact={openContact} />
               <MapCard address={content.address} />
             </div>
           </motion.article>
 
-          {/* ─── RIGHT COLUMN ────────────────────────────────────── */}
-          <aside className="space-y-10 lg:sticky lg:top-24 hidden lg:block">
+          {/* ─── RIGHT COLUMN ────────────────────────────────── */}
+          <aside className="hidden space-y-10 lg:sticky lg:top-24 lg:block">
             <div className="space-y-4">
-              <h3 className="font-serif text-2xl text-foreground px-1">
+              <h3 className="px-1 font-serif text-2xl text-foreground">
                 {content.specialtiesTitle}
               </h3>
 
@@ -319,33 +415,12 @@ export function About() {
                 className="grid grid-cols-2 gap-4"
               >
                 {content.specialtiesGrid.map((sp, i) => (
-                  <motion.div
+                  <SpecialtyCard
                     key={`${sp.title}-${i}`}
+                    item={sp}
+                    index={i}
                     variants={cardVariants}
-                    className={[
-                      'relative group overflow-hidden rounded-[24px] bg-stone-100 shadow-sm border border-stone-100',
-                      'transition-all duration-500 hover:shadow-warm hover:-translate-y-1',
-                      i === 2
-                        ? 'col-span-2 aspect-[2/1]'
-                        : 'aspect-square',
-                    ].join(' ')}
-                  >
-                    {/* CHANGED: Checked for .src instead of .url */}
-                    {sp.image?.src && (
-                      // CHANGED: Using ResponsiveImageComponent instead of CloudImage
-                      <ResponsiveImageComponent
-                        image={sp.image}
-                        alt={sp.title}
-                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                        sizes="(max-width:1024px) 50vw, 33vw"
-                      />
-                    )}
-                    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-transparent to-transparent p-5">
-                      <span className="text-white font-medium text-lg font-serif tracking-wide">
-                        {sp.title}
-                      </span>
-                    </div>
-                  </motion.div>
+                  />
                 ))}
               </motion.div>
             </div>

@@ -4,11 +4,29 @@ import { useTranslation } from "react-i18next";
 import AnimatedInstagramIcon from "@/components/ui/AnimatedInstagramIcon";
 import AnimatedFacebookIcon from "@/components/ui/AnimatedFacebookIcon";
 import { useModal } from "@/components/modal/useModal";
+import { useCMSGlobals } from "@/hooks/useCMS";
 
 const Footer: React.FC = () => {
   const { t } = useTranslation();
   const { open } = useModal();
+  const globals = useCMSGlobals();
   const currentYear = new Date().getFullYear();
+
+  // CMS-first, i18n fallback
+  const brand =
+    globals?.site?.brand?.trim() || "La Serenity";
+  const email =
+    globals?.site?.email?.trim() || t("footer.email");
+  const address =
+    globals?.site?.address_full?.trim() || t("footer.addressFull");
+  const hours =
+    globals?.site?.business_hours?.trim() || t("footer.hoursValue");
+  const instagram =
+    globals?.site?.instagram_url?.trim() ||
+    "https://www.instagram.com/laserenity_marseille/";
+  const facebook =
+    globals?.site?.facebook_url?.trim() ||
+    "https://facebook.com/yourpage";
 
   const linkBtnClass =
     "cursor-pointer text-white/60 hover:text-white transition-colors" +
@@ -31,7 +49,7 @@ const Footer: React.FC = () => {
                 className="font-serif text-5xl md:text-6xl text-white
                   tracking-wide leading-tight"
               >
-                La Serenity
+                {brand}
               </h3>
               <p
                 className="mt-5 text-[15px] text-white/50 leading-relaxed
@@ -45,12 +63,12 @@ const Footer: React.FC = () => {
               <AnimatedInstagramIcon
                 magnetic
                 size={48}
-                href="https://www.instagram.com/laserenity_marseille/"
+                href={instagram}
               />
               <AnimatedFacebookIcon
                 magnetic
                 size={48}
-                href="https://facebook.com/yourpage"
+                href={facebook}
               />
             </div>
           </div>
@@ -72,7 +90,7 @@ const Footer: React.FC = () => {
 
               <div className="space-y-5">
                 <a
-                  href={`mailto:${t("footer.email")}`}
+                  href={`mailto:${email}`}
                   className="flex items-center gap-4 text-white/70
                     hover:text-white transition-colors group text-[15px]"
                 >
@@ -82,9 +100,7 @@ const Footer: React.FC = () => {
                   >
                     <Mail className="w-[18px] h-[18px]" />
                   </div>
-                  <span className="font-light">
-                    {t("footer.email")}
-                  </span>
+                  <span className="font-light">{email}</span>
                 </a>
 
                 <div
@@ -95,7 +111,7 @@ const Footer: React.FC = () => {
                     <MapPin className="w-[18px] h-[18px]" />
                   </div>
                   <span className="font-light leading-relaxed pt-1">
-                    {t("footer.addressFull")}
+                    {address}
                   </span>
                 </div>
               </div>
@@ -115,7 +131,7 @@ const Footer: React.FC = () => {
                   <Clock className="w-[18px] h-[18px] text-white/70" />
                 </div>
                 <span className="block text-white font-medium text-base pt-1">
-                  {t("footer.hoursValue")}
+                  {hours}
                 </span>
               </div>
             </div>
@@ -142,7 +158,9 @@ const Footer: React.FC = () => {
                 <li>
                   <button
                     type="button"
-                    onClick={() => open("legal", { page: "privacy" })}
+                    onClick={() =>
+                      open("legal", { page: "privacy" })
+                    }
                     className={linkBtnClass}
                   >
                     {t("footer.privacy")}
@@ -160,7 +178,9 @@ const Footer: React.FC = () => {
                 <li>
                   <button
                     type="button"
-                    onClick={() => open("legal", { page: "cookies" })}
+                    onClick={() =>
+                      open("legal", { page: "cookies" })
+                    }
                     className={linkBtnClass}
                   >
                     {t("footer.cookies")}
@@ -177,7 +197,7 @@ const Footer: React.FC = () => {
               text-white/40 uppercase tracking-[0.15em] font-medium"
           >
             <p>
-              © {currentYear} Serenity. {t("footer.allRights")}
+              © {currentYear} {brand}. {t("footer.allRights")}
             </p>
 
             <p className="flex items-center gap-1.5">

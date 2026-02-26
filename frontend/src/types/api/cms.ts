@@ -1,4 +1,8 @@
-import type { ResponsiveImage, WagtailHeroSlide, WagtailSpecialty } from './common'
+import type {
+  ResponsiveImage,
+  WagtailHeroSlide,
+  WagtailSpecialty,
+} from './common'
 
 export interface WagtailService {
   id: number
@@ -36,7 +40,6 @@ export interface WagtailHomePage {
   about_specialties_title_en: string
   about_specialties_title_fr: string
   specialties?: WagtailSpecialty[]
-
 
   services_hero_title_en: string
   services_hero_title_fr: string
@@ -80,5 +83,14 @@ export interface GlobalSettings {
     form_success_message_fr: string
     form_code_label_en: string
     form_code_label_fr: string
-  }
+  } | null
+
+  site: {
+    brand: string
+    instagram_url?: string
+    facebook_url?: string
+    business_hours?: string
+    email?: string
+    address_full?: string
+  } | null
 }

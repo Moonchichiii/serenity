@@ -1,169 +1,398 @@
-import { useEffect, useMemo, useState } from 'react'
+// features/home/Hero.tsx
+
+import { useCallback, useEffect, useMemo, useState, type FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { motion } from 'framer-motion'
+import { motion, type Transition } from 'framer-motion'
+
 import { Button } from '@/components/ui/Button'
-import { useCMSPage } from "@/hooks/useCMS"
-// CHANGED: Renamed import from CloudImage to ResponsiveImage
 import ResponsiveImage from '@/components/ui/ResponsiveImage'
 import CookieConsent from '@/components/ui/CookieConsent'
 import { useModal } from '@/components/modal/useModal'
+import { useCMSPage } from '@/hooks/useCMS'
+import { cn } from '@/lib/utils'
+import type {
+  RenderableImage,
+  WagtailHeroSlide,
+} from '@/types/api'
 
-export function Hero() {
-  const { t, i18n } = useTranslation()
-  const { open } = useModal()
+// ── Constants ────────────────────────────────────────────────────────
+const SLIDE_INTERVAL_MS = 5_000
+const SLIDE_TRANSITION_MS = 1_000
+const SCALE_TRANSITION_MS = 6_000
 
-  // ✅ Refactored: Read directly from context/loader state
+const FADE_UP: Transition = { duration: 0.6 }
+const FADE_UP_DELAY_1: Transition = { duration: 0.6, delay: 0.3 }
+const FADE_UP_DELAY_2: Transition = { duration: 0.6, delay: 0.4 }
+
+// ── Types ────────────────────────────────────────────────────────────
+type SupportedLang = 'fr' | 'en'
+
+/** A slide whose image is guaranteed renderable. */
+interface NormalizedSlide extends Omit<WagtailHeroSlide, 'image'> {
+  image: RenderableImage
+}
+
+interface HeroSlidesResult {
+  slides: NormalizedSlide[] | null
+  /** True only when the CMS returned ≥ 2 real hero_slides. */
+  isCarousel: boolean
+}
+
+interface HeroContent {
+  title: string
+  subtitle: string
+  ctaPrivate: string
+  ctaCorporate: string
+}
+
+// ── Utilities ────────────────────────────────────────────────────────
+function resolveLang(language: string): SupportedLang {
+  return language.startsWith('fr') ? 'fr' : 'en'
+}
+
+function pickLocalized<T>(lang: SupportedLang, fr: T, en: T): T {
+  return lang === 'fr' ? fr : en
+}
+
+/**
+ * Collapses `null | undefined | ""` into `undefined` so the
+ * nullish-coalescing cascade works for empty CMS strings too.
+ */
+function nonEmpty(value: string | null | undefined): string | undefined {
+  const trimmed = value?.trim()
+  return trimmed?.length ? trimmed : undefined
+}
+
+function scrollToElement(id: string): void {
+  const el = document.getElementById(id)
+  if (!el) return
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  if (window.history?.pushState) {
+    window.history.pushState(null, '', `#${id}`)
+  }
+}
+
+/**
+ * Derives a deterministic React key from slide content.
+ * Prefers `slide.id` when the API provides one; falls back to
+ * `src:index` which is stable as long as slide order is stable.
+ */
+function slideKey(slide: NormalizedSlide, index: number): string {
+  return slide.id != null ? String(slide.id) : `${slide.image.src}:${index}`
+}
+
+// ── Type guard ───────────────────────────────────────────────────────
+/**
+ * Narrows a WagtailHeroSlide to one with a renderable image.
+ * Drives inference through `Array.filter()` so the output
+ * array is correctly typed as `NormalizedSlide[]`.
+ */
+function hasRenderableImage(
+  slide: WagtailHeroSlide,
+): slide is Omit<WagtailHeroSlide, 'image'> & { image: RenderableImage } {
+  return (
+    !!slide.image &&
+    typeof slide.image.src === 'string' &&
+    slide.image.src.length > 0
+  )
+}
+
+// ── Hooks ────────────────────────────────────────────────────────────
+
+/**
+ * Normalizes CMS hero data into a flat slide array.
+ * Guarantees every returned slide has a renderable `image.src`.
+ * Distinguishes "real carousel" from "single fallback image".
+ */
+function useHeroSlides(): HeroSlidesResult {
   const cmsData = useCMSPage()
+
+  return useMemo(() => {
+    if (!cmsData) return { slides: null, isCarousel: false }
+
+    const fromSlides = (cmsData.hero_slides ?? []).filter(
+      hasRenderableImage,
+    ) as NormalizedSlide[]
+
+    if (fromSlides.length > 0) {
+      return {
+        slides: fromSlides,
+        isCarousel: fromSlides.length >= 2,
+      }
+    }
+
+    // Single fallback image — normalize without casting
+    if (cmsData.hero_image?.src) {
+      const img: RenderableImage = {
+        ...cmsData.hero_image,
+        src: cmsData.hero_image.src,
+      }
+      return { slides: [{ image: img }], isCarousel: false }
+    }
+
+    return { slides: null, isCarousel: false }
+  }, [cmsData])
+}
+
+/**
+ * Auto-advances a numeric index on a timer, pausing when
+ * the document is hidden (background tab) to save CPU/battery.
+ * Resets to 0 if `count` shrinks below the current index.
+ */
+function useAutoAdvance(count: number): number {
   const [active, setActive] = useState(0)
 
-  const slides = useMemo(() => {
-    // Note: We keep the filter here to ensure we have an image object structure,
-    // even though ResponsiveImage handles nulls, the logic below relies on arrays of objects.
-    const s = (cmsData?.hero_slides || []).filter((s) => s.image)
-    if (s.length) return s
-    if (cmsData?.hero_image) return [{ image: cmsData.hero_image }]
-    return null
-  }, [cmsData])
+  // Reset if count shrinks (CMS hydration / language switch)
+  useEffect(() => {
+    if (count > 0 && active >= count) {
+      setActive(0)
+    }
+  }, [active, count])
 
   useEffect(() => {
-    if (!slides || slides.length < 2) return
-    const id = setInterval(
-      () => setActive((p) => (p + 1) % slides.length),
-      5000,
+    if (count < 2) return
+
+    let intervalId: number | null = null
+
+    const start = () => {
+      if (intervalId !== null) return
+      intervalId = window.setInterval(() => {
+        setActive((prev) => (prev + 1) % count)
+      }, SLIDE_INTERVAL_MS)
+    }
+
+    const stop = () => {
+      if (intervalId === null) return
+      window.clearInterval(intervalId)
+      intervalId = null
+    }
+
+    const handleVisibility = () => {
+      if (document.hidden) stop()
+      else start()
+    }
+
+    start()
+    document.addEventListener('visibilitychange', handleVisibility)
+
+    return () => {
+      stop()
+      document.removeEventListener('visibilitychange', handleVisibility)
+    }
+  }, [count])
+
+  return active
+}
+
+/**
+ * Resolves hero copy with the cascade:
+ *   slide-specific text → page-level CMS text → i18n fallback
+ *
+ * Slide-specific text is only attempted when the CMS returned
+ * real carousel slides (not the single-image fallback).
+ *
+ * Individual CMS primitives are used as deps (not the full
+ * cmsData object) to minimize unnecessary recalculations.
+ */
+function useHeroContent(
+  slides: NormalizedSlide[] | null,
+  isCarousel: boolean,
+  activeIndex: number,
+): HeroContent {
+  const { t, i18n } = useTranslation()
+  const cmsData = useCMSPage()
+  const lang = resolveLang(i18n.language)
+
+  // Extract primitives to keep useMemo deps stable
+  const pageTitleFr = cmsData?.hero_title_fr
+  const pageTitleEn = cmsData?.hero_title_en
+  const pageSubtitleFr = cmsData?.hero_subtitle_fr
+  const pageSubtitleEn = cmsData?.hero_subtitle_en
+
+  return useMemo(() => {
+    const activeSlide = slides?.[activeIndex]
+
+    // Only attempt slide-level copy for real carousel slides
+    const slideTitle = isCarousel
+      ? nonEmpty(
+          pickLocalized(
+            lang,
+            activeSlide?.title_fr,
+            activeSlide?.title_en,
+          ),
+        )
+      : undefined
+
+    const slideSubtitle = isCarousel
+      ? nonEmpty(
+          pickLocalized(
+            lang,
+            activeSlide?.subtitle_fr,
+            activeSlide?.subtitle_en,
+          ),
+        )
+      : undefined
+
+    const pageTitle = nonEmpty(pickLocalized(lang, pageTitleFr, pageTitleEn))
+    const pageSubtitle = nonEmpty(
+      pickLocalized(lang, pageSubtitleFr, pageSubtitleEn),
     )
-    return () => clearInterval(id)
-  }, [slides])
 
-  const lang =
-    i18n.language === 'en' || i18n.language === 'fr'
-      ? (i18n.language as 'en' | 'fr')
-      : 'fr'
+    return {
+      title: slideTitle ?? pageTitle ?? t('hero.title'),
+      subtitle: slideSubtitle ?? pageSubtitle ?? t('hero.subtitle'),
+      ctaPrivate: t('hero.ctaPrivate'),
+      ctaCorporate: t('hero.ctaCorporate'),
+    }
+  }, [
+    slides,
+    isCarousel,
+    activeIndex,
+    lang,
+    pageTitleFr,
+    pageTitleEn,
+    pageSubtitleFr,
+    pageSubtitleEn,
+    t,
+  ])
+}
 
-  // CMS-FIRST LOGIC
-  const title =
-    (lang === 'fr' ? cmsData?.hero_title_fr : cmsData?.hero_title_en) ??
-    t('hero.title')
-  const subtitle =
-    (lang === 'fr' ? cmsData?.hero_subtitle_fr : cmsData?.hero_subtitle_en) ??
-    t('hero.subtitle')
+// ── Sub-components ───────────────────────────────────────────────────
 
-  const ctaPrivateText = t('hero.ctaPrivate')
-  const ctaCorporateText = t('hero.ctaCorporate')
+/** Purely decorative slide image with Ken Burns–style scale. */
+const SlideImage: FC<{
+  slide: NormalizedSlide
+  index: number
+  isActive: boolean
+}> = ({ slide, index, isActive }) => (
+  <div
+    className={cn(
+      'absolute inset-0 transition-opacity ease-in-out',
+      isActive ? 'opacity-100' : 'opacity-0',
+    )}
+    style={{ transitionDuration: `${SLIDE_TRANSITION_MS}ms` }}
+    aria-hidden="true"
+  >
+    <div
+      className={cn(
+        'h-full w-full transition-transform ease-linear',
+        isActive ? 'scale-110' : 'scale-100',
+      )}
+      style={{ transitionDuration: `${SCALE_TRANSITION_MS}ms` }}
+    >
+      <ResponsiveImage
+        image={slide.image}
+        alt=""
+        priority={index === 0}
+        className="h-full w-full object-cover"
+        sizes="100vw"
+      />
+    </div>
+  </div>
+)
+
+const BackgroundFallback: FC = () => (
+  <div className="absolute inset-0 bg-stone-200" aria-hidden="true" />
+)
+
+const Overlays: FC = () => (
+  <>
+    <div className="absolute inset-0 bg-stone-100/60 mix-blend-hard-light" />
+    <div className="absolute inset-0 bg-gradient-to-t from-stone-50/90 via-stone-50/40 to-stone-50/20" />
+  </>
+)
+
+const BottomFade: FC = () => (
+  <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-32 bg-gradient-to-t from-background to-transparent" />
+)
+
+// ── Main component ──────────────────────────────────────────────────
+export const Hero: FC = () => {
+  const { open } = useModal()
+  const { slides, isCarousel } = useHeroSlides()
+  const active = useAutoAdvance(slides?.length ?? 0)
+  const content = useHeroContent(slides, isCarousel, active)
+
+  const handlePrivateClick = useCallback(() => {
+    open('contact', { defaultSubject: 'Private session inquiry' })
+  }, [open])
+
+  const handleCorporateClick = useCallback(() => {
+    scrollToElement('services-hero')
+  }, [])
 
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden pt-20"
     >
-      {/* 1. BACKGROUND SLIDESHOW */}
+      {/* Background slideshow */}
       <div className="absolute inset-0 z-0">
         {slides ? (
-          slides.map((s, idx) => {
-            // Safe access to title, fallback string provided
-            const alt = s.image?.title || 'Hero background'
-            const visible = active === idx
-
-            // CHANGED: Logic moved here for clarity.
-            // We render the component; if s.image is null internal logic handles it,
-            // but our filter above ensures s.image exists mostly.
-            return (
-              <div
-                key={idx}
-                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                  visible ? 'opacity-100' : 'opacity-0'
-                }`}
-                aria-hidden="true"
-              >
-                {/* Scale animation for breathing effect */}
-                <div
-                  className={`w-full h-full transition-transform duration-[6000ms] ease-linear ${
-                    visible ? 'scale-110' : 'scale-100'
-                  }`}
-                >
-                  {/* CHANGED: Swapped CloudImage for ResponsiveImage, removed manual null checks */}
-                  <ResponsiveImage
-                    image={s.image}
-                    alt={alt}
-                    priority={idx === 0}
-                    className="w-full h-full object-cover"
-                    sizes="100vw"
-                  />
-                </div>
-              </div>
-            )
-          })
+          slides.map((slide, idx) => (
+            <SlideImage
+              key={slideKey(slide, idx)}
+              slide={slide}
+              index={idx}
+              isActive={active === idx}
+            />
+          ))
         ) : (
-          <div className="absolute inset-0 bg-stone-200" aria-hidden="true" />
+          <BackgroundFallback />
         )}
-
-        {/* 2. OVERLAY */}
-        <div className="absolute inset-0 bg-stone-100/60 mix-blend-hard-light" />
-        <div className="absolute inset-0 bg-gradient-to-t from-stone-50/90 via-stone-50/40 to-stone-50/20" />
+        <Overlays />
       </div>
 
-      {/* 3. CONTENT - Centered but Wider (max-w-5xl) */}
-      <div className="relative z-10 container mx-auto px-4 lg:px-8 flex flex-col items-center justify-center text-center h-full">
-        {/* Title */}
-        <motion.h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-medium text-stone-900 mb-6 drop-shadow-sm max-w-5xl">
-          {title}
+      {/* Content */}
+      <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center px-4 text-center lg:px-8">
+        <motion.h1
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={FADE_UP}
+          className="mb-6 max-w-5xl font-serif text-5xl font-medium text-stone-900 drop-shadow-sm md:text-6xl lg:text-7xl"
+        >
+          {content.title}
         </motion.h1>
 
-        {/* Subtitle */}
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-lg md:text-2xl text-stone-600 mb-10 max-w-3xl mx-auto leading-relaxed"
+          transition={FADE_UP_DELAY_1}
+          className="mx-auto mb-10 max-w-3xl text-lg leading-relaxed text-stone-600 md:text-2xl"
         >
-          {subtitle}
+          {content.subtitle}
         </motion.p>
 
-        {/* CTA Buttons - Centered */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full"
+          transition={FADE_UP_DELAY_2}
+          className="flex w-full flex-col items-center justify-center gap-4 sm:flex-row"
         >
-          {/* Private Session */}
           <Button
             size="lg"
-            onClick={() =>
-              open('contact', { defaultSubject: 'Private session inquiry' })
-            }
-            aria-label={ctaPrivateText}
-            className="w-full sm:w-auto h-14 rounded-full px-8 text-base shadow-warm hover:shadow-elevated transition-transform hover:-translate-y-1"
+            onClick={handlePrivateClick}
+            aria-label={content.ctaPrivate}
+            className="h-14 w-full rounded-full px-8 text-base shadow-warm transition-transform hover:-translate-y-1 hover:shadow-elevated sm:w-auto"
           >
-            {ctaPrivateText}
+            {content.ctaPrivate}
           </Button>
 
-          {/* Corporate Wellness */}
           <Button
             variant="secondary"
             size="lg"
             type="button"
-            onClick={() => {
-              const targetId = 'services-hero'
-              const el = document.getElementById(targetId)
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                if (window.history && window.history.pushState) {
-                  window.history.pushState(null, '', `#${targetId}`)
-                }
-              }
-            }}
-            aria-label={ctaCorporateText}
-            className="w-full sm:w-auto h-14 rounded-full px-8 text-base shadow-sm hover:shadow-md transition-transform hover:-translate-y-1"
+            onClick={handleCorporateClick}
+            aria-label={content.ctaCorporate}
+            className="h-14 w-full rounded-full px-8 text-base shadow-sm transition-transform hover:-translate-y-1 hover:shadow-md sm:w-auto"
           >
-            {ctaCorporateText}
+            {content.ctaCorporate}
           </Button>
         </motion.div>
       </div>
 
       <CookieConsent />
-
-      {/* Bottom Fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
+      <BottomFade />
     </section>
   )
 }

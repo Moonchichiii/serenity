@@ -32,6 +32,8 @@ def get_testimonials(request: Request) -> Response:
     except (TypeError, ValueError):
         min_rating = 0
 
+    min_rating = max(0, min(5, min_rating))
+
     testimonials = get_approved_testimonials(min_rating=min_rating)
     data = TestimonialSerializer(testimonials, many=True).data
     return Response(data)
@@ -61,10 +63,12 @@ def submit_testimonial(request: Request) -> Response:
 @api_view(['POST'])
 @throttle_classes([TestimonialSubmissionThrottle])
 def submit_reply(request: Request, testimonial_id: int) -> Response:
-    """Submit a reply to a testimonial for moderation."""
-    try:
-        parent = Testimonial.objects.get(id=testimonial_id)
-    except Testimonial.DoesNotExist:
+    parent = Testimonial.objects.filter(
+        id=testimonial_id,
+        status='approved',
+    ).first()
+
+    if not parent:
         return Response(
             {'error': 'Témoignage introuvable'},
             status=status.HTTP_404_NOT_FOUND,
@@ -80,10 +84,7 @@ def submit_reply(request: Request, testimonial_id: int) -> Response:
     )
 
     return Response(
-        {
-            'success': True,
-            'message': 'Réponse envoyée pour modération.',
-        },
+        {'success': True, 'message': 'Réponse envoyée pour modération.'},
         status=status.HTTP_201_CREATED,
     )
 

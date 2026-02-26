@@ -3,42 +3,43 @@ import { testimonialsApi } from '@/api/testimonials.api'
 import { normalizeHttpError, type ApiError } from '@/api/httpError'
 import { qk } from '@/lib/queryKeys'
 import { queryClient } from '@/lib/queryClient'
-import type { ReplySubmission, TestimonialSubmission } from '@/types/api'
+
+// Derive types from API functions (eliminates drift)
+type SubmitFn = typeof testimonialsApi.submit
+type SubmitInput = Parameters<SubmitFn>[0]
+type SubmitOutput = Awaited<ReturnType<SubmitFn>>
+
+type ReplyFn = typeof testimonialsApi.reply
+type ReplyId = Parameters<ReplyFn>[0]
+type ReplyInput = Parameters<ReplyFn>[1]
+type ReplyOutput = Awaited<ReturnType<ReplyFn>>
 
 export const submitTestimonialMutationOptions = () =>
-  mutationOptions({
+  mutationOptions<SubmitOutput, ApiError, SubmitInput>({
     mutationKey: ['testimonials', 'submit'],
-    mutationFn: async (payload: TestimonialSubmission) => {
+    mutationFn: async (payload) => {
       try {
         return await testimonialsApi.submit(payload)
       } catch (e) {
-        throw normalizeHttpError(e) as ApiError
+        throw normalizeHttpError(e)
       }
     },
     onSuccess: () => {
-      // New testimonial is pending moderation, but stats
-      // may update if auto-approved in the future
-      queryClient.invalidateQueries({
-        queryKey: qk.testimonialStats(),
-      })
+      queryClient.invalidateQueries({ queryKey: qk.testimonialStats() })
     },
   })
 
 export const replyToTestimonialMutationOptions = () =>
-  mutationOptions({
+  mutationOptions<ReplyOutput, ApiError, { id: ReplyId; data: ReplyInput }>({
     mutationKey: ['testimonials', 'reply'],
-    mutationFn: async (vars: { id: number; data: ReplySubmission }) => {
+    mutationFn: async (vars) => {
       try {
         return await testimonialsApi.reply(vars.id, vars.data)
       } catch (e) {
-        throw normalizeHttpError(e) as ApiError
+        throw normalizeHttpError(e)
       }
     },
     onSuccess: () => {
-      // Reply is pending, but invalidate list so approved
-      // replies show up once moderated
-      queryClient.invalidateQueries({
-        queryKey: ['testimonials'],
-      })
+      queryClient.invalidateQueries({ queryKey: ['testimonials'] })
     },
   })

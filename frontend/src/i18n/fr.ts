@@ -43,12 +43,15 @@ export default {
       byAppointment: "Uniquement sur rendez-vous",
       approachLabel: "Mon approche",
     },
-    services: {
-      title: "Services",
-      subtitle: "Massage bien-être adapté à vos besoins",
-      slide: "GLISSER",
-      mostPopular: "Le plus populaire",
-    },
+   services: {
+  title: "Services",
+  subtitle: "Massage bien-être adapté à vos besoins",
+  slide: "GLISSER",
+  mostPopular: "Le plus populaire",
+  hero: {
+    label: "Aperçu des services",
+  },
+},
     review: {
       trigger: "Laisser un avis",
       title: "Laisser un avis",

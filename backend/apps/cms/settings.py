@@ -15,6 +15,7 @@ from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
 
 # Site-wide branding and social
 
+
 @register_setting
 class SerenitySettings(BaseSiteSetting):
     """Global site settings for brand identity and social links."""
@@ -23,6 +24,17 @@ class SerenitySettings(BaseSiteSetting):
         max_length=100,
         default="Serenity",
         help_text="Site brand name",
+    )
+    email = models.EmailField(
+        blank=True,
+        default="",
+        help_text="Public contact email address",
+    )
+    address_full = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Full street address displayed on the site",
     )
     instagram_url = models.URLField(
         blank=True,
@@ -41,7 +53,12 @@ class SerenitySettings(BaseSiteSetting):
 
     panels: ClassVar[list] = [
         MultiFieldPanel(
-            [FieldPanel("brand"), FieldPanel("business_hours")],
+            [
+                FieldPanel("brand"),
+                FieldPanel("email"),
+                FieldPanel("address_full"),
+                FieldPanel("business_hours"),
+            ],
             heading="Site Info",
         ),
         MultiFieldPanel(

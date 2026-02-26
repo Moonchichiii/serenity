@@ -16,6 +16,7 @@ from apps.core.images import (
 
 
 class HeroSlideSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
     title_en = serializers.CharField(required=False)
     title_fr = serializers.CharField(required=False)
     subtitle_en = serializers.CharField(required=False)
@@ -105,14 +106,13 @@ class HomePageSerializer(serializers.ModelSerializer):
             quality="good",
         )
 
-    def get_services_hero_poster_image(
-        self, obj: HomePage
-    ) -> dict[str, Any] | None:
-        return serialize_image(
-            obj.services_hero_poster_image,
-            sizes=SECTION_HERO_SIZES,
-            quality="good",
-        )
+    def get_services_hero_poster_image(self, obj: HomePage) -> dict[str, Any] | None:
+    return serialize_image(
+        obj.services_hero_poster_image,
+        sizes=SECTION_HERO_SIZES,
+        widths=(640, 768, 1024, 1280, 1536, 1920, 2560),
+        quality="good",
+    )
 
     def get_services_hero_video_url(
         self, obj: HomePage
@@ -135,6 +135,8 @@ class SerenitySettingsSerializer(serializers.ModelSerializer):
             "instagram_url",
             "facebook_url",
             "business_hours",
+            "email",
+            "address_full",
         )
 
 

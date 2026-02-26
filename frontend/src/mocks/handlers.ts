@@ -59,6 +59,11 @@ function assertSchema<T>(
 // ─── Base URL (empty = relative, works for both Vitest & Playwright) ─
 const BASE = "";
 
+// ─── Approved testimonial ID set (O(1) membership check) ────────
+const approvedTestimonialIds = new Set(
+  testimonialListFixture.map((t) => t.id)
+);
+
 export const handlers: HttpHandler[] = [
   // ── Flow 1: CMS Hydrated ─────────────────────────────────────
   http.get(`${BASE}/api/homepage/hydrated/`, ({ request }) => {
@@ -72,14 +77,12 @@ export const handlers: HttpHandler[] = [
     const url = new URL(request.url);
     const start = url.searchParams.get("start");
     const end = url.searchParams.get("end");
-
     if (!start || !end) {
       return HttpResponse.json(
         { detail: "start and end params required" },
         { status: 400 }
       );
     }
-
     return HttpResponse.json(busyDaysFixture);
   }),
 
@@ -90,14 +93,12 @@ export const handlers: HttpHandler[] = [
     const date = url.searchParams.get("date");
     // serviceId may be null for non-booking vouchers — allow it
     const serviceId = url.searchParams.get("service_id");
-
     if (!date) {
       return HttpResponse.json(
         { detail: "date param required" },
         { status: 400 }
       );
     }
-
     return HttpResponse.json(freeSlotsFixture);
   }),
 
@@ -105,21 +106,28 @@ export const handlers: HttpHandler[] = [
   http.post(`${BASE}/api/contact/submit/`, async ({ request }) => {
     const body = await request.json();
     log("POST", request.url, body);
-    assertSchema(ContactSubmissionSchema, body, "/api/contact/submit/");
+    assertSchema(
+      ContactSubmissionSchema,
+      body,
+      "/api/contact/submit/"
+    );
     return HttpResponse.json(contactSuccessFixture);
   }),
 
   // ── Flow 6: Gift Voucher Purchase ─────────────────────────────
-  http.post(`${BASE}/api/vouchers/create/`, async ({ request }) => {
-    const body = await request.json();
-    log("POST", request.url, body);
-    assertSchema(
-      GiftVoucherPayloadSchema,
-      body,
-      "/api/vouchers/create/"
-    );
-    return HttpResponse.json(voucherSuccessFixture);
-  }),
+  http.post(
+    `${BASE}/api/vouchers/create/`,
+    async ({ request }) => {
+      const body = await request.json();
+      log("POST", request.url, body);
+      assertSchema(
+        GiftVoucherPayloadSchema,
+        body,
+        "/api/vouchers/create/"
+      );
+      return HttpResponse.json(voucherSuccessFixture);
+    }
+  ),
 
   // ── Flow 7: Testimonials List ─────────────────────────────────
   http.get(`${BASE}/api/testimonials/`, ({ request }) => {
@@ -159,11 +167,21 @@ export const handlers: HttpHandler[] = [
   http.post(
     `${BASE}/api/testimonials/:id/reply/`,
     async ({ request, params }) => {
-      const id = params.id;
-      if (!id || isNaN(Number(id))) {
+      const idParam = params.id;
+      const id = Number(idParam);
+
+      if (!Number.isInteger(id) || id <= 0) {
         return HttpResponse.json(
           { detail: "Invalid testimonial ID" },
           { status: 400 }
+        );
+      }
+
+      // ✅ Match backend: only approved testimonials can receive replies
+      if (!approvedTestimonialIds.has(id)) {
+        return HttpResponse.json(
+          { error: "Témoignage introuvable" },
+          { status: 404 }
         );
       }
 
@@ -174,15 +192,15 @@ export const handlers: HttpHandler[] = [
         body,
         `/api/testimonials/${id}/reply/`
       );
-      return HttpResponse.json(replySuccessFixture);
+
+      return HttpResponse.json(replySuccessFixture, { status: 201 });
     }
   ),
 ];
 
 // ─── Error Override Factories ───────────────────────────────────
-// Use these with `server.use(...)` in individual tests to simulate
+// Use these with server.use(...) in individual tests to simulate
 // error paths without touching the happy-path defaults.
-
 export const errorOverrides = {
   contactValidationError: () =>
     http.post(`${BASE}/api/contact/submit/`, () =>
@@ -206,7 +224,10 @@ export const errorOverrides = {
   voucherRateLimit: () =>
     http.post(`${BASE}/api/vouchers/create/`, () =>
       HttpResponse.json(
-        { detail: "Rate limit exceeded. Please try again later." },
+        {
+          detail:
+            "Rate limit exceeded. Please try again later.",
+        },
         { status: 429 }
       )
     ),
@@ -224,6 +245,15 @@ export const errorOverrides = {
       HttpResponse.json(
         { detail: "Something went wrong." },
         { status: 500 }
+      )
+    ),
+
+  // Force 404 even for fixture-valid IDs (test the error UI path)
+  replyNotFound: () =>
+    http.post(`${BASE}/api/testimonials/:id/reply/`, () =>
+      HttpResponse.json(
+        { error: "Témoignage introuvable" },
+        { status: 404 }
       )
     ),
 
