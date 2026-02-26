@@ -8,11 +8,10 @@ from apps.cms.pages import HomePage
 from apps.cms.settings import GiftSettings, SerenitySettings
 from apps.core.images import (
     HERO_SIZES,
+    IMG_WIDTHS_HERO,
     SECTION_HERO_SIZES,
     serialize_image,
 )
-
-# ── Orderable serializers ───────────────────────────────────────────
 
 
 class HeroSlideSerializer(serializers.Serializer):
@@ -27,6 +26,7 @@ class HeroSlideSerializer(serializers.Serializer):
         return serialize_image(
             getattr(obj, "image", None),
             sizes=HERO_SIZES,
+            widths=IMG_WIDTHS_HERO,
             quality="good",
         )
 
@@ -40,9 +40,6 @@ class SpecialtySerializer(serializers.Serializer):
         return serialize_image(getattr(obj, "image", None))
 
 
-# ── HomePage serializer ────────────────────────────────────────────
-
-
 class HomePageSerializer(serializers.ModelSerializer):
     hero_slides = HeroSlideSerializer(many=True, read_only=True)
     hero_image = serializers.SerializerMethodField()
@@ -54,7 +51,6 @@ class HomePageSerializer(serializers.ModelSerializer):
     class Meta:
         model = HomePage
         fields = (
-            # Hero
             "id",
             "slug",
             "hero_title_en",
@@ -63,7 +59,6 @@ class HomePageSerializer(serializers.ModelSerializer):
             "hero_subtitle_fr",
             "hero_image",
             "hero_slides",
-            # About
             "about_title_en",
             "about_title_fr",
             "about_subtitle_en",
@@ -79,7 +74,6 @@ class HomePageSerializer(serializers.ModelSerializer):
             "about_specialties_title_en",
             "about_specialties_title_fr",
             "specialties",
-            # Services hero
             "services_hero_title_en",
             "services_hero_title_fr",
             "services_hero_pricing_label_en",
@@ -103,28 +97,26 @@ class HomePageSerializer(serializers.ModelSerializer):
         return serialize_image(
             obj.hero_image,
             sizes=HERO_SIZES,
+            widths=IMG_WIDTHS_HERO,  # ✅ hero background is full-bleed
             quality="good",
         )
 
-    def get_services_hero_poster_image(self, obj: HomePage) -> dict[str, Any] | None:
-    return serialize_image(
-        obj.services_hero_poster_image,
-        sizes=SECTION_HERO_SIZES,
-        widths=(640, 768, 1024, 1280, 1536, 1920, 2560),
-        quality="good",
-    )
-
-    def get_services_hero_video_url(
+    def get_services_hero_poster_image(
         self, obj: HomePage
-    ) -> str | None:
+    ) -> dict[str, Any] | None:
+        return serialize_image(
+            obj.services_hero_poster_image,
+            sizes=SECTION_HERO_SIZES,
+            widths=IMG_WIDTHS_HERO,  # ✅ poster can also benefit on large screens
+            quality="good",
+        )
+
+    def get_services_hero_video_url(self, obj: HomePage) -> str | None:
         f = getattr(obj, "services_hero_video_file", None)
         try:
             return f.url if f else None
         except Exception:
             return None
-
-
-# ── Globals serializers ─────────────────────────────────────────────
 
 
 class SerenitySettingsSerializer(serializers.ModelSerializer):
@@ -176,9 +168,7 @@ class GiftSettingsSerializer(serializers.ModelSerializer):
             "email_closing_fr",
         )
 
-    def get_floating_icon(
-        self, obj: GiftSettings
-    ) -> dict[str, Any] | None:
+    def get_floating_icon(self, obj: GiftSettings) -> dict[str, Any] | None:
         return serialize_image(
             obj.floating_icon,
             widths=(150, 300),
@@ -186,9 +176,7 @@ class GiftSettingsSerializer(serializers.ModelSerializer):
             quality="eco",
         )
 
-    def get_voucher_image(
-        self, obj: GiftSettings
-    ) -> dict[str, Any] | None:
+    def get_voucher_image(self, obj: GiftSettings) -> dict[str, Any] | None:
         return serialize_image(
             obj.voucher_image,
             sizes="(max-width: 640px) 90vw, 600px",
