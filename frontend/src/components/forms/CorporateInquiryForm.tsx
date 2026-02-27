@@ -1,9 +1,8 @@
 import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
-import { z } from "zod";
 import {
   Building2,
   CalendarDays,
@@ -21,6 +20,7 @@ import {
   createCorporateInquirySchema,
   corporateEventTypes,
   type CorporateEventType,
+  type CorporateInquiryFormValues,
 } from "@/types/forms/corporateInquiry";
 
 interface CorporateInquiryFormProps {
@@ -36,10 +36,6 @@ export function CorporateInquiryForm({
   const [showMore, setShowMore] = useState(false);
 
   const schema = useMemo(() => createCorporateInquirySchema(t), [t]);
-  // Use ReturnType to get the static type definition directly from the factory function
-  // rather than inferring from the runtime variable 'schema', which can be unstable.
-  type FormValues = z.infer<ReturnType<typeof createCorporateInquirySchema>>;
-
   const submit = useSubmitContact();
 
   const {
@@ -47,7 +43,7 @@ export function CorporateInquiryForm({
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<FormValues>({
+  } = useForm<CorporateInquiryFormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       eventType: defaultEventType,
@@ -59,7 +55,7 @@ export function CorporateInquiryForm({
   const inputPlain =
     "w-full px-4 py-2.5 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors";
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit: SubmitHandler<CorporateInquiryFormValues> = async (data) => {
     const phone = data.phone?.trim() || undefined;
     const notes = data.notes?.trim() || undefined;
 
@@ -265,7 +261,15 @@ export function CorporateInquiryForm({
               type="number"
               className={input}
               placeholder="25"
-              {...register("attendees")}
+              inputMode="numeric"
+              {...register("attendees", {
+                setValueAs: (v) => {
+                  if (v === "" || v === null || v === undefined)
+                    return undefined;
+                  const n = typeof v === "number" ? v : Number(v);
+                  return Number.isNaN(n) ? undefined : n;
+                },
+              })}
             />
           </div>
           {errors.attendees && (

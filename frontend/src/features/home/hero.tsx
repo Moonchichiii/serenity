@@ -15,9 +15,20 @@ const SLIDE_INTERVAL_MS = 5_000
 const SLIDE_TRANSITION_MS = 1_000
 const SCALE_TRANSITION_MS = 6_000
 
-const FADE_UP: Transition = { duration: 0.6 }
-const FADE_UP_DELAY_1: Transition = { duration: 0.6, delay: 0.3 }
-const FADE_UP_DELAY_2: Transition = { duration: 0.6, delay: 0.4 }
+const FADE_UP: Transition = {
+  duration: 0.7,
+  ease: [0.16, 1, 0.3, 1],
+}
+const FADE_UP_DELAY_1: Transition = {
+  duration: 0.7,
+  delay: 0.25,
+  ease: [0.16, 1, 0.3, 1],
+}
+const FADE_UP_DELAY_2: Transition = {
+  duration: 0.7,
+  delay: 0.4,
+  ease: [0.16, 1, 0.3, 1],
+}
 
 // ── Types ────────────────────────────────────────────────────────────
 type SupportedLang = 'fr' | 'en'
@@ -278,18 +289,22 @@ const SlideImage: FC<{
 )
 
 const BackgroundFallback: FC = () => (
-  <div className="absolute inset-0 bg-stone-200" aria-hidden="true" />
+  <div className="absolute inset-0 bg-gradient-hero" aria-hidden="true" />
 )
 
 const Overlays: FC = () => (
   <>
-    <div className="absolute inset-0 bg-stone-100/60 mix-blend-hard-light" />
-    <div className="absolute inset-0 bg-gradient-to-t from-stone-50/90 via-stone-50/40 to-stone-50/20" />
+    {/* Warm translucent overlay — lets images breathe */}
+    <div className="absolute inset-0 bg-cream/35 mix-blend-multiply" />
+    {/* Gentle warm gradient for text legibility */}
+    <div className="absolute inset-0 bg-gradient-to-t from-porcelain/80 via-porcelain/30 to-transparent" />
+    {/* Subtle noise for tactile quality */}
+    <div className="noise-texture-subtle" aria-hidden="true" />
   </>
 )
 
 const BottomFade: FC = () => (
-  <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-32 bg-gradient-to-t from-background to-transparent" />
+  <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-40 bg-gradient-to-t from-porcelain via-porcelain/60 to-transparent" />
 )
 
 // ── Main component ──────────────────────────────────────────────────
@@ -329,22 +344,32 @@ export const Hero: FC = () => {
         <Overlays />
       </div>
 
+      {/* Decorative organic blobs */}
+      <div
+        className="organic-blob organic-blob-terracotta absolute -top-32 -right-32 h-96 w-96 z-[1]"
+        aria-hidden="true"
+      />
+      <div
+        className="organic-blob organic-blob-honey absolute -bottom-24 -left-24 h-80 w-80 z-[1]"
+        aria-hidden="true"
+      />
+
       {/* Content */}
       <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center px-4 text-center lg:px-8">
         <motion.h1
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 16, filter: 'blur(8px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
           transition={FADE_UP}
-          className="mb-6 max-w-5xl font-serif text-5xl font-medium text-stone-900 drop-shadow-sm md:text-6xl lg:text-7xl"
+          className="text-editorial-xl mb-6 max-w-5xl text-charcoal drop-shadow-sm"
         >
           {content.title}
         </motion.h1>
 
         <motion.p
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={FADE_UP_DELAY_1}
-          className="mx-auto mb-10 max-w-3xl text-lg leading-relaxed text-stone-600 md:text-2xl"
+          className="mx-auto mb-10 max-w-3xl text-lg leading-relaxed text-charcoal-light md:text-2xl"
         >
           {content.subtitle}
         </motion.p>
@@ -359,7 +384,7 @@ export const Hero: FC = () => {
             size="lg"
             onClick={handlePrivateClick}
             aria-label={content.ctaPrivate}
-            className="h-14 w-full rounded-full px-8 text-base shadow-warm transition-transform hover:-translate-y-1 hover:shadow-elevated sm:w-auto"
+            className="btn-primary h-14 w-full rounded-full px-8 text-base sm:w-auto"
           >
             {content.ctaPrivate}
           </Button>
@@ -370,7 +395,7 @@ export const Hero: FC = () => {
             type="button"
             onClick={handleCorporateClick}
             aria-label={content.ctaCorporate}
-            className="h-14 w-full rounded-full px-8 text-base shadow-sm transition-transform hover:-translate-y-1 hover:shadow-md sm:w-auto"
+            className="btn-secondary h-14 w-full rounded-full px-8 text-base sm:w-auto"
           >
             {content.ctaCorporate}
           </Button>

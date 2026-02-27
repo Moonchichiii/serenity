@@ -17,22 +17,23 @@ import ResponsiveImage from '@/components/ui/ResponsiveImage'
 import type { ResponsiveImage as ResponsiveImageType } from '@/types/api'
 
 // ── Constants ────────────────────────────────────────────────────────
-const FALLBACK_POSTER =
-  'https://res.cloudinary.com/dbzlaawqt/image/upload/v1762274193/poster_zbbwz5.webp'
-
 const FADE_UP_TRANSITION: Transition = {
   duration: 0.8,
-  ease: [0.22, 1, 0.36, 1],
+  ease: [0.16, 1, 0.3, 1],
 }
 
 const BENEFIT_STAGGER: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
+  show: { transition: { staggerChildren: 0.12, delayChildren: 0.25 } },
 }
 
 const BENEFIT_ITEM: Variants = {
-  hidden: { opacity: 0, x: 20 },
-  show: { opacity: 1, x: 0, transition: { duration: 0.5 } },
+  hidden: { opacity: 0, x: 24 },
+  show: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+  },
 }
 
 const VIDEO_BREAKPOINTS = [
@@ -83,8 +84,8 @@ function getPrefersReducedMotion(): boolean {
 }
 
 function resolveVideoWidth(): number {
-  const width =
-    typeof window !== 'undefined' ? window.innerWidth || 1920 : 1920
+  if (typeof window === 'undefined') return DEFAULT_VIDEO_RESOLUTION
+  const width = window.innerWidth
 
   for (const bp of VIDEO_BREAKPOINTS) {
     if (width <= bp.maxWidth) return bp.resolution
@@ -94,7 +95,8 @@ function resolveVideoWidth(): number {
 
 // ── Hooks ────────────────────────────────────────────────────────────
 function useHeroContent(): HeroContent | null {
-  const { t, i18n } = useTranslation()
+  // Only destructure i18n, t is not used here
+  const { i18n } = useTranslation()
   const page = useCMSPage()
   const lang = resolveLang(i18n.language)
 
@@ -121,24 +123,25 @@ function useHeroContent(): HeroContent | null {
       benefits,
       hasPrice: Boolean(priceLabel || price),
       hasCTA: Boolean(cta),
-      tagline:
-        lang === 'fr' ? 'Bien-être au travail' : 'Corporate Wellness',
+      tagline: lang === 'fr' ? 'Bien-être au travail' : 'Corporate Wellness',
     }
   }, [page, lang])
 }
 
 function useCaptionsBlob(): string | undefined {
-  const url = useMemo(() => {
-    if (typeof window === 'undefined') return undefined
-    const blob = new Blob(['WEBVTT\n\n'], { type: 'text/vtt' })
-    return URL.createObjectURL(blob)
-  }, [])
+  const [url, setUrl] = useState<string | undefined>(undefined)
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const blob = new Blob(['WEBVTT\n\n'], { type: 'text/vtt' })
+    const objectUrl = URL.createObjectURL(blob)
+    setUrl(objectUrl)
+
     return () => {
-      if (url) URL.revokeObjectURL(url)
+      URL.revokeObjectURL(objectUrl)
     }
-  }, [url])
+  }, [])
 
   return url
 }
@@ -152,22 +155,23 @@ function useVideoSource(shouldDisable: boolean): string | null {
 
   useEffect(() => {
     if (shouldDisable) {
-      queueMicrotask(() => setSrc(null))
+      setSrc(null)
       return
     }
 
     if (directUrl) {
-      queueMicrotask(() => setSrc(directUrl))
+      setSrc(directUrl)
       return
     }
 
     if (!publicId) {
-      queueMicrotask(() => setSrc(null))
+      setSrc(null)
       return
     }
 
-    const update = () =>
+    const update = () => {
       setSrc(getOptimizedVideoUrl(publicId, resolveVideoWidth(), 'eco'))
+    }
 
     update()
     window.addEventListener('resize', update)
@@ -204,7 +208,7 @@ const PosterBackground: FC<{
   <ResponsiveImage
     image={image}
     alt=""
-    aria-hidden="true"
+    priority
     className="absolute inset-0 h-full w-full object-cover object-center"
   />
 )
@@ -212,13 +216,14 @@ const PosterBackground: FC<{
 const Overlays: FC = () => (
   <>
     <div
-      className="absolute inset-0 bg-stone-900/40 backdrop-contrast-[.90]"
+      className="absolute inset-0 bg-sage-900/50 backdrop-contrast-[.90]"
       aria-hidden="true"
     />
     <div
-      className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"
+      className="absolute inset-0 bg-gradient-to-t from-sage-900/80 via-sage-900/25 to-transparent"
       aria-hidden="true"
     />
+    <div className="noise-texture-subtle" aria-hidden="true" />
   </>
 )
 
@@ -227,9 +232,9 @@ const PriceBadge: FC<{ label: string; price: string }> = ({
   price,
 }) => (
   <div className="flex justify-center lg:justify-start">
-    <div className="inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/10 px-6 py-2 shadow-lg backdrop-blur-md">
+    <div className="glass-dark inline-flex items-center gap-3 rounded-full px-6 py-2.5 shadow-elevated">
       {label && (
-        <span className="text-xs font-bold uppercase tracking-wide text-stone-200 sm:text-sm">
+        <span className="text-xs font-bold uppercase tracking-wide text-sand-200 sm:text-sm">
           {label}
         </span>
       )}
@@ -246,16 +251,14 @@ const BenefitItem: FC<{
   text: string
   variants: Variants | undefined
 }> = ({ text, variants }) => (
-  <li>
-    <motion.div variants={variants} className="group flex items-start gap-4">
-      <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-sm transition-colors group-hover:bg-white/20">
-        <Check className="h-5 w-5" />
-      </div>
-      <span className="text-lg font-medium leading-snug text-stone-100 drop-shadow-md sm:text-xl">
-        {text}
-      </span>
-    </motion.div>
-  </li>
+  <motion.li variants={variants} className="group flex items-start gap-4">
+    <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/10 text-terracotta-300 backdrop-blur-sm transition-colors group-hover:bg-white/20 group-hover:text-terracotta-200">
+      <Check className="h-5 w-5" />
+    </div>
+    <span className="text-lg font-medium leading-snug text-sand-100 drop-shadow-md sm:text-xl">
+      {text}
+    </span>
+  </motion.li>
 )
 
 const BenefitsList: FC<{
@@ -264,7 +267,7 @@ const BenefitsList: FC<{
   itemVariants: Variants | undefined
 }> = ({ benefits, variants, itemVariants }) => (
   <div className="relative pl-0 lg:pl-10">
-    <div className="absolute left-0 top-2 bottom-2 hidden w-px bg-gradient-to-b from-transparent via-white/30 to-transparent lg:block" />
+    <div className="hidden absolute left-0 top-2 bottom-2 w-px bg-gradient-to-b from-transparent via-terracotta-400/40 to-transparent lg:block" />
     <motion.ul
       variants={variants}
       initial="hidden"
@@ -293,7 +296,7 @@ export const ServicesHero: FC = () => {
 
   const page = useCMSPage()
   const poster = page?.services_hero_poster_image
-  const posterUrl = poster?.src ?? FALLBACK_POSTER
+  const posterUrl = poster?.src
 
   const benefitStagger = reduceMotion ? undefined : BENEFIT_STAGGER
   const benefitItem = reduceMotion ? undefined : BENEFIT_ITEM
@@ -309,7 +312,7 @@ export const ServicesHero: FC = () => {
       className="relative flex min-h-[85vh] items-center justify-center overflow-hidden py-12 lg:min-h-[85vh]"
     >
       {/* Background */}
-      {videoSrc ? (
+      {videoSrc && posterUrl ? (
         <VideoBackground
           src={videoSrc}
           posterUrl={posterUrl}
@@ -334,11 +337,11 @@ export const ServicesHero: FC = () => {
           <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-20">
             {/* Left — headline + price + CTA */}
             <div className="flex flex-col gap-6 text-center lg:text-left">
-              <span className="hidden text-xs font-bold uppercase tracking-[0.2em] text-sage-200 drop-shadow-md lg:block">
+              <span className="badge-warm hidden lg:inline-flex self-start">
                 {content.tagline}
               </span>
 
-              <h2 className="font-serif text-4xl font-medium leading-[1.15] text-white drop-shadow-lg sm:text-5xl md:text-6xl">
+              <h2 className="text-editorial-xl text-white drop-shadow-lg">
                 {toSentenceCase(content.title)}
               </h2>
 
@@ -355,7 +358,7 @@ export const ServicesHero: FC = () => {
                     variant="default"
                     size="lg"
                     aria-label={content.cta || 'Contact Corporate'}
-                    className="h-14 w-full rounded-full border border-white/10 px-10 text-base font-semibold tracking-wide shadow-lg transition-all hover:shadow-white/20 sm:w-auto"
+                    className="btn-accent h-14 w-full rounded-full px-10 text-base font-semibold tracking-wide sm:w-auto"
                     onClick={() =>
                       open('corporate', {
                         defaultEventType: 'corporate',
@@ -370,11 +373,13 @@ export const ServicesHero: FC = () => {
 
             {/* Right — benefits */}
             {content.benefits.length > 0 && (
-              <BenefitsList
-                benefits={content.benefits}
-                variants={benefitStagger}
-                itemVariants={benefitItem}
-              />
+              <div className="mt-8 w-full lg:mt-0">
+                <BenefitsList
+                  benefits={content.benefits}
+                  variants={benefitStagger}
+                  itemVariants={benefitItem}
+                />
+              </div>
             )}
           </div>
         </motion.div>

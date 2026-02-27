@@ -1,9 +1,10 @@
 @import 'tailwindcss';
 @import "react-calendar/dist/Calendar.css";
 
-/* Theme */
+/* ============================================
+   FONTS
+   ============================================ */
 
-/* DM Serif Display for headings */
 @font-face {
   font-family: 'DM Serif Display';
   font-style: normal;
@@ -12,7 +13,6 @@
   src: url('/fonts/DMSerifDisplay-Regular.woff2') format('woff2');
 }
 
-/* Plus Jakarta Sans for body/UI */
 @font-face {
   font-family: 'Plus Jakarta Sans';
   font-style: normal;
@@ -29,45 +29,74 @@
   src: url('/fonts/PlusJakartaSans-Medium.woff2') format('woff2');
 }
 
+/* ============================================
+   THEME
+   ============================================ */
+
 @theme {
-/* Typography Mapping */
+  /* --- Typography --- */
   --font-heading: 'DM Serif Display', Georgia, serif;
   --font-serif: 'DM Serif Display', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
 
-  --color-sage-50: #f6f8f7;
-  --color-sage-100: #e8ede9;
-  --color-sage-200: #dce5df;
-  --color-sage-300: #b8c9bd;
-  --color-sage-400: #92ad9a;
-  --color-sage-500: #6d9177;
-  --color-sage-600: #577460;
+  /* --- Sage (Primary Green) ---
+     Extended range. 700+ are the new CTA-grade greens.
+     sage-700 on porcelain (#faf7f2) ≈ 5.8:1 — passes WCAG AA.
+     sage-800 on porcelain ≈ 8.2:1 — passes WCAG AAA. */
+  --color-sage-50: #f4f7f5;
+  --color-sage-100: #e3ebe6;
+  --color-sage-200: #d0ddd5;
+  --color-sage-300: #a8c2b0;
+  --color-sage-400: #7fa88b;
+  --color-sage-500: #5e8a6a;
+  --color-sage-600: #4a7256;
+  --color-sage-700: #3a5c45;
+  --color-sage-800: #2b4633;
+  --color-sage-900: #1e3325;
 
-  --color-sand-50: #faf9f7;
-  --color-sand-100: #f5f3f0;
-  --color-sand-200: #ede7e1;
-  --color-sand-300: #e0d5ca;
-  --color-sand-400: #d1c0b0;
+  /* --- Sand (Warm Neutrals) ---
+     Shifted warmer — more peach/almond, less grey. */
+  --color-sand-50: #fdfaf6;
+  --color-sand-100: #f7f2eb;
+  --color-sand-200: #efe6da;
+  --color-sand-300: #e3d4c3;
+  --color-sand-400: #d4bfa8;
 
-  --color-porcelain: #f7f6f4;
-  --color-charcoal: #2e2e2e;
+  /* --- Porcelain / Background ---
+     Was #f7f6f4 (cool). Now #faf7f2 (distinctly warm cream). */
+  --color-porcelain: #faf7f2;
+  --color-cream: #f5f0e7;
+
+  /* --- Charcoal ---
+     Shifted from pure neutral #2e2e2e to warm charcoal. */
+  --color-charcoal: #2c2a26;
+  --color-charcoal-light: #4a4740;
+
   --color-champagne: #d6c6a1;
 
-  --color-terracotta-50: #fef5f3;
-  --color-terracotta-100: #fde8e3;
-  --color-terracotta-200: #fbd5cb;
-  --color-terracotta-300: #f7b5a3;
-  --color-terracotta-400: #f28d70;
-  --color-terracotta-500: #e86a47;
-  --color-terracotta-600: #d4532f;
+  /* --- Terracotta (Warm Accent) ---
+     Extended to 700. This is now an ACTIVE accent, not dead weight.
+     terracotta-600 on porcelain ≈ 4.1:1 (AA large text).
+     terracotta-700 on porcelain ≈ 5.6:1 (AA normal text). */
+  --color-terracotta-50: #fef5f2;
+  --color-terracotta-100: #fde7e1;
+  --color-terracotta-200: #fad0c5;
+  --color-terracotta-300: #f5ab97;
+  --color-terracotta-400: #ee7e62;
+  --color-terracotta-500: #e05e3c;
+  --color-terracotta-600: #c94b2c;
+  --color-terracotta-700: #a03b22;
 
+  /* --- Honey (Secondary Warm) ---
+     Now actively used for badges, highlights, decorative warmth. */
   --color-honey-50: #fefbf3;
-  --color-honey-100: #fdf5e3;
-  --color-honey-200: #fbecc7;
-  --color-honey-300: #f7dc9f;
-  --color-honey-400: #f2c76b;
-  --color-honey-500: #ebb03d;
+  --color-honey-100: #fdf4e0;
+  --color-honey-200: #faeabc;
+  --color-honey-300: #f5d88e;
+  --color-honey-400: #efc25a;
+  --color-honey-500: #e5a82e;
 
+  /* --- Lavender (Subtle Tertiary) --- */
   --color-lavender-50: #f9f7fc;
   --color-lavender-100: #f0ecf8;
   --color-lavender-200: #e4dcf3;
@@ -75,74 +104,95 @@
   --color-lavender-400: #a990d9;
   --color-lavender-500: #8b6bc9;
 
-  --color-background: var(--color-porcelain);
-  --color-foreground: var(--color-charcoal);
+  /* --- Rose (New — soft feminine warmth) --- */
+  --color-rose-50: #fdf5f5;
+  --color-rose-100: #fae8e8;
+  --color-rose-200: #f3d0d0;
+  --color-rose-300: #e5a8a8;
 
-  --color-primary: var(--color-sage-200);
-  --color-primary-foreground: var(--color-charcoal);
+  /* --- Warm Grey (replaces cold stone references) ---
+     These replace the cold stone-* palette for text/borders. */
+  --color-warm-grey-100: #f0ece6;
+  --color-warm-grey-200: #e2dbd2;
+  --color-warm-grey-300: #cec4b8;
+  --color-warm-grey-400: #a89e92;
+  --color-warm-grey-500: #857a6e;
+  --color-warm-grey-600: #635a50;
+  --color-warm-grey-700: #4a4239;
 
+  /* ============================================
+     SEMANTIC TOKENS
+     ============================================ */
+
+  /* Primary = dark sage green — CTA-grade */
+  --color-primary: var(--color-sage-700);
+  --color-primary-foreground: #faf7f2;
+
+  /* Secondary = warm sand */
   --color-secondary: var(--color-sand-200);
   --color-secondary-foreground: var(--color-charcoal);
 
-  --color-accent: var(--color-terracotta-300);
-  --color-accent-foreground: var(--color-charcoal);
+  /* Accent = terracotta — the "pop" color */
+  --color-accent: var(--color-terracotta-500);
+  --color-accent-foreground: #ffffff;
 
-  --color-muted: var(--color-sand-200);
-  --color-muted-foreground: #717171;
+  /* Muted text/surfaces */
+  --color-muted: var(--color-sand-100);
+  --color-muted-foreground: var(--color-warm-grey-500);
 
-  --color-card: #ffffff;
+  /* Cards */
+  --color-card: #fffefa;
   --color-card-foreground: var(--color-charcoal);
 
-  --color-border: var(--color-sage-200);
-  --color-input: var(--color-sage-200);
-  --color-ring: var(--color-sage-400);
-
-  --radius-sm: 0.5rem;
-  --color-lavender-50: #f9f7fc;
-  --color-lavender-100: #f0ecf8;
-  --color-lavender-200: #e4dcf3;
-  --color-lavender-300: #c9b9e8;
-  --color-lavender-400: #a990d9;
-  --color-lavender-500: #8b6bc9;
-
+  /* Background/foreground */
   --color-background: var(--color-porcelain);
   --color-foreground: var(--color-charcoal);
 
-  --color-primary: var(--color-sage-200);
-  --color-primary-foreground: var(--color-charcoal);
+  /* Borders / inputs */
+  --color-border: var(--color-warm-grey-200);
+  --color-input: var(--color-warm-grey-200);
+  --color-ring: var(--color-sage-500);
 
-  --color-secondary: var(--color-sand-200);
-  --color-secondary-foreground: var(--color-charcoal);
-
-  --color-accent: var(--color-terracotta-300);
-  --color-accent-foreground: var(--color-charcoal);
-
-  --color-muted: var(--color-sand-200);
-  --color-muted-foreground: #717171;
-
-  --color-card: #ffffff;
-  --color-card-foreground: var(--color-charcoal);
-
-  --color-border: var(--color-sage-200);
-  --color-input: var(--color-sage-200);
-  --color-ring: var(--color-sage-400);
-
+  /* ============================================
+     RADII
+     ============================================ */
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
   --radius-xl: 1.25rem;
   --radius-2xl: 1.5rem;
   --radius-3xl: 2rem;
+  --radius-organic: 60% 40% 50% 50% / 50% 60% 40% 50%;
 
-  --shadow-soft: 0 4px 20px -4px rgba(46, 46, 46, 0.08);
-  --shadow-elevated: 0 10px 40px -10px rgba(46, 46, 46, 0.12);
-  --shadow-warm: 0 8px 24px -8px rgba(232, 106, 71, 0.15);
+  /* ============================================
+     SHADOWS — warm-tinted, actually visible
+     ============================================ */
+  --shadow-soft: 0 4px 24px -6px rgba(44, 42, 38, 0.1),
+    0 2px 8px -2px rgba(44, 42, 38, 0.06);
+  --shadow-elevated: 0 12px 48px -12px rgba(44, 42, 38, 0.14),
+    0 4px 16px -4px rgba(44, 42, 38, 0.08);
+  --shadow-warm: 0 8px 32px -8px rgba(224, 94, 60, 0.18),
+    0 4px 12px -4px rgba(224, 94, 60, 0.1);
+  --shadow-glow-sage: 0 8px 32px -8px rgba(58, 92, 69, 0.2),
+    0 4px 12px -4px rgba(58, 92, 69, 0.1);
+  --shadow-card: 0 2px 12px -3px rgba(44, 42, 38, 0.08),
+    0 1px 4px -1px rgba(44, 42, 38, 0.05);
+  --shadow-card-hover: 0 8px 32px -8px rgba(44, 42, 38, 0.12),
+    0 4px 12px -2px rgba(44, 42, 38, 0.06);
 
-  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* ============================================
+     TRANSITIONS
+     ============================================ */
+  --transition-smooth: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Base */
+/* ============================================
+   BASE LAYER
+   ============================================ */
+
 @layer base {
   * {
     border-color: var(--color-border);
@@ -159,10 +209,17 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-heading);
+    color: var(--color-charcoal);
   }
 
   ::selection {
@@ -170,20 +227,30 @@
     color: var(--color-charcoal);
   }
 
+  /* Warm-toned scrollbar */
   ::-webkit-scrollbar {
-    width: 10px;
+    width: 8px;
   }
   ::-webkit-scrollbar-track {
     background-color: var(--color-sand-100);
   }
   ::-webkit-scrollbar-thumb {
-    background-color: var(--color-terracotta-300);
+    background: linear-gradient(
+      180deg,
+      var(--color-terracotta-300),
+      var(--color-terracotta-400)
+    );
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background-color: var(--color-terracotta-400);
+    background: linear-gradient(
+      180deg,
+      var(--color-terracotta-400),
+      var(--color-terracotta-500)
+    );
   }
 
+  /* Focus ring — warm and visible */
   *:focus-visible {
     outline: none;
     box-shadow:
@@ -191,40 +258,176 @@
       0 0 0 4px var(--color-terracotta-400);
   }
 }
+
+/* Content-visibility for off-screen sections */
 .cv-auto {
   content-visibility: auto;
   contain-intrinsic-size: 1px 1000px;
 }
 
-/* Utilities */
+/* ============================================
+   UTILITY LAYER
+   ============================================ */
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 
+  /* --- Background Gradients ---
+     Each gradient is distinct and usable */
+
+  /* Hero: warm multi-stop — cream to sand to honey tint */
   .bg-gradient-hero {
     background: linear-gradient(
-      135deg,
-      var(--color-sage-200) 0%,
-      var(--color-sand-200) 50%,
-      var(--color-honey-100) 100%
+      145deg,
+      var(--color-cream) 0%,
+      var(--color-sand-100) 40%,
+      var(--color-honey-50) 100%
     );
   }
+
+  /* Warm vertical fade — sections that need soft warmth */
   .bg-gradient-warm {
     background: linear-gradient(
       180deg,
       var(--color-porcelain) 0%,
+      var(--color-cream) 50%,
       var(--color-sand-50) 100%
     );
   }
+
+  /* Accent gradient — terracotta→honey for buttons, badges, highlights */
   .bg-gradient-accent {
     background: linear-gradient(
       135deg,
-      var(--color-terracotta-300) 0%,
-      var(--color-honey-300) 100%
+      var(--color-terracotta-400) 0%,
+      var(--color-terracotta-500) 50%,
+      var(--color-honey-400) 100%
     );
   }
 
+  /* Sage gradient — for primary CTA hover / emphasis */
+  .bg-gradient-sage {
+    background: linear-gradient(
+      135deg,
+      var(--color-sage-700) 0%,
+      var(--color-sage-600) 100%
+    );
+  }
+
+  /* Subtle section tint — barely-there warmth, not invisible */
+  .bg-tint-cream {
+    background-color: var(--color-cream);
+  }
+
+  .bg-tint-sand {
+    background-color: var(--color-sand-50);
+  }
+
+  .bg-tint-sage {
+    background-color: var(--color-sage-50);
+  }
+
+  /* --- Noise Texture Overlay ---
+     Apply to a pseudo-element or an overlay div for subtle tactile grain.
+     Usage: add a child div with .noise-texture inside any section. */
+  .noise-texture {
+    position: absolute;
+    inset: 0;
+    opacity: 0.3;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 128px 128px;
+    mix-blend-mode: multiply;
+    z-index: 0;
+  }
+
+  .noise-texture-subtle {
+    position: absolute;
+    inset: 0;
+    opacity: 0.15;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 128px 128px;
+    mix-blend-mode: multiply;
+    z-index: 0;
+  }
+
+  /* --- Organic Shape Decorators ---
+     Decorative blobs for behind images/sections. Position with absolute. */
+  .organic-blob {
+    border-radius: var(--radius-organic);
+    filter: blur(40px);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .organic-blob-sage {
+    background: radial-gradient(
+      ellipse,
+      var(--color-sage-200),
+      transparent 70%
+    );
+  }
+
+  .organic-blob-terracotta {
+    background: radial-gradient(
+      ellipse,
+      var(--color-terracotta-100),
+      transparent 70%
+    );
+  }
+
+  .organic-blob-honey {
+    background: radial-gradient(
+      ellipse,
+      var(--color-honey-100),
+      transparent 70%
+    );
+  }
+
+  /* --- Section Spacing Variants ---
+     Replace monotonous section-padding with rhythm variety. */
+  .section-compact {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+  .section-normal {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+  .section-spacious {
+    padding-top: 7rem;
+    padding-bottom: 7rem;
+  }
+  .section-generous {
+    padding-top: 10rem;
+    padding-bottom: 10rem;
+  }
+
+  @media (min-width: 768px) {
+    .section-compact {
+      padding-top: 4rem;
+      padding-bottom: 4rem;
+    }
+    .section-normal {
+      padding-top: 6rem;
+      padding-bottom: 6rem;
+    }
+    .section-spacious {
+      padding-top: 9rem;
+      padding-bottom: 9rem;
+    }
+    .section-generous {
+      padding-top: 12rem;
+      padding-bottom: 12rem;
+    }
+  }
+
+  /* --- Shadows --- */
   .shadow-soft {
     box-shadow: var(--shadow-soft);
   }
@@ -234,15 +437,31 @@
   .shadow-warm {
     box-shadow: var(--shadow-warm);
   }
+  .shadow-glow-sage {
+    box-shadow: var(--shadow-glow-sage);
+  }
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
 
+  /* --- Hover Lifts --- */
   .hover-lift {
     transition: var(--transition-smooth);
   }
   .hover-lift:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .hover-lift-warm {
+    transition: var(--transition-smooth);
+  }
+  .hover-lift-warm:hover {
+    transform: translateY(-3px);
     box-shadow: var(--shadow-warm);
   }
 
+  /* --- Underline Accent --- */
   .warm-underline {
     position: relative;
     display: inline-block;
@@ -251,7 +470,7 @@
     content: '';
     position: absolute;
     left: 0;
-    bottom: -2px;
+    bottom: -3px;
     width: 0;
     height: 2px;
     background: linear-gradient(
@@ -259,24 +478,179 @@
       var(--color-terracotta-400),
       var(--color-honey-400)
     );
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 1px;
+    transition: width 0.4s var(--ease-out-expo);
   }
   .warm-underline:hover::after {
     width: 100%;
   }
 
-  .glass {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+  /* --- Decorative Underline (static, for headings) --- */
+  .heading-accent::after {
+    content: '';
+    display: block;
+    width: 3rem;
+    height: 3px;
+    margin-top: 0.75rem;
+    border-radius: 2px;
+    background: linear-gradient(
+      90deg,
+      var(--color-terracotta-400),
+      var(--color-honey-300)
+    );
   }
 
+  .heading-accent-center::after {
+    content: '';
+    display: block;
+    width: 3rem;
+    height: 3px;
+    margin-top: 0.75rem;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 2px;
+    background: linear-gradient(
+      90deg,
+      var(--color-terracotta-400),
+      var(--color-honey-300)
+    );
+  }
+
+  /* --- Glass (warm tinted) --- */
+  .glass {
+    background: rgba(250, 247, 242, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(250, 247, 242, 0.5);
+  }
+
+  .glass-dark {
+    background: rgba(44, 42, 38, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* --- Organic Image Masks ---
+     Apply to image wrappers for non-rectangular crops. */
+  .mask-organic-1 {
+    clip-path: polygon(
+      0% 8%,
+      2% 0%,
+      95% 0%,
+      100% 5%,
+      100% 92%,
+      97% 100%,
+      5% 100%,
+      0% 95%
+    );
+    border-radius: 2rem;
+  }
+
+  .mask-organic-2 {
+    border-radius: 30% 70% 60% 40% / 50% 40% 60% 50%;
+  }
+
+  /* --- Curved Section Dividers ---
+     These are meant to be placed as full-width elements between sections. */
+  .divider-curve-down {
+    width: 100%;
+    height: 60px;
+    overflow: hidden;
+    line-height: 0;
+  }
+  .divider-curve-down svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  @media (min-width: 768px) {
+    .divider-curve-down {
+      height: 80px;
+    }
+  }
+
+  /* --- Editorial Typography Helpers --- */
+  .text-editorial-xl {
+    font-family: var(--font-heading);
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  .text-editorial-lg {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+
+  .text-editorial-md {
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    line-height: 1.15;
+  }
+
+  .text-pull-quote {
+    font-family: var(--font-heading);
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    line-height: 1.4;
+    font-style: italic;
+    color: var(--color-warm-grey-600);
+  }
+
+  /* --- Badge Styles --- */
+  .badge-warm {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.875rem;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    background-color: var(--color-terracotta-50);
+    color: var(--color-terracotta-600);
+    border: 1px solid var(--color-terracotta-200);
+  }
+
+  .badge-sage {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.875rem;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    background-color: var(--color-sage-50);
+    color: var(--color-sage-700);
+    border: 1px solid var(--color-sage-200);
+  }
+
+  .badge-honey {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.875rem;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    background-color: var(--color-honey-50);
+    color: var(--color-warm-grey-700);
+    border: 1px solid var(--color-honey-200);
+  }
+
+  /* --- Safe Area --- */
   .pb-safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom, 20px);
   }
 }
 
-/* Animations */
+/* ============================================
+   KEYFRAME ANIMATIONS — with variety
+   ============================================ */
+
+/* Basics */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -285,16 +659,18 @@
     opacity: 1;
   }
 }
+
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(24px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
+
 @keyframes slideInLeft {
   from {
     opacity: 0;
@@ -305,6 +681,7 @@
     transform: translateX(0);
   }
 }
+
 @keyframes slideInRight {
   from {
     opacity: 0;
@@ -315,6 +692,44 @@
     transform: translateX(0);
   }
 }
+
+/* New: Scale in (softer than slide — good for cards) */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* New: Blur in (dreamlike entrance — good for hero, images) */
+@keyframes blurIn {
+  from {
+    opacity: 0;
+    filter: blur(10px);
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+/* New: Reveal up (clip-path entrance — editorial feel) */
+@keyframes revealUp {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Decorative */
 @keyframes float {
   0%,
   100% {
@@ -325,7 +740,19 @@
   }
 }
 
-/* --- UPDATED PULSE ANIMATION FOR FLOATING BUTTON --- */
+@keyframes floatGentle {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-6px) rotate(1deg);
+  }
+  66% {
+    transform: translateY(-3px) rotate(-0.5deg);
+  }
+}
+
 @keyframes pulse-warm {
   0%,
   100% {
@@ -338,6 +765,35 @@
   }
 }
 
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.4;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* New: Shimmer (for loading skeletons or accents) */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* --- Animation Classes --- */
 .animate-fade-in {
   animation: fadeIn 0.6s ease-out forwards;
 }
@@ -350,97 +806,174 @@
 .animate-slide-in-right {
   animation: slideInRight 0.5s ease-out forwards;
 }
+.animate-scale-in {
+  animation: scaleIn 0.5s var(--ease-out-expo) forwards;
+}
+.animate-blur-in {
+  animation: blurIn 0.7s var(--ease-out-expo) forwards;
+}
+.animate-reveal-up {
+  animation: revealUp 0.7s var(--ease-out-expo) forwards;
+}
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+.animate-float-gentle {
+  animation: floatGentle 5s ease-in-out infinite;
 }
 .animate-pulse-warm {
   animation: pulse-warm 2s ease-in-out infinite;
 }
+.animate-breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-sand-100) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
 
-/* Components */
+/* ============================================
+   COMPONENT STYLES
+   ============================================ */
+
+/* Links */
 a {
-  transition: color 0.2s ease-in-out;
+  transition: color 0.25s ease-in-out;
 }
 a:hover {
   color: var(--color-terracotta-500);
 }
 
+/* --- Buttons ---
+   Primary: dark sage, confident, AA-compliant.
+   On hover → terracotta warmth. */
 .btn-primary {
-  background-color: var(--color-charcoal);
+  background-color: var(--color-sage-700);
   color: var(--color-porcelain);
+  border: 2px solid var(--color-sage-700);
   transition: var(--transition-smooth);
 }
 .btn-primary:hover {
-  background-color: var(--color-terracotta-500);
-  box-shadow: var(--shadow-warm);
+  background-color: var(--color-sage-800);
+  border-color: var(--color-sage-800);
+  box-shadow: var(--shadow-glow-sage);
 }
 
+/* Secondary: warm outline / light fill */
 .btn-secondary {
-  background-color: var(--color-sage-200);
-  color: var(--color-charcoal);
+  background-color: transparent;
+  color: var(--color-sage-700);
+  border: 2px solid var(--color-sage-300);
   transition: var(--transition-smooth);
 }
 .btn-secondary:hover {
-  background-color: var(--color-terracotta-300);
+  background-color: var(--color-sage-50);
+  border-color: var(--color-sage-500);
 }
 
-.card {
-  background-color: var(--color-card);
-  border: 2px solid color-mix(in oklab, var(--color-sage-200) 30%, transparent);
-  border-radius: 1.5rem;
-  box-shadow: var(--shadow-soft);
+/* Accent: terracotta for high-priority CTAs */
+.btn-accent {
+  background: linear-gradient(
+    135deg,
+    var(--color-terracotta-500) 0%,
+    var(--color-terracotta-400) 100%
+  );
+  color: #ffffff;
+  border: 2px solid transparent;
   transition: var(--transition-smooth);
 }
-.card:hover {
-  border-color: color-mix(
-    in oklab,
-    var(--color-terracotta-300) 50%,
-    transparent
+.btn-accent:hover {
+  background: linear-gradient(
+    135deg,
+    var(--color-terracotta-600) 0%,
+    var(--color-terracotta-500) 100%
   );
   box-shadow: var(--shadow-warm);
 }
 
+/* --- Cards --- */
+.card {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-warm-grey-200);
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow-card);
+  transition: var(--transition-smooth);
+}
+.card:hover {
+  border-color: var(--color-sage-300);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}
+
+/* Card variant: warm accent on hover */
+.card-warm {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-warm-grey-200);
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow-card);
+  transition: var(--transition-smooth);
+}
+.card-warm:hover {
+  border-color: var(--color-terracotta-200);
+  box-shadow: var(--shadow-warm);
+  transform: translateY(-2px);
+}
+
+/* --- Inputs --- */
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: var(--color-terracotta-300);
-  box-shadow: 0 0 0 2px var(--color-terracotta-200);
+  border-color: var(--color-sage-400);
+  box-shadow: 0 0 0 3px rgba(58, 92, 69, 0.12);
   outline: none;
 }
 
+/* --- Spinner --- */
 .spinner {
   border: 3px solid var(--color-sand-200);
   border-top-color: var(--color-terracotta-400);
   animation: spin 0.6s linear infinite;
 }
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 
+/* --- Testimonial Card ---
+   Warm gradient border — this should ACTUALLY be applied to testimonial cards. */
 .testimonial-card-bg {
-  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.6) inset;
-  background-image: linear-gradient(#fff, #fff),
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.6) inset,
+    var(--shadow-card);
+  background-image: linear-gradient(var(--color-card), var(--color-card)),
     linear-gradient(
       135deg,
-      rgba(242, 199, 107, 0.35),
-      rgba(242, 141, 112, 0.35),
-      rgba(201, 185, 232, 0.35)
+      var(--color-terracotta-200) 0%,
+      var(--color-honey-200) 50%,
+      var(--color-lavender-200) 100%
     );
   background-origin: border-box;
   background-clip: padding-box, border-box;
+  border: 2px solid transparent;
+  border-radius: 1.25rem;
 }
 
+/* --- Avatar Ring (conic gradient) --- */
 .conic-avatar {
+  padding: 2px;
   background: conic-gradient(
     from 180deg,
     var(--color-terracotta-300),
     var(--color-honey-300),
-    var(--color-lavender-300)
+    var(--color-lavender-300),
+    var(--color-terracotta-300)
   );
+  border-radius: 9999px;
 }
 
+/* --- Scrollbar Hiding --- */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -448,4 +981,24 @@ select:focus {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* ============================================
+   SECTION TRANSITION HELPERS
+   ============================================ */
+
+/* Pre-footer gradient — place before footer to create smooth dark transition */
+.footer-transition {
+  background: linear-gradient(
+    180deg,
+    var(--color-porcelain) 0%,
+    var(--color-sage-900) 100%
+  );
+  height: 8rem;
+}
+
+@media (min-width: 768px) {
+  .footer-transition {
+    height: 12rem;
+  }
 }

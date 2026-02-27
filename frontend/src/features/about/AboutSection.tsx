@@ -30,21 +30,21 @@ const SECRET_TRIGGER_WINDOW_MS = 900
 
 const SPRING_TRANSITION: Transition = {
   type: 'spring',
-  stiffness: 220,
-  damping: 22,
+  stiffness: 200,
+  damping: 24,
 }
 
-const FADE_IN_TRANSITION = { duration: 0.6 } as const
+const FADE_IN_TRANSITION = { duration: 0.7, ease: [0.16, 1, 0.3, 1] } as const
 
 const GRID_STAGGER: Variants = {
   hidden: {},
   show: {
-    transition: { staggerChildren: 0.08, delayChildren: 0.12 },
+    transition: { staggerChildren: 0.1, delayChildren: 0.15 },
   },
 }
 
 const CARD_ENTRANCE: Variants = {
-  hidden: { opacity: 0, y: 18, scale: 0.97 },
+  hidden: { opacity: 0, y: 24, scale: 0.96 },
   show: { opacity: 1, y: 0, scale: 1, transition: SPRING_TRANSITION },
 }
 
@@ -96,6 +96,25 @@ const GUIDES: readonly GuideItem[] = [
   },
 ] as const
 
+// Guide accent colors for unique treatment per item
+const GUIDE_ACCENTS = [
+  {
+    bg: 'bg-terracotta-50',
+    border: 'border-terracotta-200',
+    icon: 'text-terracotta-500',
+  },
+  {
+    bg: 'bg-honey-50',
+    border: 'border-honey-200',
+    icon: 'text-honey-500',
+  },
+  {
+    bg: 'bg-sage-50',
+    border: 'border-sage-200',
+    icon: 'text-sage-600',
+  },
+] as const
+
 // ── Utilities ────────────────────────────────────────────────────────
 function stripHtml(html?: string | null): string {
   if (!html) return ''
@@ -128,7 +147,7 @@ function buildSpecialtiesGrid(
 
 // ── Sub-components ───────────────────────────────────────────────────
 const MapFallback: FC = () => (
-  <div className="w-full h-[220px] animate-pulse rounded-2xl bg-stone-100" />
+  <div className="w-full h-[220px] animate-pulse rounded-2xl bg-sand-100" />
 )
 
 const MapCard: FC<{ address: string }> = ({ address }) => (
@@ -137,27 +156,37 @@ const MapCard: FC<{ address: string }> = ({ address }) => (
       <LocationMap />
     </Suspense>
     <div className="mt-3 px-1">
-      <p className="whitespace-pre-line text-xs leading-relaxed text-stone-500">
+      <p className="whitespace-pre-line text-xs leading-relaxed text-warm-grey-500">
         {address}
       </p>
     </div>
   </div>
 )
 
-const GuideEntry: FC<{ item: GuideItem }> = ({ item }) => {
+const GuideEntry: FC<{ item: GuideItem; index: number }> = ({
+  item,
+  index,
+}) => {
   const { t } = useTranslation()
   const Icon = item.icon
+  const accent = GUIDE_ACCENTS[index % GUIDE_ACCENTS.length]
 
   return (
     <div className="flex items-start gap-4">
-      <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sage-50">
-        <Icon className="h-5 w-5 text-sage-700" />
+      <div
+        className={cn(
+          'mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border',
+          accent.bg,
+          accent.border,
+        )}
+      >
+        <Icon className={cn('h-5 w-5', accent.icon)} />
       </div>
       <div>
-        <h4 className="mb-0.5 font-semibold text-foreground">
+        <h4 className="mb-0.5 font-semibold text-charcoal">
           {t(item.titleKey)}
         </h4>
-        <p className="text-sm leading-relaxed text-foreground/70">
+        <p className="text-sm leading-relaxed text-warm-grey-500">
           {t(item.bodyKey)}
         </p>
       </div>
@@ -173,7 +202,7 @@ const SpecialtyCard: FC<{
   <motion.div
     variants={variants}
     className={cn(
-      'group relative overflow-hidden rounded-[24px] border border-stone-100 bg-stone-100 shadow-sm',
+      'group relative overflow-hidden rounded-2xl bg-sand-100 shadow-card',
       'transition-all duration-500 hover:-translate-y-1 hover:shadow-warm',
       index === WIDE_CARD_INDEX ? 'col-span-2 aspect-[2/1]' : 'aspect-square',
     )}
@@ -186,8 +215,8 @@ const SpecialtyCard: FC<{
         sizes="(max-width:1024px) 50vw, 33vw"
       />
     )}
-    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-transparent to-transparent p-5">
-      <span className="font-serif text-lg font-medium tracking-wide text-white">
+    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-charcoal/60 via-transparent to-transparent p-5">
+      <span className="font-serif text-lg font-medium tracking-wide text-white drop-shadow-md">
         {item.title}
       </span>
     </div>
@@ -198,12 +227,12 @@ const CertificationBadge: FC<{ label: string; value: string }> = ({
   label,
   value,
 }) => (
-  <div className="inline-flex items-center gap-3 border-l-2 border-sage-300 py-2 pl-1 pr-6">
+  <div className="badge-sage inline-flex items-center gap-3 py-2.5 pl-3 pr-5">
     <div>
-      <p className="text-sm font-bold uppercase tracking-wider text-foreground">
+      <p className="text-sm font-bold uppercase tracking-wider text-sage-700">
         {label}
       </p>
-      <p className="text-xs text-foreground/60">{value}</p>
+      <p className="text-xs text-warm-grey-500">{value}</p>
     </div>
   </div>
 )
@@ -212,16 +241,18 @@ const ContactCard: FC<{ onContact: () => void }> = ({ onContact }) => {
   const { t } = useTranslation()
 
   return (
-    <div className="mb-8 flex items-center justify-between rounded-[24px] border border-sage-100/50 bg-sage-50/50 p-6 shadow-sm transition-shadow hover:shadow-md">
+    <div className="card-warm mb-8 flex items-center justify-between p-6">
       <div className="flex items-center gap-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sage-600 shadow-sm">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-terracotta-50 text-terracotta-500 shadow-sm">
           <Mail className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-foreground">
+          <p className="text-sm font-semibold text-charcoal">
             {t('contact.form.title')}
           </p>
-          <p className="text-xs text-stone-500">{t('about.byAppointment')}</p>
+          <p className="text-xs text-warm-grey-400">
+            {t('about.byAppointment')}
+          </p>
         </div>
       </div>
       <Button
@@ -231,7 +262,7 @@ const ContactCard: FC<{ onContact: () => void }> = ({ onContact }) => {
           defaultValue: 'Open contact form',
         })}
         onClick={onContact}
-        className="text-sage-700 hover:bg-sage-100 hover:text-sage-800"
+        className="text-terracotta-500 hover:bg-terracotta-50 hover:text-terracotta-600"
       >
         <ArrowRight className="h-5 w-5" />
       </Button>
@@ -254,13 +285,21 @@ function useAboutContent(): AboutContent | null {
       cmsText(pick(fr, en) as string | undefined, fallback)
 
     return {
-      title: txt(cmsData.about_title_fr, cmsData.about_title_en, t('about.title')),
+      title: txt(
+        cmsData.about_title_fr,
+        cmsData.about_title_en,
+        t('about.title'),
+      ),
       subtitle: txt(
         cmsData.about_subtitle_fr,
         cmsData.about_subtitle_en,
         t('about.subtitle'),
       ),
-      intro: txt(cmsData.about_intro_fr, cmsData.about_intro_en, t('about.intro')),
+      intro: txt(
+        cmsData.about_intro_fr,
+        cmsData.about_intro_en,
+        t('about.intro'),
+      ),
       certification: txt(
         cmsData.about_certification_fr,
         cmsData.about_certification_en,
@@ -282,8 +321,12 @@ function useAboutContent(): AboutContent | null {
         t('about.specialtiesTitle'),
       ),
       studioDescription: t('about.studioDescriptionFallback'),
-      address: globals?.site?.address_full?.trim() || t('footer.addressFull'),
-      specialtiesGrid: buildSpecialtiesGrid(cmsData.specialties ?? [], lang),
+      address:
+        globals?.site?.address_full?.trim() || t('footer.addressFull'),
+      specialtiesGrid: buildSpecialtiesGrid(
+        cmsData.specialties ?? [],
+        lang,
+      ),
     }
   }, [cmsData, globals, lang, t])
 }
@@ -308,14 +351,25 @@ export const About: FC = () => {
   return (
     <section
       id="about"
-      className="section-padding relative overflow-hidden bg-background"
+      className="section-spacious relative overflow-hidden bg-tint-cream"
       aria-labelledby="about-heading"
     >
-      <div className="container mx-auto px-4 sm:px-6 md:px-12 lg:px-16">
+      {/* Decorative background elements */}
+      <div className="noise-texture-subtle" aria-hidden="true" />
+      <div
+        className="organic-blob organic-blob-sage absolute -top-40 -right-40 h-[500px] w-[500px]"
+        aria-hidden="true"
+      />
+      <div
+        className="organic-blob organic-blob-terracotta absolute -bottom-32 -left-32 h-80 w-80"
+        aria-hidden="true"
+      />
+
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 md:px-12 lg:px-16">
         <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-20">
           {/* ─── LEFT COLUMN ─────────────────────────────────── */}
           <motion.article
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={FADE_IN_TRANSITION}
@@ -325,12 +379,12 @@ export const About: FC = () => {
             <div className="mb-10 space-y-6">
               <h2
                 id="about-heading"
-                className="min-h-[1em] font-serif text-4xl text-foreground sm:text-5xl"
+                className="text-editorial-lg min-h-[1em] text-charcoal heading-accent"
               >
                 {content.title}
               </h2>
 
-              <div className="min-h-[4em] max-w-xl text-lg leading-relaxed text-foreground/80">
+              <div className="min-h-[4em] max-w-xl text-lg leading-relaxed text-warm-grey-600">
                 <div>
                   <span className="inline">{stripHtml(content.intro)}</span>
                   <span className="ml-1 inline-block align-baseline opacity-20 transition-opacity hover:opacity-100">
@@ -339,7 +393,7 @@ export const About: FC = () => {
                       times={SECRET_TRIGGER_TAPS}
                       windowMs={SECRET_TRIGGER_WINDOW_MS}
                     >
-                      <span className="cursor-default select-none text-[10px] font-bold uppercase tracking-widest text-[#2e2e2e]">
+                      <span className="cursor-default select-none text-[10px] font-bold uppercase tracking-widest text-charcoal">
                         Serenity.
                       </span>
                     </SecretTrigger>
@@ -349,13 +403,13 @@ export const About: FC = () => {
             </div>
 
             {/* Guides */}
-            <div className="mb-10 space-y-6 border-t border-stone-200/60 pt-8">
-              <h3 className="font-serif text-2xl text-foreground">
+            <div className="mb-10 space-y-6 border-t border-warm-grey-200 pt-8">
+              <h3 className="font-serif text-2xl text-charcoal">
                 {t('about.guidesTitle')}
               </h3>
               <div className="grid gap-6">
-                {GUIDES.map((item) => (
-                  <GuideEntry key={item.titleKey} item={item} />
+                {GUIDES.map((item, i) => (
+                  <GuideEntry key={item.titleKey} item={item} index={i} />
                 ))}
               </div>
             </div>
@@ -373,7 +427,7 @@ export const About: FC = () => {
               <div>
                 <Button
                   size="lg"
-                  className="shadow-warm transition-all hover:shadow-elevated"
+                  className="btn-primary rounded-full px-8 shadow-glow-sage"
                   aria-label={t('contact.open', {
                     defaultValue: 'Open contact form',
                   })}
@@ -386,13 +440,15 @@ export const About: FC = () => {
             </div>
 
             {/* Approach + Contact + Map */}
-            <div className="mt-6 border-t border-stone-200/60 pt-10">
-              <h3 className="mb-4 min-h-[1.2em] font-serif text-3xl text-foreground">
+            <div className="mt-6 border-t border-warm-grey-200 pt-10">
+              <h3 className="mb-4 min-h-[1.2em] text-editorial-md text-charcoal">
                 {content.approachTitle}
               </h3>
 
-              <div className="mb-8 space-y-4 text-base leading-relaxed text-foreground/75">
-                <p>{stripHtml(content.approachText)}</p>
+              <div className="mb-8 space-y-4">
+                <p className="text-pull-quote">
+                  {stripHtml(content.approachText)}
+                </p>
               </div>
 
               <ContactCard onContact={openContact} />
@@ -403,7 +459,7 @@ export const About: FC = () => {
           {/* ─── RIGHT COLUMN ────────────────────────────────── */}
           <aside className="hidden space-y-10 lg:sticky lg:top-24 lg:block">
             <div className="space-y-4">
-              <h3 className="px-1 font-serif text-2xl text-foreground">
+              <h3 className="px-1 font-serif text-2xl text-charcoal">
                 {content.specialtiesTitle}
               </h3>
 

@@ -17,14 +17,17 @@ import type { ResponsiveImage as ResponsiveImageType } from '@/types/api'
 import { cn } from '@/lib/utils'
 
 // ── Constants ────────────────────────────────────────────────────────
-const FADE_IN_TRANSITION: Transition = { duration: 0.6 }
+const FADE_IN_TRANSITION: Transition = {
+  duration: 0.7,
+  ease: [0.16, 1, 0.3, 1],
+}
 
 const CARD_ENTRANCE: Variants = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 24 },
   show: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, delay: i * 0.1 },
+    transition: { duration: 0.6, delay: i * 0.12, ease: [0.16, 1, 0.3, 1] },
   }),
 }
 
@@ -113,12 +116,12 @@ const PriceBadge: FC<{
 }> = ({ price, highlighted, className }) => (
   <div
     className={cn(
-      'absolute inline-flex items-center gap-1 rounded-full bg-white/95 backdrop-blur-md px-3 py-1.5 text-[11px] font-bold tracking-wide text-stone-800 shadow-sm',
-      highlighted && 'ring-2 ring-rose-200',
+      'absolute inline-flex items-center gap-1 rounded-full bg-white/95 backdrop-blur-md px-3.5 py-1.5 text-[13px] font-bold tracking-wide text-charcoal shadow-soft',
+      highlighted && 'ring-2 ring-terracotta-200',
       className,
     )}
   >
-    <Euro className="h-3 w-3 text-sage-600" />
+    <Euro className="h-3.5 w-3.5 text-sage-600" />
     {price}
   </div>
 )
@@ -137,19 +140,19 @@ const CardFooter: FC<{
   popularLabel,
   showPopular = false,
 }) => (
-  <div className="mt-auto flex items-center justify-between border-t border-stone-100 pt-5">
-    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-stone-600">
+  <div className="mt-auto flex items-center justify-between border-t border-warm-grey-100 pt-5">
+    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-warm-grey-500">
       <Clock className="h-3.5 w-3.5" />
       <span>{durationMinutes} min</span>
     </div>
 
     {showPopular && isHighlighted ? (
-      <span className="rounded bg-sage-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-sage-600">
+      <span className="badge-warm">
         {popularLabel}
       </span>
     ) : (
       !showPopular && (
-        <span className="font-serif text-sm font-semibold text-stone-900">
+        <span className="font-serif text-[13px] font-semibold text-charcoal">
           {price} €
         </span>
       )
@@ -161,7 +164,14 @@ const CardFooter: FC<{
 const MobileServiceCard: FC<{
   service: ResolvedService
 }> = ({ service }) => (
-  <article className="flex w-[85vw] shrink-0 snap-center flex-col overflow-hidden rounded-[2rem] border border-stone-100 bg-white shadow-lg shadow-stone-200/50">
+  <article
+    className={cn(
+      'flex w-[85vw] shrink-0 snap-center flex-col overflow-hidden rounded-2xl border bg-card shadow-card',
+      service.isHighlighted
+        ? 'border-terracotta-200'
+        : 'border-warm-grey-200',
+    )}
+  >
     {service.image?.src && (
       <div className="relative h-56 w-full overflow-hidden">
         <ResponsiveImage
@@ -180,10 +190,10 @@ const MobileServiceCard: FC<{
 
     <div className="flex flex-1 flex-col p-6">
       <div className="mb-6">
-        <h3 className="mb-3 font-serif text-2xl font-medium text-stone-900">
+        <h3 className="mb-3 font-serif text-2xl font-medium text-charcoal">
           {service.title}
         </h3>
-        <p className="line-clamp-4 text-sm leading-relaxed text-stone-500">
+        <p className="line-clamp-4 text-sm leading-relaxed text-warm-grey-500">
           {service.description}
         </p>
       </div>
@@ -211,8 +221,13 @@ const DesktopServiceCard: FC<{
     initial="hidden"
     whileInView="show"
     viewport={{ once: true }}
-    whileHover={{ y: -8 }}
-    className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-stone-100 bg-white shadow-xl shadow-stone-200/40 transition-all duration-500 hover:shadow-2xl hover:shadow-stone-200/60"
+    whileHover={{ y: -3 }}
+    className={cn(
+      'group relative flex flex-col overflow-hidden rounded-2xl bg-card transition-all duration-500',
+      service.isHighlighted
+        ? 'card-warm ring-1 ring-terracotta-100'
+        : 'card',
+    )}
   >
     {service.image?.src && (
       <div className="relative h-64 w-full overflow-hidden">
@@ -222,7 +237,7 @@ const DesktopServiceCard: FC<{
           className="h-full w-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
           sizes={DESKTOP_IMAGE_SIZES}
         />
-        <div className="absolute top-5 right-5 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-4 py-1.5 text-xs font-bold text-stone-800 shadow-lg backdrop-blur">
+        <div className="absolute top-5 right-5 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-4 py-1.5 text-[13px] font-bold text-charcoal shadow-soft backdrop-blur">
           <span>{service.price} €</span>
         </div>
       </div>
@@ -230,10 +245,10 @@ const DesktopServiceCard: FC<{
 
     <div className="flex flex-1 flex-col p-8">
       <div className="mb-6">
-        <h3 className="mb-3 font-serif text-2xl font-medium text-stone-900">
+        <h3 className="mb-3 font-serif text-2xl font-medium text-charcoal">
           {service.title}
         </h3>
-        <p className="text-base font-light leading-relaxed text-stone-500">
+        <p className="text-base font-light leading-relaxed text-warm-grey-500">
           {service.description}
         </p>
       </div>
@@ -254,10 +269,10 @@ const MobileCarousel: FC<{
   slideLabel: string
 }> = ({ services, slideLabel }) => (
   <div className="relative md:hidden">
-    <div className="mb-3 flex justify-end px-4">
-      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-stone-600">
+    <div className="mb-4 flex justify-end px-4">
+      <div className="badge-honey flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em]">
         <span>{slideLabel}</span>
-        <ArrowRight className="h-3 w-3" />
+        <ArrowRight className="h-3.5 w-3.5" />
       </div>
     </div>
 
@@ -290,7 +305,7 @@ const DesktopGrid: FC<{
 
 const EmptyState: FC = () => (
   <div className="py-20 text-center">
-    <p className="text-stone-500">No services available yet.</p>
+    <p className="text-warm-grey-500">No services available yet.</p>
   </div>
 )
 
@@ -308,18 +323,24 @@ export const Services: FC = () => {
   })
 
   return (
-    <div className="services-page bg-stone-50/30">
+    <div className="services-page bg-tint-sand">
       <ServicesHero />
 
       <section
         id="services"
         aria-labelledby="services-heading"
-        className="overflow-hidden pt-20 pb-16 lg:pt-32 lg:pb-20"
+        className="section-spacious relative overflow-hidden"
       >
-        <div className="container mx-auto px-4 lg:px-8">
+        {/* Decorative blob */}
+        <div
+          className="organic-blob organic-blob-terracotta absolute -top-40 right-0 h-96 w-96"
+          aria-hidden="true"
+        />
+
+        <div className="container relative z-10 mx-auto px-4 lg:px-8">
           {/* Header */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={
@@ -329,11 +350,11 @@ export const Services: FC = () => {
           >
             <h2
               id="services-heading"
-              className="mb-4 font-serif text-4xl font-medium text-stone-900 sm:text-5xl md:mb-6 md:text-6xl"
+              className="text-editorial-lg mb-4 text-charcoal md:mb-6 heading-accent md:heading-accent-center"
             >
               {t('services.title')}
             </h2>
-            <p className="text-lg leading-relaxed text-stone-600 md:mx-auto md:text-xl max-w-2xl">
+            <p className="text-lg leading-relaxed text-warm-grey-500 md:mx-auto md:text-xl max-w-2xl">
               {t('services.subtitle')}
             </p>
           </motion.div>

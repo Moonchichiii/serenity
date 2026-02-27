@@ -11,9 +11,6 @@ export const corporateEventTypes = [
 
 export type CorporateEventType = (typeof corporateEventTypes)[number];
 
-/**
- * Corporate inquiry Zod schema factory (i18n-driven).
- */
 export const createCorporateInquirySchema = (t: TFunction) =>
   z.object({
     name: z
@@ -30,31 +27,21 @@ export const createCorporateInquirySchema = (t: TFunction) =>
 
     company: z
       .string()
-      .min(
-        1,
-        t("corp.form.validation.companyRequired", "Company is required"),
-      ),
+      .min(1, t("corp.form.validation.companyRequired", "Company is required")),
 
     eventType: z.enum(corporateEventTypes),
 
     attendees: z
-  .union([
-    z.literal(""),
-    z.coerce
       .number()
       .int()
-      .min(1, { message: t("corp.form.validation.attendeesMin", "At least 1 attendee") }),
-  ])
-  .optional()
-  .transform((v) => (v === "" || v === undefined ? undefined : v)),
+      .min(1, t("corp.form.validation.attendeesMin", "At least 1 attendee"))
+      .optional(),
 
     date: z.string().optional(),
     endDate: z.string().optional(),
     duration: z.string().optional(),
     onSiteAddress: z.string().optional(),
-
     notes: z.string().optional(),
-
     budget: z.string().optional(),
     services: z.string().optional(),
   });

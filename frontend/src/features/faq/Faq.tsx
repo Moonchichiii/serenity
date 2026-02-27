@@ -16,24 +16,24 @@ import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 
 // ── Constants ────────────────────────────────────────────────────────
-const FADE_IN_TRANSITION: Transition = { duration: 0.6 }
+const FADE_IN_TRANSITION: Transition = { duration: 0.7, ease: [0.16, 1, 0.3, 1] }
 
 const SECTION_ENTRANCE: Variants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 24 },
   show: { opacity: 1, y: 0, transition: FADE_IN_TRANSITION },
 }
 
 const ITEM_STAGGER: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.15 } },
 }
 
 const ITEM_ENTRANCE: Variants = {
-  hidden: { opacity: 0, y: 12 },
+  hidden: { opacity: 0, y: 14 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { type: 'spring', stiffness: 260, damping: 24 },
+    transition: { type: 'spring', stiffness: 220, damping: 22 },
   },
 }
 
@@ -166,10 +166,10 @@ const FaqItem: FC<{
   <motion.div
     variants={variants}
     className={cn(
-      'rounded-2xl border transition-colors duration-300',
+      'rounded-2xl border transition-all duration-300',
       isOpen
-        ? 'border-sage-200/60 bg-white shadow-sm'
-        : 'border-stone-100 bg-white/60 hover:border-stone-200',
+        ? 'border-terracotta-200 bg-card shadow-soft'
+        : 'border-warm-grey-200 bg-card/60 hover:border-warm-grey-300 hover:bg-card/80',
     )}
   >
     <button
@@ -183,7 +183,7 @@ const FaqItem: FC<{
       <span
         className={cn(
           'font-serif text-lg font-medium transition-colors duration-200 sm:text-xl',
-          isOpen ? 'text-stone-900' : 'text-stone-700',
+          isOpen ? 'text-charcoal' : 'text-charcoal-light',
         )}
       >
         {item.question}
@@ -196,8 +196,8 @@ const FaqItem: FC<{
         className={cn(
           'flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors duration-200',
           isOpen
-            ? 'bg-sage-100 text-sage-700'
-            : 'bg-stone-100 text-stone-400',
+            ? 'bg-terracotta-50 text-terracotta-500'
+            : 'bg-warm-grey-100 text-warm-grey-400',
         )}
       >
         <ChevronDown className="h-4 w-4" />
@@ -218,8 +218,8 @@ const FaqItem: FC<{
           className="overflow-hidden"
         >
           <div className="px-6 pb-6 pt-0">
-            <div className="mb-3 h-px bg-gradient-to-r from-sage-200/40 via-stone-200/60 to-transparent" />
-            <p className="max-w-2xl text-base leading-relaxed text-stone-600">
+            <div className="mb-3 h-px bg-gradient-to-r from-terracotta-200/50 via-honey-200/40 to-transparent" />
+            <p className="max-w-2xl text-base leading-relaxed text-warm-grey-600">
               {item.answer}
             </p>
           </div>
@@ -240,38 +240,44 @@ const ContactCta: FC<{
       initial={reduceMotion ? false : { opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={reduceMotion ? { duration: 0 } : { duration: 0.5, delay: 0.2 }}
-      className="mt-14 flex flex-col items-center gap-5 text-center md:mt-20"
+      transition={reduceMotion ? { duration: 0 } : { duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+      className="mt-16 md:mt-24"
     >
-      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-sage-50 shadow-sm">
-        <Mail className="h-6 w-6 text-sage-600" />
-      </div>
+      <div className="card-warm mx-auto max-w-xl px-8 py-10 text-center">
+        {/* Decorative quote mark */}
+        <div
+          className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-terracotta-50 to-honey-50 shadow-soft"
+          aria-hidden="true"
+        >
+          <Mail className="h-6 w-6 text-terracotta-500" />
+        </div>
 
-      <div className="space-y-1.5">
-        <p className="font-serif text-xl font-medium text-stone-900 sm:text-2xl">
-          {t('faq.cta.title', {
-            defaultValue: "Can't find your answer?",
-          })}
-        </p>
-        <p className="text-sm text-stone-500">
-          {t('faq.cta.subtitle', {
-            defaultValue:
-              "We're here to help — reach out any time.",
-          })}
-        </p>
-      </div>
+        <div className="mb-6 space-y-2">
+          <p className="font-serif text-xl font-medium text-charcoal sm:text-2xl">
+            {t('faq.cta.title', {
+              defaultValue: "Can't find your answer?",
+            })}
+          </p>
+          <p className="text-sm text-warm-grey-500">
+            {t('faq.cta.subtitle', {
+              defaultValue:
+                "We're here to help — reach out any time.",
+            })}
+          </p>
+        </div>
 
-      <Button
-        size="lg"
-        className="shadow-warm transition-all hover:shadow-elevated"
-        aria-label={t('contact.open', {
-          defaultValue: 'Open contact form',
-        })}
-        onClick={onContact}
-      >
-        {t('faq.cta.button', { defaultValue: 'Get in touch' })}
-        <ArrowRight className="ml-2 h-4 w-4" />
-      </Button>
+        <Button
+          size="lg"
+          className="shadow-warm transition-all hover:shadow-elevated"
+          aria-label={t('contact.open', {
+            defaultValue: 'Open contact form',
+          })}
+          onClick={onContact}
+        >
+          {t('faq.cta.button', { defaultValue: 'Get in touch' })}
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
     </motion.div>
   )
 }
@@ -298,15 +304,22 @@ export const Faq: FC = () => {
     <section
       id="faq"
       aria-labelledby="faq-heading"
-      className="section-padding relative overflow-hidden bg-stone-50/40"
+      className="section-spacious relative overflow-hidden bg-tint-cream"
     >
-      {/* Decorative background */}
+      {/* Noise texture */}
+      <div className="noise-texture-subtle" aria-hidden="true" />
+
+      {/* Decorative blobs */}
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(163,177,138,0.08),transparent)]"
+        className="organic-blob organic-blob-sage absolute -top-32 -left-40 h-80 w-80"
+        aria-hidden="true"
+      />
+      <div
+        className="organic-blob organic-blob-honey absolute -bottom-24 -right-32 h-64 w-64"
         aria-hidden="true"
       />
 
-      <div className="container relative mx-auto px-4 sm:px-6 md:px-12 lg:px-16">
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 md:px-12 lg:px-16">
         {/* Header */}
         <motion.div
           variants={reduceMotion ? undefined : SECTION_ENTRANCE}
@@ -317,11 +330,11 @@ export const Faq: FC = () => {
         >
           <h2
             id="faq-heading"
-            className="mb-4 font-serif text-4xl font-medium text-stone-900 sm:text-5xl"
+            className="text-editorial-lg mb-4 text-charcoal heading-accent-center"
           >
             {content.title}
           </h2>
-          <p className="mx-auto max-w-xl text-lg leading-relaxed text-stone-600">
+          <p className="mx-auto max-w-xl text-lg leading-relaxed text-warm-grey-500">
             {content.subtitle}
           </p>
         </motion.div>
