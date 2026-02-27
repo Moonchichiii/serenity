@@ -1,5 +1,3 @@
-// features/home/Hero.tsx
-
 import { useCallback, useEffect, useMemo, useState, type FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, type Transition } from 'framer-motion'
@@ -10,10 +8,7 @@ import CookieConsent from '@/components/ui/CookieConsent'
 import { useModal } from '@/components/modal/useModal'
 import { useCMSPage } from '@/hooks/useCMS'
 import { cn } from '@/lib/utils'
-import type {
-  RenderableImage,
-  WagtailHeroSlide,
-} from '@/types/api'
+import type { RenderableImage, WagtailHeroSlide } from '@/types/api'
 
 // ── Constants ────────────────────────────────────────────────────────
 const SLIDE_INTERVAL_MS = 5_000
@@ -142,13 +137,6 @@ function useHeroSlides(): HeroSlidesResult {
 function useAutoAdvance(count: number): number {
   const [active, setActive] = useState(0)
 
-  // Reset if count shrinks (CMS hydration / language switch)
-  useEffect(() => {
-    if (count > 0 && active >= count) {
-      setActive(0)
-    }
-  }, [active, count])
-
   useEffect(() => {
     if (count < 2) return
 
@@ -181,7 +169,9 @@ function useAutoAdvance(count: number): number {
     }
   }, [count])
 
-  return active
+  // Clamp to valid range so a shrinking count never yields an OOB index.
+  // The next interval tick will naturally produce a valid value via % count.
+  return count > 0 ? active % count : 0
 }
 
 /**
@@ -215,11 +205,7 @@ function useHeroContent(
     // Only attempt slide-level copy for real carousel slides
     const slideTitle = isCarousel
       ? nonEmpty(
-          pickLocalized(
-            lang,
-            activeSlide?.title_fr,
-            activeSlide?.title_en,
-          ),
+          pickLocalized(lang, activeSlide?.title_fr, activeSlide?.title_en),
         )
       : undefined
 

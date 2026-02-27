@@ -9,8 +9,14 @@ import toast from 'react-hot-toast'
 import { useModal } from '@/components/modal/useModal'
 
 const schema = z.object({
-  username: z.string().min(2, { message: 'Minimum 2 characters' }).min(1, { message: 'Username is required' }),
-  password: z.string().min(6, { message: 'Minimum 6 characters' }).min(1, { message: 'Password is required' }),
+  username: z
+    .string()
+    .min(2, { message: 'Minimum 2 characters' })
+    .min(1, { message: 'Username is required' }),
+  password: z
+    .string()
+    .min(6, { message: 'Minimum 6 characters' })
+    .min(1, { message: 'Password is required' }),
 })
 
 type FormData = z.infer<typeof schema>
@@ -48,7 +54,7 @@ export default function CMSLoginModalScreen() {
       }
     }
 
-    fetchSessionData()
+    void fetchSessionData()
   }, [])
 
   const onSubmit = async (data: FormData) => {
@@ -90,12 +96,12 @@ export default function CMSLoginModalScreen() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
-        <h2 className="text-lg sm:text-xl font-heading font-semibold text-charcoal">
+        <h2 className="font-heading text-lg font-semibold text-charcoal sm:text-xl">
           CMS Login
         </h2>
         <button
           onClick={close}
-          className="text-sm underline text-charcoal/70 hover:text-charcoal"
+          className="text-sm text-charcoal/70 underline hover:text-charcoal"
           type="button"
         >
           Close
@@ -117,7 +123,7 @@ export default function CMSLoginModalScreen() {
             >
               <Button>Open CMS</Button>
             </a>
-            <Button variant="outline" onClick={onLogout}>
+            <Button variant="outline" onClick={() => void onLogout()}>
               Log out
             </Button>
           </div>
@@ -125,36 +131,44 @@ export default function CMSLoginModalScreen() {
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-charcoal mb-1">Username</label>
+            <label className="mb-1 block text-sm font-medium text-charcoal">
+              Username
+            </label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40" />
+              <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-charcoal/40" />
               <input
                 {...register('username')}
                 type="text"
                 autoComplete="username"
                 placeholder="your-username"
-                className="w-full pl-9 pr-3 py-2 rounded-xl border-2 border-sage-200 focus:border-terracotta-300 focus:ring-2 focus:ring-terracotta-200"
+                className="w-full rounded-xl border-2 border-sage-200 py-2 pl-9 pr-3 focus:border-terracotta-300 focus:ring-2 focus:ring-terracotta-200"
               />
             </div>
             {errors.username?.message && (
-              <p className="text-sm text-terracotta-500 mt-1">{errors.username.message}</p>
+              <p className="mt-1 text-sm text-terracotta-500">
+                {errors.username.message}
+              </p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-charcoal mb-1">Password</label>
+            <label className="mb-1 block text-sm font-medium text-charcoal">
+              Password
+            </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40" />
+              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-charcoal/40" />
               <input
                 {...register('password')}
                 type="password"
                 autoComplete="current-password"
                 placeholder="••••••••"
-                className="w-full pl-9 pr-3 py-2 rounded-xl border-2 border-sage-200 focus:border-terracotta-300 focus:ring-2 focus:ring-terracotta-200"
+                className="w-full rounded-xl border-2 border-sage-200 py-2 pl-9 pr-3 focus:border-terracotta-300 focus:ring-2 focus:ring-terracotta-200"
               />
             </div>
             {errors.password?.message && (
-              <p className="text-sm text-terracotta-500 mt-1">{errors.password.message}</p>
+              <p className="mt-1 text-sm text-terracotta-500">
+                {errors.password.message}
+              </p>
             )}
           </div>
 

@@ -25,7 +25,7 @@ export const submitTestimonialMutationOptions = () =>
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: qk.testimonialStats() })
+      void queryClient.invalidateQueries({ queryKey: qk.testimonialStats() })
     },
   })
 
@@ -40,6 +40,6 @@ export const replyToTestimonialMutationOptions = () =>
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['testimonials'] })
+      void queryClient.invalidateQueries({ queryKey: ['testimonials'] })
     },
   })

@@ -27,7 +27,12 @@
       "@/styles/*": ["./src/styles/*"],
       "@/i18n/*": ["./src/i18n/*"],
       "@/pages/*": ["./src/pages/*"],
-      "@/api/*": ["./src/api/*"]
+      "@/api/*": ["./src/api/*"],
+      "@/utils/*": ["./src/utils/*"],
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/queries/*": ["./src/queries/*"],
+      "@/mocks/*": ["./src/mocks/*"],
+      "@/test/*": ["./src/test/*"]
     },
 
     "strict": true,
@@ -39,5 +44,12 @@
     "noUncheckedIndexedAccess": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "env.d.ts"]
+  "include": ["src", "env.d.ts"],
+  "exclude": [
+    "**/__tests__/**",
+    "**/*.test.*",
+    "**/*.spec.*",
+    "src/test/**",
+    "src/mocks/**"
+  ]
 }

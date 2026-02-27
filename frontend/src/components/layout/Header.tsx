@@ -17,7 +17,7 @@ export function Header() {
   const mobileMenuId = 'primary-mobile-menu'
 
   const changeLanguage = (lang: string) => {
-    i18n.changeLanguage(lang)
+    void i18n.changeLanguage(lang)
     setIsLangOpen(false)
   }
 

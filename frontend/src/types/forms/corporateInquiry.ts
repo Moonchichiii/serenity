@@ -37,20 +37,16 @@ export const createCorporateInquirySchema = (t: TFunction) =>
 
     eventType: z.enum(corporateEventTypes),
 
-    attendees: z.preprocess(
-      (val) => {
-        if (val === "" || val === undefined || val === null) return undefined;
-        const n = Number(val);
-        return Number.isNaN(n) ? val : n;
-      },
-      z
-        .number()
-        .min(
-          1,
-          t("corp.form.validation.attendeesMin", "At least 1 attendee"),
-        )
-        .optional(),
-    ),
+    attendees: z
+  .union([
+    z.literal(""),
+    z.coerce
+      .number()
+      .int()
+      .min(1, { message: t("corp.form.validation.attendeesMin", "At least 1 attendee") }),
+  ])
+  .optional()
+  .transform((v) => (v === "" || v === undefined ? undefined : v)),
 
     date: z.string().optional(),
     endDate: z.string().optional(),

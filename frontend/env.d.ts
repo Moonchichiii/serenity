@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   readonly VITE_CLOUDINARY_CLOUD_NAME?: string
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }

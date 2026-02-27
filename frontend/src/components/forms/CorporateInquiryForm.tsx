@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
+import { z } from "zod";
 import {
   Building2,
   CalendarDays,
@@ -19,7 +20,6 @@ import { useSubmitContact } from "@/hooks/useContact";
 import {
   createCorporateInquirySchema,
   corporateEventTypes,
-  type CorporateInquiryFormValues,
   type CorporateEventType,
 } from "@/types/forms/corporateInquiry";
 
@@ -36,6 +36,9 @@ export function CorporateInquiryForm({
   const [showMore, setShowMore] = useState(false);
 
   const schema = useMemo(() => createCorporateInquirySchema(t), [t]);
+  // Use ReturnType to get the static type definition directly from the factory function
+  // rather than inferring from the runtime variable 'schema', which can be unstable.
+  type FormValues = z.infer<ReturnType<typeof createCorporateInquirySchema>>;
 
   const submit = useSubmitContact();
 
@@ -44,7 +47,7 @@ export function CorporateInquiryForm({
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<CorporateInquiryFormValues>({
+  } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       eventType: defaultEventType,
@@ -56,7 +59,7 @@ export function CorporateInquiryForm({
   const inputPlain =
     "w-full px-4 py-2.5 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors";
 
-  const onSubmit = async (data: CorporateInquiryFormValues) => {
+  const onSubmit = async (data: FormValues) => {
     const phone = data.phone?.trim() || undefined;
     const notes = data.notes?.trim() || undefined;
 
@@ -114,7 +117,7 @@ export function CorporateInquiryForm({
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit as any)}
+      onSubmit={handleSubmit(onSubmit)}
       className="space-y-4 sm:space-y-5"
       noValidate
     >
@@ -235,15 +238,14 @@ export function CorporateInquiryForm({
             {corporateEventTypes.map((v) => (
               <option key={v} value={v}>
                 {v === "corporate" &&
-                  t("corp.form.eventType.corporate", "Corporate wellness")}
+                  t("corp.form.eventTypes.corporate", "Corporate wellness")}
                 {v === "team" &&
-                  t("corp.form.eventType.team", "Team day / offsite")}
+                  t("corp.form.eventTypes.team", "Team day / offsite")}
                 {v === "expo" &&
-                  t("corp.form.eventType.expo", "Fair / expo / booth")}
+                  t("corp.form.eventTypes.expo", "Fair / expo / booth")}
                 {v === "private" &&
-                  t("corp.form.eventType.private", "Private event")}
-                {v === "other" &&
-                  t("corp.form.eventType.other", "Other")}
+                  t("corp.form.eventTypes.private", "Private event")}
+                {v === "other" && t("corp.form.eventTypes.other", "Other")}
               </option>
             ))}
           </select>
