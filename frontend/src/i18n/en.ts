@@ -42,10 +42,13 @@ export default {
       approachLabel: "My Approach",
     },
     services: {
-  title: "Services",
-  subtitle: "Wellness massage tailored to your needs",
+  label: "WHAT WE DO",
+  title: "Our services",
+  subtitle:
+    "Explore our treatments designed to release tension and restore your natural well-being",
   slide: "SLIDE",
   mostPopular: "Most popular",
+  readMore: "Read more",
   hero: {
     label: "Services overview",
   },

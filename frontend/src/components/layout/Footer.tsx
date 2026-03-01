@@ -1,5 +1,5 @@
-import React from "react";
-import { Mail, MapPin, Clock } from "lucide-react";
+import React, { useState } from "react";
+import { Clock, Send } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import AnimatedInstagramIcon from "@/components/ui/AnimatedInstagramIcon";
 import AnimatedFacebookIcon from "@/components/ui/AnimatedFacebookIcon";
@@ -11,11 +11,11 @@ const Footer: React.FC = () => {
   const { open } = useModal();
   const globals = useCMSGlobals();
   const currentYear = new Date().getFullYear();
+  const [email, setEmail] = useState("");
 
-  // CMS-first, i18n fallback
   const brand =
     globals?.site?.brand?.trim() || "La Serenity";
-  const email =
+  const contactEmail =
     globals?.site?.email?.trim() || t("footer.email");
   const address =
     globals?.site?.address_full?.trim() || t("footer.addressFull");
@@ -28,190 +28,220 @@ const Footer: React.FC = () => {
     globals?.site?.facebook_url?.trim() ||
     "https://facebook.com/yourpage";
 
-  const linkBtnClass =
-    "cursor-pointer text-white/60 hover:text-white transition-colors" +
-    " duration-300 focus-visible:outline-none focus-visible:ring-2" +
-    " focus-visible:ring-white/40 rounded-md text-left text-[15px]" +
-    " leading-snug py-1.5";
+  const handleNav =
+    (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
+      if (
+        e.metaKey ||
+        e.ctrlKey ||
+        e.shiftKey ||
+        e.altKey ||
+        e.button !== 0
+      )
+        return;
+      e.preventDefault();
+      const id = href.replace(/^#/, "");
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.pushState(null, "", href);
+      }
+    };
+
+  const navLinkClass =
+    "text-warm-grey-300 hover:text-white transition-colors duration-200 text-sm leading-relaxed font-light";
+
+  const legalBtnClass =
+    "cursor-pointer text-warm-grey-500 hover:text-warm-grey-300 transition-colors duration-200 text-[11px] uppercase tracking-[0.12em]";
 
   return (
     <footer id="site-footer" className="relative mt-0 contain-content">
-      <div className="bg-[#1a2921] text-white pt-24 pb-36 md:pb-14">
-        <div className="container mx-auto px-6 lg:px-16">
-          {/* ── Brand hero row ── */}
-          <div
-            className="flex flex-col md:flex-row md:items-end
-              md:justify-between gap-8 pb-16
-              border-b border-white/[0.08]"
-          >
-            <div>
-              <h3
-                className="font-serif text-5xl md:text-6xl text-white
-                  tracking-wide leading-tight"
-              >
-                {brand}
-              </h3>
-              <p
-                className="mt-5 text-[15px] text-white/50 leading-relaxed
-                  max-w-md font-light"
-              >
+      <div className="relative bg-sage-900 text-white overflow-hidden">
+        <div
+          className="noise-texture-subtle opacity-[0.05]"
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 container mx-auto px-6 lg:px-20">
+          {/* ── Main content ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-12 lg:gap-24 pt-16 pb-12">
+            {/* Left — tagline + newsletter */}
+            <div className="max-w-sm">
+              <p className="text-sm text-warm-grey-300 leading-relaxed font-light">
                 {t("footer.tagline")}
               </p>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (email.trim()) {
+                    open("contact", {
+                      defaultEmail: email.trim(),
+                    });
+                    setEmail("");
+                  }
+                }}
+                className="mt-5 flex items-center"
+              >
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t("footer.emailPlaceholder", {
+                    defaultValue: "Enter your email",
+                  })}
+                  className="h-11 flex-1 rounded-l-full border border-white/10 bg-white/[0.05] px-5 text-sm text-white placeholder-warm-grey-500 outline-none transition-colors duration-200 focus:border-white/20 focus:bg-white/[0.07]"
+                />
+                <button
+                  type="submit"
+                  aria-label={t("footer.subscribe", {
+                    defaultValue: "Subscribe",
+                  })}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-terracotta-400 text-white transition-all duration-200 hover:bg-terracotta-500 hover:scale-105 -ml-px"
+                >
+                  <Send className="h-4 w-4" />
+                </button>
+              </form>
             </div>
 
-            <div className="flex items-center gap-5">
-              <AnimatedInstagramIcon
-                magnetic
-                size={48}
-                href={instagram}
-              />
-              <AnimatedFacebookIcon
-                magnetic
-                size={48}
-                href={facebook}
-              />
+            {/* Right — columns */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-10 lg:gap-14">
+              {/* Navigation */}
+              <div>
+                <h4 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/30">
+                  {t("footer.navigation", {
+                    defaultValue: "Navigation",
+                  })}
+                </h4>
+                <ul className="space-y-2.5">
+                  <li>
+                    <a
+                      href="#about"
+                      onClick={handleNav("#about")}
+                      className={navLinkClass}
+                    >
+                      {t("nav.about")}
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="#services"
+                      onClick={handleNav("#services")}
+                      className={navLinkClass}
+                    >
+                      {t("nav.services")}
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="#services-hero"
+                      onClick={handleNav("#services-hero")}
+                      className={navLinkClass}
+                    >
+                      {t("nav.corporate")}
+                    </a>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => open("contact")}
+                      className={`${navLinkClass} text-left`}
+                    >
+                      {t("nav.contact")}
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Contact */}
+              <div>
+                <h4 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/30">
+                  {t("footer.contactTitle")}
+                </h4>
+                <div className="space-y-2.5 text-sm font-light text-warm-grey-300">
+                  <p className="leading-relaxed">{address}</p>
+                  <a
+                    href={`mailto:${contactEmail}`}
+                    className="block hover:text-white transition-colors duration-200"
+                  >
+                    {contactEmail}
+                  </a>
+                  <p className="flex items-center gap-1.5 text-warm-grey-400">
+                    <Clock className="h-3 w-3 shrink-0" />
+                    <span>{hours}</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Socials */}
+              <div className="col-span-2 sm:col-span-1">
+                <h4 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/30">
+                  {t("footer.socials", {
+                    defaultValue: "Socials",
+                  })}
+                </h4>
+                <div className="flex items-center gap-3">
+                  <AnimatedInstagramIcon
+                    magnetic
+                    size={42}
+                    href={instagram}
+                  />
+                  <AnimatedFacebookIcon
+                    magnetic
+                    size={42}
+                    href={facebook}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* ── Info grid ── */}
+          {/* ── Watermark ── */}
           <div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
-              gap-12 lg:gap-16 pt-16 pb-16
-              border-b border-white/[0.08]"
+            className="w-full overflow-hidden pointer-events-none select-none -mb-[3vw]"
+            aria-hidden="true"
           >
-            {/* Contact */}
-            <div>
-              <h4
-                className="text-xs font-bold uppercase tracking-[0.2em]
-                  text-white/40 mb-7"
-              >
-                {t("footer.contactTitle")}
-              </h4>
-
-              <div className="space-y-5">
-                <a
-                  href={`mailto:${email}`}
-                  className="flex items-center gap-4 text-white/70
-                    hover:text-white transition-colors group text-[15px]"
-                >
-                  <div
-                    className="p-2.5 rounded-xl bg-white/[0.06]
-                      group-hover:bg-white/[0.12] transition-colors"
-                  >
-                    <Mail className="w-[18px] h-[18px]" />
-                  </div>
-                  <span className="font-light">{email}</span>
-                </a>
-
-                <div
-                  className="flex items-start gap-4 text-white/70
-                    text-[15px]"
-                >
-                  <div className="p-2.5 rounded-xl bg-white/[0.06]">
-                    <MapPin className="w-[18px] h-[18px]" />
-                  </div>
-                  <span className="font-light leading-relaxed pt-1">
-                    {address}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Hours */}
-            <div>
-              <h4
-                className="text-xs font-bold uppercase tracking-[0.2em]
-                  text-white/40 mb-7"
-              >
-                {t("footer.hours")}
-              </h4>
-
-              <div className="flex items-start gap-4 text-[15px]">
-                <div className="p-2.5 rounded-xl bg-white/[0.06]">
-                  <Clock className="w-[18px] h-[18px] text-white/70" />
-                </div>
-                <span className="block text-white font-medium text-base pt-1">
-                  {hours}
-                </span>
-              </div>
-            </div>
-
-            {/* Legal */}
-            <div>
-              <h4
-                className="text-xs font-bold uppercase tracking-[0.2em]
-                  text-white/40 mb-7"
-              >
-                {t("footer.info")}
-              </h4>
-
-              <ul className="flex flex-col gap-1.5">
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => open("legal", { page: "legal" })}
-                    className={linkBtnClass}
-                  >
-                    {t("footer.legalNotice")}
-                  </button>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      open("legal", { page: "privacy" })
-                    }
-                    className={linkBtnClass}
-                  >
-                    {t("footer.privacy")}
-                  </button>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => open("legal", { page: "terms" })}
-                    className={linkBtnClass}
-                  >
-                    {t("footer.cgv")}
-                  </button>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      open("legal", { page: "cookies" })
-                    }
-                    className={linkBtnClass}
-                  >
-                    {t("footer.cookies")}
-                  </button>
-                </li>
-              </ul>
-            </div>
+            <p className="font-serif text-[18vw] md:text-[15vw] lg:text-[12vw] leading-[0.82] text-center text-white/[0.03] whitespace-nowrap tracking-tight">
+              {brand}
+            </p>
           </div>
 
           {/* ── Bottom bar ── */}
-          <div
-            className="pt-8 flex flex-col md:flex-row justify-between
-              items-start md:items-center gap-4 text-[11px]
-              text-white/40 uppercase tracking-[0.15em] font-medium"
-          >
+          <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-t border-white/[0.06] py-5 text-[11px] text-warm-grey-500 uppercase tracking-[0.12em]">
             <p>
               © {currentYear} {brand}. {t("footer.allRights")}
             </p>
 
-            <p className="flex items-center gap-1.5">
-              <span>{t("footer.designedBy")}</span>
-              <a
-                href="https://www.nordiccodeworks.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/50 hover:text-white transition-colors"
-                aria-label="Nordic Code Works"
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+              <button
+                type="button"
+                onClick={() =>
+                  open("legal", { page: "privacy" })
+                }
+                className={legalBtnClass}
               >
-                Nordic Code Works
-              </a>
-            </p>
+                {t("footer.privacy")}
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  open("legal", { page: "legal" })
+                }
+                className={legalBtnClass}
+              >
+                {t("footer.legalNotice")}
+              </button>
+              <span className="flex items-center gap-1.5">
+                {t("footer.designedBy")}
+                <a
+                  href="https://www.nordiccodeworks.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-warm-grey-400 hover:text-terracotta-300 transition-colors duration-200"
+                >
+                  Nordic Code Works
+                </a>
+              </span>
+            </div>
           </div>
         </div>
       </div>

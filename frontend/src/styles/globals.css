@@ -39,10 +39,7 @@
   --font-serif: 'DM Serif Display', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
 
-  /* --- Sage (Primary Green) ---
-     Extended range. 700+ are the new CTA-grade greens.
-     sage-700 on porcelain (#faf7f2) ≈ 5.8:1 — passes WCAG AA.
-     sage-800 on porcelain ≈ 8.2:1 — passes WCAG AAA. */
+  /* --- Sage (Primary Green) --- */
   --color-sage-50: #f4f7f5;
   --color-sage-100: #e3ebe6;
   --color-sage-200: #d0ddd5;
@@ -54,30 +51,24 @@
   --color-sage-800: #2b4633;
   --color-sage-900: #1e3325;
 
-  /* --- Sand (Warm Neutrals) ---
-     Shifted warmer — more peach/almond, less grey. */
+  /* --- Sand (Warm Neutrals) --- */
   --color-sand-50: #fdfaf6;
   --color-sand-100: #f7f2eb;
   --color-sand-200: #efe6da;
   --color-sand-300: #e3d4c3;
   --color-sand-400: #d4bfa8;
 
-  /* --- Porcelain / Background ---
-     Was #f7f6f4 (cool). Now #faf7f2 (distinctly warm cream). */
+  /* --- Porcelain / Background --- */
   --color-porcelain: #faf7f2;
   --color-cream: #f5f0e7;
 
-  /* --- Charcoal ---
-     Shifted from pure neutral #2e2e2e to warm charcoal. */
+  /* --- Charcoal --- */
   --color-charcoal: #2c2a26;
   --color-charcoal-light: #4a4740;
 
-  --color-champagne: #d6c6a1;
+  --color-champagne: #e2e8a0;
 
-  /* --- Terracotta (Warm Accent) ---
-     Extended to 700. This is now an ACTIVE accent, not dead weight.
-     terracotta-600 on porcelain ≈ 4.1:1 (AA large text).
-     terracotta-700 on porcelain ≈ 5.6:1 (AA normal text). */
+  /* --- Terracotta (Warm Accent) --- */
   --color-terracotta-50: #fef5f2;
   --color-terracotta-100: #fde7e1;
   --color-terracotta-200: #fad0c5;
@@ -87,14 +78,16 @@
   --color-terracotta-600: #c94b2c;
   --color-terracotta-700: #a03b22;
 
-  /* --- Honey (Secondary Warm) ---
-     Now actively used for badges, highlights, decorative warmth. */
-  --color-honey-50: #fefbf3;
-  --color-honey-100: #fdf4e0;
-  --color-honey-200: #faeabc;
-  --color-honey-300: #f5d88e;
-  --color-honey-400: #efc25a;
-  --color-honey-500: #e5a82e;
+  /* --- Lime (Punchy Accent — replaces Honey) ---
+     Built around #F7FB7D. High-energy, electric on dark sage.
+     lime-300 on sage-900 (#1e3325) ≈ 14:1 — AAA.
+     lime-400 on sage-900 ≈ 11:1 — AAA. */
+  --color-honey-50: #fefff2;
+  --color-honey-100: #fcfed8;
+  --color-honey-200: #fafdb5;
+  --color-honey-300: #F7FB7D;
+  --color-honey-400: #e6ea4e;
+  --color-honey-500: #cdd32a;
 
   /* --- Lavender (Subtle Tertiary) --- */
   --color-lavender-50: #f9f7fc;
@@ -104,14 +97,13 @@
   --color-lavender-400: #a990d9;
   --color-lavender-500: #8b6bc9;
 
-  /* --- Rose (New — soft feminine warmth) --- */
+  /* --- Rose (Soft feminine warmth) --- */
   --color-rose-50: #fdf5f5;
   --color-rose-100: #fae8e8;
   --color-rose-200: #f3d0d0;
   --color-rose-300: #e5a8a8;
 
-  /* --- Warm Grey (replaces cold stone references) ---
-     These replace the cold stone-* palette for text/borders. */
+  /* --- Warm Grey --- */
   --color-warm-grey-100: #f0ece6;
   --color-warm-grey-200: #e2dbd2;
   --color-warm-grey-300: #cec4b8;
@@ -123,32 +115,24 @@
   /* ============================================
      SEMANTIC TOKENS
      ============================================ */
-
-  /* Primary = dark sage green — CTA-grade */
   --color-primary: var(--color-sage-700);
   --color-primary-foreground: #faf7f2;
 
-  /* Secondary = warm sand */
   --color-secondary: var(--color-sand-200);
   --color-secondary-foreground: var(--color-charcoal);
 
-  /* Accent = terracotta — the "pop" color */
   --color-accent: var(--color-terracotta-500);
   --color-accent-foreground: #ffffff;
 
-  /* Muted text/surfaces */
   --color-muted: var(--color-sand-100);
   --color-muted-foreground: var(--color-warm-grey-500);
 
-  /* Cards */
   --color-card: #fffefa;
   --color-card-foreground: var(--color-charcoal);
 
-  /* Background/foreground */
   --color-background: var(--color-porcelain);
   --color-foreground: var(--color-charcoal);
 
-  /* Borders / inputs */
   --color-border: var(--color-warm-grey-200);
   --color-input: var(--color-warm-grey-200);
   --color-ring: var(--color-sage-500);
@@ -165,7 +149,7 @@
   --radius-organic: 60% 40% 50% 50% / 50% 60% 40% 50%;
 
   /* ============================================
-     SHADOWS — warm-tinted, actually visible
+     SHADOWS
      ============================================ */
   --shadow-soft: 0 4px 24px -6px rgba(44, 42, 38, 0.1),
     0 2px 8px -2px rgba(44, 42, 38, 0.06);
@@ -263,6 +247,14 @@
 .cv-auto {
   content-visibility: auto;
   contain-intrinsic-size: 1px 1000px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  cursor: pointer;
 }
 
 /* ============================================
@@ -387,6 +379,36 @@
       var(--color-honey-100),
       transparent 70%
     );
+  }
+
+  /* ============================================
+   MODAL SCROLLBAR (Scoped – prevents bleed)
+   ============================================ */
+
+  .modal-scroll::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .modal-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .modal-scroll::-webkit-scrollbar-thumb {
+    background: var(--color-warm-grey-300);
+    border-radius: 9999px;
+  }
+
+  /* Custom select chevron */
+  select.form-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23857a6e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 20px;
+  }
+
+  /* Icon color shift on focus */
+  .group:focus-within .form-field-icon {
+    color: var(--color-sage-500);
   }
 
   /* --- Section Spacing Variants ---
@@ -1001,4 +1023,152 @@ select:focus {
   .footer-transition {
     height: 12rem;
   }
+}
+
+/* ============================================
+   SERVICE CARD – expanded hover polish
+   ============================================ */
+
+/* Ensure smooth card content reveal on all browsers */
+.service-card {
+  will-change: transform;
+  isolation: isolate;
+}
+
+/* Subtle inner glow on highlighted cards */
+.service-card.ring-2::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  box-shadow: inset 0 0 40px -12px rgba(239, 194, 90, 0.12);
+}
+
+/* ============================================
+   VIBRANT ACCENT UTILITIES
+   ============================================ */
+
+/* Gradient text — for hero headings or accents */
+.text-gradient-warm {
+  background: linear-gradient(
+    135deg,
+    var(--color-terracotta-400) 0%,
+    var(--color-honey-400) 60%,
+    var(--color-terracotta-300) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-sage {
+  background: linear-gradient(
+    135deg,
+    var(--color-sage-400) 0%,
+    var(--color-sage-300) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Vibrant section divider — horizontal gradient line */
+.divider-gradient {
+  height: 2px;
+  border: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-terracotta-300) 20%,
+    var(--color-honey-300) 50%,
+    var(--color-sage-300) 80%,
+    transparent 100%
+  );
+  opacity: 0.5;
+}
+
+/* Glow dot — for active states, nav indicators */
+.glow-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--color-terracotta-400);
+  box-shadow:
+    0 0 8px 2px rgba(224, 94, 60, 0.4),
+    0 0 20px 4px rgba(224, 94, 60, 0.15);
+}
+
+.glow-dot-sage {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--color-sage-500);
+  box-shadow:
+    0 0 8px 2px rgba(94, 138, 106, 0.4),
+    0 0 20px 4px rgba(94, 138, 106, 0.15);
+}
+
+/* Vibrant badge variant — stands out more than the subtle ones */
+.badge-vibrant {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: linear-gradient(
+    135deg,
+    var(--color-terracotta-400),
+    var(--color-honey-400)
+  );
+  color: #ffffff;
+  letter-spacing: 0.04em;
+}
+
+/* Warm underline with honey→terracotta shift */
+.warm-underline-vibrant {
+  position: relative;
+  display: inline-block;
+}
+
+.warm-underline-vibrant::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--color-honey-400),
+    var(--color-terracotta-400)
+  );
+}
+
+/* ============================================
+   CARD IMAGE OVERLAYS — richer gradients
+   ============================================ */
+
+.overlay-warm-fade {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(44, 42, 38, 0.05) 40%,
+    rgba(44, 42, 38, 0.6) 75%,
+    rgba(44, 42, 38, 0.85) 100%
+  );
+}
+
+.overlay-sage-fade {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(30, 51, 37, 0.1) 40%,
+    rgba(30, 51, 37, 0.65) 75%,
+    rgba(30, 51, 37, 0.9) 100%
+  );
 }

@@ -2,8 +2,40 @@ import type { PropsWithChildren } from "react"
 import { useCallback, useMemo, useState } from "react"
 import { ModalShell } from "./ModalShell"
 import type { ModalId, ModalPayloadMap, ModalState } from "./modalTypes"
-import { modalRegistry, modalMeta } from "./modalRegistry"
+import { modalRegistry } from "./modalRegistry"
 import { ModalContext } from "./ModalContext"
+
+// Define metadata with titles locally here
+export const modalMeta: Record<
+  ModalId,
+  { title: string; className?: string; scrollable?: boolean }
+> = {
+  contact: {
+    title: "Contact",
+    className: "max-w-lg",
+    scrollable: true,
+  },
+  corporate: {
+    title: "Corporate / Event Inquiry",
+    className: "max-w-3xl md:max-w-4xl",
+    scrollable: true,
+  },
+  gift: {
+    title: "Gift Voucher",
+    className: "max-w-lg",
+    scrollable: true,
+  },
+  legal: {
+    title: "Legal",
+    className: "max-w-4xl",
+    scrollable: true,
+  },
+  cmsLogin: {
+    title: "CMS Login",
+    className: "max-w-lg",
+    scrollable: true,
+  },
+}
 
 export function ModalProvider({ children }: PropsWithChildren) {
   const [state, setState] = useState<ModalState>({ id: null, payload: null })
@@ -45,6 +77,7 @@ export function ModalProvider({ children }: PropsWithChildren) {
       <ModalShell
         isOpen={Boolean(state.id)}
         onClose={close}
+        title={meta?.title}
         className={meta?.className}
         scrollable={meta?.scrollable}
       >

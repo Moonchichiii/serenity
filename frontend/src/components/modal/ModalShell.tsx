@@ -67,46 +67,61 @@ export function ModalShell({
 
           <motion.div
             className={cn(
-              "relative z-10 bg-white flex flex-col",
-              "shadow-elevated border-t-2 sm:border-2 border-sage-200/50",
-              "w-full sm:w-[92vw] max-w-lg",
-              "max-h-[85dvh] sm:max-h-[85vh]",
-              "rounded-t-2xl sm:rounded-2xl",
+              "relative z-10 flex flex-col overflow-hidden", // Added overflow-hidden here
+              "bg-porcelain border border-warm-grey-200/40",
+              "shadow-elevated",
+              "w-full sm:w-[92vw]",
+              "max-w-lg",
+              "max-h-[92dvh] sm:max-h-[85vh]",
+              "rounded-t-3xl sm:rounded-3xl",
               className,
             )}
-            initial={{ y: "100%", opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: "100%", opacity: 0 }}
-            transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+            initial={{ opacity: 0, scale: 0.96, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.98, y: 8 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-sage-100 shrink-0 bg-white rounded-t-2xl">
+            {/* Mobile Drag Handle */}
+            <div className="sm:hidden flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1 rounded-full bg-warm-grey-300" />
+            </div>
+
+            {/* Header */}
+            <div
+              className="flex items-center justify-between gap-3 px-5 sm:px-6 py-4
+                          bg-sand-50/80 backdrop-blur-sm
+                          border-b border-warm-grey-200/50 shrink-0"
+            >
               {title ? (
-                <h3 className="text-lg sm:text-xl font-heading font-semibold text-charcoal pr-4 truncate">
+                <h3
+                  className="font-heading text-[18px] sm:text-[20px]
+                             font-semibold text-charcoal truncate pr-4"
+                >
                   {title}
                 </h3>
               ) : (
-                <span aria-hidden />
+                <span />
               )}
 
               <button
                 onClick={onClose}
-                className="rounded-lg p-2 -mr-2 text-charcoal/60 hover:text-charcoal hover:bg-sand-100 transition"
+                className="rounded-xl p-2.5 text-charcoal/40
+                           hover:text-charcoal hover:bg-warm-grey-100
+                           transition-all duration-200 active:scale-95"
                 aria-label="Close"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" strokeWidth={1.5} />
               </button>
             </div>
 
+            {/* Scroll Container */}
             <div
               className={cn(
                 "flex-1 min-h-0 overscroll-contain",
-                scrollable ? "overflow-y-auto" : "overflow-hidden",
+                scrollable ? "overflow-y-auto modal-scroll" : "overflow-hidden",
               )}
             >
-              <div className="p-5 sm:p-6 pb-safe-area-bottom">
-                {children}
-                <div className="h-6 sm:h-2" aria-hidden="true" />
-              </div>
+              <div className="p-6 sm:p-6 pb-8 sm:pb-6">{children}</div>
             </div>
           </motion.div>
         </div>
