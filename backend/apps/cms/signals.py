@@ -1,9 +1,10 @@
+# signals.py
 # from django.core.cache import cache
 # from django.db.models.signals import post_delete, post_save
 # from django.dispatch import receiver
 # from wagtail.models import Site
 
-# from apps.cms.pages import HeroSlide, HomePage, Specialty
+# from apps.cms.pages import HeroSlide, HomePage
 # from apps.cms.settings import GiftSettings, SerenitySettings
 
 # # Import Service model for cache invalidation
@@ -43,11 +44,6 @@
 
 # @receiver([post_save, post_delete], sender=HeroSlide)
 # def clear_homepage_cache_on_slide(sender, **kwargs):
-#     _delete_homepage_cache_variants()
-
-
-# @receiver([post_save, post_delete], sender=Specialty)
-# def clear_homepage_cache_on_specialty(sender, **kwargs):
 #     _delete_homepage_cache_variants()
 
 

@@ -31,19 +31,9 @@ class HeroSlideSerializer(serializers.Serializer):
         )
 
 
-class SpecialtySerializer(serializers.Serializer):
-    title_en = serializers.CharField(required=False)
-    title_fr = serializers.CharField(required=False)
-    image = serializers.SerializerMethodField()
-
-    def get_image(self, obj: Any) -> dict[str, Any] | None:
-        return serialize_image(getattr(obj, "image", None))
-
-
 class HomePageSerializer(serializers.ModelSerializer):
     hero_slides = HeroSlideSerializer(many=True, read_only=True)
     hero_image = serializers.SerializerMethodField()
-    specialties = SpecialtySerializer(many=True, read_only=True)
 
     services_hero_poster_image = serializers.SerializerMethodField()
     services_hero_video_url = serializers.SerializerMethodField()
@@ -71,9 +61,6 @@ class HomePageSerializer(serializers.ModelSerializer):
             "about_approach_title_fr",
             "about_approach_text_en",
             "about_approach_text_fr",
-            "about_specialties_title_en",
-            "about_specialties_title_fr",
-            "specialties",
             "services_hero_title_en",
             "services_hero_title_fr",
             "services_hero_pricing_label_en",
@@ -97,7 +84,7 @@ class HomePageSerializer(serializers.ModelSerializer):
         return serialize_image(
             obj.hero_image,
             sizes=HERO_SIZES,
-            widths=IMG_WIDTHS_HERO,  # ✅ hero background is full-bleed
+            widths=IMG_WIDTHS_HERO,
             quality="good",
         )
 
@@ -107,7 +94,7 @@ class HomePageSerializer(serializers.ModelSerializer):
         return serialize_image(
             obj.services_hero_poster_image,
             sizes=SECTION_HERO_SIZES,
-            widths=IMG_WIDTHS_HERO,  # ✅ poster can also benefit on large screens
+            widths=IMG_WIDTHS_HERO,
             quality="good",
         )
 

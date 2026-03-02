@@ -1,4 +1,4 @@
-from .pages import HeroSlide, HomePage, Specialty
+from .pages import HeroSlide, HomePage
 from .settings import GiftSettings, SerenitySettings
 
 __all__ = [
@@ -6,5 +6,4 @@ __all__ = [
     "HeroSlide",
     "HomePage",
     "SerenitySettings",
-    "Specialty",
 ]

@@ -1,8 +1,4 @@
-import type {
-  ResponsiveImage,
-  WagtailHeroSlide,
-  WagtailSpecialty,
-} from './common'
+import type { ResponsiveImage, WagtailHeroSlide } from './common'
 
 export interface WagtailService {
   id: number
@@ -21,7 +17,6 @@ export interface WagtailHomePage {
   hero_title_fr: string
   hero_subtitle_en: string
   hero_subtitle_fr: string
-
   hero_image: ResponsiveImage | null
   hero_slides?: WagtailHeroSlide[]
 
@@ -37,9 +32,6 @@ export interface WagtailHomePage {
   about_approach_title_fr: string
   about_approach_text_en: string
   about_approach_text_fr: string
-  about_specialties_title_en: string
-  about_specialties_title_fr: string
-  specialties?: WagtailSpecialty[]
 
   services_hero_title_en: string
   services_hero_title_fr: string
@@ -55,10 +47,8 @@ export interface WagtailHomePage {
   services_hero_benefit_2_fr: string
   services_hero_benefit_3_en: string
   services_hero_benefit_3_fr: string
-
   services_hero_video_public_id: string | null
   services_hero_video_url?: string | null
-
   services_hero_poster_image: ResponsiveImage | null
 }
 
@@ -66,7 +56,6 @@ export interface GlobalSettings {
   gift: {
     is_enabled: boolean
     floating_icon: ResponsiveImage | null
-
     modal_title_en: string
     modal_title_fr: string
     modal_text_en: string
@@ -84,7 +73,6 @@ export interface GlobalSettings {
     form_code_label_en: string
     form_code_label_fr: string
   } | null
-
   site: {
     brand: string
     instagram_url?: string

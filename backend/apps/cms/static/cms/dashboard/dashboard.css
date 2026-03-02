@@ -1,61 +1,83 @@
-/* Scoped Serenity dashboard panel (lives inside Wagtail admin) */
+/* ===================================================================
+   Serenity CMS – Dashboard Panel  (mobile-first, high-contrast)
+   =================================================================== */
+
 .serenity-dashboard {
-  /* Wagtail-ish neutral palette */
-  --s-bg: #f5f7fa;
+  /* ---------- palette ---------- */
+  --s-bg: #ffffff;
   --s-card-bg: #ffffff;
-  --s-border: #e2e8f0;
-  --s-text-main: #0f172a;
-  --s-text-muted: #64748b;
+  --s-border: #e4e7ec;
+  --s-border-hover: #0d9488;
+  --s-text: #1e293b;
+  --s-text-muted: #475569;
 
-  /* Calm, Wagtail-compatible accent (subtle teal) */
-  --s-primary: #0f172a;
-  --s-primary-fg: #ffffff;
-  --s-accent: #14b8a6;
+  /* teal accent — great contrast on white */
+  --s-accent: #0d9488;
+  --s-accent-hover: #0f766e;
+  --s-accent-fg: #ffffff;
 
-  --s-radius: 10px;
-  --s-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
-  --s-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* secondary btn */
+  --s-sec-bg: #f1f5f9;
+  --s-sec-hover: #e2e8f0;
 
-  font-family: var(--s-font-family);
-  background-color: var(--s-bg);
+  /* misc */
+  --s-radius: 12px;
+  --s-radius-sm: 8px;
+  --s-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --s-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --s-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+
+  font-family: var(--s-font);
+  color: var(--s-text);
+  background: var(--s-bg);
   border: 1px solid var(--s-border);
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 30px;
-  color: var(--s-text-main);
-  box-shadow: var(--s-shadow);
+  border-radius: var(--s-radius);
+  padding: 20px;
+  margin-bottom: 28px;
+  box-shadow: var(--s-shadow-sm);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* ── header ─────────────────────────────────────────────────────── */
 
 .sd-header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 18px;
+  gap: 16px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
   border-bottom: 1px solid var(--s-border);
-  padding-bottom: 16px;
-  gap: 12px;
 }
 
 .sd-title h2 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin: 0 0 4px 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 0 0 6px;
   letter-spacing: -0.02em;
+  color: var(--s-text);
 }
 
 .sd-title p {
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   color: var(--s-text-muted);
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.55;
+  max-width: 520px;
 }
+
+/* ── language toggle ────────────────────────────────────────────── */
 
 .sd-lang-switch {
   display: inline-flex;
-  background: var(--s-card-bg);
   border: 1px solid var(--s-border);
   border-radius: 999px;
-  padding: 2px;
+  padding: 3px;
+  background: var(--s-sec-bg);
+  flex-shrink: 0;
 }
 
 .sd-lang-opt {
@@ -63,101 +85,108 @@
   border: 0;
   background: transparent;
   cursor: pointer;
-  padding: 6px 12px;
-  font-size: 0.75rem;
+  padding: 7px 16px;
+  font-size: 0.78rem;
   font-weight: 700;
   border-radius: 999px;
   color: var(--s-text-muted);
-  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1;
+  /* big enough tap target on mobile */
+  min-height: 36px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.sd-lang-opt:focus {
-  outline: 2px solid rgba(20, 184, 166, 0.35);
+.sd-lang-opt:focus-visible {
+  outline: 2px solid var(--s-accent);
   outline-offset: 2px;
 }
 
 .sd-lang-opt.active {
-  background: var(--s-primary);
-  color: var(--s-primary-fg);
+  background: var(--s-accent);
+  color: var(--s-accent-fg);
+  box-shadow: 0 1px 3px rgba(13, 148, 136, 0.3);
 }
+
+/* ── card grid ──────────────────────────────────────────────────── */
 
 .sd-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: 1fr;
   gap: 14px;
 }
+
+/* ── individual card ────────────────────────────────────────────── */
 
 .sd-card {
   background: var(--s-card-bg);
   border: 1px solid var(--s-border);
   border-radius: var(--s-radius);
-  padding: 16px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-  position: relative;
-  overflow: hidden;
-  min-height: 170px;
+  gap: 16px;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .sd-card:hover {
-  border-color: rgba(20, 184, 166, 0.55);
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
-  transform: translateY(-1px);
+  border-color: var(--s-border-hover);
+  box-shadow: var(--s-shadow-md);
 }
 
-.sd-card::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: rgba(20, 184, 166, 0.22);
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-
-.sd-card:hover::after {
-  opacity: 1;
+/* top row: icon + text side-by-side */
+.sd-card-top {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
 }
 
 .sd-card-icon {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8fafc;
-  border: 1px solid var(--s-border);
-  border-radius: 8px;
-  margin-bottom: 12px;
-  color: var(--s-text-main);
+  background: #f0fdfa;
+  border: 1px solid #ccfbf1;
+  border-radius: var(--s-radius-sm);
+  color: var(--s-accent);
 }
 
 .sd-card-icon svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   stroke-width: 2;
 }
 
+.sd-card-text {
+  flex: 1;
+  min-width: 0;
+}
+
 .sd-card h3 {
-  font-size: 0.98rem;
+  font-size: 1rem;
   font-weight: 700;
-  margin: 0 0 6px 0;
+  margin: 0 0 4px;
+  color: var(--s-text);
 }
 
 .sd-card p {
-  font-size: 0.86rem;
+  font-size: 0.875rem;
   color: var(--s-text-muted);
-  margin: 0 0 14px 0;
-  line-height: 1.45;
-  flex-grow: 1;
+  margin: 0;
+  line-height: 1.5;
 }
 
+/* ── action buttons ─────────────────────────────────────────────── */
+
 .sd-actions {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -165,46 +194,93 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.78rem;
-  font-weight: 800;
-  padding: 10px 12px;
-  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: var(--s-radius-sm);
   text-decoration: none;
-  transition: transform 0.15s ease, opacity 0.15s ease, border-color 0.15s ease;
-  letter-spacing: 0.02em;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  white-space: nowrap;
+  /* accessible tap target */
+  min-height: 42px;
+  cursor: pointer;
+}
+
+.sd-btn:active {
+  transform: scale(0.97);
 }
 
 .sd-btn-primary {
-  background-color: var(--s-primary);
-  color: var(--s-primary-fg);
+  background: var(--s-accent);
+  color: var(--s-accent-fg);
   border: 1px solid transparent;
 }
 
-.sd-btn-primary:hover {
-  opacity: 0.92;
-  transform: translateY(-1px);
+.sd-btn-primary:hover,
+.sd-btn-primary:focus-visible {
+  background: var(--s-accent-hover);
+  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.3);
 }
 
 .sd-btn-secondary {
-  background-color: transparent;
+  background: var(--s-sec-bg);
+  color: var(--s-text);
   border: 1px solid var(--s-border);
-  color: var(--s-text-main);
 }
 
-.sd-btn-secondary:hover {
-  border-color: rgba(20, 184, 166, 0.6);
-  transform: translateY(-1px);
+.sd-btn-secondary:hover,
+.sd-btn-secondary:focus-visible {
+  background: var(--s-sec-hover);
+  border-color: var(--s-border-hover);
 }
 
-@media (max-width: 768px) {
-  .sd-header {
-    flex-direction: column;
-    align-items: stretch;
+.sd-btn:focus-visible {
+  outline: 2px solid var(--s-accent);
+  outline-offset: 2px;
+}
+
+/* ===================================================================
+   RESPONSIVE BREAKPOINTS  (mobile-first → up)
+   =================================================================== */
+
+/* 480px+ : buttons go side-by-side */
+@media (min-width: 480px) {
+  .sd-actions {
+    flex-direction: row;
   }
-  .sd-lang-switch {
-    align-self: flex-start;
+
+  .sd-btn {
+    flex: 1 1 0;
   }
+}
+
+/* 640px+ : 2-column grid */
+@media (min-width: 640px) {
+  .serenity-dashboard {
+    padding: 24px;
+  }
+
   .sd-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+/* 1024px+ : 3-column grid */
+@media (min-width: 1024px) {
+  .serenity-dashboard {
+    padding: 28px;
+  }
+
+  .sd-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+}
+
+/* 1400px+ : 4-column (ultrawide) */
+@media (min-width: 1400px) {
+  .sd-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
 }

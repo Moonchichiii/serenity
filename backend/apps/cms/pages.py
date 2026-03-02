@@ -54,39 +54,6 @@ class HeroSlide(Orderable):
         return self.title_en or self.title_fr or f"Slide {self.pk}"
 
 
-class Specialty(Orderable):
-    """
-    Specialty badge for the About section.
-    """
-
-    page = ParentalKey(
-        "cms.HomePage",
-        related_name="specialties",
-        on_delete=models.CASCADE,
-    )
-    title_en = models.CharField(max_length=200, blank=True, default="")
-    title_fr = models.CharField(max_length=200, blank=True, default="")
-    image = models.ForeignKey(
-        Image,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="+",
-    )
-
-    panels: ClassVar[list] = [
-        FieldPanel("title_en"),
-        FieldPanel("title_fr"),
-        FieldPanel("image"),
-    ]
-
-    class Meta:
-        ordering = ["sort_order"]
-
-    def __str__(self) -> str:
-        return self.title_en or self.title_fr or f"Specialty {self.pk}"
-
-
 # Panel definitions
 
 _HERO_PANELS: list = [
@@ -127,12 +94,6 @@ _ABOUT_APPROACH_PANELS: list = [
     FieldPanel(
         "about_approach_text_fr", heading="Approach Description (Français)"
     ),
-]
-
-_ABOUT_SPECIALTIES_PANELS: list = [
-    FieldPanel("about_specialties_title_en", heading="Section Title (EN)"),
-    FieldPanel("about_specialties_title_fr", heading="Section Title (FR)"),
-    InlinePanel("specialties", label="Specialties (image + title)"),
 ]
 
 _SERVICES_HERO_PANELS: list = [
@@ -294,18 +255,6 @@ class HomePage(Page):
         default="",
         help_text="Décrivez votre approche unique du massage thérapeutique.",
     )
-    about_specialties_title_en = models.CharField(
-        max_length=200,
-        blank=True,
-        default="",
-        help_text="Title for specialties section (e.g. 'Specialties').",
-    )
-    about_specialties_title_fr = models.CharField(
-        max_length=200,
-        blank=True,
-        default="",
-        help_text="Titre des spécialités (ex : 'Spécialités').",
-    )
 
     # ── Services Hero ─────────────────────────────────────
     services_hero_video_public_id = models.CharField(
@@ -451,12 +400,6 @@ class HomePage(Page):
             _ABOUT_APPROACH_PANELS,
             heading="👤 About — Your Approach",
             help_text="Describe your unique approach to massage therapy.",
-            classname="collapsible",
-        ),
-        MultiFieldPanel(
-            _ABOUT_SPECIALTIES_PANELS,
-            heading="👤 About — Specialties",
-            help_text="Order controls display order on the site.",
             classname="collapsible",
         ),
         MultiFieldPanel(

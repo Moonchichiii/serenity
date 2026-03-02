@@ -1,39 +1,20 @@
-import { useMemo, useState, type FC, type ReactNode } from "react";
+// frontend/src/features/services/ServicesSection.tsx
+
+import { useMemo, useState, useEffect, type FC, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  motion,
-  useReducedMotion,
-  type Variants,
-  type Transition,
-} from "framer-motion";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { ArrowLeft, ArrowRight, X } from "lucide-react";
 
 import { ServicesHero } from "./ServicesHero";
 import { useCMSServices } from "@/hooks/useCMS";
 import { getLocalizedText } from "@/lib/localize";
 import TestimonialBanner from "@/features/testimonials/TestimonialBanner";
 import type { ResponsiveImage as ResponsiveImageType } from "@/types/api";
-import {
-  CARD_ENTRANCE,
-  MobileServiceCard,
-  DesktopServiceCard,
-  type ResolvedService,
-} from "@/components/ui/ServiceCards";
+import ResponsiveImage from "@/components/ui/ResponsiveImage";
 
-// ── Constants ────────────────────────────────────────────────────────
-const FADE_IN_TRANSITION: Transition = {
-  duration: 0.8,
-  ease: [0.16, 1, 0.3, 1],
-};
-
-const HIGHLIGHT_KEYWORDS_EN = ["chair", "amma", "seated"] as const;
-const HIGHLIGHT_KEYWORDS_FR = ["amma", "assis"] as const;
-
+// ── Types & Constants ────────────────────────────────────────────────
 type SupportedLang = "fr" | "en";
 
-const DESKTOP_PAGE_SIZE = 3;
-
-// ── Types ────────────────────────────────────────────────────────────
 interface ServiceItem {
   id: number;
   title_en?: string;
@@ -45,25 +26,26 @@ interface ServiceItem {
   image: ResponsiveImageType | null;
 }
 
+interface ResolvedService {
+  id: number;
+  title: string;
+  description: string;
+  durationMinutes: number;
+  price: string;
+  image: ResponsiveImageType | null;
+}
+
+const DESKTOP_PAGE_SIZE = 3;
+
 // ── Utilities ────────────────────────────────────────────────────────
 function resolveLang(language: string): SupportedLang {
   return language.startsWith("fr") ? "fr" : "en";
-}
-
-function matchesHighlightKeywords(service: ServiceItem): boolean {
-  const en = (service.title_en || "").toLowerCase();
-  const fr = (service.title_fr || "").toLowerCase();
-  return (
-    HIGHLIGHT_KEYWORDS_EN.some((kw) => en.includes(kw)) ||
-    HIGHLIGHT_KEYWORDS_FR.some((kw) => fr.includes(kw))
-  );
 }
 
 function resolveServices(
   raw: ServiceItem[],
   lang: SupportedLang,
 ): ResolvedService[] {
-  const highlightedId = raw.find(matchesHighlightKeywords)?.id ?? null;
   return raw.map((s) => ({
     id: s.id,
     title: getLocalizedText(s, "title", lang) || "Service",
@@ -71,20 +53,18 @@ function resolveServices(
     durationMinutes: s.duration_minutes,
     price: s.price,
     image: s.image ?? null,
-    isHighlighted: s.id === highlightedId,
   }));
 }
 
-/** Wraps the last word of a string in an italic accent span. */
-function accentLastWord(text: string): ReactNode {
+function accentFirstWord(text: string): ReactNode {
   const words = text.split(" ");
   if (words.length <= 1)
-    return <span className="italic text-honey-300">{text}</span>;
-  const last = words.pop();
+    return <span className="font-serif italic font-light">{text}</span>;
+  const first = words.shift();
   return (
     <>
-      {words.join(" ")}{" "}
-      <span className="italic text-honey-300">{last}</span>
+      <span className="font-serif italic font-light mr-2">{first}</span>
+      {words.join(" ")}
     </>
   );
 }
@@ -101,34 +81,157 @@ function useResolvedServices(): ResolvedService[] | null {
   }, [services, lang]);
 }
 
-// ── Layout sub-components ────────────────────────────────────────────
+// ── Sub-components ───────────────────────────────────────────────────
 
-const MobileCarousel: FC<{
-  services: ResolvedService[];
-  slideLabel: string;
-}> = ({ services, slideLabel }) => (
-  <div className="relative md:hidden">
-    <div className="mb-5 flex justify-end px-4">
-      <div className="badge-honey flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em]">
-        <span>{slideLabel}</span>
-        <ArrowRight className="h-3.5 w-3.5" />
+// 1. DESKTOP ITEM (Image visible by default)
+const EditorialServiceItem: FC<{ service: ResolvedService }> = ({
+  service,
+}) => (
+  <article className="group flex cursor-pointer flex-col gap-6">
+    <div className="relative aspect-[4/5] w-full overflow-hidden bg-sage-800">
+      {service.image && (
+        <ResponsiveImage
+          image={service.image}
+          alt={service.title}
+          className="h-full w-full object-cover opacity-90 transition-transform duration-700 ease-out group-hover:scale-105 group-hover:opacity-100"
+        />
+      )}
+      <div className="absolute inset-0 bg-sage-900/10 transition-opacity duration-500 group-hover:opacity-0" />
+    </div>
+
+    <div className="flex flex-col gap-3 pr-4">
+      <div className="flex items-baseline justify-between gap-4 border-b border-sage-700 pb-4">
+        <h3 className="font-serif text-2xl tracking-tight text-porcelain">
+          {service.title}
+        </h3>
+        <span className="shrink-0 text-sm font-medium tracking-widest text-terracotta-300">
+          {service.price}
+        </span>
       </div>
-    </div>
 
-    <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-10">
-      {services.map((s) => (
-        <MobileServiceCard key={s.id} service={s} />
-      ))}
-      <div className="w-2 shrink-0" aria-hidden="true" />
+      <p className="line-clamp-3 text-sm font-light leading-relaxed text-sage-200/80">
+        {service.description}
+      </p>
+
+      <span className="mt-2 text-xs font-semibold uppercase tracking-[0.15em] text-sage-400 transition-colors group-hover:text-terracotta-300">
+        {service.durationMinutes} Min
+      </span>
     </div>
-  </div>
+  </article>
 );
 
-const DesktopGrid: FC<{
-  services: ResolvedService[];
-  cardVariants: Variants | undefined;
-  popularLabel: string;
-}> = ({ services, cardVariants, popularLabel }) => {
+// 2. MOBILE APOTHECARY LIST ITEM (Typography only)
+const MobileListItem: FC<{
+  service: ResolvedService;
+  onClick: () => void;
+}> = ({ service, onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="group flex w-full flex-col gap-2 border-b border-sage-800 py-6 text-left transition-colors hover:border-sage-600 active:bg-sage-800/50"
+  >
+    <div className="flex w-full items-baseline justify-between gap-4">
+      <h3 className="font-serif text-xl tracking-tight text-porcelain transition-colors group-hover:text-white">
+        {service.title}
+      </h3>
+      <span className="shrink-0 text-sm font-medium tracking-widest text-terracotta-300">
+        {service.price}
+      </span>
+    </div>
+    <span className="text-xs font-semibold uppercase tracking-[0.15em] text-sage-400">
+      {service.durationMinutes} Min
+    </span>
+  </button>
+);
+
+// 3. MOBILE DRAWER (Reveals full image & details)
+const MobileServiceDrawer: FC<{
+  service: ResolvedService | null;
+  onClose: () => void;
+}> = ({ service, onClose }) => {
+  // Prevent body scroll when drawer is open
+  useEffect(() => {
+    if (service) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [service]);
+
+  return (
+    <AnimatePresence>
+      {service && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 z-50 bg-sage-900/80 backdrop-blur-sm md:hidden"
+          />
+
+          {/* Drawer */}
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed bottom-0 left-0 right-0 z-50 flex h-[85vh] flex-col overflow-hidden rounded-t-[2rem] bg-sage-900 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] md:hidden"
+          >
+            {/* Image Header */}
+            <div className="relative h-2/5 w-full bg-sage-800">
+              {service.image && (
+                <ResponsiveImage
+                  image={service.image}
+                  alt={service.title}
+                  className="h-full w-full object-cover opacity-90"
+                />
+              )}
+              {/* Gradient fade to seamlessly blend image into content */}
+              <div className="absolute inset-0 bg-gradient-to-t from-sage-900 via-sage-900/40 to-transparent" />
+
+              {/* Close Button */}
+              <button
+                onClick={onClose}
+                className="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-sage-900/60 text-white backdrop-blur-md transition-colors hover:bg-sage-800"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Content Body */}
+            <div className="flex-1 overflow-y-auto px-6 pb-10 pt-6">
+              <span className="mb-3 block text-xs font-semibold uppercase tracking-[0.2em] text-terracotta-400">
+                {service.durationMinutes} Minutes
+              </span>
+              <h3 className="mb-6 font-serif text-3xl text-porcelain">
+                {service.title}
+              </h3>
+              <p className="mb-8 text-base font-light leading-relaxed text-sage-200/90">
+                {service.description}
+              </p>
+
+              <div className="flex items-center justify-between border-t border-sage-800 pt-6">
+                <span className="font-serif text-2xl text-porcelain">
+                  {service.price}
+                </span>
+                <button
+                  onClick={onClose} // In real app, this might trigger "Book Now"
+                  className="rounded-full border border-terracotta-400 px-8 py-3 text-sm font-semibold uppercase tracking-widest text-terracotta-400 transition-colors hover:bg-terracotta-400 hover:text-sage-900"
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+};
+
+const DesktopGrid: FC<{ services: ResolvedService[] }> = ({ services }) => {
   const [page, setPage] = useState(0);
   const totalPages = Math.ceil(services.length / DESKTOP_PAGE_SIZE);
   const visible = services.slice(
@@ -141,38 +244,29 @@ const DesktopGrid: FC<{
 
   return (
     <div className="hidden md:block">
-      <div className="mx-auto grid max-w-7xl grid-cols-3 gap-6 lg:gap-7">
-        {visible.map((s, i) => (
-          <DesktopServiceCard
-            key={s.id}
-            service={s}
-            index={i}
-            variants={cardVariants}
-            popularLabel={popularLabel}
-          />
+      <div className="mx-auto grid max-w-7xl grid-cols-3 gap-10 lg:gap-16">
+        {visible.map((s) => (
+          <EditorialServiceItem key={s.id} service={s} />
         ))}
       </div>
 
-      {/* Navigation arrows */}
       {totalPages > 1 && (
-        <div className="mt-12 flex items-center justify-center gap-4">
+        <div className="mt-20 flex items-center justify-center gap-6">
           <button
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={!canPrev}
             aria-label="Previous services"
-            className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/20 text-white/70 transition-all duration-300 hover:border-white/50 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+            className="group flex h-14 w-14 items-center justify-center rounded-full border border-sage-700 text-porcelain transition-all duration-300 hover:border-terracotta-300 hover:text-terracotta-300 disabled:opacity-20 disabled:hover:border-sage-700 disabled:hover:text-porcelain"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
           </button>
           <button
-            onClick={() =>
-              setPage((p) => Math.min(totalPages - 1, p + 1))
-            }
+            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
             disabled={!canNext}
             aria-label="Next services"
-            className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/20 text-white/70 transition-all duration-300 hover:border-white/50 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+            className="group flex h-14 w-14 items-center justify-center rounded-full border border-sage-700 text-porcelain transition-all duration-300 hover:border-terracotta-300 hover:text-terracotta-300 disabled:opacity-20 disabled:hover:border-sage-700 disabled:hover:text-porcelain"
           >
-            <ArrowRight className="h-5 w-5" />
+            <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
           </button>
         </div>
       )}
@@ -180,107 +274,83 @@ const DesktopGrid: FC<{
   );
 };
 
-const EmptyState: FC = () => (
-  <div className="py-20 text-center">
-    <p className="text-warm-grey-300 text-lg">
-      No services available yet.
-    </p>
-  </div>
-);
-
 // ── Main component ───────────────────────────────────────────────────
 export const Services: FC = () => {
   const { t } = useTranslation();
   const reduceMotion = useReducedMotion();
   const services = useResolvedServices();
 
-  const cardVariants = reduceMotion ? undefined : CARD_ENTRANCE;
-
-  const slideLabel = t("services.slide", { defaultValue: "SLIDE" });
-  const popularLabel = t("services.mostPopular", {
-    defaultValue: "Popular",
-  });
+  // State for Mobile Drawer
+  const [selectedMobileService, setSelectedMobileService] =
+    useState<ResolvedService | null>(null);
 
   return (
-    <div className="services-page bg-porcelain">
+    <div className="services-page">
       <ServicesHero />
 
-      <section
+<section
         id="services"
         aria-labelledby="services-heading"
-        className="section-spacious relative overflow-hidden bg-sage-900"
+        className="section-spacious bg-sage-900"
       >
-        <div className="hidden" aria-hidden="true" />
-        <div className="hidden" aria-hidden="true" />
-        <div className="hidden" aria-hidden="true" />
+        <div className="container mx-auto px-6 md:px-12 lg:px-20">
 
-        <div className="container relative z-10 mx-auto px-4 lg:px-8">
-          {/* ── Header: editorial split layout ── */}
+          {/* Editorial Header Split Layout */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={
-              reduceMotion ? { duration: 0 } : FADE_IN_TRANSITION
-            }
-            className="mb-14 md:mb-20"
+            transition={reduceMotion ? { duration: 0 } : { duration: 0.8 }}
+            className="mb-12 flex flex-col items-start gap-8 border-b border-sage-800 pb-12 md:mb-20 md:flex-row md:items-end md:justify-between"
           >
-            {/* Mobile: stacked */}
-            <div className="px-1 text-left md:hidden">
-              <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-warm-grey-400">
-                {t("services.label", { defaultValue: "WHAT WE DO" })}
+            <div className="max-w-2xl">
+              <p className="mb-6 text-xs font-semibold uppercase tracking-[0.25em] text-terracotta-400">
+                {t("services.label", { defaultValue: "Notre Expertise" })}
               </p>
               <h2
                 id="services-heading"
-                className="text-editorial-lg mb-5 text-porcelain"
+                className="text-editorial-lg text-porcelain"
               >
-                {accentLastWord(t("services.title"))}
+                {accentFirstWord(t("services.title", { defaultValue: "Nos soins signatures" }))}
               </h2>
-              <p className="text-base leading-relaxed text-warm-grey-300 font-light">
-                {t("services.subtitle")}
-              </p>
             </div>
-
-            {/* Desktop: two-column split */}
-            <div className="hidden md:flex md:items-end md:justify-between md:gap-16">
-              <div className="max-w-xl">
-                <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-warm-grey-400 md:mb-5">
-                  {t("services.label", {
-                    defaultValue: "WHAT WE DO",
-                  })}
-                </p>
-                <h2
-                  id="services-heading"
-                  className="text-editorial-lg text-porcelain"
-                >
-                  {accentLastWord(t("services.title"))}
-                </h2>
-              </div>
-              <p className="max-w-sm text-base leading-relaxed text-warm-grey-300 font-light lg:text-lg">
-                {t("services.subtitle")}
-              </p>
-            </div>
+            <p className="max-w-md text-base font-light leading-relaxed text-sage-200/80">
+              {t("services.subtitle", { defaultValue: "A tailored approach to physical and mental equilibrium." })}
+            </p>
           </motion.div>
 
-          {/* Cards */}
+          {/* Grid & List */}
           {!services ? (
-            <EmptyState />
+            <div className="py-20 text-center text-sage-400">
+              No services available yet.
+            </div>
           ) : (
             <>
-              <MobileCarousel
-                services={services}
-                slideLabel={slideLabel}
-              />
-              <DesktopGrid
-                services={services}
-                cardVariants={cardVariants}
-                popularLabel={popularLabel}
-              />
+              {/* MOBILE: Typography-First Apothecary Menu */}
+              <div className="flex flex-col md:hidden">
+                {services.map((s) => (
+                  <MobileListItem
+                    key={s.id}
+                    service={s}
+                    onClick={() => setSelectedMobileService(s)}
+                  />
+                ))}
+              </div>
+
+              {/* DESKTOP: Image-First Editorial Grid */}
+              <DesktopGrid services={services} />
             </>
           )}
         </div>
       </section>
 
+      {/* Mobile Drawer Overlay */}
+      <MobileServiceDrawer
+        service={selectedMobileService}
+        onClose={() => setSelectedMobileService(null)}
+      />
+
+      {/* Hard cut back to light for Testimonials */}
       <TestimonialBanner />
     </div>
   );

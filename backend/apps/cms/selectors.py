@@ -40,7 +40,7 @@ def _require_homepage(site: Site | None) -> Any:
     """
     page_obj = get_homepage_for_site(site)
     if not page_obj:
-        raise CmsHydrationError('No HomePage found for site resolution.')
+        raise CmsHydrationError("No HomePage found for site resolution.")
     return page_obj
 
 
@@ -53,25 +53,36 @@ def _require_services(*, request: HttpRequest) -> list[dict[str, Any]]:
         from apps.services.selectors import get_available_services
         from apps.services.serializers import ServiceSerializer
     except (ImportError, AttributeError) as exc:
-        raise CmsHydrationError('Services dependency missing or broken: apps.services') from exc
+        raise CmsHydrationError(
+            "Services dependency missing or broken: apps.services"
+        ) from exc
 
     qs = get_available_services()
-    return ServiceSerializer(qs, many=True, context={'request': request}).data
+    return ServiceSerializer(
+        qs, many=True, context={"request": request}
+    ).data
 
 
 def _require_globals(*, site: Site | None) -> dict[str, Any]:
-    from apps.cms.serializers import GiftSettingsSerializer, SerenitySettingsSerializer
+    from apps.cms.serializers import (
+        GiftSettingsSerializer,
+        SerenitySettingsSerializer,
+    )
     from apps.cms.settings import GiftSettings, SerenitySettings
 
     if not site:
-        return {'gift': None, 'site': None}
+        return {"gift": None, "site": None}
 
     gift_obj = GiftSettings.objects.filter(site=site).first()
     serenity_obj = SerenitySettings.objects.filter(site=site).first()
 
     return {
-        'gift': GiftSettingsSerializer(gift_obj).data if gift_obj else None,
-        'site': SerenitySettingsSerializer(serenity_obj).data if serenity_obj else None,
+        "gift": GiftSettingsSerializer(gift_obj).data
+        if gift_obj
+        else None,
+        "site": SerenitySettingsSerializer(serenity_obj).data
+        if serenity_obj
+        else None,
     }
 
 
@@ -92,18 +103,24 @@ def get_hydrated_homepage_payload(
     page_obj = _require_homepage(site)
 
     payload: HydratedHomepagePayload = {
-        'page': _serialize_homepage_node(page_obj=page_obj, request=request),
-        'services': _require_services(request=request),
-        'globals': _require_globals(site=site),
+        "page": _serialize_homepage_node(
+            page_obj=page_obj, request=request
+        ),
+        "services": _require_services(request=request),
+        "globals": _require_globals(site=site),
     }
 
     return payload
 
 
-def _serialize_homepage_node(*, page_obj: Any, request: HttpRequest) -> dict[str, Any]:
+def _serialize_homepage_node(
+    *, page_obj: Any, request: HttpRequest
+) -> dict[str, Any]:
     from apps.cms.serializers import HomePageSerializer
 
-    return HomePageSerializer(page_obj, context={'request': request}).data
+    return HomePageSerializer(
+        page_obj, context={"request": request}
+    ).data
 
 
 # --- Support Selectors (Stable) ---
@@ -113,7 +130,7 @@ def get_site_for_request(request: HttpRequest) -> Site | None:
     try:
         return Site.find_for_request(request)
     except Exception:
-        logger.exception('Failed to resolve Wagtail Site.')
+        logger.exception("Failed to resolve Wagtail Site.")
         return None
 
 
@@ -125,7 +142,11 @@ def get_homepage_for_site(site: Site | None) -> Any | None:
     elif isinstance(site.root_page.specific, HomePage):
         page = site.root_page.specific
     else:
-        page = HomePage.objects.live().descendant_of(site.root_page).first()
+        page = (
+            HomePage.objects.live()
+            .descendant_of(site.root_page)
+            .first()
+        )
         if page is None:
             page = HomePage.objects.live().first()
 
@@ -136,21 +157,19 @@ def get_homepage_for_site(site: Site | None) -> Any | None:
 
 
 def _hydrate_homepage_node(page: Any) -> Any:
-    from apps.cms.pages import HeroSlide, Specialty
+    from apps.cms.pages import HeroSlide
 
     return (
         page.__class__.objects.select_related(
-            'hero_image',
-            'services_hero_poster_image',
+            "hero_image",
+            "services_hero_poster_image",
         )
         .prefetch_related(
             Prefetch(
-                'hero_slides',
-                queryset=HeroSlide.objects.select_related('image').order_by('sort_order'),
-            ),
-            Prefetch(
-                'specialties',
-                queryset=Specialty.objects.select_related('image').order_by('sort_order'),
+                "hero_slides",
+                queryset=HeroSlide.objects.select_related(
+                    "image"
+                ).order_by("sort_order"),
             ),
         )
         .get(pk=page.pk)
