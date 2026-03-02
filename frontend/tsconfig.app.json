@@ -44,12 +44,12 @@
     "noUncheckedIndexedAccess": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "env.d.ts"],
-  "exclude": [
-    "**/__tests__/**",
-    "**/*.test.*",
-    "**/*.spec.*",
-    "src/test/**",
-    "src/mocks/**"
-  ]
+  "include": [
+    "src",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/__tests__/**/*",
+    "env.d.ts"
+  ],
+  "exclude": []
 }

@@ -7,5 +7,6 @@ export const endpoints = {
   testimonialStats: () => "/api/testimonials/stats/",
   calendarBusy: () => "/api/calendar/busy/",
   calendarSlots: () => "/api/calendar/slots/",
-  voucherCreate: () => "/api/vouchers/create/",
+  paymentsCheckout: () => "/api/payments/checkout/",
+  paymentsStatus: () => "/api/payments/status/",
 } as const;

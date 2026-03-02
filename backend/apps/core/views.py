@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar
+from collections.abc import Callable
+from typing import Any
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
@@ -12,24 +13,14 @@ from django.utils.translation import gettext as _
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 
-if TYPE_CHECKING:
-    from collections.abc import Callable
-
-# ParamSpec and TypeVar kept for future signature preservation if needed
-P = ParamSpec('P')
-R = TypeVar('R')
-
 if getattr(settings, 'RATELIMIT_ENABLE', True):
     from django_ratelimit.decorators import ratelimit
 else:
     def ratelimit(*args: Any, **kwargs: Any) -> Any:
-        """No-op decorator supporting both @ratelimit and @ratelimit(...)."""
-        # Used as: @ratelimit
         if args and len(args) == 1 and callable(args[0]) and not kwargs:
             return args[0]
 
-        # Used as: @ratelimit(...)
-        def _decorator(func: Callable[P, R]) -> Callable[P, R]:
+        def _decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             return func
 
         return _decorator
@@ -42,12 +33,10 @@ __all__ = ['csrf', 'login_view', 'logout_view', 'me']
 
 @ensure_csrf_cookie
 def csrf(request: HttpRequest) -> JsonResponse:
-    """Set the CSRF cookie and return the token for SPA auth."""
     return JsonResponse({'detail': 'ok', 'csrfToken': get_token(request)})
 
 
 def me(request: HttpRequest) -> JsonResponse:
-    """Return current user authentication status and info."""
     if request.user.is_authenticated:
         return JsonResponse(
             {
@@ -65,7 +54,6 @@ def me(request: HttpRequest) -> JsonResponse:
 @csrf_protect
 @ratelimit(key='ip', rate='5/m', method='POST', block=True)
 def login_view(request: HttpRequest) -> JsonResponse:
-    """Authenticate staff users. Rate-limited to 5 attempts/min per IP."""
     try:
         data = json.loads(request.body.decode() or '{}')
     except (json.JSONDecodeError, UnicodeDecodeError):
@@ -96,7 +84,6 @@ def login_view(request: HttpRequest) -> JsonResponse:
 @require_http_methods(['POST'])
 @csrf_protect
 def logout_view(request: HttpRequest) -> JsonResponse:
-    """Log out the current user."""
     if request.user.is_authenticated:
         logger.info('User logged out: %s', request.user.get_username())
 

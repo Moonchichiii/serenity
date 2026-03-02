@@ -141,7 +141,7 @@ const DesktopGrid: FC<{
 
   return (
     <div className="hidden md:block">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-5 lg:grid-cols-3 lg:gap-7">
+      <div className="mx-auto grid max-w-7xl grid-cols-3 gap-6 lg:gap-7">
         {visible.map((s, i) => (
           <DesktopServiceCard
             key={s.id}
@@ -160,7 +160,7 @@ const DesktopGrid: FC<{
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={!canPrev}
             aria-label="Previous services"
-            className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/20 text-white/70 transition-all duration-300 hover:border-white/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/20 text-white/70 transition-all duration-300 hover:border-white/50 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
@@ -170,7 +170,7 @@ const DesktopGrid: FC<{
             }
             disabled={!canNext}
             aria-label="Next services"
-            className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/20 text-white/70 transition-all duration-300 hover:border-white/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/20 text-white/70 transition-all duration-300 hover:border-white/50 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <ArrowRight className="h-5 w-5" />
           </button>
@@ -182,7 +182,9 @@ const DesktopGrid: FC<{
 
 const EmptyState: FC = () => (
   <div className="py-20 text-center">
-    <p className="text-warm-grey-300 text-lg">No services available yet.</p>
+    <p className="text-warm-grey-300 text-lg">
+      No services available yet.
+    </p>
   </div>
 );
 
@@ -218,7 +220,9 @@ export const Services: FC = () => {
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={reduceMotion ? { duration: 0 } : FADE_IN_TRANSITION}
+            transition={
+              reduceMotion ? { duration: 0 } : FADE_IN_TRANSITION
+            }
             className="mb-14 md:mb-20"
           >
             {/* Mobile: stacked */}
@@ -232,7 +236,7 @@ export const Services: FC = () => {
               >
                 {accentLastWord(t("services.title"))}
               </h2>
-              <p className="text-base font-light leading-relaxed text-warm-grey-300">
+              <p className="text-base leading-relaxed text-warm-grey-300 font-light">
                 {t("services.subtitle")}
               </p>
             </div>
@@ -241,7 +245,9 @@ export const Services: FC = () => {
             <div className="hidden md:flex md:items-end md:justify-between md:gap-16">
               <div className="max-w-xl">
                 <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-warm-grey-400 md:mb-5">
-                  {t("services.label", { defaultValue: "WHAT WE DO" })}
+                  {t("services.label", {
+                    defaultValue: "WHAT WE DO",
+                  })}
                 </p>
                 <h2
                   id="services-heading"
@@ -250,7 +256,7 @@ export const Services: FC = () => {
                   {accentLastWord(t("services.title"))}
                 </h2>
               </div>
-              <p className="max-w-sm text-base font-light leading-relaxed text-warm-grey-300 lg:text-lg">
+              <p className="max-w-sm text-base leading-relaxed text-warm-grey-300 font-light lg:text-lg">
                 {t("services.subtitle")}
               </p>
             </div>
@@ -261,7 +267,10 @@ export const Services: FC = () => {
             <EmptyState />
           ) : (
             <>
-              <MobileCarousel services={services} slideLabel={slideLabel} />
+              <MobileCarousel
+                services={services}
+                slideLabel={slideLabel}
+              />
               <DesktopGrid
                 services={services}
                 cardVariants={cardVariants}

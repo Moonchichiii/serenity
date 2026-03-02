@@ -1,5 +1,6 @@
 import { Suspense, lazy } from "react";
 import { Hero } from "@/features/home/hero";
+import { ReviewTrigger } from "@/features/testimonials/components/ReviewTrigger";
 
 const About = lazy(() =>
   import("@/features/about/AboutSection").then((m) => ({
@@ -17,12 +18,6 @@ const Faq = lazy(() =>
   import("@/features/faq/Faq").then((m) => ({ default: m.Faq })),
 );
 
-const ReviewTrigger = lazy(() =>
-  import("@/features/testimonials/components/ReviewTrigger").then((m) => ({
-    default: m.ReviewTrigger,
-  })),
-);
-
 export function HomePage() {
   return (
     <>
@@ -31,8 +26,8 @@ export function HomePage() {
         <About />
         <Services />
         <Faq />
-        <ReviewTrigger targetSectionId="testimonials" />
       </Suspense>
+      <ReviewTrigger targetSectionId="testimonials" />
     </>
   );
 }

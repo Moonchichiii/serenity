@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'apps.testimonials',
     'apps.availability',
     'apps.contact',
+    "apps.payments",
     'apps.vouchers',
 ]
 
@@ -145,6 +146,16 @@ SPECTACULAR_SETTINGS = {
     ],
 }
 
+# Stripe settings
+STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY", default="")
+STRIPE_WEBHOOK_SECRET = config("STRIPE_WEBHOOK_SECRET", default="")
+
+STRIPE_SUCCESS_URL = config("STRIPE_SUCCESS_URL", default="http://localhost:5173/voucher/success?session_id={CHECKOUT_SESSION_ID}")
+STRIPE_CANCEL_URL = config("STRIPE_CANCEL_URL", default="http://localhost:5173/voucher/cancelled")
+STRIPE_CURRENCY = config("STRIPE_CURRENCY", default="eur")
+
+
+
 # ── CORS ────────────────────────────────────────────
 CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', cast=Csv(), default='')
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=Csv(), default='')
@@ -167,7 +178,7 @@ CORS_PREFLIGHT_MAX_AGE = 86400
 CONTENT_SECURITY_POLICY = {
     'DIRECTIVES': {
         'default-src': ("'self'",),
-        'script-src': ("'self'", "'nonce-*'"),
+        'script-src': ("'self'", "'nonce-*'", "https://js.stripe.com"),
         'style-src': ("'self'", "'unsafe-inline'"),
         'img-src': (
             "'self'",
@@ -187,8 +198,9 @@ CONTENT_SECURITY_POLICY = {
             "'self'",
             'https://serenity.fly.dev',
             'https://res.cloudinary.com',
+            "https://api.stripe.com",
         ),
-        'frame-src': ("'none'",),
+        'frame-src': ("'self'", "https://js.stripe.com"),
         'object-src': ("'none'",),
         'base-uri': ("'self'",),
         'form-action': ("'self'",),

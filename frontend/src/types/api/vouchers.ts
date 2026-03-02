@@ -10,16 +10,13 @@ export interface GiftVoucherSubmission {
   startDatetime?: string;
   endDatetime?: string;
 }
-
 export interface GiftVoucherResponse {
   code: string;
 
-  // Slot metadata (voucher-owned)
   calendar_event_id: string;
   calendar_event_link: string;
   calendar_event_status: string;
 
-  // Optional echoes (if you include them in backend response)
   service_id?: number | null;
   start_datetime?: string | null;
   end_datetime?: string | null;

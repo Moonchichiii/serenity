@@ -2066,6 +2066,7 @@ dependencies = [
     { name = "psycopg2-binary" },
     { name = "python-dateutil" },
     { name = "python-decouple" },
+    { name = "stripe" },
     { name = "wagtail" },
     { name = "wagtail-localize" },
     { name = "whitenoise" },
@@ -2118,6 +2119,7 @@ requires-dist = [
     { name = "psycopg2-binary", specifier = ">=2.9.10,<3" },
     { name = "python-dateutil", specifier = ">=2.9,<3" },
     { name = "python-decouple", specifier = ">=3.8,<4" },
+    { name = "stripe", specifier = ">=14.4.0,<15" },
     { name = "wagtail", specifier = ">=7.3,<8" },
     { name = "wagtail-localize", specifier = ">=1.10,<2" },
     { name = "whitenoise", specifier = ">=6.8,<7" },
@@ -2216,6 +2218,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/cd/64/6debec8fc6e9abde0c7042145dc27a562bd1cd79350a55b80bf612a10ccb/starlette_testclient-0.4.1.tar.gz", hash = "sha256:9e993ffe12fab45606116257813986612262fe15c1bb6dc9e39cc68693ac1fc5", size = 12480, upload-time = "2024-04-29T10:54:28.503Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/25/44/f5209b889a344b1331a103aec4e9f906c7f67f9295fd287fdaa818179d95/starlette_testclient-0.4.1-py3-none-any.whl", hash = "sha256:dcf0eb237dc47f062ef5925f98330af46f67e547cb587119c9ae78c17ae6c1d1", size = 8143, upload-time = "2024-04-29T10:54:25.728Z" },
+]
+
+[[package]]
+name = "stripe"
+version = "14.4.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6a/ec/0f17cff3f7c91b0215266959c5a2a96b0bf9f45ac041c50b99ad8f9b5047/stripe-14.4.0.tar.gz", hash = "sha256:ddaa06f5e38a582bef7e93e06fc304ba8ae3b4c0c2aac43da02c84926f05fa0a", size = 1472370, upload-time = "2026-02-25T17:52:40.905Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/38/09/fcecad01d76dbe027015dd559ec1b6dccfc319c2540991dde4b1de81ba34/stripe-14.4.0-py3-none-any.whl", hash = "sha256:357151a816cd0bb012d6cb29f108fae50b9f6eece8530d7bc31dfa90c9ceb84c", size = 2115405, upload-time = "2026-02-25T17:52:39.128Z" },
 ]
 
 [[package]]

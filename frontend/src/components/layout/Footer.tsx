@@ -195,23 +195,23 @@ const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* ── Watermark ── */}
-          <div
-            className="w-full overflow-hidden pointer-events-none select-none -mb-[3vw]"
+            {/* ── Watermark ── */}
+            <div
+            className="w-full overflow-hidden pointer-events-none select-none -mb-[1vw]"
             aria-hidden="true"
-          >
-            <p className="font-serif text-[18vw] md:text-[15vw] lg:text-[12vw] leading-[0.82] text-center text-white/[0.03] whitespace-nowrap tracking-tight">
+            >
+            <p className="font-serif text-[18vw] md:text-[15vw] lg:text-[12vw] leading-[0.82] text-center text-white/15 whitespace-nowrap tracking-tight">
               {brand}
             </p>
-          </div>
+            </div>
 
-          {/* ── Bottom bar ── */}
-          <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-t border-white/[0.06] py-5 text-[11px] text-warm-grey-500 uppercase tracking-[0.12em]">
+            {/* ── Bottom bar ── */}
+            <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-t border-white/6 py-6 mt-4 text-[11px] text-warm-grey-500 uppercase tracking-[0.12em]">
             <p>
               © {currentYear} {brand}. {t("footer.allRights")}
             </p>
 
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-5">
               <button
                 type="button"
                 onClick={() =>

@@ -27,12 +27,17 @@ export const createGiftSchema = (t: TFunction) =>
       .transform((v) => (v === "" ? undefined : v))
       .optional(),
 
-    // Booking fields (optional — only if the user picks a slot)
-    serviceId: z.number().optional(),
+    amount: z.coerce
+      .number()
+      .finite(t("gift.validation.amountInvalid", "Invalid amount"))
+      .positive(
+        t("gift.validation.amountPositive", "Amount must be greater than 0"),
+      ),
+
+    // ✅ Booking fields
+    serviceId: z.coerce.number().optional(),
     selectedDate: z.string().optional(),
     selectedTime: z.string().optional(),
   });
 
-export type GiftFormValues = z.infer<
-  ReturnType<typeof createGiftSchema>
->;
+export type GiftFormValues = z.infer<ReturnType<typeof createGiftSchema>>;

@@ -1,32 +1,26 @@
 from __future__ import annotations
 
-from collections.abc import Iterable
-from typing import Any, Final
+from typing import TYPE_CHECKING, Any, Final
 
 import cloudinary.utils
-from wagtail.images.models import Image
 
-# ── Width presets ─────────────────────────────────────────────────────
-# Standard responsive widths covering mobile → desktop
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from wagtail.images.models import Image
+
 _BASE_WIDTHS: Final[tuple[int, ...]] = (360, 480, 640, 768, 1024, 1280, 1536)
-
-# Extended set including large/retina displays — used for hero and
-# full-bleed backgrounds where 100vw sizing means the browser may
-# request very large candidates on 1440p+ screens.
 _EXTENDED_WIDTHS: Final[tuple[int, ...]] = (*_BASE_WIDTHS, 1920, 2560)
 
-# Default export — most call-sites should use this directly
 IMG_WIDTHS: Final[tuple[int, ...]] = _BASE_WIDTHS
 IMG_WIDTHS_HERO: Final[tuple[int, ...]] = _EXTENDED_WIDTHS
 
-# ── Size descriptors ──────────────────────────────────────────────────
 DEFAULT_SIZES: Final[str] = (
     "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
 )
 HERO_SIZES: Final[str] = "100vw"
 SECTION_HERO_SIZES: Final[str] = "(max-width: 1024px) 100vw, 1280px"
 
-# ── Quality presets ───────────────────────────────────────────────────
 _QUALITY_MAP: Final[dict[str, str]] = {
     "eco": "auto:eco",
     "good": "auto:good",
@@ -34,14 +28,11 @@ _QUALITY_MAP: Final[dict[str, str]] = {
 _DEFAULT_QUALITY: Final[str] = "eco"
 
 # Index into the widths list for the default `src` attribute.
-# Picks the 3rd entry (index 2) when available — a reasonable
-# middle-ground that works before srcset kicks in.
 _DEFAULT_SRC_INDEX: Final[int] = 2
 
 
-# ── Internal helpers ──────────────────────────────────────────────────
 def _file_url(img: Image) -> str | None:
-    """Return the direct file URL, or ``None`` if unavailable."""
+    """Return the direct file URL, or None if unavailable."""
     try:
         f = getattr(img, "file", None)
         return getattr(f, "url", None) if f else None
@@ -50,18 +41,12 @@ def _file_url(img: Image) -> str | None:
 
 
 def _cloudinary_public_id(img: Image) -> str | None:
-    """
-    Extract the Cloudinary ``public_id`` from the image file name.
-
-    Returns ``None`` when the file appears to be a local/media upload
-    rather than a Cloudinary-managed asset.
-    """
+    """Return the Cloudinary public_id, or None for non-Cloudinary files."""
     try:
         f = getattr(img, "file", None)
         name = getattr(f, "name", None) if f else None
         if not name:
             return None
-        # Local uploads start with a media prefix or bare slash
         if name.startswith(("media/", "media\\", "/")):
             return None
         return str(name)
@@ -94,7 +79,7 @@ def _build_srcset(
     widths: list[int],
     quality: str,
 ) -> str:
-    """Generate a comma-separated ``srcset`` string."""
+    """Generate a comma-separated srcset string."""
     return ", ".join(
         f"{_cloudinary_image_url(public_id, w, quality=quality)} {w}w"
         for w in widths
@@ -113,7 +98,6 @@ def _local_fallback(img: Image) -> dict[str, Any]:
     }
 
 
-# ── Public API ────────────────────────────────────────────────────────
 def serialize_image(
     img: Image | None,
     *,
@@ -121,28 +105,7 @@ def serialize_image(
     widths: Iterable[int] = IMG_WIDTHS,
     quality: str = _DEFAULT_QUALITY,
 ) -> dict[str, Any] | None:
-    """
-    Serialize a Wagtail ``Image`` into a responsive-ready dictionary.
-
-    The returned shape matches the frontend ``ResponsiveImage`` interface::
-
-        {
-            "title":  str,
-            "width":  int | None,
-            "height": int | None,
-            "src":    str | None,
-            "srcset": str | None,
-            "sizes":  str | None,
-        }
-
-    For hero / full-bleed backgrounds, pass the extended width set::
-
-        serialize_image(
-            page.hero_image,
-            sizes=HERO_SIZES,
-            widths=IMG_WIDTHS_HERO,
-        )
-    """
+    """Serialize a Wagtail Image into a dict for responsive rendering."""
     if img is None:
         return None
 

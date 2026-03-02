@@ -10,7 +10,6 @@ from .views import (
 )
 
 urlpatterns = [
-    # Primary Enterprise Entry Point
     path(
         "homepage/hydrated/",
         hydrated_homepage_view,
