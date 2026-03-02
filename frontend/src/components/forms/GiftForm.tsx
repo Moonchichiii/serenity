@@ -29,9 +29,10 @@ import type { CheckoutRequest } from "@/types/api/payments";
 
 interface GiftFormProps {
   settings?: GlobalSettings["gift"] | null;
+  onSuccess?: () => void;
 }
 
-export function GiftForm({ settings }: GiftFormProps) {
+export function GiftForm({ settings, onSuccess }: GiftFormProps) {
   const { t, i18n } = useTranslation();
   const [wantsBooking, setWantsBooking] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(
@@ -44,10 +45,7 @@ export function GiftForm({ settings }: GiftFormProps) {
   const lang: "en" | "fr" = i18n.language.startsWith("fr")
     ? "fr"
     : "en";
-  const schema = useMemo<ReturnType<typeof createGiftSchema>>(
-    () => createGiftSchema(t),
-    [t],
-  );
+  const schema = useMemo(() => createGiftSchema(t), [t]);
   const services = useCMSServices();
   const checkout = useCreateCheckoutMutation();
 
@@ -179,7 +177,7 @@ export function GiftForm({ settings }: GiftFormProps) {
       sender_email: data.senderEmail,
       recipient_name: data.recipientName,
       recipient_email: data.recipientEmail,
-      message: data.message || "",
+      message: data.message?.trim() || "",
       amount: data.amount,
       preferred_language: lang,
       ...(hasSlot
@@ -193,6 +191,7 @@ export function GiftForm({ settings }: GiftFormProps) {
       reset();
       setSelectedDate(null);
       setWantsBooking(false);
+      onSuccess?.();
 
       window.location.assign(res.url);
     } catch (err) {

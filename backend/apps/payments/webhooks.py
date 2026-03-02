@@ -14,6 +14,9 @@ from apps.vouchers.services import create_voucher, send_voucher_emails
 
 from .models import PaymentStatus, StripePayment, StripeWebhookEvent
 
+stripe.api_key = settings.STRIPE_SECRET_KEY
+stripe.api_version = settings.STRIPE_API_VERSION
+
 logger = logging.getLogger(__name__)
 
 
@@ -65,13 +68,18 @@ def _fulfill_from_checkout_session(session_obj: dict[str, Any]) -> None:
     payment.status = PaymentStatus.PAID
     payment.paid_at = timezone.now()
     payment.voucher_id = voucher.id
-    payment.save(update_fields=["status", "paid_at", "voucher_id", "stripe_payment_intent_id"])
+    payment.save(
+        update_fields=[
+            "status",
+            "paid_at",
+            "voucher_id",
+            "stripe_payment_intent_id",
+        ]
+    )
 
 
 @csrf_exempt
 def stripe_webhook(request: HttpRequest) -> HttpResponse:
-    stripe.api_key = settings.STRIPE_SECRET_KEY
-
     payload = request.body
     sig_header = request.META.get("HTTP_STRIPE_SIGNATURE", "")
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
@@ -97,7 +105,6 @@ def stripe_webhook(request: HttpRequest) -> HttpResponse:
     _mark_processed(event_id, event_type)
 
     # Checkout events for fulfillment (immediate + delayed methods)
-    # Stripe: checkout.session.completed / async_payment_succeeded are common fulfill triggers. :contentReference[oaicite:9]{index=9}
     if event_type in ("checkout.session.completed", "checkout.session.async_payment_succeeded"):
         session_obj = event["data"]["object"]
         _fulfill_from_checkout_session(session_obj)

@@ -7,7 +7,7 @@ from typing import Any
 import stripe
 from django.conf import settings
 
-from .models import StripePayment
+from .models import PaymentStatus, StripePayment
 
 
 def _money_to_minor_units(amount: Decimal) -> int:
@@ -15,8 +15,9 @@ def _money_to_minor_units(amount: Decimal) -> int:
     return int((amount * 100).quantize(Decimal("1")))
 
 
-def create_checkout_session(*, voucher_payload: dict[str, Any]) -> StripePayment:
+def create_checkout_session(*, voucher_payload: dict[str, Any]) -> tuple[StripePayment, str]:
     stripe.api_key = settings.STRIPE_SECRET_KEY
+    stripe.api_version = settings.STRIPE_API_VERSION
 
     amount = Decimal(str(voucher_payload["amount"]))
     currency = getattr(settings, "STRIPE_CURRENCY", "eur")
@@ -38,18 +39,15 @@ def create_checkout_session(*, voucher_payload: dict[str, Any]) -> StripePayment
                 },
             }
         ],
-        # Store your internal payload references for webhook fulfillment.
-        # Stripe supports metadata on sessions / PI; common use case. :contentReference[oaicite:6]{index=6}
-        metadata={
-            "voucher_payload": json.dumps(voucher_payload),
-        },
+        metadata={"voucher_payload": json.dumps(voucher_payload)},
     )
 
     payment = StripePayment.objects.create(
         amount=amount,
         currency=currency,
         stripe_checkout_session_id=session["id"],
-        status="created",
+        status=PaymentStatus.CREATED,
     )
 
-    return payment
+    # session.url is the correct redirect target
+    return payment, str(session["url"])
