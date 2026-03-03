@@ -67,7 +67,7 @@ export function ModalShell({
 
           <motion.div
             className={cn(
-              "relative z-10 flex flex-col overflow-hidden", // Added overflow-hidden here
+              "relative z-10 flex flex-col overflow-hidden",
               "bg-porcelain border border-warm-grey-200/40",
               "shadow-elevated",
               "w-full sm:w-[92vw]",
@@ -93,12 +93,15 @@ export function ModalShell({
                           border-b border-warm-grey-200/50 shrink-0"
             >
               {title ? (
-                <h3
-                  className="font-heading text-[18px] sm:text-[20px]
-                             font-semibold text-charcoal truncate pr-4"
+                <h2
+                  className="font-heading text-charcoal truncate pr-4"
+                  style={{
+                    fontSize: "var(--typo-h4)",
+                    lineHeight: "var(--leading-h4)",
+                  }}
                 >
                   {title}
-                </h3>
+                </h2>
               ) : (
                 <span />
               )}
@@ -118,10 +121,14 @@ export function ModalShell({
             <div
               className={cn(
                 "flex-1 min-h-0 overscroll-contain",
-                scrollable ? "overflow-y-auto modal-scroll" : "overflow-hidden",
+                scrollable
+                  ? "overflow-y-auto modal-scroll"
+                  : "overflow-hidden",
               )}
             >
-              <div className="p-6 sm:p-6 pb-8 sm:pb-6">{children}</div>
+              <div className="p-6 sm:p-6 pb-8 sm:pb-6">
+                {children}
+              </div>
             </div>
           </motion.div>
         </div>

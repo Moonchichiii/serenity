@@ -1,16 +1,46 @@
 import { cn } from "@/lib/utils";
 
+/* ── Typography style objects (apply via style prop) ── */
+
+export const formLabelTypo = {
+  fontSize: "var(--typo-small)",
+  lineHeight: "var(--leading-small)",
+} as const;
+
+export const formInputTypo = {
+  fontSize: "var(--typo-body)",
+  lineHeight: "var(--leading-body)",
+} as const;
+
+export const formErrorTypo = {
+  fontSize: "var(--typo-caption)",
+  lineHeight: "var(--leading-caption)",
+} as const;
+
+export const formSectionTitleTypo = {
+  fontSize: "var(--typo-overline)",
+  lineHeight: "var(--leading-overline)",
+} as const;
+
+export const formCaptionTypo = {
+  fontSize: "var(--typo-caption)",
+  lineHeight: "var(--leading-caption)",
+} as const;
+
+/* ── Class strings (layout, colors, borders — no text sizing) ── */
+
 export const formLabel = cn(
-  "block text-sm font-medium text-charcoal/80 mb-2",
+  "block font-medium text-charcoal/80 mb-2",
 );
 
 export const formInput = cn(
-  "w-full rounded-2xl border border-warm-grey-200 bg-white/80",
-  "px-4 py-3 text-[15px] text-charcoal",
+  "w-full rounded-2xl border border-warm-grey-200 bg-card",
+  "px-4 py-3",
+  "text-charcoal",
   "placeholder:text-warm-grey-400",
-  "transition-all duration-200 ease-out",
+  "transition-all duration-200",
   "focus:outline-none focus:border-sage-400",
-  "focus:ring-[3px] focus:ring-sage-200/50",
+  "focus:shadow-[0_0_0_3px_rgba(58,92,69,0.12)]",
   "focus:bg-white",
   "disabled:opacity-50 disabled:cursor-not-allowed",
 );
@@ -26,18 +56,16 @@ export const formSelect = cn(
   formInput,
   "appearance-none",
   "bg-[length:20px] bg-[right_12px_center] bg-no-repeat",
-  "pr-10", // room for chevron
-  "form-select", // hooks the globals.css select chevron rule
+  "pr-10",
+  "form-select",
 );
 
 export const formError = cn(
-  "text-xs text-terracotta-500 mt-1.5",
+  "text-terracotta-500 mt-1.5",
   "flex items-center gap-1",
 );
 
-export const formFieldGroup = cn(
-  "group relative",
-);
+export const formFieldGroup = cn("group relative");
 
 export const formIconWrapper = cn(
   "form-field-icon absolute left-3.5 top-1/2 -translate-y-1/2",
@@ -51,7 +79,7 @@ export const formSection = cn(
 );
 
 export const formSectionTitle = cn(
-  "text-xs font-bold uppercase tracking-[0.15em]",
+  "font-bold uppercase tracking-[0.15em]",
   "text-charcoal/50 flex items-center gap-2",
 );
 

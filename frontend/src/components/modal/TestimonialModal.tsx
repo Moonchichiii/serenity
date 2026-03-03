@@ -1,14 +1,14 @@
-import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X, MessageCircle, Send, Star } from 'lucide-react'
-import { useReplyToTestimonial } from '@/hooks/useTestimonials'
-import type { WagtailTestimonial } from '@/types/api'
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, MessageCircle, Send, Star } from "lucide-react";
+import { useReplyToTestimonial } from "@/hooks/useTestimonials";
+import type { WagtailTestimonial } from "@/types/api";
 
 interface Props {
-  isOpen: boolean
-  onClose: () => void
-  testimonial: WagtailTestimonial | null
+  isOpen: boolean;
+  onClose: () => void;
+  testimonial: WagtailTestimonial | null;
 }
 
 export function TestimonialModal({
@@ -16,37 +16,37 @@ export function TestimonialModal({
   onClose,
   testimonial,
 }: Props) {
-  const { t } = useTranslation()
-  const [replyText, setReplyText] = useState('')
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
+  const { t } = useTranslation();
+  const [replyText, setReplyText] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
 
-  const replyMutation = useReplyToTestimonial()
+  const replyMutation = useReplyToTestimonial();
 
-  if (!testimonial) return null
+  if (!testimonial) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
       await replyMutation.mutateAsync({
         id: testimonial.id,
         data: { name, email, text: replyText },
-      })
-      setReplyText('')
-      setName('')
-      setEmail('')
+      });
+      setReplyText("");
+      setName("");
+      setEmail("");
     } catch {
       alert(
-        t('testimonials.modal.error', 'Error submitting reply')
-      )
+        t("testimonials.modal.error", "Error submitting reply"),
+      );
     }
-  }
+  };
 
   const status = replyMutation.isPending
-    ? 'submitting'
+    ? "submitting"
     : replyMutation.isSuccess
-      ? 'success'
-      : 'idle'
+      ? "success"
+      : "idle";
 
   return (
     <AnimatePresence>
@@ -64,10 +64,10 @@ export function TestimonialModal({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+            className="relative w-full max-w-2xl bg-card rounded-3xl shadow-elevated overflow-hidden max-h-[90vh] flex flex-col"
           >
             {/* Header / Main Testimonial */}
-            <div className="p-6 sm:p-8 border-b border-sage-100 bg-cream-50 overflow-y-auto">
+            <div className="p-6 sm:p-8 border-b border-sage-100 bg-sand-50 overflow-y-auto">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
                   {testimonial.avatar ? (
@@ -77,22 +77,34 @@ export function TestimonialModal({
                       className="w-12 h-12 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-12 h-12 rounded-full bg-sage-200 flex items-center justify-center font-bold text-charcoal">
+                    <div
+                      className="w-12 h-12 rounded-full bg-sage-200 flex items-center justify-center font-heading text-charcoal"
+                      style={{
+                        fontSize: "var(--typo-body)",
+                        lineHeight: "var(--leading-body)",
+                      }}
+                    >
                       {testimonial.name[0]}
                     </div>
                   )}
                   <div>
-                    <h3 className="font-heading font-bold text-lg text-charcoal">
+                    <h2
+                      className="font-heading text-charcoal"
+                      style={{
+                        fontSize: "var(--typo-h4)",
+                        lineHeight: "var(--leading-h4)",
+                      }}
+                    >
                       {testimonial.name}
-                    </h3>
+                    </h2>
                     <div className="flex gap-0.5">
                       {Array.from({ length: 5 }).map((_, i) => (
                         <Star
                           key={i}
                           className={`w-3.5 h-3.5 ${
                             i < testimonial.rating
-                              ? 'fill-honey-400 text-honey-400'
-                              : 'text-charcoal/20'
+                              ? "fill-honey-400 text-honey-400"
+                              : "text-charcoal/20"
                           }`}
                         />
                       ))}
@@ -103,29 +115,47 @@ export function TestimonialModal({
                 <button
                   onClick={onClose}
                   aria-label={t(
-                    'testimonials.modal.close',
-                    'Close modal'
+                    "testimonials.modal.close",
+                    "Close modal",
                   )}
-                  className="p-2 hover:bg-black/5 rounded-full transition-colors"
+                  className="p-2 hover:bg-warm-grey-100 rounded-full transition-colors"
                 >
                   <X className="w-5 h-5 text-charcoal/60" />
                 </button>
               </div>
 
-              <p className="text-charcoal/80 text-lg leading-relaxed italic">
+              <p
+                className="text-pull-quote"
+              >
                 &ldquo;{testimonial.text}&rdquo;
               </p>
-              <p className="text-xs text-charcoal/50 mt-4 uppercase tracking-wider font-medium">
+              <p
+                className="mt-4 uppercase tracking-wider font-medium text-charcoal/50"
+                style={{
+                  fontSize: "var(--typo-caption)",
+                  lineHeight: "var(--leading-caption)",
+                }}
+              >
                 {testimonial.date}
               </p>
             </div>
 
             {/* Discussion Area */}
-            <div className="flex-1 overflow-y-auto bg-white p-6 sm:p-8">
-              <h4 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-charcoal/50 mb-6">
+            <div className="flex-1 overflow-y-auto modal-scroll bg-card p-6 sm:p-8">
+              <h3
+                className="flex items-center gap-2 font-sans font-bold uppercase tracking-wider text-charcoal/50"
+                style={{
+                  fontSize: "var(--typo-overline)",
+                  lineHeight: "var(--leading-overline)",
+                  marginBottom: "var(--space-heading-to-paragraph)",
+                }}
+              >
                 <MessageCircle className="w-4 h-4" />
-                {t('testimonials.modal.discussion', 'Discussion')}
-              </h4>
+                {t(
+                  "testimonials.modal.discussion",
+                  "Discussion",
+                )}
+              </h3>
 
               <div className="space-y-6 mb-8">
                 {testimonial.replies &&
@@ -136,55 +166,95 @@ export function TestimonialModal({
                       className="pl-4 border-l-2 border-sage-200"
                     >
                       <div className="flex justify-between items-baseline mb-1">
-                        <span className="font-semibold text-charcoal text-sm">
+                        <span
+                          className="font-semibold text-charcoal"
+                          style={{
+                            fontSize: "var(--typo-small)",
+                            lineHeight: "var(--leading-small)",
+                          }}
+                        >
                           {reply.name}
                         </span>
-                        <span className="text-xs text-charcoal/40">
+                        <span
+                          className="text-charcoal/40"
+                          style={{
+                            fontSize: "var(--typo-caption)",
+                            lineHeight:
+                              "var(--leading-caption)",
+                          }}
+                        >
                           {reply.date ||
                             t(
-                              'testimonials.modal.earlier',
-                              'Earlier'
+                              "testimonials.modal.earlier",
+                              "Earlier",
                             )}
                         </span>
                       </div>
-                      <p className="text-charcoal/70 text-sm leading-relaxed">
+                      <p
+                        className="text-charcoal/70"
+                        style={{
+                          fontSize: "var(--typo-small)",
+                          lineHeight: "var(--leading-small)",
+                        }}
+                      >
                         {reply.text}
                       </p>
                     </div>
                   ))
                 ) : (
-                  <p className="text-charcoal/40 text-sm italic text-center py-4">
+                  <p
+                    className="text-charcoal/40 italic text-center py-4"
+                    style={{
+                      fontSize: "var(--typo-small)",
+                      lineHeight: "var(--leading-small)",
+                    }}
+                  >
                     {t(
-                      'testimonials.modal.empty',
-                      'No replies yet. Be the first to respond!'
+                      "testimonials.modal.empty",
+                      "No replies yet. Be the first to respond!",
                     )}
                   </p>
                 )}
               </div>
 
               {/* Reply Form */}
-              <div className="bg-cream-50/50 rounded-2xl p-5 border border-sage-100">
-                {status === 'success' ? (
+              <div className="bg-sand-50/50 rounded-2xl p-5 border border-sage-100">
+                {status === "success" ? (
                   <div className="text-center py-4 text-sage-600">
-                    <p className="font-medium">
+                    <p
+                      className="font-medium"
+                      style={{
+                        fontSize: "var(--typo-body)",
+                        lineHeight: "var(--leading-body)",
+                      }}
+                    >
                       {t(
-                        'testimonials.modal.successTitle',
-                        'Thank you for your reply!'
+                        "testimonials.modal.successTitle",
+                        "Thank you for your reply!",
                       )}
                     </p>
-                    <p className="text-sm">
+                    <p
+                      style={{
+                        fontSize: "var(--typo-small)",
+                        lineHeight: "var(--leading-small)",
+                      }}
+                    >
                       {t(
-                        'testimonials.modal.successMessage',
-                        'It has been sent for moderation.'
+                        "testimonials.modal.successMessage",
+                        "It has been sent for moderation.",
                       )}
                     </p>
                     <button
                       onClick={() => replyMutation.reset()}
-                      className="mt-3 text-xs underline"
+                      className="mt-3 underline"
+                      style={{
+                        fontSize: "var(--typo-caption)",
+                        lineHeight: "var(--leading-caption)",
+                      }}
                     >
                       {t(
-                        'testimonials.modal.writeAnother',
-                        'Write another'
+                        "testimonials.modal.writeAnother",
+                        "Write another",
                       )}
                     </button>
                   </div>
@@ -193,10 +263,16 @@ export function TestimonialModal({
                     onSubmit={handleSubmit}
                     className="space-y-3"
                   >
-                    <p className="text-sm font-semibold text-charcoal/80 mb-2">
+                    <p
+                      className="font-semibold text-charcoal/80 mb-2"
+                      style={{
+                        fontSize: "var(--typo-small)",
+                        lineHeight: "var(--leading-small)",
+                      }}
+                    >
                       {t(
-                        'testimonials.modal.form.title',
-                        'Join the conversation'
+                        "testimonials.modal.form.title",
+                        "Join the conversation",
                       )}
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -207,10 +283,17 @@ export function TestimonialModal({
                         autoComplete="name"
                         required
                         placeholder={t(
-                          'testimonials.modal.form.namePlaceholder',
-                          'Your Name'
+                          "testimonials.modal.form.namePlaceholder",
+                          "Your Name",
                         )}
-                        className="bg-white px-4 py-2 rounded-xl border border-sage-200 text-sm focus:outline-none focus:border-sage-400"
+                        className="bg-card px-4 py-2 rounded-xl border border-sage-200
+                                   focus:outline-none focus:border-sage-400
+                                   focus:shadow-[0_0_0_3px_rgba(58,92,69,0.12)]
+                                   transition-all duration-200"
+                        style={{
+                          fontSize: "var(--typo-small)",
+                          lineHeight: "var(--leading-small)",
+                        }}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                       />
@@ -221,12 +304,21 @@ export function TestimonialModal({
                         autoComplete="email"
                         required
                         placeholder={t(
-                          'testimonials.modal.form.emailPlaceholder',
-                          'Email (Private)'
+                          "testimonials.modal.form.emailPlaceholder",
+                          "Email (Private)",
                         )}
-                        className="bg-white px-4 py-2 rounded-xl border border-sage-200 text-sm focus:outline-none focus:border-sage-400"
+                        className="bg-card px-4 py-2 rounded-xl border border-sage-200
+                                   focus:outline-none focus:border-sage-400
+                                   focus:shadow-[0_0_0_3px_rgba(58,92,69,0.12)]
+                                   transition-all duration-200"
+                        style={{
+                          fontSize: "var(--typo-small)",
+                          lineHeight: "var(--leading-small)",
+                        }}
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) =>
+                          setEmail(e.target.value)
+                        }
                       />
                     </div>
                     <textarea
@@ -234,28 +326,44 @@ export function TestimonialModal({
                       id="reply_text"
                       required
                       placeholder={t(
-                        'testimonials.modal.form.textPlaceholder',
-                        'Write your response...'
+                        "testimonials.modal.form.textPlaceholder",
+                        "Write your response...",
                       )}
                       rows={3}
-                      className="w-full bg-white px-4 py-2 rounded-xl border border-sage-200 text-sm focus:outline-none focus:border-sage-400 resize-none"
+                      className="w-full bg-card px-4 py-2 rounded-xl border border-sage-200
+                                 focus:outline-none focus:border-sage-400
+                                 focus:shadow-[0_0_0_3px_rgba(58,92,69,0.12)]
+                                 transition-all duration-200 resize-none"
+                      style={{
+                        fontSize: "var(--typo-small)",
+                        lineHeight: "var(--leading-small)",
+                      }}
                       value={replyText}
-                      onChange={(e) => setReplyText(e.target.value)}
+                      onChange={(e) =>
+                        setReplyText(e.target.value)
+                      }
                     />
                     <div className="flex justify-end">
                       <button
-                        disabled={status === 'submitting'}
+                        disabled={status === "submitting"}
                         type="submit"
-                        className="flex items-center gap-2 bg-charcoal text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-charcoal/80 transition-colors disabled:opacity-50"
+                        className="flex items-center gap-2 bg-sage-700 text-porcelain
+                                   px-5 py-2 rounded-full font-medium
+                                   hover:bg-sage-800 transition-colors
+                                   disabled:opacity-50"
+                        style={{
+                          fontSize: "var(--typo-small)",
+                          lineHeight: "var(--leading-small)",
+                        }}
                       >
-                        {status === 'submitting'
+                        {status === "submitting"
                           ? t(
-                              'testimonials.modal.form.submitting',
-                              'Sending...'
+                              "testimonials.modal.form.submitting",
+                              "Sending...",
                             )
                           : t(
-                              'testimonials.modal.form.submit',
-                              'Post Reply'
+                              "testimonials.modal.form.submit",
+                              "Post Reply",
                             )}
                         <Send className="w-3.5 h-3.5" />
                       </button>
@@ -268,5 +376,5 @@ export function TestimonialModal({
         </div>
       )}
     </AnimatePresence>
-  )
+  );
 }

@@ -74,19 +74,39 @@ function resolveServices(
 
 function accentFirstWord(text: string): ReactNode {
   const words = text.split(" ");
-  if (words.length <= 1)
+
+  // Safety check if text is empty or single word
+  if (words.length <= 1) {
     return (
       <span className="font-serif italic font-light">
         {text}
       </span>
     );
-  const first = words.shift();
+  }
+
+  const first = words.shift(); // Removes and returns the first word
+  const second = words.shift(); // Removes and returns the second word
+  const rest = words.join(" "); // Joins whatever is left
+
   return (
     <>
+      {/* First word: Italic/Light */}
       <span className="font-serif italic font-light mr-2">
         {first}
       </span>
-      {words.join(" ")}
+
+      {/* Second word: Bold + Honey Color */}
+      {second && (
+        <span
+          className="font-bold mr-2"
+          style={{ color: "var(--color-honey-300)" }}
+        >
+          {second}
+        </span>
+      )}
+
+      {/* Rest of the sentence: Default Porcelain */}
+      {rest}
     </>
   );
 }
@@ -110,7 +130,7 @@ const EditorialServiceItem: FC<{
   service: ResolvedService;
 }> = ({ service }) => (
   <article className="group flex cursor-pointer flex-col gap-6">
-    <div className="relative aspect-[4/5] w-full overflow-hidden bg-sage-800">
+    <div className="relative aspect-[4/5] w-full overflow-hidden bg-sage-deep/80">
       {service.image && (
         <ResponsiveImage
           image={service.image}
@@ -118,7 +138,7 @@ const EditorialServiceItem: FC<{
           className="h-full w-full object-cover opacity-90 transition-transform duration-700 ease-out group-hover:scale-105 group-hover:opacity-100"
         />
       )}
-      <div className="absolute inset-0 bg-sage-900/10 transition-opacity duration-500 group-hover:opacity-0" />
+      <div className="absolute inset-0 bg-sage-deep/10 transition-opacity duration-500 group-hover:opacity-0" />
     </div>
 
     <div className="flex flex-col gap-3 pr-4">
@@ -174,7 +194,7 @@ const MobileListItem: FC<{
   <button
     type="button"
     onClick={onClick}
-    className="group flex w-full flex-col gap-2 border-b border-sage-800 py-6 text-left transition-colors hover:border-sage-600 active:bg-sage-800/50"
+    className="group flex w-full flex-col gap-2 border-b border-white/10 py-6 text-left transition-colors hover:border-sage-600 active:bg-white/5"
   >
     <div className="flex w-full items-baseline justify-between gap-4">
       <h3
@@ -231,7 +251,7 @@ const MobileServiceDrawer: FC<{
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-50 bg-sage-900/80 backdrop-blur-sm md:hidden"
+            className="fixed inset-0 z-50 bg-sage-deep/80 backdrop-blur-sm md:hidden"
           />
 
           {/* Drawer */}
@@ -244,10 +264,10 @@ const MobileServiceDrawer: FC<{
               damping: 25,
               stiffness: 200,
             }}
-            className="fixed bottom-0 left-0 right-0 z-50 flex h-[85vh] flex-col overflow-hidden rounded-t-[2rem] bg-sage-900 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] md:hidden"
+            className="fixed bottom-0 left-0 right-0 z-50 flex h-[85vh] flex-col overflow-hidden rounded-t-[2rem] bg-sage-deep shadow-[0_-10px_40px_rgba(0,0,0,0.3)] md:hidden"
           >
             {/* Image Header */}
-            <div className="relative h-2/5 w-full bg-sage-800">
+            <div className="relative h-2/5 w-full bg-sage-deep/80">
               {service.image && (
                 <ResponsiveImage
                   image={service.image}
@@ -255,11 +275,11 @@ const MobileServiceDrawer: FC<{
                   className="h-full w-full object-cover opacity-90"
                 />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-sage-900 via-sage-900/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-sage-deep via-sage-deep/40 to-transparent" />
 
               <button
                 onClick={onClose}
-                className="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-sage-900/60 text-white backdrop-blur-md transition-colors hover:bg-sage-800"
+                className="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-sage-deep/60 text-white backdrop-blur-md transition-colors hover:bg-black/20"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -295,7 +315,7 @@ const MobileServiceDrawer: FC<{
                 {service.description}
               </p>
 
-              <div className="flex items-center justify-between border-t border-sage-800 pt-6">
+              <div className="flex items-center justify-between border-t border-white/10 pt-6">
                 <span
                   className="font-serif text-porcelain"
                   style={{
@@ -307,7 +327,7 @@ const MobileServiceDrawer: FC<{
                 </span>
                 <button
                   onClick={onClose}
-                  className="rounded-full border border-terracotta-400 px-8 py-3 font-semibold uppercase tracking-widest text-terracotta-400 transition-colors hover:bg-terracotta-400 hover:text-sage-900"
+                  className="rounded-full border border-terracotta-400 px-8 py-3 font-semibold uppercase tracking-widest text-terracotta-400 transition-colors hover:bg-terracotta-400 hover:text-sage-deep"
                   style={{
                     fontSize: "var(--typo-small)",
                     lineHeight: "var(--leading-small)",
@@ -393,7 +413,7 @@ export const Services: FC = () => {
       <section
         id="services"
         aria-labelledby="services-heading"
-        className="bg-sage-900 py-[var(--space-section-y)]"
+        className="bg-sage-deep py-[var(--space-section-y)]"
       >
         <div className="container mx-auto px-[var(--space-container-x)]">
           {/* Editorial Header Split Layout */}
@@ -406,7 +426,7 @@ export const Services: FC = () => {
                 ? { duration: 0 }
                 : { duration: 0.8 }
             }
-            className="flex flex-col items-start gap-8 border-b border-sage-800 md:flex-row md:items-end md:justify-between"
+            className="flex flex-col items-start gap-8 border-b border-white/10 md:flex-row md:items-end md:justify-between"
             style={{
               marginBottom: "var(--space-grid-gap)",
               paddingBottom:

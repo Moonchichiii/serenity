@@ -12,8 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
       sections: {
         hero: {
           title: "Hero Section",
-          desc:
-            "The first thing visitors see - your main headline and tagline at the top of the page.",
+          desc: "The first thing visitors see - your main headline and tagline at the top of the page.",
           btn1: "Edit Hero",
         },
         about: {
@@ -29,14 +28,17 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         servicesHero: {
           title: "Services Hero",
-          desc:
-            "Edit the corporate wellness hero: title, pricing, CTA, benefits, and background video.",
+          desc: "Edit the corporate wellness hero: title, pricing, CTA, benefits, and background video.",
           btn1: "Edit Services Hero",
+        },
+        faq: {
+          title: "FAQ Section",
+          desc: "Manage common questions and answers displayed on the homepage.",
+          btn1: "Edit FAQ",
         },
         vouchers: {
           title: "Gift Vouchers",
-          desc:
-            "Manage gift vouchers year-round. View sold vouchers, verify codes, and update popup + email wording.",
+          desc: "Manage gift vouchers year-round. View sold vouchers, verify codes, and update popup + email wording.",
           btn1: "Manage Vouchers",
           btn2: "Popup, Email & Form",
         },
@@ -76,14 +78,17 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         servicesHero: {
           title: "Héro Services",
-          desc:
-            "Modifiez l'héro bien-être en entreprise : titre, prix, CTA, bénéfices et vidéo.",
+          desc: "Modifiez l'héro bien-être en entreprise : titre, prix, CTA, bénéfices et vidéo.",
           btn1: "Modifier Héro Services",
+        },
+        faq: {
+          title: "Section FAQ",
+          desc: "Gérez les questions fréquentes et réponses affichées sur la page d'accueil.",
+          btn1: "Modifier FAQ",
         },
         vouchers: {
           title: "Bons Cadeaux",
-          desc:
-            "Gérez les bons cadeaux toute l'année. Consultez les ventes et mettez à jour le popup + l'email.",
+          desc: "Gérez les bons cadeaux toute l'année. Consultez les ventes et mettez à jour le popup + l'email.",
           btn1: "Gérer les Bons",
           btn2: "Popup, Email & Formulaire",
         },
@@ -123,7 +128,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     langBtns.forEach((btn) => {
       btn.classList.toggle("active", btn.dataset.lang === lang);
-      btn.setAttribute("aria-pressed", btn.dataset.lang === lang ? "true" : "false");
+      btn.setAttribute(
+        "aria-pressed",
+        btn.dataset.lang === lang ? "true" : "false",
+      );
     });
 
     root.querySelectorAll(".sd-card").forEach((card) => {

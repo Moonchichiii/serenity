@@ -22,6 +22,12 @@ import {
   type CorporateEventType,
   type CorporateInquiryFormValues,
 } from "@/types/forms/corporateInquiry";
+import {
+  formInputTypo,
+  formLabelTypo,
+  formErrorTypo,
+  formCaptionTypo,
+} from "./formFieldStyles";
 
 interface CorporateInquiryFormProps {
   onSuccess?: () => void;
@@ -35,7 +41,10 @@ export function CorporateInquiryForm({
   const { t } = useTranslation();
   const [showMore, setShowMore] = useState(false);
 
-  const schema = useMemo(() => createCorporateInquirySchema(t), [t]);
+  const schema = useMemo(
+    () => createCorporateInquirySchema(t),
+    [t],
+  );
   const submit = useSubmitContact();
 
   const {
@@ -50,66 +59,92 @@ export function CorporateInquiryForm({
     },
   });
 
-  const input =
-    "w-full pl-10 pr-4 py-2.5 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors";
+  const inputIcon =
+    "w-full pl-10 pr-4 py-2.5 rounded-xl" +
+    " border-2 border-sage-200 bg-card text-charcoal" +
+    " placeholder:text-warm-grey-400" +
+    " focus:outline-none focus:border-sage-400" +
+    " focus:shadow-[0_0_0_3px_rgba(58,92,69,0.12)]" +
+    " transition-all duration-200";
+
   const inputPlain =
-    "w-full px-4 py-2.5 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors";
+    "w-full px-4 py-2.5 rounded-xl" +
+    " border-2 border-sage-200 bg-card text-charcoal" +
+    " placeholder:text-warm-grey-400" +
+    " focus:outline-none focus:border-sage-400" +
+    " focus:shadow-[0_0_0_3px_rgba(58,92,69,0.12)]" +
+    " transition-all duration-200";
 
-  const onSubmit: SubmitHandler<CorporateInquiryFormValues> = async (data) => {
-    const phone = data.phone?.trim() || undefined;
-    const notes = data.notes?.trim() || undefined;
+  const textareaClass =
+    "w-full px-4 py-2.5 rounded-xl" +
+    " border-2 border-sage-200 bg-card text-charcoal resize-none" +
+    " placeholder:text-warm-grey-400" +
+    " focus:outline-none focus:border-sage-400" +
+    " focus:shadow-[0_0_0_3px_rgba(58,92,69,0.12)]" +
+    " transition-all duration-200";
 
-    const subject = `[CORPORATE] ${t(
-      "corp.subjectPrefix",
-      "Corporate/Event Booking",
-    )} • ${data.company} • ${data.eventType}`;
+  const onSubmit: SubmitHandler<CorporateInquiryFormValues> =
+    async (data) => {
+      const phone = data.phone?.trim() || undefined;
+      const notes = data.notes?.trim() || undefined;
 
-    const lines = [
-      `Contact: ${data.name} (${data.email}${phone ? `, ${phone}` : ""})`,
-      `Company: ${data.company}`,
-      `Event type: ${data.eventType}`,
-      data.attendees ? `Attendees: ${data.attendees}` : null,
-      data.date
-        ? `Date: ${data.date}${data.endDate ? ` → ${data.endDate}` : ""}`
-        : null,
-      data.duration ? `Duration/Hours: ${data.duration}` : null,
-      data.onSiteAddress ? `Location: ${data.onSiteAddress}` : null,
-      data.services ? `Requested services: ${data.services}` : null,
-      data.budget ? `Budget: ${data.budget}` : null,
-      "",
-      "Notes:",
-      notes || "-",
-    ]
-      .filter(Boolean)
-      .join("\n");
+      const subject = `[CORPORATE] ${t(
+        "corp.subjectPrefix",
+        "Corporate/Event Booking",
+      )} • ${data.company} • ${data.eventType}`;
 
-    try {
-      await submit.mutateAsync({
-        name: data.name,
-        email: data.email,
-        phone: phone || "",
-        subject,
-        message: lines,
-      });
+      const lines = [
+        `Contact: ${data.name} (${data.email}${phone ? `, ${phone}` : ""})`,
+        `Company: ${data.company}`,
+        `Event type: ${data.eventType}`,
+        data.attendees ? `Attendees: ${data.attendees}` : null,
+        data.date
+          ? `Date: ${data.date}${data.endDate ? ` → ${data.endDate}` : ""}`
+          : null,
+        data.duration
+          ? `Duration/Hours: ${data.duration}`
+          : null,
+        data.onSiteAddress
+          ? `Location: ${data.onSiteAddress}`
+          : null,
+        data.services
+          ? `Requested services: ${data.services}`
+          : null,
+        data.budget ? `Budget: ${data.budget}` : null,
+        "",
+        "Notes:",
+        notes || "-",
+      ]
+        .filter(Boolean)
+        .join("\n");
 
-      toast.success(
-        t(
-          "corp.form.success",
-          "Request sent! I will get back to you shortly. ✨",
-        ),
-      );
-      reset();
-      onSuccess?.();
-    } catch (err) {
-      console.error("Corporate inquiry error:", err);
-      toast.error(
-        t(
-          "corp.form.error",
-          "Could not send your request. Please try again.",
-        ),
-      );
-    }
-  };
+      try {
+        await submit.mutateAsync({
+          name: data.name,
+          email: data.email,
+          phone: phone || "",
+          subject,
+          message: lines,
+        });
+
+        toast.success(
+          t(
+            "corp.form.success",
+            "Request sent! I will get back to you shortly. ✨",
+          ),
+        );
+        reset();
+        onSuccess?.();
+      } catch (err) {
+        console.error("Corporate inquiry error:", err);
+        toast.error(
+          t(
+            "corp.form.error",
+            "Could not send your request. Please try again.",
+          ),
+        );
+      }
+    };
 
   return (
     <form
@@ -120,8 +155,9 @@ export function CorporateInquiryForm({
       <div className="grid md:grid-cols-2 gap-4 sm:gap-5">
         <div>
           <label
-            className="block text-sm font-medium text-charcoal mb-2"
+            className="block font-medium text-charcoal mb-2"
             htmlFor="name"
+            style={formLabelTypo}
           >
             {t("corp.form.name", "Full name")}
           </label>
@@ -130,13 +166,17 @@ export function CorporateInquiryForm({
             <input
               id="name"
               type="text"
-              className={input}
+              className={inputIcon}
+              style={formInputTypo}
               placeholder="Jane Doe"
               {...register("name")}
             />
           </div>
           {errors.name && (
-            <p className="text-sm text-terracotta-600 mt-1.5">
+            <p
+              className="text-terracotta-600 mt-1.5"
+              style={formErrorTypo}
+            >
               {errors.name.message}
             </p>
           )}
@@ -144,8 +184,9 @@ export function CorporateInquiryForm({
 
         <div>
           <label
-            className="block text-sm font-medium text-charcoal mb-2"
+            className="block font-medium text-charcoal mb-2"
             htmlFor="email"
+            style={formLabelTypo}
           >
             {t("corp.form.email", "Email")}
           </label>
@@ -154,13 +195,17 @@ export function CorporateInquiryForm({
             <input
               id="email"
               type="email"
-              className={input}
+              className={inputIcon}
+              style={formInputTypo}
               placeholder="jane@company.com"
               {...register("email")}
             />
           </div>
           {errors.email && (
-            <p className="text-sm text-terracotta-600 mt-1.5">
+            <p
+              className="text-terracotta-600 mt-1.5"
+              style={formErrorTypo}
+            >
               {errors.email.message}
             </p>
           )}
@@ -169,11 +214,15 @@ export function CorporateInquiryForm({
 
       <div>
         <label
-          className="block text-sm font-medium text-charcoal mb-2"
+          className="block font-medium text-charcoal mb-2"
           htmlFor="phone"
+          style={formLabelTypo}
         >
           {t("corp.form.phone", "Phone")}{" "}
-          <span className="text-xs text-charcoal/80">
+          <span
+            className="text-charcoal/80"
+            style={formCaptionTypo}
+          >
             {t("corp.form.optional", "(optional)")}
           </span>
         </label>
@@ -182,13 +231,17 @@ export function CorporateInquiryForm({
           <input
             id="phone"
             type="tel"
-            className={input}
+            className={inputIcon}
+            style={formInputTypo}
             placeholder="+33 6 00 00 00 00"
             {...register("phone")}
           />
         </div>
         {errors.phone && (
-          <p className="text-sm text-terracotta-600 mt-1.5">
+          <p
+            className="text-terracotta-600 mt-1.5"
+            style={formErrorTypo}
+          >
             {errors.phone.message}
           </p>
         )}
@@ -196,8 +249,9 @@ export function CorporateInquiryForm({
 
       <div>
         <label
-          className="block text-sm font-medium text-charcoal mb-2"
+          className="block font-medium text-charcoal mb-2"
           htmlFor="company"
+          style={formLabelTypo}
         >
           {t("corp.form.company", "Company/Organization")}
         </label>
@@ -206,13 +260,17 @@ export function CorporateInquiryForm({
           <input
             id="company"
             type="text"
-            className={input}
+            className={inputIcon}
+            style={formInputTypo}
             placeholder="Acme SAS"
             {...register("company")}
           />
         </div>
         {errors.company && (
-          <p className="text-sm text-terracotta-600 mt-1.5">
+          <p
+            className="text-terracotta-600 mt-1.5"
+            style={formErrorTypo}
+          >
             {errors.company.message}
           </p>
         )}
@@ -221,27 +279,42 @@ export function CorporateInquiryForm({
       <div className="grid md:grid-cols-2 gap-4 sm:gap-5">
         <div>
           <label
-            className="block text-sm font-medium text-charcoal mb-2"
+            className="block font-medium text-charcoal mb-2"
             htmlFor="eventType"
+            style={formLabelTypo}
           >
             {t("corp.form.eventType", "Event type")}
           </label>
           <select
             id="eventType"
             className={inputPlain}
+            style={formInputTypo}
             {...register("eventType")}
           >
             {corporateEventTypes.map((v) => (
               <option key={v} value={v}>
                 {v === "corporate" &&
-                  t("corp.form.eventTypes.corporate", "Corporate wellness")}
+                  t(
+                    "corp.form.eventTypes.corporate",
+                    "Corporate wellness",
+                  )}
                 {v === "team" &&
-                  t("corp.form.eventTypes.team", "Team day / offsite")}
+                  t(
+                    "corp.form.eventTypes.team",
+                    "Team day / offsite",
+                  )}
                 {v === "expo" &&
-                  t("corp.form.eventTypes.expo", "Fair / expo / booth")}
+                  t(
+                    "corp.form.eventTypes.expo",
+                    "Fair / expo / booth",
+                  )}
                 {v === "private" &&
-                  t("corp.form.eventTypes.private", "Private event")}
-                {v === "other" && t("corp.form.eventTypes.other", "Other")}
+                  t(
+                    "corp.form.eventTypes.private",
+                    "Private event",
+                  )}
+                {v === "other" &&
+                  t("corp.form.eventTypes.other", "Other")}
               </option>
             ))}
           </select>
@@ -249,8 +322,9 @@ export function CorporateInquiryForm({
 
         <div>
           <label
-            className="block text-sm font-medium text-charcoal mb-2"
+            className="block font-medium text-charcoal mb-2"
             htmlFor="attendees"
+            style={formLabelTypo}
           >
             {t("corp.form.attendees", "Estimated attendees")}
           </label>
@@ -259,21 +333,30 @@ export function CorporateInquiryForm({
             <input
               id="attendees"
               type="number"
-              className={input}
+              className={inputIcon}
+              style={formInputTypo}
               placeholder="25"
               inputMode="numeric"
               {...register("attendees", {
                 setValueAs: (v) => {
-                  if (v === "" || v === null || v === undefined)
+                  if (
+                    v === "" ||
+                    v === null ||
+                    v === undefined
+                  )
                     return undefined;
-                  const n = typeof v === "number" ? v : Number(v);
+                  const n =
+                    typeof v === "number" ? v : Number(v);
                   return Number.isNaN(n) ? undefined : n;
                 },
               })}
             />
           </div>
           {errors.attendees && (
-            <p className="text-sm text-terracotta-600 mt-1.5">
+            <p
+              className="text-terracotta-600 mt-1.5"
+              style={formErrorTypo}
+            >
               {errors.attendees.message}
             </p>
           )}
@@ -283,8 +366,9 @@ export function CorporateInquiryForm({
       <div className="grid md:grid-cols-2 gap-4 sm:gap-5">
         <div>
           <label
-            className="block text-sm font-medium text-charcoal mb-2"
+            className="block font-medium text-charcoal mb-2"
             htmlFor="date"
+            style={formLabelTypo}
           >
             {t("corp.form.date", "Date")}
           </label>
@@ -293,7 +377,8 @@ export function CorporateInquiryForm({
             <input
               id="date"
               type="date"
-              className={input}
+              className={inputIcon}
+              style={formInputTypo}
               {...register("date")}
             />
           </div>
@@ -301,8 +386,9 @@ export function CorporateInquiryForm({
 
         <div>
           <label
-            className="block text-sm font-medium text-charcoal mb-2"
+            className="block font-medium text-charcoal mb-2"
             htmlFor="endDate"
+            style={formLabelTypo}
           >
             {t("corp.form.endDate", "End date (optional)")}
           </label>
@@ -310,6 +396,7 @@ export function CorporateInquiryForm({
             id="endDate"
             type="date"
             className={inputPlain}
+            style={formInputTypo}
             {...register("endDate")}
           />
         </div>
@@ -317,8 +404,9 @@ export function CorporateInquiryForm({
 
       <div>
         <label
-          className="block text-sm font-medium text-charcoal mb-2"
+          className="block font-medium text-charcoal mb-2"
           htmlFor="onSiteAddress"
+          style={formLabelTypo}
         >
           {t("corp.form.location", "Location / address")}
         </label>
@@ -327,7 +415,8 @@ export function CorporateInquiryForm({
           <input
             id="onSiteAddress"
             type="text"
-            className={input}
+            className={inputIcon}
+            style={formInputTypo}
             placeholder={t(
               "corp.form.location.placeholder",
               "Company address or venue",
@@ -341,7 +430,11 @@ export function CorporateInquiryForm({
         <button
           type="button"
           onClick={() => setShowMore((v) => !v)}
-          className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-charcoal"
+          className="w-full flex items-center justify-between px-4 py-3 font-medium text-charcoal"
+          style={{
+            fontSize: "var(--typo-small)",
+            lineHeight: "var(--leading-small)",
+          }}
         >
           <span>
             {t(
@@ -360,8 +453,9 @@ export function CorporateInquiryForm({
           <div className="px-4 pb-4 pt-1 space-y-4">
             <div>
               <label
-                className="block text-sm font-medium text-charcoal mb-2"
+                className="block font-medium text-charcoal mb-2"
                 htmlFor="duration"
+                style={formLabelTypo}
               >
                 {t("corp.form.duration", "Hours / duration")}
               </label>
@@ -369,6 +463,7 @@ export function CorporateInquiryForm({
                 id="duration"
                 type="text"
                 className={inputPlain}
+                style={formInputTypo}
                 placeholder="09:00–17:00 or 3h"
                 {...register("duration")}
               />
@@ -377,15 +472,20 @@ export function CorporateInquiryForm({
             <div className="grid md:grid-cols-2 gap-4 sm:gap-5">
               <div>
                 <label
-                  className="block text-sm font-medium text-charcoal mb-2"
+                  className="block font-medium text-charcoal mb-2"
                   htmlFor="services"
+                  style={formLabelTypo}
                 >
-                  {t("corp.form.services", "Requested services")}
+                  {t(
+                    "corp.form.services",
+                    "Requested services",
+                  )}
                 </label>
                 <input
                   id="services"
                   type="text"
                   className={inputPlain}
+                  style={formInputTypo}
                   placeholder={t(
                     "corp.form.services.placeholder",
                     "Chair massage, 10-min rotations, 2 practitioners…",
@@ -396,8 +496,9 @@ export function CorporateInquiryForm({
 
               <div>
                 <label
-                  className="block text-sm font-medium text-charcoal mb-2"
+                  className="block font-medium text-charcoal mb-2"
                   htmlFor="budget"
+                  style={formLabelTypo}
                 >
                   {t("corp.form.budget", "Budget (optional)")}
                 </label>
@@ -405,6 +506,7 @@ export function CorporateInquiryForm({
                   id="budget"
                   type="text"
                   className={inputPlain}
+                  style={formInputTypo}
                   placeholder="€500–€1500"
                   {...register("budget")}
                 />
@@ -413,15 +515,17 @@ export function CorporateInquiryForm({
 
             <div>
               <label
-                className="block text-sm font-medium text-charcoal mb-2"
+                className="block font-medium text-charcoal mb-2"
                 htmlFor="notes"
+                style={formLabelTypo}
               >
                 {t("corp.form.notes", "Additional notes")}
               </label>
               <textarea
                 id="notes"
                 rows={4}
-                className="w-full px-4 py-2.5 rounded-xl border-2 border-sage-200 focus:border-sage-400 focus:ring-2 focus:ring-sage-200 transition-colors resize-none"
+                className={textareaClass}
+                style={formInputTypo}
                 placeholder={t(
                   "corp.form.notes.placeholder",
                   "Ambiance / space available, parking, access badges, etc.",
@@ -434,7 +538,7 @@ export function CorporateInquiryForm({
       </div>
 
       <div className="bg-sage-50 rounded-lg p-4 border border-sage-200">
-        <p className="text-xs text-charcoal/80 leading-relaxed">
+        <p className="text-charcoal/80" style={formCaptionTypo}>
           <span className="font-semibold text-charcoal">
             {t("corp.form.gdpr.title", "Privacy notice")}:
           </span>{" "}
@@ -455,7 +559,13 @@ export function CorporateInquiryForm({
           : t("corp.form.send", "Request quote")}
       </Button>
 
-      <p className="text-sm text-charcoal/80 text-center">
+      <p
+        className="text-charcoal/80 text-center"
+        style={{
+          fontSize: "var(--typo-small)",
+          lineHeight: "var(--leading-small)",
+        }}
+      >
         {t(
           "corp.form.notice",
           "We reply within one business day for corporate requests.",

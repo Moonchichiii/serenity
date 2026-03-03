@@ -37,7 +37,9 @@ try:
 except ImportError:
     GiftVoucher = None
 
+
 # Helpers
+
 
 def get_snippet_url(model: Any, action: str = "list") -> str:
     """
@@ -55,7 +57,9 @@ def get_snippet_url(model: Any, action: str = "list") -> str:
     except NoReverseMatch:
         return "#"
 
+
 # Dashboard panels
+
 
 @hooks.register("construct_homepage_panels")
 def add_welcome_panel(request: Any, panels: list[Any]) -> list[Any]:

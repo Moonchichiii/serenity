@@ -3,71 +3,40 @@ import { z } from "zod";
 
 export const createGiftSchema = (t: TFunction) =>
   z.object({
-    senderName: z
-      .string()
-      .min(1, {
-        message: t("gift.validation.required", "Required field"),
-      }),
+    senderName: z.string().min(1, {
+      message: t("gift.validation.required", "Required field"),
+    }),
 
-    senderEmail: z
-      .string()
-      .min(1, {
-        message: t("gift.validation.required", "Required field"),
-      })
-      .email({
-        message: t(
-          "gift.validation.email",
-          "Invalid email address",
-        ),
-      }),
+    senderEmail: z.string().min(1, {
+      message: t("gift.validation.required", "Required field"),
+    }).email({
+      message: t("gift.validation.email", "Invalid email address"),
+    }),
 
-    recipientName: z
-      .string()
-      .min(1, {
-        message: t("gift.validation.required", "Required field"),
-      }),
+    recipientName: z.string().min(1, {
+      message: t("gift.validation.required", "Required field"),
+    }),
 
-    recipientEmail: z
-      .string()
-      .min(1, {
-        message: t("gift.validation.required", "Required field"),
-      })
-      .email({
-        message: t(
-          "gift.validation.email",
-          "Invalid email address",
-        ),
-      }),
+    recipientEmail: z.string().min(1, {
+      message: t("gift.validation.required", "Required field"),
+    }).email({
+      message: t("gift.validation.email", "Invalid email address"),
+    }),
 
     message: z.string(),
 
-    // ✅ plain z.number() — RHF already sends a number via valueAsNumber
-    amount: z
-      .number({
-        message: t(
-          "gift.validation.amountInvalid",
-          "Invalid amount",
-        ),
-      })
-      .finite({
-        message: t(
-          "gift.validation.amountInvalid",
-          "Invalid amount",
-        ),
-      })
-      .positive({
-        message: t(
-          "gift.validation.amountPositive",
-          "Amount must be greater than 0",
-        ),
-      }),
+    // Amount is now derived from service, but we keep validation just in case
+    amount: z.number().min(1, {
+      message: t("gift.validation.amountRequired", "Please select a service"),
+    }),
 
-    // ✅ plain z.number() — setValue already sends a number
-    serviceId: z.number().optional(),
+    // Service is now practically required for this flow
+    serviceId: z.number({
+      required_error: t("gift.validation.serviceRequired", "Please select a service"),
+    }),
+
     selectedDate: z.string().optional(),
     selectedTime: z.string().optional(),
   });
 
-export type GiftFormValues = z.infer<
-  ReturnType<typeof createGiftSchema>
->;
+export type GiftFormValues = z.infer<ReturnType<typeof createGiftSchema>>;

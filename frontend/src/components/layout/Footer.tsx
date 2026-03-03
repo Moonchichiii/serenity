@@ -48,10 +48,10 @@ const Footer: React.FC = () => {
 
   return (
     <footer id="site-footer" className="relative mt-0 contain-content">
-      <div className="relative bg-sage-900 text-white overflow-hidden">
-        <div
-          className="noise-texture-subtle opacity-[0.05]"
-          aria-hidden="true"
+      <div className="relative bg-sage-deep text-white overflow-hidden">
+  <div
+    className="noise-texture-subtle opacity-[0.05]"
+    aria-hidden="true"
         />
 
         <div

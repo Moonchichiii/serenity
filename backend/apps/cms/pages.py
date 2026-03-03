@@ -125,6 +125,93 @@ _SERVICES_HERO_PANELS: list = [
     ),
 ]
 
+_FAQ_PANELS: list = [
+    FieldPanel("faq_title_en", heading="Section Title (English)"),
+    FieldPanel("faq_title_fr", heading="Section Title (Français)"),
+    FieldPanel("faq_subtitle_en", heading="Subtitle (English)"),
+    FieldPanel("faq_subtitle_fr", heading="Subtitle (Français)"),
+    MultiFieldPanel(
+        [
+            FieldPanel("faq_q1_en", heading="Question (EN)"),
+            FieldPanel("faq_q1_fr", heading="Question (FR)"),
+            FieldPanel("faq_a1_en", heading="Answer (EN)"),
+            FieldPanel("faq_a1_fr", heading="Answer (FR)"),
+        ],
+        heading="Question 1",
+        classname="collapsible collapsed",
+    ),
+    MultiFieldPanel(
+        [
+            FieldPanel("faq_q2_en", heading="Question (EN)"),
+            FieldPanel("faq_q2_fr", heading="Question (FR)"),
+            FieldPanel("faq_a2_en", heading="Answer (EN)"),
+            FieldPanel("faq_a2_fr", heading="Answer (FR)"),
+        ],
+        heading="Question 2",
+        classname="collapsible collapsed",
+    ),
+    MultiFieldPanel(
+        [
+            FieldPanel("faq_q3_en", heading="Question (EN)"),
+            FieldPanel("faq_q3_fr", heading="Question (FR)"),
+            FieldPanel("faq_a3_en", heading="Answer (EN)"),
+            FieldPanel("faq_a3_fr", heading="Answer (FR)"),
+        ],
+        heading="Question 3",
+        classname="collapsible collapsed",
+    ),
+    MultiFieldPanel(
+        [
+            FieldPanel("faq_q4_en", heading="Question (EN)"),
+            FieldPanel("faq_q4_fr", heading="Question (FR)"),
+            FieldPanel("faq_a4_en", heading="Answer (EN)"),
+            FieldPanel("faq_a4_fr", heading="Answer (FR)"),
+        ],
+        heading="Question 4",
+        classname="collapsible collapsed",
+    ),
+    MultiFieldPanel(
+        [
+            FieldPanel("faq_q5_en", heading="Question (EN)"),
+            FieldPanel("faq_q5_fr", heading="Question (FR)"),
+            FieldPanel("faq_a5_en", heading="Answer (EN)"),
+            FieldPanel("faq_a5_fr", heading="Answer (FR)"),
+        ],
+        heading="Question 5",
+        classname="collapsible collapsed",
+    ),
+    MultiFieldPanel(
+        [
+            FieldPanel("faq_q6_en", heading="Question (EN)"),
+            FieldPanel("faq_q6_fr", heading="Question (FR)"),
+            FieldPanel("faq_a6_en", heading="Answer (EN)"),
+            FieldPanel("faq_a6_fr", heading="Answer (FR)"),
+        ],
+        heading="Question 6",
+        classname="collapsible collapsed",
+    ),
+    MultiFieldPanel(
+        [
+            FieldPanel("faq_q7_en", heading="Question (EN)"),
+            FieldPanel("faq_q7_fr", heading="Question (FR)"),
+            FieldPanel("faq_a7_en", heading="Answer (EN)"),
+            FieldPanel("faq_a7_fr", heading="Answer (FR)"),
+        ],
+        heading="Question 7",
+        classname="collapsible collapsed",
+    ),
+    MultiFieldPanel(
+        [
+            FieldPanel("faq_q8_en", heading="Question (EN)"),
+            FieldPanel("faq_q8_fr", heading="Question (FR)"),
+            FieldPanel("faq_a8_en", heading="Answer (EN)"),
+            FieldPanel("faq_a8_fr", heading="Answer (FR)"),
+        ],
+        heading="Question 8",
+        classname="collapsible collapsed",
+    ),
+]
+
 
 # HomePage
 
@@ -362,6 +449,72 @@ class HomePage(Page):
         default="Améliorez le bien-être et le moral de l'équipe",
     )
 
+    # ── FAQ ───────────────────────────────────────────────
+    faq_title_en = models.CharField(
+        max_length=200,
+        blank=True,
+        default="",
+        help_text="FAQ section heading (English).",
+    )
+    faq_title_fr = models.CharField(
+        max_length=200,
+        blank=True,
+        default="",
+        help_text="Titre de la section FAQ (Français).",
+    )
+    faq_subtitle_en = models.CharField(
+        max_length=300,
+        blank=True,
+        default="",
+        help_text="Short subtitle under the FAQ heading (English).",
+    )
+    faq_subtitle_fr = models.CharField(
+        max_length=300,
+        blank=True,
+        default="",
+        help_text="Sous-titre de la section FAQ (Français).",
+    )
+
+    faq_q1_en = models.CharField(max_length=300, blank=True, default="")
+    faq_q1_fr = models.CharField(max_length=300, blank=True, default="")
+    faq_a1_en = RichTextField(blank=True, default="")
+    faq_a1_fr = RichTextField(blank=True, default="")
+
+    faq_q2_en = models.CharField(max_length=300, blank=True, default="")
+    faq_q2_fr = models.CharField(max_length=300, blank=True, default="")
+    faq_a2_en = RichTextField(blank=True, default="")
+    faq_a2_fr = RichTextField(blank=True, default="")
+
+    faq_q3_en = models.CharField(max_length=300, blank=True, default="")
+    faq_q3_fr = models.CharField(max_length=300, blank=True, default="")
+    faq_a3_en = RichTextField(blank=True, default="")
+    faq_a3_fr = RichTextField(blank=True, default="")
+
+    faq_q4_en = models.CharField(max_length=300, blank=True, default="")
+    faq_q4_fr = models.CharField(max_length=300, blank=True, default="")
+    faq_a4_en = RichTextField(blank=True, default="")
+    faq_a4_fr = RichTextField(blank=True, default="")
+
+    faq_q5_en = models.CharField(max_length=300, blank=True, default="")
+    faq_q5_fr = models.CharField(max_length=300, blank=True, default="")
+    faq_a5_en = RichTextField(blank=True, default="")
+    faq_a5_fr = RichTextField(blank=True, default="")
+
+    faq_q6_en = models.CharField(max_length=300, blank=True, default="")
+    faq_q6_fr = models.CharField(max_length=300, blank=True, default="")
+    faq_a6_en = RichTextField(blank=True, default="")
+    faq_a6_fr = RichTextField(blank=True, default="")
+
+    faq_q7_en = models.CharField(max_length=300, blank=True, default="")
+    faq_q7_fr = models.CharField(max_length=300, blank=True, default="")
+    faq_a7_en = RichTextField(blank=True, default="")
+    faq_a7_fr = RichTextField(blank=True, default="")
+
+    faq_q8_en = models.CharField(max_length=300, blank=True, default="")
+    faq_q8_fr = models.CharField(max_length=300, blank=True, default="")
+    faq_a8_en = RichTextField(blank=True, default="")
+    faq_a8_fr = RichTextField(blank=True, default="")
+
     # ── Search ────────────────────────────────────────────
     search_fields: ClassVar[list] = [
         *Page.search_fields,
@@ -371,6 +524,8 @@ class HomePage(Page):
         index.SearchField("about_intro_fr"),
         index.SearchField("about_approach_text_en"),
         index.SearchField("about_approach_text_fr"),
+        index.SearchField("faq_title_en"),
+        index.SearchField("faq_title_fr"),
     ]
 
     # ── Admin panels ──────────────────────────────────────
@@ -405,6 +560,16 @@ class HomePage(Page):
         MultiFieldPanel(
             _SERVICES_HERO_PANELS,
             heading="💼 Services Hero Section",
+            classname="collapsible",
+        ),
+        MultiFieldPanel(
+            _FAQ_PANELS,
+            heading="❓ FAQ Section",
+            help_text=(
+                "Up to 8 questions. Empty pairs are skipped by the frontend. "
+                "The frontend falls back to built-in translations for any "
+                "blank field."
+            ),
             classname="collapsible",
         ),
     ]

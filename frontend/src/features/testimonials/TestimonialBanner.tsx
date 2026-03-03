@@ -137,15 +137,17 @@ export function TestimonialBanner() {
 
   return (
     <section
-      className="bg-white overflow-hidden"
+      className="relative bg-white overflow-hidden"
       id="testimonials"
       style={{
         paddingTop: 'var(--space-section-y)',
         paddingBottom: 'var(--space-section-y)',
       }}
     >
+      <div className="noise-texture-subtle" aria-hidden="true" />
+
       <div
-        className="max-w-7xl mx-auto text-center"
+        className="relative z-10 max-w-7xl mx-auto text-center"
         style={{
           paddingLeft: 'var(--space-container-x)',
           paddingRight: 'var(--space-container-x)',
@@ -185,7 +187,7 @@ export function TestimonialBanner() {
       </div>
 
       <div
-        className="space-y-4 sm:space-y-8"
+        className="relative z-10 space-y-4 sm:space-y-8"
         onMouseEnter={() => !isMobile && setPaused(true)}
         onMouseLeave={() =>
           !isMobile && !selectedTestimonial && setPaused(false)

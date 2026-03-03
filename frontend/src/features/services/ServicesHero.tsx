@@ -71,38 +71,26 @@ const TITLE_LINES: Record<SupportedLang, RegExp | null> = {
   en: /^(\S+)\s+(\S+)\s+(.+)$/,
 };
 
-function splitTitleIntoLines(
-  title: string,
-  lang: SupportedLang
-): string[] {
+function splitTitleIntoLines(title: string, lang: SupportedLang): string[] {
   const lower = title.toLowerCase();
   const words = lower.split(/\s+/).filter(Boolean);
 
   if (words.length <= 3) {
-    return words.map(
-      (w) => w.charAt(0).toUpperCase() + w.slice(1)
-    );
+    return words.map((w) => w.charAt(0).toUpperCase() + w.slice(1));
   }
 
   const lines: string[] = [];
-  const capitalize = (s: string) =>
-    s.charAt(0).toUpperCase() + s.slice(1);
+  const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
   lines.push(capitalize(words[0]));
 
   const rest = words.slice(1);
 
   for (let i = 0; i < rest.length; ) {
-    const wordsPerLine =
-      i + 3 <= rest.length && rest.length - i === 3 ? 3 : 2;
-    const chunk = rest.slice(
-      i,
-      i + Math.min(wordsPerLine, rest.length - i)
-    );
+    const wordsPerLine = i + 3 <= rest.length && rest.length - i === 3 ? 3 : 2;
+    const chunk = rest.slice(i, i + Math.min(wordsPerLine, rest.length - i));
     lines.push(
-      chunk
-        .map((w, idx) => (idx === 0 ? capitalize(w) : w))
-        .join(" ")
+      chunk.map((w, idx) => (idx === 0 ? capitalize(w) : w)).join(" "),
     );
     i += chunk.length;
   }
@@ -117,10 +105,7 @@ function resolveLang(language: string): SupportedLang {
 
 function toSentenceCase(s?: string): string {
   if (!s) return "";
-  return (
-    s.charAt(0).toLocaleUpperCase() +
-    s.slice(1).toLocaleLowerCase()
-  );
+  return s.charAt(0).toLocaleUpperCase() + s.slice(1).toLocaleLowerCase();
 }
 
 // ── Hooks ────────────────────────────────────────────────────────────
@@ -132,8 +117,7 @@ function useHeroContent(): HeroContent | null {
   return useMemo(() => {
     if (!page) return null;
 
-    const loc = (field: string) =>
-      getLocalizedText(page, field, lang);
+    const loc = (field: string) => getLocalizedText(page, field, lang);
 
     const priceLabel = loc("services_hero_pricing_label");
     const price = loc("services_hero_price");
@@ -153,10 +137,7 @@ function useHeroContent(): HeroContent | null {
       benefits,
       hasPrice: Boolean(priceLabel || price),
       hasCTA: Boolean(cta),
-      tagline:
-        lang === "fr"
-          ? "Bien-être au travail"
-          : "Corporate Wellness",
+      tagline: lang === "fr" ? "Bien-être au travail" : "Corporate Wellness",
     };
   }, [page, lang]);
 }
@@ -175,12 +156,9 @@ const ImageBackground: FC<{
 
 const Overlays: FC = () => (
   <>
+    <div className="absolute inset-0 bg-sage-deep/55" aria-hidden="true" />
     <div
-      className="absolute inset-0 bg-sage-900/55"
-      aria-hidden="true"
-    />
-    <div
-      className="absolute inset-0 bg-gradient-to-t from-sage-900/90 via-sage-900/20 to-sage-900/30"
+      className="absolute inset-0 bg-gradient-to-t from-sage-deep/90 via-sage-deep/20 to-sage-deep/30"
       aria-hidden="true"
     />
     <div className="noise-texture-subtle" aria-hidden="true" />
@@ -212,7 +190,7 @@ const CircleCTA: FC<{
     className="group flex h-28 w-28 items-center justify-center rounded-full bg-[#F7FB7D] text-center shadow-elevated transition-all hover:brightness-105 sm:h-32 sm:w-32 lg:h-36 lg:w-36"
   >
     <span
-      className="font-bold uppercase tracking-wider text-sage-900"
+      className="font-bold uppercase tracking-wider text-sage-deep"
       style={{
         fontSize: "var(--typo-overline)",
         lineHeight: "var(--leading-overline)",
@@ -296,10 +274,7 @@ const BottomBar: FC<{
     className="grid w-full grid-cols-1 items-end gap-[var(--space-card-gap)] border-t border-white/15 pt-6 sm:grid-cols-[auto_1fr] lg:grid-cols-[200px_1fr_1fr]"
   >
     {/* Left — tagline + price */}
-    <motion.div
-      variants={itemVariants}
-      className="flex flex-col gap-1"
-    >
+    <motion.div variants={itemVariants} className="flex flex-col gap-1">
       <span
         className="font-bold uppercase tracking-widest text-terracotta-300"
         style={{

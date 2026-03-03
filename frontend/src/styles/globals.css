@@ -67,6 +67,8 @@
   --space-card-gap: clamp(1rem, 0.75rem + 1vw, 2rem);
   --space-grid-gap: clamp(2.5rem, 2rem + 2vw, 5rem);
 
+
+  --color-sage-deep: #233D37;
   --color-sage-50: #f4f7f5;
   --color-sage-100: #e3ebe6;
   --color-sage-200: #d0ddd5;
@@ -76,7 +78,7 @@
   --color-sage-600: #4a7256;
   --color-sage-700: #3a5c45;
   --color-sage-800: #2b4633;
-  --color-sage-900: #1e3325;
+  --color-sage-900: #233D37;
 
   --color-sand-50: #fdfaf6;
   --color-sand-100: #f7f2eb;
@@ -100,6 +102,7 @@
   --color-terracotta-500: #e05e3c;
   --color-terracotta-600: #c94b2c;
   --color-terracotta-700: #a03b22;
+
 
   --color-honey-50: #fefff2;
   --color-honey-100: #fcfed8;
