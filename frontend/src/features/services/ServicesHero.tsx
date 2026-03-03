@@ -21,7 +21,9 @@ const FADE_UP_TRANSITION: Transition = {
 
 const STAGGER_CONTAINER: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
+  show: {
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+  },
 };
 
 const FADE_UP_ITEM: Variants = {
@@ -44,7 +46,9 @@ const LINE_VARIANTS: Variants = {
 
 const LINE_STAGGER: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
+  show: {
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+  },
 };
 
 type SupportedLang = "fr" | "en";
@@ -62,8 +66,6 @@ interface HeroContent {
 }
 
 // ── Title line definitions per language ──────────────────────────────
-// Grouping words into balanced visual lines for each language.
-// Falls back to natural wrapping if the CMS title doesn't match.
 const TITLE_LINES: Record<SupportedLang, RegExp | null> = {
   fr: /^(\S+)\s+(\S+)\s+(.+)$/,
   en: /^(\S+)\s+(\S+)\s+(.+)$/,
@@ -82,24 +84,26 @@ function splitTitleIntoLines(
     );
   }
 
-  // Group into balanced lines: first word alone (italic),
-  // then pairs/triples for visual balance
   const lines: string[] = [];
   const capitalize = (s: string) =>
     s.charAt(0).toUpperCase() + s.slice(1);
 
-  // First word is always alone (italic)
   lines.push(capitalize(words[0]));
 
-  // Distribute remaining words into lines of ~2 words
   const rest = words.slice(1);
-  const lineCount = Math.ceil(rest.length / 2);
 
   for (let i = 0; i < rest.length; ) {
     const wordsPerLine =
       i + 3 <= rest.length && rest.length - i === 3 ? 3 : 2;
-    const chunk = rest.slice(i, i + Math.min(wordsPerLine, rest.length - i));
-    lines.push(chunk.map((w, idx) => (idx === 0 ? capitalize(w) : w)).join(" "));
+    const chunk = rest.slice(
+      i,
+      i + Math.min(wordsPerLine, rest.length - i)
+    );
+    lines.push(
+      chunk
+        .map((w, idx) => (idx === 0 ? capitalize(w) : w))
+        .join(" ")
+    );
     i += chunk.length;
   }
 
@@ -113,7 +117,10 @@ function resolveLang(language: string): SupportedLang {
 
 function toSentenceCase(s?: string): string {
   if (!s) return "";
-  return s.charAt(0).toLocaleUpperCase() + s.slice(1).toLocaleLowerCase();
+  return (
+    s.charAt(0).toLocaleUpperCase() +
+    s.slice(1).toLocaleLowerCase()
+  );
 }
 
 // ── Hooks ────────────────────────────────────────────────────────────
@@ -125,7 +132,8 @@ function useHeroContent(): HeroContent | null {
   return useMemo(() => {
     if (!page) return null;
 
-    const loc = (field: string) => getLocalizedText(page, field, lang);
+    const loc = (field: string) =>
+      getLocalizedText(page, field, lang);
 
     const priceLabel = loc("services_hero_pricing_label");
     const price = loc("services_hero_price");
@@ -146,7 +154,9 @@ function useHeroContent(): HeroContent | null {
       hasPrice: Boolean(priceLabel || price),
       hasCTA: Boolean(cta),
       tagline:
-        lang === "fr" ? "Bien-être au travail" : "Corporate Wellness",
+        lang === "fr"
+          ? "Bien-être au travail"
+          : "Corporate Wellness",
     };
   }, [page, lang]);
 }
@@ -191,18 +201,36 @@ const CircleCTA: FC<{
     transition={
       reduceMotion
         ? { duration: 0 }
-        : { duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.5 }
+        : {
+            duration: 0.6,
+            ease: [0.16, 1, 0.3, 1],
+            delay: 0.5,
+          }
     }
     whileHover={{ scale: 1.08 }}
     whileTap={{ scale: 0.95 }}
     className="group flex h-28 w-28 items-center justify-center rounded-full bg-[#F7FB7D] text-center shadow-elevated transition-all hover:brightness-105 sm:h-32 sm:w-32 lg:h-36 lg:w-36"
   >
-    <span className="text-[11px] font-bold uppercase tracking-wider text-sage-900 sm:text-xs">
+    <span
+      className="font-bold uppercase tracking-wider text-sage-900"
+      style={{
+        fontSize: "var(--typo-overline)",
+        lineHeight: "var(--leading-overline)",
+      }}
+    >
       {toSentenceCase(label)}
     </span>
   </motion.button>
 );
 
+/**
+ * JUSTIFIED EXCEPTION — ServicesHero editorial title
+ *
+ * Uses --typo-services-display / --typo-services-display-sub
+ * instead of the standard scale. These are larger display sizes
+ * with controlled viewport growth (rem floor + capped vw) for
+ * the corporate wellness marketing CTA hero.
+ */
 const EditorialTitle: FC<{
   title: string;
   lang: SupportedLang;
@@ -217,7 +245,8 @@ const EditorialTitle: FC<{
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, amount: 0.3 }}
-      className="flex max-w-3xl flex-col gap-0 leading-[0.92]"
+      className="flex max-w-3xl flex-col gap-0"
+      style={{ lineHeight: "var(--leading-services-display)" }}
     >
       {lines.map((line, i) => (
         <motion.span
@@ -225,9 +254,15 @@ const EditorialTitle: FC<{
           variants={lineVariants}
           className={`block tracking-tight text-white ${
             i === 0
-              ? "font-serif italic font-light text-[clamp(3.5rem,8vw,7.5rem)]"
-              : "font-serif font-semibold text-[clamp(2.8rem,6.5vw,6.5rem)]"
+              ? "font-serif italic font-light"
+              : "font-serif font-semibold"
           }`}
+          style={{
+            fontSize:
+              i === 0
+                ? "var(--typo-services-display)"
+                : "var(--typo-services-display-sub)",
+          }}
         >
           {line}
         </motion.span>
@@ -258,22 +293,43 @@ const BottomBar: FC<{
     initial="hidden"
     whileInView="show"
     viewport={{ once: true }}
-    className="grid w-full grid-cols-1 items-end gap-8 border-t border-white/15 pt-6 sm:grid-cols-[auto_1fr] lg:grid-cols-[200px_1fr_1fr]"
+    className="grid w-full grid-cols-1 items-end gap-[var(--space-card-gap)] border-t border-white/15 pt-6 sm:grid-cols-[auto_1fr] lg:grid-cols-[200px_1fr_1fr]"
   >
     {/* Left — tagline + price */}
-    <motion.div variants={itemVariants} className="flex flex-col gap-1">
-      <span className="text-xs font-bold uppercase tracking-widest text-terracotta-300">
+    <motion.div
+      variants={itemVariants}
+      className="flex flex-col gap-1"
+    >
+      <span
+        className="font-bold uppercase tracking-widest text-terracotta-300"
+        style={{
+          fontSize: "var(--typo-overline)",
+          lineHeight: "var(--leading-overline)",
+        }}
+      >
         {tagline}
       </span>
       {hasPrice && (
         <div className="flex items-baseline gap-2">
           {priceLabel && (
-            <span className="text-xs uppercase tracking-wide text-sand-300/70">
+            <span
+              className="uppercase tracking-wide text-sand-300/70"
+              style={{
+                fontSize: "var(--typo-overline)",
+                lineHeight: "var(--leading-overline)",
+              }}
+            >
               {priceLabel}
             </span>
           )}
           {price && (
-            <span className="font-serif text-2xl tracking-tight text-white">
+            <span
+              className="font-serif tracking-tight text-white"
+              style={{
+                fontSize: "var(--typo-h3)",
+                lineHeight: "var(--leading-h3)",
+              }}
+            >
               {price}
             </span>
           )}
@@ -286,7 +342,11 @@ const BottomBar: FC<{
       <motion.p
         key={i}
         variants={itemVariants}
-        className="max-w-xs text-sm leading-relaxed text-sand-200/80"
+        className="max-w-xs text-sand-200/80"
+        style={{
+          fontSize: "var(--typo-body)",
+          lineHeight: "var(--leading-body)",
+        }}
       >
         {b}
       </motion.p>
@@ -320,27 +380,25 @@ export const ServicesHero: FC = () => {
       })}
       className="relative flex min-h-screen items-end overflow-hidden"
     >
-      {/* Background image from CMS */}
       <ImageBackground image={poster} />
       <Overlays />
 
-      {/* Floating CTA circle — pulled inward */}
       {content.hasCTA && (
         <div className="absolute right-8 top-1/4 z-20 sm:right-16 lg:right-[12%] lg:top-1/3">
           <CircleCTA
             label={content.cta}
             reduceMotion={reduceMotion}
             onClick={() =>
-              open("corporate", { defaultEventType: "corporate" })
+              open("corporate", {
+                defaultEventType: "corporate",
+              })
             }
           />
         </div>
       )}
 
-      {/* Content layer */}
-      <div className="relative z-10 w-full px-6 pb-10 pt-40 sm:px-10 lg:px-16 lg:pb-14 lg:pt-52">
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-12 lg:gap-16">
-          {/* Title */}
+      <div className="relative z-10 w-full px-[var(--space-container-x)] pb-10 pt-40 lg:pb-14 lg:pt-52">
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-[var(--space-grid-gap)]">
           <EditorialTitle
             title={content.title}
             lang={lang}
@@ -348,7 +406,6 @@ export const ServicesHero: FC = () => {
             lineVariants={lineItem}
           />
 
-          {/* Third benefit as subtitle under the title */}
           {content.benefits.length > 2 && (
             <motion.p
               initial={{ opacity: 0, y: 16 }}
@@ -359,13 +416,16 @@ export const ServicesHero: FC = () => {
                   ? { duration: 0 }
                   : { ...FADE_UP_TRANSITION, delay: 0.4 }
               }
-              className="-mt-4 max-w-md text-base italic text-sand-200/70"
+              className="-mt-4 max-w-md italic text-sand-200/70"
+              style={{
+                fontSize: "var(--typo-pull-quote)",
+                lineHeight: "var(--leading-pull-quote)",
+              }}
             >
               {content.benefits[2]}
             </motion.p>
           )}
 
-          {/* Bottom bar */}
           <BottomBar
             tagline={content.tagline}
             priceLabel={content.priceLabel}

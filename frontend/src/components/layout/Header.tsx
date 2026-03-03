@@ -27,7 +27,7 @@ export function Header() {
       { key: "services", href: "#services" },
       { key: "corporate", href: "#services-hero" },
     ],
-    [],
+    []
   );
 
   const handleNav =
@@ -127,13 +127,20 @@ export function Header() {
       `}
       aria-label="Primary"
     >
-      <div className="container mx-auto px-4 lg:px-8">
+      <div
+        className="container mx-auto"
+        style={{
+          paddingLeft: "var(--space-container-x)",
+          paddingRight: "var(--space-container-x)",
+        }}
+      >
         <div
           className={`
           flex items-center justify-between transition-all duration-300
           ${isScrolled ? "h-16 lg:h-20" : "h-20 lg:h-24"}
         `}
         >
+          {/* ── Logo ── */}
           <a
             href="#home"
             onClick={handleNav("#home")}
@@ -144,14 +151,29 @@ export function Header() {
               className={`
               font-heading font-semibold transition-all duration-300
               ${logoColor}
-              ${isScrolled ? "text-2xl lg:text-3xl" : "text-3xl lg:text-4xl"}
             `}
+              style={{
+                fontSize: isScrolled
+                  ? "var(--typo-h3)"
+                  : "var(--typo-h2)",
+                lineHeight: isScrolled
+                  ? "var(--leading-h3)"
+                  : "var(--leading-h2)",
+              }}
             >
-              <span className="align-super text-sm mr-1">La</span>
+              <span
+                className="align-super mr-1"
+                style={{
+                  fontSize: "var(--typo-caption)",
+                }}
+              >
+                La
+              </span>
               Serenity
             </span>
           </a>
 
+          {/* ── Desktop nav ── */}
           <div className="hidden md:flex items-center space-x-8">
             <ul className="flex items-center space-x-8">
               {navItems.map((item) => (
@@ -160,6 +182,10 @@ export function Header() {
                     href={item.href}
                     onClick={handleNav(item.href)}
                     className={`warm-underline transition-colors duration-200 font-medium ${linkColor}`}
+                    style={{
+                      fontSize: "var(--typo-small)",
+                      lineHeight: "var(--leading-small)",
+                    }}
                   >
                     {t(`nav.${item.key}`)}
                   </a>
@@ -171,12 +197,17 @@ export function Header() {
               type="button"
               onClick={() => open("contact")}
               className={`warm-underline font-medium transition-colors duration-200 ${linkColor}`}
+              style={{
+                fontSize: "var(--typo-small)",
+                lineHeight: "var(--leading-small)",
+              }}
               aria-haspopup="dialog"
               aria-controls="contact-modal"
             >
               {t("nav.contact")}
             </button>
 
+            {/* ── Language picker (desktop) ── */}
             <div className="relative" ref={langDropdownRef}>
               <Button
                 variant="ghost"
@@ -191,7 +222,13 @@ export function Header() {
                 className={`flex items-center space-x-2 ${iconColor}`}
               >
                 <Globe className="w-4 h-4" aria-hidden="true" />
-                <span className="text-sm font-medium">
+                <span
+                  className="font-medium"
+                  style={{
+                    fontSize: "var(--typo-caption)",
+                    lineHeight: "var(--leading-caption)",
+                  }}
+                >
                   {i18n.language === "fr" ? "FR" : "EN"}
                 </span>
                 <ChevronDown
@@ -224,7 +261,11 @@ export function Header() {
                     <button
                       type="button"
                       onClick={() => changeLanguage("fr")}
-                      className="w-full px-4 py-3 text-left text-sm text-charcoal/80 hover:bg-sage-100 transition-colors duration-200 flex items-center justify-between"
+                      className="w-full px-4 py-3 text-left text-charcoal/80 hover:bg-sage-100 transition-colors duration-200 flex items-center justify-between"
+                      style={{
+                        fontSize: "var(--typo-small)",
+                        lineHeight: "var(--leading-small)",
+                      }}
                     >
                       <span>Français</span>
                       {i18n.language === "fr" && (
@@ -237,7 +278,11 @@ export function Header() {
                     <button
                       type="button"
                       onClick={() => changeLanguage("en")}
-                      className="w-full px-4 py-3 text-left text-sm text-charcoal/80 hover:bg-sage-100 transition-colors duration-200 flex items-center justify-between"
+                      className="w-full px-4 py-3 text-left text-charcoal/80 hover:bg-sage-100 transition-colors duration-200 flex items-center justify-between"
+                      style={{
+                        fontSize: "var(--typo-small)",
+                        lineHeight: "var(--leading-small)",
+                      }}
                     >
                       <span>English</span>
                       {i18n.language === "en" && (
@@ -253,6 +298,7 @@ export function Header() {
             </div>
           </div>
 
+          {/* ── Mobile controls ── */}
           <div className="flex items-center space-x-4 md:hidden">
             <div className="relative" ref={langDropdownRef}>
               <Button
@@ -268,7 +314,14 @@ export function Header() {
                 className={iconColor}
               >
                 <Globe className="w-4 h-4" aria-hidden="true" />
-                <span className="ml-2 text-sm" lang={i18n.language}>
+                <span
+                  className="ml-2"
+                  lang={i18n.language}
+                  style={{
+                    fontSize: "var(--typo-caption)",
+                    lineHeight: "var(--leading-caption)",
+                  }}
+                >
                   {i18n.language === "fr" ? "FR" : "EN"}
                 </span>
                 <ChevronDown
@@ -301,7 +354,11 @@ export function Header() {
                     <button
                       type="button"
                       onClick={() => changeLanguage("fr")}
-                      className="w-full px-4 py-3 text-left text-sm text-charcoal/80 hover:bg-sage-100 transition-colors duration-200 flex items-center justify-between"
+                      className="w-full px-4 py-3 text-left text-charcoal/80 hover:bg-sage-100 transition-colors duration-200 flex items-center justify-between"
+                      style={{
+                        fontSize: "var(--typo-small)",
+                        lineHeight: "var(--leading-small)",
+                      }}
                     >
                       <span>Français</span>
                       {i18n.language === "fr" && (
@@ -314,7 +371,11 @@ export function Header() {
                     <button
                       type="button"
                       onClick={() => changeLanguage("en")}
-                      className="w-full px-4 py-3 text-left text-sm text-charcoal/80 hover:bg-sage-100 transition-colors duration-200 flex items-center justify-between"
+                      className="w-full px-4 py-3 text-left text-charcoal/80 hover:bg-sage-100 transition-colors duration-200 flex items-center justify-between"
+                      style={{
+                        fontSize: "var(--typo-small)",
+                        lineHeight: "var(--leading-small)",
+                      }}
                     >
                       <span>English</span>
                       {i18n.language === "en" && (
@@ -350,6 +411,7 @@ export function Header() {
         </div>
       </div>
 
+      {/* ── Mobile menu panel ── */}
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div
@@ -370,7 +432,13 @@ export function Header() {
             }
             className="md:hidden border-t border-sage-200/30 bg-white/98 backdrop-blur-md"
           >
-            <div className="container mx-auto px-4 py-4 space-y-2">
+            <div
+              className="container mx-auto py-4 space-y-2"
+              style={{
+                paddingLeft: "var(--space-container-x)",
+                paddingRight: "var(--space-container-x)",
+              }}
+            >
               <ul className="space-y-2">
                 {navItems.map((item, idx) => (
                   <li key={item.key}>
@@ -379,6 +447,10 @@ export function Header() {
                       href={item.href}
                       onClick={handleNav(item.href)}
                       className="block py-3 px-4 text-charcoal/80 hover:text-charcoal hover:bg-sage-50 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-sage-400"
+                      style={{
+                        fontSize: "var(--typo-body)",
+                        lineHeight: "var(--leading-body)",
+                      }}
                     >
                       {t(`nav.${item.key}`)}
                     </a>
@@ -392,6 +464,10 @@ export function Header() {
                       open("contact");
                     }}
                     className="block w-full text-left py-3 px-4 text-charcoal/80 hover:text-charcoal hover:bg-sage-50 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-sage-400"
+                    style={{
+                      fontSize: "var(--typo-body)",
+                      lineHeight: "var(--leading-body)",
+                    }}
                     aria-haspopup="dialog"
                     aria-controls="contact-modal"
                   >

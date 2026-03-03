@@ -13,8 +13,7 @@ const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
   const [email, setEmail] = useState("");
 
-  const brand =
-    globals?.site?.brand?.trim() || "La Serenity";
+  const brand = globals?.site?.brand?.trim() || "La Serenity";
   const contactEmail =
     globals?.site?.email?.trim() || t("footer.email");
   const address =
@@ -47,12 +46,6 @@ const Footer: React.FC = () => {
       }
     };
 
-  const navLinkClass =
-    "text-warm-grey-300 hover:text-white transition-colors duration-200 text-sm leading-relaxed font-light";
-
-  const legalBtnClass =
-    "cursor-pointer text-warm-grey-500 hover:text-warm-grey-300 transition-colors duration-200 text-[11px] uppercase tracking-[0.12em]";
-
   return (
     <footer id="site-footer" className="relative mt-0 contain-content">
       <div className="relative bg-sage-900 text-white overflow-hidden">
@@ -61,12 +54,30 @@ const Footer: React.FC = () => {
           aria-hidden="true"
         />
 
-        <div className="relative z-10 container mx-auto px-6 lg:px-20">
+        <div
+          className="relative z-10 container mx-auto"
+          style={{
+            paddingLeft: "var(--space-container-x)",
+            paddingRight: "var(--space-container-x)",
+          }}
+        >
           {/* ── Main content ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-12 lg:gap-24 pt-16 pb-12">
+          <div
+            className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-12 lg:gap-24"
+            style={{
+              paddingTop: "var(--space-section-y)",
+              paddingBottom: "var(--space-title-to-content)",
+            }}
+          >
             {/* Left — tagline + newsletter */}
             <div className="max-w-sm">
-              <p className="text-sm text-warm-grey-300 leading-relaxed font-light">
+              <p
+                className="text-warm-grey-300 font-light"
+                style={{
+                  fontSize: "var(--typo-small)",
+                  lineHeight: "var(--leading-small)",
+                }}
+              >
                 {t("footer.tagline")}
               </p>
 
@@ -89,7 +100,10 @@ const Footer: React.FC = () => {
                   placeholder={t("footer.emailPlaceholder", {
                     defaultValue: "Enter your email",
                   })}
-                  className="h-11 flex-1 rounded-l-full border border-white/10 bg-white/[0.05] px-5 text-sm text-white placeholder-warm-grey-500 outline-none transition-colors duration-200 focus:border-white/20 focus:bg-white/[0.07]"
+                  className="h-11 flex-1 rounded-l-full border border-white/10 bg-white/[0.05] px-5 text-white placeholder-warm-grey-500 outline-none transition-colors duration-200 focus:border-white/20 focus:bg-white/[0.07]"
+                  style={{
+                    fontSize: "var(--typo-small)",
+                  }}
                 />
                 <button
                   type="submit"
@@ -107,7 +121,14 @@ const Footer: React.FC = () => {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-10 lg:gap-14">
               {/* Navigation */}
               <div>
-                <h4 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/30">
+                <h4
+                  className="mb-5 font-semibold uppercase text-white/30"
+                  style={{
+                    fontSize: "var(--typo-overline)",
+                    lineHeight: "var(--leading-overline)",
+                    letterSpacing: "0.18em",
+                  }}
+                >
                   {t("footer.navigation", {
                     defaultValue: "Navigation",
                   })}
@@ -117,7 +138,11 @@ const Footer: React.FC = () => {
                     <a
                       href="#about"
                       onClick={handleNav("#about")}
-                      className={navLinkClass}
+                      className="text-warm-grey-300 hover:text-white transition-colors duration-200 font-light"
+                      style={{
+                        fontSize: "var(--typo-small)",
+                        lineHeight: "var(--leading-small)",
+                      }}
                     >
                       {t("nav.about")}
                     </a>
@@ -126,7 +151,11 @@ const Footer: React.FC = () => {
                     <a
                       href="#services"
                       onClick={handleNav("#services")}
-                      className={navLinkClass}
+                      className="text-warm-grey-300 hover:text-white transition-colors duration-200 font-light"
+                      style={{
+                        fontSize: "var(--typo-small)",
+                        lineHeight: "var(--leading-small)",
+                      }}
                     >
                       {t("nav.services")}
                     </a>
@@ -135,7 +164,11 @@ const Footer: React.FC = () => {
                     <a
                       href="#services-hero"
                       onClick={handleNav("#services-hero")}
-                      className={navLinkClass}
+                      className="text-warm-grey-300 hover:text-white transition-colors duration-200 font-light"
+                      style={{
+                        fontSize: "var(--typo-small)",
+                        lineHeight: "var(--leading-small)",
+                      }}
                     >
                       {t("nav.corporate")}
                     </a>
@@ -144,7 +177,11 @@ const Footer: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => open("contact")}
-                      className={`${navLinkClass} text-left`}
+                      className="text-left text-warm-grey-300 hover:text-white transition-colors duration-200 font-light"
+                      style={{
+                        fontSize: "var(--typo-small)",
+                        lineHeight: "var(--leading-small)",
+                      }}
                     >
                       {t("nav.contact")}
                     </button>
@@ -154,18 +191,42 @@ const Footer: React.FC = () => {
 
               {/* Contact */}
               <div>
-                <h4 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/30">
+                <h4
+                  className="mb-5 font-semibold uppercase text-white/30"
+                  style={{
+                    fontSize: "var(--typo-overline)",
+                    lineHeight: "var(--leading-overline)",
+                    letterSpacing: "0.18em",
+                  }}
+                >
                   {t("footer.contactTitle")}
                 </h4>
-                <div className="space-y-2.5 text-sm font-light text-warm-grey-300">
-                  <p className="leading-relaxed">{address}</p>
+                <div className="space-y-2.5 font-light text-warm-grey-300">
+                  <p
+                    style={{
+                      fontSize: "var(--typo-small)",
+                      lineHeight: "var(--leading-small)",
+                    }}
+                  >
+                    {address}
+                  </p>
                   <a
                     href={`mailto:${contactEmail}`}
                     className="block hover:text-white transition-colors duration-200"
+                    style={{
+                      fontSize: "var(--typo-small)",
+                      lineHeight: "var(--leading-small)",
+                    }}
                   >
                     {contactEmail}
                   </a>
-                  <p className="flex items-center gap-1.5 text-warm-grey-400">
+                  <p
+                    className="flex items-center gap-1.5 text-warm-grey-400"
+                    style={{
+                      fontSize: "var(--typo-caption)",
+                      lineHeight: "var(--leading-caption)",
+                    }}
+                  >
                     <Clock className="h-3 w-3 shrink-0" />
                     <span>{hours}</span>
                   </p>
@@ -174,7 +235,14 @@ const Footer: React.FC = () => {
 
               {/* Socials */}
               <div className="col-span-2 sm:col-span-1">
-                <h4 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/30">
+                <h4
+                  className="mb-5 font-semibold uppercase text-white/30"
+                  style={{
+                    fontSize: "var(--typo-overline)",
+                    lineHeight: "var(--leading-overline)",
+                    letterSpacing: "0.18em",
+                  }}
+                >
                   {t("footer.socials", {
                     defaultValue: "Socials",
                   })}
@@ -195,18 +263,25 @@ const Footer: React.FC = () => {
             </div>
           </div>
 
-            {/* ── Watermark ── */}
-            <div
+          {/* ── Watermark ── */}
+          <div
             className="w-full overflow-hidden pointer-events-none select-none -mb-[1vw]"
             aria-hidden="true"
-            >
+          >
             <p className="font-serif text-[18vw] md:text-[15vw] lg:text-[12vw] leading-[0.82] text-center text-white/15 whitespace-nowrap tracking-tight">
               {brand}
             </p>
-            </div>
+          </div>
 
-            {/* ── Bottom bar ── */}
-            <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-t border-white/6 py-6 mt-4 text-[11px] text-warm-grey-500 uppercase tracking-[0.12em]">
+          {/* ── Bottom bar ── */}
+          <div
+            className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-t border-white/6 py-6 mt-4 uppercase text-warm-grey-500"
+            style={{
+              fontSize: "var(--typo-overline)",
+              lineHeight: "var(--leading-overline)",
+              letterSpacing: "0.12em",
+            }}
+          >
             <p>
               © {currentYear} {brand}. {t("footer.allRights")}
             </p>
@@ -214,19 +289,15 @@ const Footer: React.FC = () => {
             <div className="flex flex-wrap items-center gap-x-5 gap-y-5">
               <button
                 type="button"
-                onClick={() =>
-                  open("legal", { page: "privacy" })
-                }
-                className={legalBtnClass}
+                onClick={() => open("legal", { page: "privacy" })}
+                className="cursor-pointer text-warm-grey-500 hover:text-warm-grey-300 transition-colors duration-200"
               >
                 {t("footer.privacy")}
               </button>
               <button
                 type="button"
-                onClick={() =>
-                  open("legal", { page: "legal" })
-                }
-                className={legalBtnClass}
+                onClick={() => open("legal", { page: "legal" })}
+                className="cursor-pointer text-warm-grey-500 hover:text-warm-grey-300 transition-colors duration-200"
               >
                 {t("footer.legalNotice")}
               </button>

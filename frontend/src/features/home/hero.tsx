@@ -272,17 +272,13 @@ const BackgroundFallback: FC = () => (
   <div className="absolute inset-0 bg-sage-900" aria-hidden="true" />
 );
 
-// ── Patch A: Cleaner overlays (1 wash + 1 subtle left bias) ─────────
 const Overlays: FC = () => (
   <>
-    {/* Single clean readability wash */}
     <div className="absolute inset-0 bg-sage-900/30" />
-    {/* Gentle left bias for headline legibility */}
     <div className="absolute inset-0 bg-gradient-to-r from-sage-900/45 via-transparent to-transparent" />
   </>
 );
 
-// ── Patch A: Real transition band into next section ─────────────────
 const BottomFade: FC = () => (
   <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-28 bg-gradient-to-b from-transparent to-cream" />
 );
@@ -306,6 +302,9 @@ export const Hero: FC = () => {
     <section
       id="home"
       className="relative flex min-h-screen items-end overflow-hidden pb-20 pt-24 md:items-center md:pb-0"
+      style={{
+        paddingInline: "var(--space-container-x)",
+      }}
     >
       {/* Background slideshow */}
       <div className="absolute inset-0 z-0">
@@ -325,12 +324,15 @@ export const Hero: FC = () => {
       </div>
 
       {/* Content */}
-      <div className="container relative z-10 mx-auto flex h-full max-w-[1100px] flex-col items-start justify-end px-6 text-left md:justify-center md:px-10 lg:px-16 xl:px-20">
+      <div className="container relative z-10 mx-auto flex h-full max-w-[1100px] flex-col items-start justify-end text-left md:justify-center">
         <motion.h1
           initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           transition={FADE_UP}
-          className="text-editorial-xl mb-5 max-w-3xl text-white"
+          className="text-editorial-xl max-w-3xl text-white"
+          style={{
+            marginBottom: "var(--space-heading-to-paragraph)",
+          }}
         >
           {content.title}
         </motion.h1>
@@ -339,7 +341,12 @@ export const Hero: FC = () => {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={FADE_UP_DELAY_1}
-          className="mb-10 max-w-xl text-base leading-relaxed text-white/65 md:mb-12 md:text-lg"
+          className="max-w-xl text-white/65"
+          style={{
+            fontSize: "var(--typo-body)",
+            lineHeight: "var(--leading-body)",
+            marginBottom: "var(--space-title-to-content)",
+          }}
         >
           {content.subtitle}
         </motion.p>
@@ -354,7 +361,11 @@ export const Hero: FC = () => {
             size="lg"
             onClick={handlePrivateClick}
             aria-label={content.ctaPrivate}
-            className="btn-primary h-[52px] w-full rounded-full px-8 text-sm font-bold uppercase tracking-widest sm:w-auto"
+            className="btn-primary h-[52px] w-full rounded-full px-8 font-bold uppercase tracking-widest sm:w-auto"
+            style={{
+              fontSize: "var(--typo-small)",
+              lineHeight: "var(--leading-small)",
+            }}
           >
             {content.ctaPrivate}
           </Button>
@@ -365,10 +376,15 @@ export const Hero: FC = () => {
             aria-label={content.ctaCorporate}
             className={cn(
               "group inline-flex items-center justify-center gap-2",
-              "text-sm font-semibold tracking-wide",
-              "text-white/70 transition-colors duration-300 hover:text-white",
+              "font-semibold tracking-wide",
+              "text-white/70 transition-colors duration-300",
+              "hover:text-white",
               "py-2 sm:justify-start",
             )}
+            style={{
+              fontSize: "var(--typo-small)",
+              lineHeight: "var(--leading-small)",
+            }}
           >
             {content.ctaCorporate}
             <ArrowRight

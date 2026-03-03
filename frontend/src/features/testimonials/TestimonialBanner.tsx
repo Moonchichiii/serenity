@@ -26,9 +26,9 @@ export function TestimonialBanner() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  /* ── Items: always duplicate for seamless marquee on both layouts ── */
   const items = useMemo(() => {
     if (testimonials.length === 0) return []
-    if (isMobile) return testimonials
     if (testimonials.length < 4) {
       return [
         ...testimonials,
@@ -38,14 +38,14 @@ export function TestimonialBanner() {
       ]
     }
     return [...testimonials, ...testimonials]
-  }, [testimonials, isMobile])
+  }, [testimonials])
 
   const [paused, setPaused] = useState(false)
 
   if (!testimonials || testimonials.length === 0) return null
 
   const handleCardClick = (testimonial: WagtailTestimonial) => {
-    if (!isMobile) setPaused(true)
+    setPaused(true)
     setSelectedTestimonial(testimonial)
   }
 
@@ -71,13 +71,26 @@ export function TestimonialBanner() {
             loading="lazy"
           />
         ) : (
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-sage-50 text-sage-600 flex items-center justify-center text-base sm:text-lg font-serif font-medium">
+          <div
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-serif font-medium"
+            style={{
+              backgroundColor: 'var(--color-sand-200)',
+              color: 'var(--color-sage-700)',
+              fontSize: 'var(--typo-body)',
+            }}
+          >
             {testimonial.name?.[0]?.toUpperCase() ?? '?'}
           </div>
         )}
 
         <div className="min-w-0">
-          <h3 className="font-serif font-medium text-stone-900 text-base sm:text-lg truncate">
+          <h3
+            className="font-serif font-medium text-stone-900 truncate"
+            style={{
+              fontSize: 'var(--typo-h4)',
+              lineHeight: 'var(--leading-h4)',
+            }}
+          >
             {testimonial.name}
           </h3>
           <div className="flex gap-0.5" aria-hidden="true">
@@ -95,14 +108,28 @@ export function TestimonialBanner() {
         </div>
       </div>
 
-      <p className="text-sm sm:text-[15px] text-stone-600 leading-relaxed line-clamp-4 font-light">
+      <p
+        className="text-stone-600 line-clamp-4 font-light"
+        style={{
+          fontSize: 'var(--typo-small)',
+          lineHeight: 'var(--leading-small)',
+        }}
+      >
         &ldquo;{testimonial.text}&rdquo;
       </p>
 
       {testimonial.replies && testimonial.replies.length > 0 && (
-        <div className="mt-4 sm:mt-6 pt-4 border-t border-stone-50 flex items-center gap-2 text-xs font-medium text-sage-600">
+        <div
+          className="mt-4 sm:mt-6 pt-4 border-t border-stone-50 flex items-center gap-2 font-medium text-sage-600"
+          style={{
+            fontSize: 'var(--typo-caption)',
+            lineHeight: 'var(--leading-caption)',
+          }}
+        >
           <MessageCircle className="w-3.5 h-3.5" />
-          <span>{t('testimonials.reply', { defaultValue: 'Read reply' })}</span>
+          <span>
+            {t('testimonials.reply', { defaultValue: 'Read reply' })}
+          </span>
         </div>
       )}
     </article>
@@ -110,17 +137,47 @@ export function TestimonialBanner() {
 
   return (
     <section
-      className="py-16 sm:py-24 lg:py-32 bg-white overflow-hidden"
+      className="bg-white overflow-hidden"
       id="testimonials"
+      style={{
+        paddingTop: 'var(--space-section-y)',
+        paddingBottom: 'var(--space-section-y)',
+      }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-10 sm:mb-16 text-center">
-        <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.2em] text-stone-600 uppercase mb-3 sm:mb-4">
+      <div
+        className="max-w-7xl mx-auto text-center"
+        style={{
+          paddingLeft: 'var(--space-container-x)',
+          paddingRight: 'var(--space-container-x)',
+          marginBottom: 'var(--space-title-to-content)',
+        }}
+      >
+        <span
+          className="inline-block font-bold tracking-[0.2em] text-stone-600 uppercase mb-3"
+          style={{
+            fontSize: 'var(--typo-overline)',
+            lineHeight: 'var(--leading-overline)',
+          }}
+        >
           {t('testimonials.label', { defaultValue: 'Testimonials' })}
         </span>
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-medium text-stone-900 mb-4 sm:mb-6">
+        <h2
+          className="font-serif font-medium text-stone-900"
+          style={{
+            fontSize: 'var(--typo-h2)',
+            lineHeight: 'var(--leading-h2)',
+            marginBottom: 'var(--space-heading-to-paragraph)',
+          }}
+        >
           {t('testimonials.title', { defaultValue: 'Kind Words' })}
         </h2>
-        <p className="text-base sm:text-lg text-stone-500 max-w-xl mx-auto font-light">
+        <p
+          className="text-stone-500 max-w-xl mx-auto font-light"
+          style={{
+            fontSize: 'var(--typo-body)',
+            lineHeight: 'var(--leading-body)',
+          }}
+        >
           {t('testimonials.subtitle', {
             defaultValue: 'Experiences shared by our community',
           })}
@@ -135,11 +192,35 @@ export function TestimonialBanner() {
         }
       >
         {isMobile ? (
-          <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-8 px-6 -mx-4 no-scrollbar">
-            {items.map((tst, index) => renderCard(tst, index))}
-            <div className="w-4 shrink-0" />
+          /* ── Mobile: single-row auto-scrolling marquee ── */
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+
+            <div className="flex gap-4 overflow-hidden py-4">
+              <motion.div
+                className="flex gap-4 w-max"
+                animate={
+                  prefersReduced || paused
+                    ? undefined
+                    : { x: ['0%', '-50%'] }
+                }
+                transition={{
+                  x: {
+                    repeat: Infinity,
+                    repeatType: 'loop',
+                    duration: 25,
+                    ease: 'linear',
+                  },
+                }}
+              >
+                {items.map((tst, i) => renderCard(tst, i))}
+                {items.map((tst, i) => renderCard(tst, i + 500))}
+              </motion.div>
+            </div>
           </div>
         ) : (
+          /* ── Desktop / Tablet: two-row opposing marquees ── */
           <div className="relative">
             <div className="absolute inset-y-0 left-0 w-24 sm:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
             <div className="absolute inset-y-0 right-0 w-24 sm:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
@@ -149,7 +230,9 @@ export function TestimonialBanner() {
               <motion.div
                 className="flex gap-6 w-max"
                 animate={
-                  prefersReduced || paused ? undefined : { x: [0, -1000] }
+                  prefersReduced || paused
+                    ? undefined
+                    : { x: ['0%', '-50%'] }
                 }
                 transition={{
                   x: {
@@ -170,7 +253,9 @@ export function TestimonialBanner() {
               <motion.div
                 className="flex gap-6 w-max"
                 animate={
-                  prefersReduced || paused ? undefined : { x: [-1000, 0] }
+                  prefersReduced || paused
+                    ? undefined
+                    : { x: ['-50%', '0%'] }
                 }
                 transition={{
                   x: {

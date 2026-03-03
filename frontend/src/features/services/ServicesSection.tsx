@@ -1,8 +1,16 @@
-// frontend/src/features/services/ServicesSection.tsx
-
-import { useMemo, useState, useEffect, type FC, type ReactNode } from "react";
+import {
+  useMemo,
+  useState,
+  useEffect,
+  type FC,
+  type ReactNode,
+} from "react";
 import { useTranslation } from "react-i18next";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+} from "framer-motion";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
 
 import { ServicesHero } from "./ServicesHero";
@@ -38,18 +46,26 @@ interface ResolvedService {
 const DESKTOP_PAGE_SIZE = 3;
 
 // ── Utilities ────────────────────────────────────────────────────────
+function formatPrice(price: string): string {
+  const trimmed = price.trim();
+  if (!trimmed) return "";
+  if (trimmed.includes("€")) return trimmed;
+  return `${trimmed} €`;
+}
+
 function resolveLang(language: string): SupportedLang {
   return language.startsWith("fr") ? "fr" : "en";
 }
 
 function resolveServices(
   raw: ServiceItem[],
-  lang: SupportedLang,
+  lang: SupportedLang
 ): ResolvedService[] {
   return raw.map((s) => ({
     id: s.id,
     title: getLocalizedText(s, "title", lang) || "Service",
-    description: getLocalizedText(s, "description", lang) || "",
+    description:
+      getLocalizedText(s, "description", lang) || "",
     durationMinutes: s.duration_minutes,
     price: s.price,
     image: s.image ?? null,
@@ -59,11 +75,17 @@ function resolveServices(
 function accentFirstWord(text: string): ReactNode {
   const words = text.split(" ");
   if (words.length <= 1)
-    return <span className="font-serif italic font-light">{text}</span>;
+    return (
+      <span className="font-serif italic font-light">
+        {text}
+      </span>
+    );
   const first = words.shift();
   return (
     <>
-      <span className="font-serif italic font-light mr-2">{first}</span>
+      <span className="font-serif italic font-light mr-2">
+        {first}
+      </span>
       {words.join(" ")}
     </>
   );
@@ -84,9 +106,9 @@ function useResolvedServices(): ResolvedService[] | null {
 // ── Sub-components ───────────────────────────────────────────────────
 
 // 1. DESKTOP ITEM (Image visible by default)
-const EditorialServiceItem: FC<{ service: ResolvedService }> = ({
-  service,
-}) => (
+const EditorialServiceItem: FC<{
+  service: ResolvedService;
+}> = ({ service }) => (
   <article className="group flex cursor-pointer flex-col gap-6">
     <div className="relative aspect-[4/5] w-full overflow-hidden bg-sage-800">
       {service.image && (
@@ -101,19 +123,43 @@ const EditorialServiceItem: FC<{ service: ResolvedService }> = ({
 
     <div className="flex flex-col gap-3 pr-4">
       <div className="flex items-baseline justify-between gap-4 border-b border-sage-700 pb-4">
-        <h3 className="font-serif text-2xl tracking-tight text-porcelain">
+        <h3
+          className="font-serif tracking-tight text-porcelain"
+          style={{
+            fontSize: "var(--typo-h3)",
+            lineHeight: "var(--leading-h3)",
+          }}
+        >
           {service.title}
         </h3>
-        <span className="shrink-0 text-sm font-medium tracking-widest text-terracotta-300">
-          {service.price}
+        <span
+          className="shrink-0 font-medium tracking-widest text-terracotta-300"
+          style={{
+            fontSize: "var(--typo-small)",
+            lineHeight: "var(--leading-small)",
+          }}
+        >
+          {formatPrice(service.price)}
         </span>
       </div>
 
-      <p className="line-clamp-3 text-sm font-light leading-relaxed text-sage-200/80">
+      <p
+        className="line-clamp-3 font-light text-sage-200/80"
+        style={{
+          fontSize: "var(--typo-small)",
+          lineHeight: "var(--leading-small)",
+        }}
+      >
         {service.description}
       </p>
 
-      <span className="mt-2 text-xs font-semibold uppercase tracking-[0.15em] text-sage-400 transition-colors group-hover:text-terracotta-300">
+      <span
+        className="mt-2 font-semibold uppercase tracking-[0.15em] text-sage-400 transition-colors group-hover:text-terracotta-300"
+        style={{
+          fontSize: "var(--typo-overline)",
+          lineHeight: "var(--leading-overline)",
+        }}
+      >
         {service.durationMinutes} Min
       </span>
     </div>
@@ -131,14 +177,32 @@ const MobileListItem: FC<{
     className="group flex w-full flex-col gap-2 border-b border-sage-800 py-6 text-left transition-colors hover:border-sage-600 active:bg-sage-800/50"
   >
     <div className="flex w-full items-baseline justify-between gap-4">
-      <h3 className="font-serif text-xl tracking-tight text-porcelain transition-colors group-hover:text-white">
+      <h3
+        className="font-serif tracking-tight text-porcelain transition-colors group-hover:text-white"
+        style={{
+          fontSize: "var(--typo-h4)",
+          lineHeight: "var(--leading-h4)",
+        }}
+      >
         {service.title}
       </h3>
-      <span className="shrink-0 text-sm font-medium tracking-widest text-terracotta-300">
-        {service.price}
+      <span
+        className="shrink-0 font-medium tracking-widest text-terracotta-300"
+        style={{
+          fontSize: "var(--typo-small)",
+          lineHeight: "var(--leading-small)",
+        }}
+      >
+        {formatPrice(service.price)}
       </span>
     </div>
-    <span className="text-xs font-semibold uppercase tracking-[0.15em] text-sage-400">
+    <span
+      className="font-semibold uppercase tracking-[0.15em] text-sage-400"
+      style={{
+        fontSize: "var(--typo-overline)",
+        lineHeight: "var(--leading-overline)",
+      }}
+    >
       {service.durationMinutes} Min
     </span>
   </button>
@@ -149,7 +213,6 @@ const MobileServiceDrawer: FC<{
   service: ResolvedService | null;
   onClose: () => void;
 }> = ({ service, onClose }) => {
-  // Prevent body scroll when drawer is open
   useEffect(() => {
     if (service) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
@@ -176,7 +239,11 @@ const MobileServiceDrawer: FC<{
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            transition={{
+              type: "spring",
+              damping: 25,
+              stiffness: 200,
+            }}
             className="fixed bottom-0 left-0 right-0 z-50 flex h-[85vh] flex-col overflow-hidden rounded-t-[2rem] bg-sage-900 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] md:hidden"
           >
             {/* Image Header */}
@@ -188,10 +255,8 @@ const MobileServiceDrawer: FC<{
                   className="h-full w-full object-cover opacity-90"
                 />
               )}
-              {/* Gradient fade to seamlessly blend image into content */}
               <div className="absolute inset-0 bg-gradient-to-t from-sage-900 via-sage-900/40 to-transparent" />
 
-              {/* Close Button */}
               <button
                 onClick={onClose}
                 className="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-sage-900/60 text-white backdrop-blur-md transition-colors hover:bg-sage-800"
@@ -202,23 +267,51 @@ const MobileServiceDrawer: FC<{
 
             {/* Content Body */}
             <div className="flex-1 overflow-y-auto px-6 pb-10 pt-6">
-              <span className="mb-3 block text-xs font-semibold uppercase tracking-[0.2em] text-terracotta-400">
+              <span
+                className="mb-3 block font-semibold uppercase tracking-[0.2em] text-terracotta-400"
+                style={{
+                  fontSize: "var(--typo-overline)",
+                  lineHeight: "var(--leading-overline)",
+                }}
+              >
                 {service.durationMinutes} Minutes
               </span>
-              <h3 className="mb-6 font-serif text-3xl text-porcelain">
+              <h3
+                className="mb-6 font-serif text-porcelain"
+                style={{
+                  fontSize: "var(--typo-h2)",
+                  lineHeight: "var(--leading-h2)",
+                }}
+              >
                 {service.title}
               </h3>
-              <p className="mb-8 text-base font-light leading-relaxed text-sage-200/90">
+              <p
+                className="mb-8 font-light text-sage-200/90"
+                style={{
+                  fontSize: "var(--typo-body)",
+                  lineHeight: "var(--leading-body)",
+                }}
+              >
                 {service.description}
               </p>
 
               <div className="flex items-center justify-between border-t border-sage-800 pt-6">
-                <span className="font-serif text-2xl text-porcelain">
-                  {service.price}
+                <span
+                  className="font-serif text-porcelain"
+                  style={{
+                    fontSize: "var(--typo-h3)",
+                    lineHeight: "var(--leading-h3)",
+                  }}
+                >
+                  {formatPrice(service.price)}
                 </span>
                 <button
-                  onClick={onClose} // In real app, this might trigger "Book Now"
-                  className="rounded-full border border-terracotta-400 px-8 py-3 text-sm font-semibold uppercase tracking-widest text-terracotta-400 transition-colors hover:bg-terracotta-400 hover:text-sage-900"
+                  onClick={onClose}
+                  className="rounded-full border border-terracotta-400 px-8 py-3 font-semibold uppercase tracking-widest text-terracotta-400 transition-colors hover:bg-terracotta-400 hover:text-sage-900"
+                  style={{
+                    fontSize: "var(--typo-small)",
+                    lineHeight: "var(--leading-small)",
+                  }}
                 >
                   Fermer
                 </button>
@@ -231,12 +324,16 @@ const MobileServiceDrawer: FC<{
   );
 };
 
-const DesktopGrid: FC<{ services: ResolvedService[] }> = ({ services }) => {
+const DesktopGrid: FC<{ services: ResolvedService[] }> = ({
+  services,
+}) => {
   const [page, setPage] = useState(0);
-  const totalPages = Math.ceil(services.length / DESKTOP_PAGE_SIZE);
+  const totalPages = Math.ceil(
+    services.length / DESKTOP_PAGE_SIZE
+  );
   const visible = services.slice(
     page * DESKTOP_PAGE_SIZE,
-    page * DESKTOP_PAGE_SIZE + DESKTOP_PAGE_SIZE,
+    page * DESKTOP_PAGE_SIZE + DESKTOP_PAGE_SIZE
   );
 
   const canPrev = page > 0;
@@ -244,7 +341,7 @@ const DesktopGrid: FC<{ services: ResolvedService[] }> = ({ services }) => {
 
   return (
     <div className="hidden md:block">
-      <div className="mx-auto grid max-w-7xl grid-cols-3 gap-10 lg:gap-16">
+      <div className="mx-auto grid max-w-7xl grid-cols-3 gap-[var(--space-grid-gap)]">
         {visible.map((s) => (
           <EditorialServiceItem key={s.id} service={s} />
         ))}
@@ -253,7 +350,9 @@ const DesktopGrid: FC<{ services: ResolvedService[] }> = ({ services }) => {
       {totalPages > 1 && (
         <div className="mt-20 flex items-center justify-center gap-6">
           <button
-            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            onClick={() =>
+              setPage((p) => Math.max(0, p - 1))
+            }
             disabled={!canPrev}
             aria-label="Previous services"
             className="group flex h-14 w-14 items-center justify-center rounded-full border border-sage-700 text-porcelain transition-all duration-300 hover:border-terracotta-300 hover:text-terracotta-300 disabled:opacity-20 disabled:hover:border-sage-700 disabled:hover:text-porcelain"
@@ -261,7 +360,11 @@ const DesktopGrid: FC<{ services: ResolvedService[] }> = ({ services }) => {
             <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
           </button>
           <button
-            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+            onClick={() =>
+              setPage((p) =>
+                Math.min(totalPages - 1, p + 1)
+              )
+            }
             disabled={!canNext}
             aria-label="Next services"
             className="group flex h-14 w-14 items-center justify-center rounded-full border border-sage-700 text-porcelain transition-all duration-300 hover:border-terracotta-300 hover:text-terracotta-300 disabled:opacity-20 disabled:hover:border-sage-700 disabled:hover:text-porcelain"
@@ -280,7 +383,6 @@ export const Services: FC = () => {
   const reduceMotion = useReducedMotion();
   const services = useResolvedServices();
 
-  // State for Mobile Drawer
   const [selectedMobileService, setSelectedMobileService] =
     useState<ResolvedService | null>(null);
 
@@ -288,40 +390,76 @@ export const Services: FC = () => {
     <div className="services-page">
       <ServicesHero />
 
-<section
+      <section
         id="services"
         aria-labelledby="services-heading"
-        className="section-spacious bg-sage-900"
+        className="bg-sage-900 py-[var(--space-section-y)]"
       >
-        <div className="container mx-auto px-6 md:px-12 lg:px-20">
-
+        <div className="container mx-auto px-[var(--space-container-x)]">
           {/* Editorial Header Split Layout */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={reduceMotion ? { duration: 0 } : { duration: 0.8 }}
-            className="mb-12 flex flex-col items-start gap-8 border-b border-sage-800 pb-12 md:mb-20 md:flex-row md:items-end md:justify-between"
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : { duration: 0.8 }
+            }
+            className="flex flex-col items-start gap-8 border-b border-sage-800 md:flex-row md:items-end md:justify-between"
+            style={{
+              marginBottom: "var(--space-grid-gap)",
+              paddingBottom:
+                "var(--space-title-to-content)",
+            }}
           >
             <div className="max-w-2xl">
-              <p className="mb-6 text-xs font-semibold uppercase tracking-[0.25em] text-terracotta-400">
-                {t("services.label", { defaultValue: "Notre Expertise" })}
+              <p
+                className="mb-6 font-semibold uppercase tracking-[0.25em] text-terracotta-400"
+                style={{
+                  fontSize: "var(--typo-overline)",
+                  lineHeight: "var(--leading-overline)",
+                }}
+              >
+                {t("services.label", {
+                  defaultValue: "Notre Expertise",
+                })}
               </p>
               <h2
                 id="services-heading"
                 className="text-editorial-lg text-porcelain"
               >
-                {accentFirstWord(t("services.title", { defaultValue: "Nos soins signatures" }))}
+                {accentFirstWord(
+                  t("services.title", {
+                    defaultValue:
+                      "Nos soins signatures",
+                  })
+                )}
               </h2>
             </div>
-            <p className="max-w-md text-base font-light leading-relaxed text-sage-200/80">
-              {t("services.subtitle", { defaultValue: "A tailored approach to physical and mental equilibrium." })}
+            <p
+              className="max-w-md font-light text-sage-200/80"
+              style={{
+                fontSize: "var(--typo-body)",
+                lineHeight: "var(--leading-body)",
+              }}
+            >
+              {t("services.subtitle", {
+                defaultValue:
+                  "A tailored approach to physical and mental equilibrium.",
+              })}
             </p>
           </motion.div>
 
           {/* Grid & List */}
           {!services ? (
-            <div className="py-20 text-center text-sage-400">
+            <div
+              className="py-20 text-center text-sage-400"
+              style={{
+                fontSize: "var(--typo-body)",
+                lineHeight: "var(--leading-body)",
+              }}
+            >
               No services available yet.
             </div>
           ) : (
@@ -332,7 +470,9 @@ export const Services: FC = () => {
                   <MobileListItem
                     key={s.id}
                     service={s}
-                    onClick={() => setSelectedMobileService(s)}
+                    onClick={() =>
+                      setSelectedMobileService(s)
+                    }
                   />
                 ))}
               </div>

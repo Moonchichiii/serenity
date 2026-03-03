@@ -1,304 +1,192 @@
-import { useState, useCallback, useMemo, type FC } from "react";
+import {
+  useMemo,
+  useState,
+  useCallback,
+  lazy,
+  Suspense,
+  type FC,
+} from "react";
 import { useTranslation } from "react-i18next";
 import {
   motion,
   AnimatePresence,
   useReducedMotion,
-  type Variants,
   type Transition,
 } from "framer-motion";
-import { ArrowUpRight, ArrowRight } from "lucide-react";
+import { ChevronDown, MapPin } from "lucide-react";
 
-import { useCMSPage } from "@/hooks/useCMS";
-import { useModal } from "@/components/modal";
-import { getLocalizedText } from "@/lib/localize";
+import { useCMSPage, useCMSGlobals } from "@/hooks/useCMS";
+import { cmsText } from "@/lib/cmsText";
 import { cn } from "@/lib/utils";
 
+// ── Lazy imports ─────────────────────────────────────────────────────
+const LocationMap = lazy(() =>
+  import("@/components/ui/LocationMap").then((m) => ({
+    default: m.LocationMap,
+  }))
+);
+
 // ── Constants ────────────────────────────────────────────────────────
-const FADE_IN_TRANSITION: Transition = {
-  duration: 0.7,
+const FADE_TRANSITION: Transition = {
+  duration: 0.6,
   ease: [0.16, 1, 0.3, 1],
 };
 
-const SECTION_ENTRANCE: Variants = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: FADE_IN_TRANSITION },
+const EXPAND_TRANSITION: Transition = {
+  duration: 0.35,
+  ease: [0.16, 1, 0.3, 1],
 };
-
-const ITEM_STAGGER: Variants = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: 0.06, delayChildren: 0.1 },
-  },
-};
-
-const ITEM_ENTRANCE: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { type: "spring", stiffness: 260, damping: 24 },
-  },
-};
-
-const ANSWER_VARIANTS: Variants = {
-  collapsed: {
-    height: 0,
-    opacity: 0,
-    transition: {
-      height: { duration: 0.3 },
-      opacity: { duration: 0.15 },
-    },
-  },
-  expanded: {
-    height: "auto",
-    opacity: 1,
-    transition: {
-      height: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
-      opacity: { duration: 0.25, delay: 0.1 },
-    },
-  },
-};
-
-type SupportedLang = "fr" | "en";
 
 // ── Types ────────────────────────────────────────────────────────────
-interface CmsFaqItem {
-  id: number;
-  question_en?: string;
-  question_fr?: string;
-  answer_en?: string;
-  answer_fr?: string;
-}
-
-interface ResolvedFaq {
-  id: number;
+interface FaqItem {
   question: string;
   answer: string;
 }
 
-// ── Fallback FAQ data ────────────────────────────────────────────────
-const FALLBACK_KEYS = [
-  "faq.items.booking",
-  "faq.items.whatToExpect",
-  "faq.items.cancellation",
-  "faq.items.corporate",
-  "faq.items.duration",
-  "faq.items.contraindications",
-] as const;
-
-function buildFallbackFaqs(
-  t: (key: string) => string,
-): ResolvedFaq[] {
-  return FALLBACK_KEYS.map((key, i) => ({
-    id: i + 1,
-    question: t(`${key}.question`),
-    answer: t(`${key}.answer`),
-  })).filter((f) => f.question && f.answer);
-}
+type SupportedLang = "fr" | "en";
 
 // ── Utilities ────────────────────────────────────────────────────────
 function resolveLang(language: string): SupportedLang {
   return language.startsWith("fr") ? "fr" : "en";
 }
 
-function resolveFaqItems(
-  raw: CmsFaqItem[],
-  lang: SupportedLang,
-): ResolvedFaq[] {
-  return raw
-    .map((item) => ({
-      id: item.id,
-      question: getLocalizedText(item, "question", lang),
-      answer: getLocalizedText(item, "answer", lang),
-    }))
-    .filter(
-      (f) =>
-        f.question.trim().length > 0 && f.answer.trim().length > 0,
-    );
+function pickLocalized<T>(lang: SupportedLang, fr: T, en: T): T {
+  return lang === "fr" ? fr : en;
 }
 
-/** Zero-pad a number to two digits. */
-function pad(n: number): string {
-  return String(n).padStart(2, "0");
-}
-
-// ── Hooks ────────────────────────────────────────────────────────────
-function useResolvedFaqs(): {
-  surtitle: string;
-  title: string;
-  items: ResolvedFaq[];
-} | null {
-  const { t, i18n } = useTranslation();
-  const page = useCMSPage();
-  const lang = resolveLang(i18n.language);
-
-  return useMemo(() => {
-    const surtitle = t("faq.surtitle", {
-      defaultValue: "Have questions?",
-    });
-    const title = t("faq.title", { defaultValue: "FAQs" });
-
-    const cmsFaqs: CmsFaqItem[] = (page as any)?.faq_items ?? [];
-    const items =
-      cmsFaqs.length > 0
-        ? resolveFaqItems(cmsFaqs, lang)
-        : buildFallbackFaqs(t);
-
-    if (items.length === 0) return null;
-
-    return { surtitle, title, items };
-  }, [page, lang, t]);
-}
-
-function useAccordion() {
-  const [openId, setOpenId] = useState<number | null>(null);
-
-  const toggle = useCallback(
-    (id: number) =>
-      setOpenId((prev) => (prev === id ? null : id)),
-    [],
-  );
-
-  return { openId, toggle } as const;
+function stripHtml(html?: string | null): string {
+  if (!html) return "";
+  const el = document.createElement("div");
+  el.innerHTML = html;
+  return el.textContent ?? el.innerText ?? "";
 }
 
 // ── Sub-components ───────────────────────────────────────────────────
+const MapFallback: FC = () => (
+  <div className="h-[200px] w-full animate-pulse rounded-2xl bg-sand-100" />
+);
 
-const FaqItem: FC<{
-  item: ResolvedFaq;
+const AccordionItem: FC<{
+  item: FaqItem;
   index: number;
   isOpen: boolean;
   onToggle: () => void;
-  variants: Variants | undefined;
   reduceMotion: boolean | null;
-}> = ({ item, index, isOpen, onToggle, variants, reduceMotion }) => (
-  <motion.div variants={variants} className="border-b border-warm-grey-200">
+}> = ({ item, index, isOpen, onToggle, reduceMotion }) => (
+  <div
+    className={cn(
+      "border-b border-warm-grey-200/50 transition-colors",
+      isOpen && "bg-white/30"
+    )}
+  >
     <button
       type="button"
-      id={`faq-trigger-${item.id}`}
-      aria-expanded={isOpen}
-      aria-controls={`faq-panel-${item.id}`}
       onClick={onToggle}
-      className="group flex w-full items-center gap-6 py-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-400 focus-visible:ring-offset-2 sm:gap-10 md:py-7"
+      className="flex w-full items-center justify-between gap-4 text-left"
+      style={{
+        paddingTop: "var(--space-card-gap)",
+        paddingBottom: "var(--space-card-gap)",
+      }}
+      aria-expanded={isOpen}
+      aria-controls={`faq-answer-${index}`}
+      id={`faq-question-${index}`}
     >
-      {/* Number */}
-      <span className="shrink-0 text-sm font-medium text-warm-grey-400 tabular-nums">
-        {pad(index + 1)}
-      </span>
-
-      {/* Question */}
       <span
-        className={cn(
-          "flex-1 font-serif text-lg font-medium transition-colors duration-200 sm:text-xl md:text-[1.35rem]",
-          isOpen
-            ? "text-charcoal"
-            : "text-charcoal/80 group-hover:text-charcoal",
-        )}
+        className="font-medium text-charcoal"
+        style={{
+          fontSize: "var(--typo-body)",
+          lineHeight: "var(--leading-body)",
+        }}
       >
         {item.question}
       </span>
-
-      {/* Icon */}
-      <span
+      <ChevronDown
         className={cn(
-          "flex h-8 w-8 shrink-0 items-center justify-center transition-colors duration-200",
-          isOpen
-            ? "text-charcoal"
-            : "text-warm-grey-400 group-hover:text-charcoal",
+          "h-4 w-4 shrink-0 text-warm-grey-400 transition-transform duration-300",
+          isOpen && "rotate-180"
         )}
-      >
-        <motion.span
-          animate={{ rotate: isOpen ? 45 : 0 }}
-          transition={
-            reduceMotion
-              ? { duration: 0 }
-              : { duration: 0.25, ease: "easeInOut" }
-          }
-        >
-          <ArrowUpRight className="h-5 w-5" />
-        </motion.span>
-      </span>
+      />
     </button>
-
     <AnimatePresence initial={false}>
       {isOpen && (
         <motion.div
-          key={`panel-${item.id}`}
-          id={`faq-panel-${item.id}`}
+          id={`faq-answer-${index}`}
           role="region"
-          aria-labelledby={`faq-trigger-${item.id}`}
-          variants={reduceMotion ? undefined : ANSWER_VARIANTS}
-          initial="collapsed"
-          animate="expanded"
-          exit="collapsed"
+          aria-labelledby={`faq-question-${index}`}
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: "auto", opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={reduceMotion ? { duration: 0 } : EXPAND_TRANSITION}
           className="overflow-hidden"
         >
-          <div className="pb-7 pl-[calc(theme(spacing.6)+theme(fontSize.sm))] sm:pl-[calc(theme(spacing.10)+theme(fontSize.sm))]">
-            <p className="max-w-2xl text-base leading-relaxed text-warm-grey-500">
-              {item.answer}
-            </p>
-          </div>
+          <p
+            className="text-warm-grey-500"
+            style={{
+              paddingBottom: "var(--space-card-gap)",
+              fontSize: "var(--typo-small)",
+              lineHeight: "var(--leading-small)",
+            }}
+          >
+            {item.answer}
+          </p>
         </motion.div>
       )}
     </AnimatePresence>
-  </motion.div>
+  </div>
 );
 
-const ContactCta: FC<{
-  onContact: () => void;
-  reduceMotion: boolean | null;
-}> = ({ onContact, reduceMotion }) => {
-  const { t } = useTranslation();
+// ── Hook: CMS FAQ data ───────────────────────────────────────────────
+function useFaqContent() {
+  const { t, i18n } = useTranslation();
+  const cmsData = useCMSPage();
+  const globals = useCMSGlobals();
+  const lang = resolveLang(i18n.language);
 
-  return (
-    <motion.div
-      initial={reduceMotion ? false : { opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={
-        reduceMotion
-          ? { duration: 0 }
-          : { duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }
-      }
-      className="mt-14 flex flex-col items-center gap-2 border-t border-warm-grey-200 pt-10 text-center md:mt-16"
-    >
-      <p className="text-sm text-warm-grey-400">
-        {t("faq.cta.title", {
-          defaultValue: "Can't find your answer?",
-        })}
-      </p>
-      <button
-        type="button"
-        onClick={onContact}
-        className="group inline-flex items-center gap-1.5 text-sm font-medium text-charcoal transition-colors duration-200 hover:text-sage-700"
-      >
-        {t("faq.cta.button", { defaultValue: "Get in touch" })}
-        <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
-      </button>
-    </motion.div>
-  );
-};
+  return useMemo(() => {
+    if (!cmsData) return null;
 
-// ── Main component ───────────────────────────────────────────────────
+    const pick = <T,>(fr: T, en: T): T => pickLocalized(lang, fr, en);
+    const txt = (fr: unknown, en: unknown, fb: string): string =>
+      cmsText(pick(fr, en) as string | undefined, fb);
+
+    const title = txt(
+      cmsData.faq_title_fr,
+      cmsData.faq_title_en,
+      t("faq.title")
+    );
+
+    const subtitle = txt(
+      cmsData.faq_subtitle_fr,
+      cmsData.faq_subtitle_en,
+      t("faq.subtitle")
+    );
+
+    const items: FaqItem[] = [];
+    for (let i = 1; i <= 8; i++) {
+      const qKey = `faq_q${i}_${lang}` as keyof typeof cmsData;
+      const aKey = `faq_a${i}_${lang}` as keyof typeof cmsData;
+      const q = stripHtml(cmsData[qKey] as string) || t(`faq.q${i}`);
+      const a = stripHtml(cmsData[aKey] as string) || t(`faq.a${i}`);
+      if (q && a) items.push({ question: q, answer: a });
+    }
+
+    const address =
+      globals?.site?.address_full?.trim() || t("footer.addressFull");
+
+    return { title, subtitle, items, address };
+  }, [cmsData, globals, lang, t]);
+}
+
+// ── Main component ──────────────────────────────────────────────────
 export const Faq: FC = () => {
   const { t } = useTranslation();
-  const { open } = useModal();
   const reduceMotion = useReducedMotion();
-  const content = useResolvedFaqs();
-  const { openId, toggle } = useAccordion();
+  const content = useFaqContent();
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  const listVariants = reduceMotion ? undefined : ITEM_STAGGER;
-  const itemVariants = reduceMotion ? undefined : ITEM_ENTRANCE;
-
-  const openContact = useCallback(
-    () =>
-      open("contact", {
-        defaultSubject: t("faq.cta.subject", {
-          defaultValue: "Question",
-        }),
-      }),
-    [open, t],
+  const toggle = useCallback(
+    (i: number) => setOpenIndex((prev) => (prev === i ? null : i)),
+    []
   );
 
   if (!content) return null;
@@ -306,55 +194,115 @@ export const Faq: FC = () => {
   return (
     <section
       id="faq"
+      className="relative overflow-hidden bg-white"
+      style={{
+        paddingTop: "var(--space-section-y)",
+        paddingBottom: "var(--space-section-y)",
+      }}
       aria-labelledby="faq-heading"
-      className="section-spacious relative overflow-hidden bg-tint-cream"
     >
-      <div className="container relative z-10 mx-auto px-6 sm:px-8 md:px-12 lg:px-20">
-        {/* Header — left-aligned */}
-        <motion.div
-          variants={reduceMotion ? undefined : SECTION_ENTRANCE}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className="mb-12 md:mb-16"
-        >
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-warm-grey-400">
-            {content.surtitle}
-          </p>
-          <h2
-            id="faq-heading"
-            className="font-serif text-5xl font-bold text-charcoal sm:text-6xl md:text-7xl"
-          >
-            {content.title}
-          </h2>
-        </motion.div>
+      <div className="noise-texture-subtle" aria-hidden="true" />
 
-        {/* Accordion */}
+      <div
+        className="container relative z-10 mx-auto max-w-5xl"
+        style={{
+          paddingLeft: "var(--space-container-x)",
+          paddingRight: "var(--space-container-x)",
+        }}
+      >
         <motion.div
-          variants={listVariants}
-          initial="hidden"
-          whileInView="show"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.1 }}
-          className="mx-auto max-w-4xl border-t border-warm-grey-200"
+          transition={reduceMotion ? undefined : FADE_TRANSITION}
         >
-          {content.items.map((item, idx) => (
-            <FaqItem
-              key={item.id}
-              item={item}
-              index={idx}
-              isOpen={openId === item.id}
-              onToggle={() => toggle(item.id)}
-              variants={itemVariants}
-              reduceMotion={reduceMotion}
-            />
-          ))}
-        </motion.div>
+          {/* ─── Header ──────────────────────────────────────────── */}
+          <div
+            className="max-w-2xl"
+            style={{
+              marginBottom: "var(--space-title-to-content)",
+            }}
+          >
+            <h2
+              id="faq-heading"
+              className="font-serif font-light text-charcoal heading-accent"
+              style={{
+                fontSize: "var(--typo-h2)",
+                lineHeight: "var(--leading-h2)",
+                marginBottom: "var(--space-heading-to-paragraph)",
+              }}
+            >
+              {content.title}
+            </h2>
+            {content.subtitle && (
+              <p
+                className="text-warm-grey-500"
+                style={{
+                  fontSize: "var(--typo-body)",
+                  lineHeight: "var(--leading-body)",
+                }}
+              >
+                {content.subtitle}
+              </p>
+            )}
+          </div>
 
-        {/* Contact CTA */}
-        <ContactCta
-          onContact={openContact}
-          reduceMotion={reduceMotion}
-        />
+          {/* ─── Two-column: FAQ + Location ──────────────────────── */}
+          <div
+            className="grid grid-cols-1 lg:grid-cols-5"
+            style={{ gap: "var(--space-grid-gap)" }}
+          >
+            {/* Accordion */}
+            <div className="lg:col-span-3">
+              <div className="border-t border-warm-grey-200/50">
+                {content.items.map((item, i) => (
+                  <AccordionItem
+                    key={i}
+                    item={item}
+                    index={i}
+                    isOpen={openIndex === i}
+                    onToggle={() => toggle(i)}
+                    reduceMotion={reduceMotion}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Location card — sticky on desktop */}
+            <div className="lg:col-span-2 lg:sticky lg:top-32 lg:h-max">
+              <div className="overflow-hidden rounded-2xl border border-warm-grey-200/50 bg-tint-cream/40">
+                <Suspense fallback={<MapFallback />}>
+                  <LocationMap />
+                </Suspense>
+                <div className="space-y-2 px-5 py-4">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-3.5 w-3.5 text-warm-grey-400" />
+                    <p
+                      className="font-semibold text-charcoal"
+                      style={{
+                        fontSize: "var(--typo-small)",
+                        lineHeight: "var(--leading-small)",
+                      }}
+                    >
+                      {t("faq.locationLabel", {
+                        defaultValue: "Studio",
+                      })}
+                    </p>
+                  </div>
+                  <p
+                    className="whitespace-pre-line text-warm-grey-400"
+                    style={{
+                      fontSize: "var(--typo-caption)",
+                      lineHeight: "var(--leading-caption)",
+                    }}
+                  >
+                    {content.address}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
