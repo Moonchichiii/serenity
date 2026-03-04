@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from django.conf import settings
@@ -16,9 +17,22 @@ TZ = ZoneInfo("Europe/Paris")
 
 
 def _ensure_tz(dt):
-    # DRF DateTimeField returns aware dt if USE_TZ True, but keep this safe.
+    """
+    Ensures a datetime object is timezone-aware (Paris).
+    Handles None, strings, and existing datetime objects.
+    """
     if dt is None:
         return None
+
+    # FIX: If it is a string (coming from JSON), parse it first
+    if isinstance(dt, str):
+        try:
+            # Handle potential trailing "Z" from JS dates or Stripe
+            dt = datetime.fromisoformat(dt.replace("Z", "+00:00"))
+        except ValueError:
+            logger.error(f"Could not parse date string: {dt}")
+            return None
+
     if dt.tzinfo is None:
         return dt.replace(tzinfo=TZ)
     return dt
@@ -104,7 +118,10 @@ def _create_calendar_event_for_voucher(voucher: GiftVoucher) -> None:
     if not (voucher.service and voucher.start_datetime and voucher.end_datetime):
         return
 
-    title = f"[Voucher] {voucher.recipient_name} - {voucher.service.title_fr}"
+    # Helper to avoid crash if service title isn't loaded or differs
+    service_title = getattr(voucher.service, 'title_fr', 'Service')
+
+    title = f"[Voucher] {voucher.recipient_name} - {service_title}"
 
     event = create_booking_event(
         title=title,
@@ -124,8 +141,13 @@ def _create_calendar_event_for_voucher(voucher: GiftVoucher) -> None:
 
 def create_voucher(data: dict) -> GiftVoucher:
     service_id = data.pop("service_id", None)
-    start_datetime = _ensure_tz(data.pop("start_datetime", None))
-    end_datetime = _ensure_tz(data.pop("end_datetime", None))
+
+    # We must pop these to process them safely with _ensure_tz
+    raw_start = data.pop("start_datetime", None)
+    raw_end = data.pop("end_datetime", None)
+
+    start_datetime = _ensure_tz(raw_start)
+    end_datetime = _ensure_tz(raw_end)
 
     service = None
     if service_id:

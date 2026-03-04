@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from .models import StripePayment
 from .serializers import CheckoutRequestSerializer, CheckoutResponseSerializer
 from .services import create_checkout_session
 
@@ -26,3 +27,19 @@ def create_checkout(request: Request) -> Response:
     )
 
     return Response(out.data, status=201)
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def get_payment_status(request: Request) -> Response:
+    session_id = request.query_params.get("session_id")
+    if not session_id:
+        return Response({"error": "Missing session_id"}, status=400)
+
+    payment = StripePayment.objects.filter(stripe_checkout_session_id=session_id).first()
+    if not payment:
+        return Response({"status": "unknown"}, status=404)
+
+    return Response({
+        "status": payment.status,
+        "voucher_id": payment.voucher_id
+    })

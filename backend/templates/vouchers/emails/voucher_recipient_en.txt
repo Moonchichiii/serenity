@@ -1,0 +1,22 @@
+You've received a Gift Voucher!
+
+Hello {{ voucher.recipient_name }},
+
+{{ voucher.sender_name }} has sent you a gift voucher for {{ business_name }}.
+
+{% if voucher.message %}
+"{{ voucher.message }}"
+{% endif %}
+
+YOUR VOUCHER CODE: {{ voucher.code }}
+Value: €{{ voucher.amount }}
+
+{% if voucher.service %}
+Valid for: {{ voucher.service.title_en }}
+{% endif %}
+
+{% if voucher.start_datetime %}
+Booked for: {{ voucher.start_datetime|date:"F j, Y, P" }}
+{% endif %}
+
+To redeem this voucher, please contact us.

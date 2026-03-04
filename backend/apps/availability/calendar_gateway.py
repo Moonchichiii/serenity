@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json
 import logging
 from datetime import datetime, timedelta
@@ -7,8 +8,8 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from decouple import config
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
+from google.auth.exceptions import RefreshError
+from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
@@ -20,28 +21,24 @@ TZ = ZoneInfo("Europe/Paris")
 
 
 def _get_credentials() -> Credentials | None:
-    """Load credentials from environment and refresh if needed."""
-    token_json = config("GOOGLE_OAUTH_TOKEN_JSON", default=None)
-    if not token_json:
+    """Load service-account credentials from environment."""
+    sa_b64 = config("GOOGLE_SERVICE_ACCOUNT_BASE64", default=None)
+    if not sa_b64:
+        logger.error(
+            "GOOGLE_SERVICE_ACCOUNT_BASE64 not set — "
+            "cannot authenticate with Google Calendar"
+        )
         return None
 
     try:
-        data = json.loads(token_json)
-        creds = Credentials(
-            token=data.get("token"),
-            refresh_token=data.get("refresh_token"),
-            token_uri=data.get("token_uri"),
-            client_id=data.get("client_id"),
-            client_secret=data.get("client_secret"),
-            scopes=data.get("scopes", SCOPES),
+        sa_json = base64.b64decode(sa_b64).decode("utf-8")
+        info = json.loads(sa_json)
+        creds = Credentials.from_service_account_info(
+            info, scopes=SCOPES
         )
-
-        if creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-
         return creds
-    except (json.JSONDecodeError, KeyError) as e:
-        logger.error("Invalid Google OAuth token format: %s", e)
+    except (json.JSONDecodeError, KeyError, ValueError) as e:
+        logger.error("Invalid service-account JSON: %s", e)
         return None
 
 
@@ -50,16 +47,27 @@ def _get_service() -> Any | None:
     creds = _get_credentials()
     if not creds:
         return None
-    return build(
-        "calendar", "v3", credentials=creds, cache_discovery=False
-    )
+    try:
+        return build(
+            "calendar",
+            "v3",
+            credentials=creds,
+            cache_discovery=False,
+        )
+    except RefreshError as e:
+        logger.error(
+            "Failed to refresh service-account token: %s", e
+        )
+        return None
 
 
 def list_busy_days(year: int, month: int) -> list[str]:
     """Get dates (YYYY-MM-DD) that have any events for a given month."""
     service = _get_service()
     if not service:
-        logger.error("No calendar credentials — cannot fetch busy days")
+        logger.error(
+            "No calendar credentials — cannot fetch busy days"
+        )
         return []
 
     start = datetime(year, month, 1, tzinfo=TZ)
@@ -82,7 +90,7 @@ def list_busy_days(year: int, month: int) -> list[str]:
         )
 
         events = events_result.get("items", [])
-        busy_dates = set()
+        busy_dates: set[str] = set()
 
         for event in events:
             start_date = event["start"].get("date")
@@ -103,6 +111,11 @@ def list_busy_days(year: int, month: int) -> list[str]:
     except HttpError as error:
         logger.error("Calendar API error (busy days): %s", error)
         return []
+    except RefreshError as error:
+        logger.error(
+            "Token refresh failed (busy days): %s", error
+        )
+        return []
 
 
 def list_free_slots(
@@ -110,7 +123,10 @@ def list_free_slots(
     slot_minutes: int = 30,
     work_hours: tuple[int, int] = (9, 19),
 ) -> list[str]:
-    """Get available time slots (HH:MM) for a specific date."""
+    """Get available time slots (HH:MM) for a specific date.
+
+    Returns an empty list if an all-day event occupies the date.
+    """
     service = _get_service()
     if not service:
         logger.error(
@@ -142,7 +158,17 @@ def list_free_slots(
 
         events = events_result.get("items", [])
 
-        occupied = []
+        # All-day event check
+        for event in events:
+            if event["start"].get("date"):
+                logger.info(
+                    "All-day event found on %s — no slots available",
+                    date_iso,
+                )
+                return []
+
+        # Build occupied ranges
+        occupied: list[tuple[datetime, datetime]] = []
         for event in events:
             event_start = event["start"].get("dateTime")
             event_end = event["end"].get("dateTime")
@@ -154,7 +180,8 @@ def list_free_slots(
                     )
                 )
 
-        slots = []
+        # Generate free slots
+        slots: list[str] = []
         current_time = start
         slot_delta = timedelta(minutes=slot_minutes)
 
@@ -175,6 +202,11 @@ def list_free_slots(
     except HttpError as error:
         logger.error("Calendar API error (free slots): %s", error)
         return []
+    except RefreshError as error:
+        logger.error(
+            "Token refresh failed (free slots): %s", error
+        )
+        return []
 
 
 def create_booking_event(
@@ -188,7 +220,9 @@ def create_booking_event(
     """Create a calendar event for a booking."""
     service = _get_service()
     if not service:
-        logger.error("No calendar credentials — cannot create event")
+        logger.error(
+            "No calendar credentials — cannot create event"
+        )
         return None
 
     event = {
@@ -232,7 +266,14 @@ def create_booking_event(
         }
 
     except HttpError as error:
-        logger.error("Failed to create calendar event: %s", error)
+        logger.error(
+            "Failed to create calendar event: %s", error
+        )
+        return None
+    except RefreshError as error:
+        logger.error(
+            "Token refresh failed (create event): %s", error
+        )
         return None
 
 
@@ -251,5 +292,12 @@ def delete_booking_event(event_id: str) -> bool:
         return True
 
     except HttpError as error:
-        logger.error("Failed to delete calendar event: %s", error)
+        logger.error(
+            "Failed to delete calendar event: %s", error
+        )
+        return False
+    except RefreshError as error:
+        logger.error(
+            "Token refresh failed (delete event): %s", error
+        )
         return False

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: sans-serif; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .code-box { background: #dce5df; padding: 15px; font-size: 24px; font-weight: bold; margin: 20px 0; border: 1px dashed #92ad9a; }
+    </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Bon Cadeau Massage</h1>
+
+    <p>Bonjour <strong>{{ voucher.recipient_name }}</strong>,</p>
+
+    <p>
+      Vous avez reçu un bon cadeau de la part de
+      <strong>{{ voucher.sender_name }}</strong> 🎁
+    </p>
+
+    {% if voucher.message %}
+    <p><em>“{{ voucher.message }}”</em></p>
+    {% endif %}
+
+    <p>Votre code cadeau :</p>
+    <div class="code-box">{{ voucher.code }}</div>
+
+    {% if voucher.service %}
+    <p><strong>Prestation :</strong> {{ voucher.service.title_fr }}</p>
+    {% endif %}
+
+    {% if voucher.start_datetime %}
+    <p><strong>Réservé le :</strong> {{ voucher.start_datetime|date:"d F Y à H:i" }}</p>
+    {% endif %}
+
+    <p>Pour en profiter, présentez simplement ce code lors de votre arrivée chez <strong>{{ business_name }}</strong>.</p>
+  </div>
+</body>
+</html>

@@ -15,7 +15,9 @@ def _money_to_minor_units(amount: Decimal) -> int:
     return int((amount * 100).quantize(Decimal("1")))
 
 
-def create_checkout_session(*, voucher_payload: dict[str, Any]) -> tuple[StripePayment, str]:
+def create_checkout_session(
+    *, voucher_payload: dict[str, Any]
+) -> tuple[StripePayment, str]:
     stripe.api_key = settings.STRIPE_SECRET_KEY
     stripe.api_version = settings.STRIPE_API_VERSION
 
@@ -34,12 +36,19 @@ def create_checkout_session(*, voucher_payload: dict[str, Any]) -> tuple[StripeP
                     "unit_amount": _money_to_minor_units(amount),
                     "product_data": {
                         "name": "Gift Voucher",
-                        "description": f"Voucher for {voucher_payload.get('recipient_name', '')}".strip(),
+                        "description": (
+                            f"Voucher for "
+                            f"{voucher_payload.get('recipient_name', '')}"
+                        ).strip(),
                     },
                 },
             }
         ],
-        metadata={"voucher_payload": json.dumps(voucher_payload)},
+        metadata={
+            "voucher_payload": json.dumps(
+                voucher_payload, default=str
+            )
+        },
     )
 
     payment = StripePayment.objects.create(
@@ -49,5 +58,4 @@ def create_checkout_session(*, voucher_payload: dict[str, Any]) -> tuple[StripeP
         status=PaymentStatus.CREATED,
     )
 
-    # session.url is the correct redirect target
     return payment, str(session["url"])

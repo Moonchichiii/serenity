@@ -647,6 +647,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
   .pb-safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom, 20px);
   }
+
 }
 
 /* KEYFRAME ANIMATIONS */
