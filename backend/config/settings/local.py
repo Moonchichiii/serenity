@@ -80,8 +80,37 @@ else:
      }
      MEDIA_ROOT = BASE_DIR / "media"
 
-# ── Email — print to console ───────────────────────
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# ── Email — live testing production flow. ───────────────────────
+EMAIL_BACKEND = config(
+    'EMAIL_BACKEND',
+    default='django.core.mail.backends.smtp.EmailBackend',
+)
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', cast=int, default=587)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool, default=True)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_TIMEOUT = 15
+
+DEFAULT_FROM_EMAIL = config(
+    'DEFAULT_FROM_EMAIL',
+    default=f'Serenity <{EMAIL_HOST_USER}>',
+)
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+EMAIL_SUBJECT_PREFIX = '[Serenity] '
+
+ADMINS = [('Serenity Admin', EMAIL_HOST_USER)]
+MANAGERS = ADMINS
+
+
+GIFT_VOUCHER_SETTINGS = {
+    "business_name": "Serenity Touch",
+    # This ensures the admin email is sent to YOU
+    "business_email": config("EMAIL_HOST_USER"),
+    "business_phone": "+33 6 12 34 56 78",
+    "business_address": "123 Wellness Street, Paris",
+    "site_url": "http://localhost:5173",
+}
 
 # ── CORS — wide open for localhost ──────────────────
 CORS_ALLOW_ALL_ORIGINS = True

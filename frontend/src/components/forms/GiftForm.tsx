@@ -5,10 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import {
   Calendar as CalendarIcon,
-  Gift,
-  Mail,
   User,
-  Clock,
   CreditCard,
   Sparkles,
 } from "lucide-react";

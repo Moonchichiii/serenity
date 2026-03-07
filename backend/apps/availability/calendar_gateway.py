@@ -1,5 +1,7 @@
-from __future__ import annotations
-
+"""
+Updated create_booking_event to avoid "forbiddenForServiceAccounts" error.
+We do NOT add attendees. We just put the client info in the description.
+"""
 import base64
 import json
 import logging
@@ -62,7 +64,10 @@ def _get_service() -> Any | None:
 
 
 def list_busy_days(year: int, month: int) -> list[str]:
-    """Get dates (YYYY-MM-DD) that have any events for a given month."""
+    """
+    Get dates (YYYY-MM-DD) that should be visually disabled in the
+    calendar.
+    """
     service = _get_service()
     if not service:
         logger.error(
@@ -93,18 +98,12 @@ def list_busy_days(year: int, month: int) -> list[str]:
         busy_dates: set[str] = set()
 
         for event in events:
+            # 1. Check for "All Day" events.
             start_date = event["start"].get("date")
+
             if start_date:
+                # It is an all-day event -> Block this day entirely
                 busy_dates.add(start_date)
-            else:
-                start_dt = event["start"].get("dateTime")
-                if start_dt:
-                    date_str = (
-                        datetime.fromisoformat(start_dt)
-                        .date()
-                        .isoformat()
-                    )
-                    busy_dates.add(date_str)
 
         return sorted(busy_dates)
 
@@ -123,10 +122,7 @@ def list_free_slots(
     slot_minutes: int = 30,
     work_hours: tuple[int, int] = (9, 19),
 ) -> list[str]:
-    """Get available time slots (HH:MM) for a specific date.
-
-    Returns an empty list if an all-day event occupies the date.
-    """
+    """Get available time slots (HH:MM) for a specific date."""
     service = _get_service()
     if not service:
         logger.error(
@@ -220,14 +216,22 @@ def create_booking_event(
     """Create a calendar event for a booking."""
     service = _get_service()
     if not service:
-        logger.error(
-            "No calendar credentials — cannot create event"
-        )
+        logger.error("No calendar credentials — cannot create event")
         return None
+
+    # --- FIX: Put Client Info in Description, NOT Attendees ---
+    # Service Accounts cannot invite external emails without Domain-Wide Delegation.
+    # So we just write the details here for the Admin to see.
+    full_description = (
+        f"CLIENT NAME: {client_name}\n"
+        f"CLIENT EMAIL: {client_email}\n"
+        f"--------------------------------\n"
+        f"{description}"
+    )
 
     event = {
         "summary": title,
-        "description": f"Client: {client_name}\n\n{description}",
+        "description": full_description,
         "start": {
             "dateTime": start_datetime.isoformat(),
             "timeZone": str(TZ),
@@ -236,9 +240,7 @@ def create_booking_event(
             "dateTime": end_datetime.isoformat(),
             "timeZone": str(TZ),
         },
-        "attendees": [
-            {"email": client_email, "displayName": client_name}
-        ],
+        # We REMOVED the "attendees" list to stop the 403 error.
         "reminders": {
             "useDefault": False,
             "overrides": [
@@ -254,7 +256,7 @@ def create_booking_event(
             .insert(
                 calendarId=CALENDAR_ID,
                 body=event,
-                sendUpdates="all",
+                # sendUpdates="all" is removed because there are no attendees to notify
             )
             .execute()
         )
@@ -266,14 +268,11 @@ def create_booking_event(
         }
 
     except HttpError as error:
-        logger.error(
-            "Failed to create calendar event: %s", error
-        )
+        content = error.content.decode("utf-8") if error.content else ""
+        logger.error(f"Failed to create calendar event: {error} | Details: {content}")
         return None
     except RefreshError as error:
-        logger.error(
-            "Token refresh failed (create event): %s", error
-        )
+        logger.error("Token refresh failed (create event): %s", error)
         return None
 
 
@@ -287,7 +286,7 @@ def delete_booking_event(event_id: str) -> bool:
         service.events().delete(
             calendarId=CALENDAR_ID,
             eventId=event_id,
-            sendUpdates="all",
+            # sendUpdates="all" is removed here too just in case
         ).execute()
         return True
 

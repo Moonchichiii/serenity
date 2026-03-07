@@ -21,47 +21,69 @@ logger = logging.getLogger(__name__)
 
 
 def _already_processed(event_id: str) -> bool:
-    return StripeWebhookEvent.objects.filter(stripe_event_id=event_id).exists()
+    return StripeWebhookEvent.objects.filter(
+        stripe_event_id=event_id
+    ).exists()
 
 
 def _mark_processed(event_id: str, event_type: str) -> None:
-    StripeWebhookEvent.objects.create(stripe_event_id=event_id, event_type=event_type)
+    StripeWebhookEvent.objects.create(
+        stripe_event_id=event_id, event_type=event_type
+    )
 
 
-def _fulfill_from_checkout_session(session_obj: dict[str, Any]) -> None:
+def _fulfill_from_checkout_session(
+    session_obj: dict[str, Any],
+) -> None:
     session_id = session_obj["id"]
 
-    payment = StripePayment.objects.filter(stripe_checkout_session_id=session_id).first()
+    payment = StripePayment.objects.filter(
+        stripe_checkout_session_id=session_id
+    ).first()
     if not payment:
-        logger.error("Webhook for unknown checkout session: %s", session_id)
+        logger.error(
+            "Webhook for unknown checkout session: %s", session_id
+        )
         return
 
     if payment.status == PaymentStatus.PAID and payment.voucher_id:
-        # idempotent: already fulfilled
-        return
+        return  # idempotent
 
     payment_intent = session_obj.get("payment_intent") or ""
     if payment_intent:
         payment.stripe_payment_intent_id = str(payment_intent)
 
-    # voucher payload (stored in metadata)
     metadata = session_obj.get("metadata") or {}
     raw_payload = metadata.get("voucher_payload")
     if not raw_payload:
-        logger.error("Missing voucher_payload metadata for session=%s", session_id)
+        logger.error(
+            "Missing voucher_payload metadata for session=%s",
+            session_id,
+        )
         payment.status = PaymentStatus.FAILED
-        payment.save(update_fields=["status", "stripe_payment_intent_id"])
+        payment.save(
+            update_fields=["status", "stripe_payment_intent_id"]
+        )
         return
 
     try:
         voucher_payload = json.loads(raw_payload)
+        # --- FIX: Log the exact payload so we can verify field names ---
+        logger.info(
+            "Voucher payload from Stripe (session=%s): %s",
+            session_id,
+            json.dumps(voucher_payload, default=str),
+        )
     except json.JSONDecodeError:
-        logger.exception("Invalid voucher_payload JSON for session=%s", session_id)
+        logger.exception(
+            "Invalid voucher_payload JSON for session=%s", session_id
+        )
         payment.status = PaymentStatus.FAILED
-        payment.save(update_fields=["status", "stripe_payment_intent_id"])
+        payment.save(
+            update_fields=["status", "stripe_payment_intent_id"]
+        )
         return
 
-    # Fulfill: create voucher + send emails (+ calendar sync inside vouchers.services)
     voucher = create_voucher(voucher_payload)
     send_voucher_emails(voucher)
 
@@ -98,17 +120,16 @@ def stripe_webhook(request: HttpRequest) -> HttpResponse:
     event_id = event["id"]
     event_type = event["type"]
 
-    # Idempotency guard
     if _already_processed(event_id):
         return HttpResponse(status=200)
 
     _mark_processed(event_id, event_type)
 
-    # Checkout events for fulfillment (immediate + delayed methods)
-    if event_type in ("checkout.session.completed", "checkout.session.async_payment_succeeded"):
+    if event_type in (
+        "checkout.session.completed",
+        "checkout.session.async_payment_succeeded",
+    ):
         session_obj = event["data"]["object"]
         _fulfill_from_checkout_session(session_obj)
-
-    # Optional: handle async_payment_failed, refunds, etc.
 
     return HttpResponse(status=200)
