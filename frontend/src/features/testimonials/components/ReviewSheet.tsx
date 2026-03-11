@@ -10,7 +10,10 @@ interface ReviewSheetProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
+export function ReviewSheet({
+  open,
+  onOpenChange,
+}: ReviewSheetProps) {
   const { t } = useTranslation();
   const submitMutation = useSubmitTestimonial();
 
@@ -22,7 +25,25 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const resetForm = () => {
+    setRating(0);
+    setHoveredRating(0);
+    setName("");
+    setEmail("");
+    setText("");
+    setSuccessMessage("");
+    setErrorMessage("");
+  };
+
+  const handleClose = () => {
+    setErrorMessage("");
+    setSuccessMessage("");
+    onOpenChange(false);
+  };
+
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
 
     setSuccessMessage("");
@@ -48,12 +69,8 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
 
       setSuccessMessage(response.message || t("review.success"));
 
-      setTimeout(() => {
-        setRating(0);
-        setName("");
-        setEmail("");
-        setText("");
-        setSuccessMessage("");
+      window.setTimeout(() => {
+        resetForm();
         onOpenChange(false);
       }, 2000);
     } catch (error: unknown) {
@@ -67,16 +84,14 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
     <AnimatePresence>
       {open && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => onOpenChange(false)}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            onClick={handleClose}
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
           />
 
-          {/* Sheet Panel */}
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
@@ -86,62 +101,67 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
               damping: 25,
               stiffness: 300,
             }}
-            className="fixed right-0 top-0 h-full w-full sm:max-w-md bg-white shadow-2xl z-50 overflow-y-auto"
+            className="fixed right-0 top-0 z-50 h-full w-full overflow-y-auto bg-white shadow-2xl sm:max-w-md"
           >
-            <div className="p-6">
-              {/* Header */}
-              <div className="flex items-start justify-between mb-6">
+            <div className="bg-sage-deep px-6 py-6">
+              <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-heading font-bold text-charcoal">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/75">
+                    {t("review.eyebrow", "Customer Feedback")}
+                  </p>
+                  <h2 className="mt-2 text-3xl font-heading font-bold text-white">
                     {t("review.title")}
                   </h2>
-                  <p className="text-sm text-charcoal/60 mt-1">
+                  <p className="mt-2 text-sm text-white/80">
                     {t("review.subtitle")}
                   </p>
                 </div>
+
                 <button
-                  onClick={() => onOpenChange(false)}
-                  className="text-charcoal/60 hover:text-charcoal transition-colors"
+                  type="button"
+                  onClick={handleClose}
                   aria-label={t("review.close")}
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
                 >
-                  <X className="w-6 h-6" />
+                  <X className="h-6 w-6" />
                 </button>
               </div>
+            </div>
 
-              {/* Success Message */}
+            <div className="p-6">
               {successMessage && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mb-4 p-4 bg-sage-100 border border-sage-300 rounded-lg"
+                  className="mb-4 rounded-lg border border-sage-300 bg-sage-100 p-4"
                 >
-                  <p className="text-sage-800 text-sm">
+                  <p className="text-sm text-sage-800">
                     {successMessage}
                   </p>
                 </motion.div>
               )}
 
-              {/* Error Message */}
               {errorMessage && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mb-4 p-4 bg-red-50 border border-red-300 rounded-lg"
+                  className="mb-4 rounded-lg border border-red-300 bg-red-50 p-4"
                 >
-                  <p className="text-red-800 text-sm">{errorMessage}</p>
+                  <p className="text-sm text-red-800">
+                    {errorMessage}
+                  </p>
                 </motion.div>
               )}
 
-              {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Rating Stars */}
                 <div>
-                  <label className="block text-sm font-medium text-charcoal mb-2">
+                  <label className="mb-2 block text-sm font-medium text-charcoal">
                     {t("review.rating.label")}{" "}
                     <span className="text-red-500">
                       {t("review.rating.required")}
                     </span>
                   </label>
+
                   <div
                     className="flex gap-1"
                     role="radiogroup"
@@ -161,10 +181,10 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                         onClick={() => setRating(star)}
                         onMouseEnter={() => setHoveredRating(star)}
                         onMouseLeave={() => setHoveredRating(0)}
-                        className="transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-sage-500 rounded"
+                        className="rounded transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-sage-500"
                       >
                         <Star
-                          className={`w-8 h-8 ${
+                          className={`h-8 w-8 ${
                             star <= (hoveredRating || rating)
                               ? "fill-honey-500 text-honey-500"
                               : "text-gray-300"
@@ -176,11 +196,10 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                   </div>
                 </div>
 
-                {/* Name Field */}
                 <div>
                   <label
                     htmlFor="name"
-                    className="block text-sm font-medium text-charcoal mb-2"
+                    className="mb-2 block text-sm font-medium text-charcoal"
                   >
                     {t("review.form.name")}{" "}
                     <span className="text-red-500">
@@ -196,15 +215,14 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                     maxLength={100}
                     required
                     disabled={submitMutation.isPending}
-                    className="w-full px-4 py-3 border-2 border-sage-200 rounded-xl focus:outline-none focus:border-sage-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full rounded-xl border-2 border-sage-200 px-4 py-3 transition-colors focus:border-sage-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   />
                 </div>
 
-                {/* Email Field (Optional) */}
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium text-charcoal mb-2"
+                    className="mb-2 block text-sm font-medium text-charcoal"
                   >
                     {t("review.form.email")}
                   </label>
@@ -215,18 +233,17 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={t("review.form.emailPlaceholder")}
                     disabled={submitMutation.isPending}
-                    className="w-full px-4 py-3 border-2 border-sage-200 rounded-xl focus:outline-none focus:border-sage-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full rounded-xl border-2 border-sage-200 px-4 py-3 transition-colors focus:border-sage-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   />
-                  <p className="text-xs text-charcoal/60 mt-1">
+                  <p className="mt-1 text-xs text-charcoal/60">
                     {t("review.form.emailHelp")}
                   </p>
                 </div>
 
-                {/* Review Text */}
                 <div>
                   <label
                     htmlFor="review"
-                    className="block text-sm font-medium text-charcoal mb-2"
+                    className="mb-2 block text-sm font-medium text-charcoal"
                   >
                     {t("review.form.text")}{" "}
                     <span className="text-red-500">
@@ -242,22 +259,17 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                     maxLength={500}
                     required
                     disabled={submitMutation.isPending}
-                    className="w-full px-4 py-3 border-2 border-sage-200 rounded-xl focus:outline-none focus:border-sage-500 transition-colors resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full resize-none rounded-xl border-2 border-sage-200 px-4 py-3 transition-colors focus:border-sage-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   />
-                  <p className="text-xs text-charcoal/60 mt-1">
+                  <p className="mt-1 text-xs text-charcoal/60">
                     {text.length}/500 {t("review.form.characters")}
                   </p>
                 </div>
 
-                {/* GDPR Notice */}
-                <div className="bg-sage-50 rounded-lg p-4 border border-sage-200">
-                  <p className="text-xs text-charcoal/80 leading-relaxed">
+                <div className="rounded-lg border border-sage-200 bg-sage-50 p-4">
+                  <p className="text-xs leading-relaxed text-charcoal/80">
                     <span className="font-semibold text-charcoal">
-                      {t(
-                        "review.form.gdpr.title",
-                        "Privacy Notice"
-                      )}
-                      :
+                      {t("review.form.gdpr.title", "Privacy Notice")}:
                     </span>{" "}
                     {t(
                       "review.form.gdpr.text",
@@ -266,18 +278,17 @@ export function ReviewSheet({ open, onOpenChange }: ReviewSheetProps) {
                   </p>
                 </div>
 
-                {/* Submit Button */}
                 <button
                   type="submit"
                   disabled={submitMutation.isPending}
-                  className="w-full bg-sage-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-sage-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full rounded-xl bg-sage-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-sage-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {submitMutation.isPending
                     ? t("review.form.submitting")
                     : t("review.form.submit")}
                 </button>
 
-                <p className="text-xs text-center text-charcoal/60">
+                <p className="text-center text-xs text-charcoal/60">
                   {t("review.form.notice")}
                 </p>
               </form>

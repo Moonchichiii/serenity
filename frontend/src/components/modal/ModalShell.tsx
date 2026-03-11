@@ -87,33 +87,30 @@ export function ModalShell({
             </div>
 
             {/* Header */}
-            <div
-              className="flex items-center justify-between gap-3 px-5 sm:px-6 py-4
-                          bg-sand-50/80 backdrop-blur-sm
-                          border-b border-warm-grey-200/50 shrink-0"
-            >
-              {title ? (
-                <h2
-                  className="font-heading text-charcoal truncate pr-4"
-                  style={{
-                    fontSize: "var(--typo-h4)",
-                    lineHeight: "var(--leading-h4)",
-                  }}
-                >
-                  {title}
-                </h2>
-              ) : (
-                <span />
-              )}
+            <div className="relative flex items-center justify-between px-5 sm:px-6 py-5 bg-sage-deep text-porcelain shrink-0 overflow-hidden">
+              {/* Subtle texture */}
+              <div className="absolute inset-0 opacity-10 pointer-events-none noise-texture" />
+
+              <div className="relative z-10">
+
+                {title ? (
+                  <h2 className="font-heading text-2xl sm:text-3xl tracking-tight text-white">
+                    {title}
+                  </h2>
+                ) : (
+                  <span />
+                )}
+              </div>
 
               <button
                 onClick={onClose}
-                className="rounded-xl p-2.5 text-charcoal/40
-                           hover:text-charcoal hover:bg-warm-grey-100
-                           transition-all duration-200 active:scale-95"
+                className="relative z-10 p-2 rounded-full
+                           bg-white/10 hover:bg-white/20
+                           transition-all text-white/90 hover:text-white
+                           active:scale-95"
                 aria-label="Close"
               >
-                <X className="h-5 w-5" strokeWidth={1.5} />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
@@ -126,9 +123,7 @@ export function ModalShell({
                   : "overflow-hidden",
               )}
             >
-              <div className="p-6 sm:p-6 pb-8 sm:pb-6">
-                {children}
-              </div>
+              <div className="p-6 sm:p-6 pb-8 sm:pb-6">{children}</div>
             </div>
           </motion.div>
         </div>

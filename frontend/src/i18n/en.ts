@@ -221,7 +221,7 @@ export default {
       contactTitle: "Contact",
       email: "Contact",
       hours: "Hours",
-      hoursValue: "Mon–Sat: 9:00–19:00",
+      hoursValue: "Sat–Sun: 9:00–19:00",
       allRights: "All rights reserved.",
       designedBy: "Website by",
     },
