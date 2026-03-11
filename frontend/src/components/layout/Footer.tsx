@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Clock, Send } from "lucide-react";
+import React from "react";
+import { Clock, Mail } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import AnimatedInstagramIcon from "@/components/ui/AnimatedInstagramIcon";
 import AnimatedFacebookIcon from "@/components/ui/AnimatedFacebookIcon";
@@ -11,7 +11,6 @@ const Footer: React.FC = () => {
   const { open } = useModal();
   const globals = useCMSGlobals();
   const currentYear = new Date().getFullYear();
-  const [email, setEmail] = useState("");
 
   const brand = globals?.site?.brand?.trim() || "La Serenity";
   const contactEmail =
@@ -49,9 +48,9 @@ const Footer: React.FC = () => {
   return (
     <footer id="site-footer" className="relative mt-0 contain-content">
       <div className="relative bg-sage-deep text-white overflow-hidden">
-  <div
-    className="noise-texture-subtle opacity-[0.05]"
-    aria-hidden="true"
+        <div
+          className="noise-texture-subtle opacity-[0.05]"
+          aria-hidden="true"
         />
 
         <div
@@ -69,56 +68,9 @@ const Footer: React.FC = () => {
               paddingBottom: "var(--space-title-to-content)",
             }}
           >
-            {/* Left — tagline + newsletter */}
-            <div className="max-w-sm">
-              <p
-                className="text-warm-grey-300 font-light"
-                style={{
-                  fontSize: "var(--typo-small)",
-                  lineHeight: "var(--leading-small)",
-                }}
-              >
-                {t("footer.tagline")}
-              </p>
+            {/* Left — tagline */}
 
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (email.trim()) {
-                    open("contact", {
-                      defaultEmail: email.trim(),
-                    });
-                    setEmail("");
-                  }
-                }}
-                className="mt-5 flex items-center"
-              >
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t("footer.emailPlaceholder", {
-                    defaultValue: "Enter your email",
-                  })}
-                  className="h-11 flex-1 rounded-l-full border border-white/10 bg-white/[0.05] px-5 text-white placeholder-warm-grey-500 outline-none transition-colors duration-200 focus:border-white/20 focus:bg-white/[0.07]"
-                  style={{
-                    fontSize: "var(--typo-small)",
-                  }}
-                />
-                <button
-                  type="submit"
-                  aria-label={t("footer.subscribe", {
-                    defaultValue: "Subscribe",
-                  })}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-terracotta-400 text-white transition-all duration-200 hover:bg-terracotta-500 hover:scale-105 -ml-px"
-                >
-                  <Send className="h-4 w-4" />
-                </button>
-              </form>
-            </div>
-
-            {/* Right — columns */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-10 lg:gap-14">
+             <div className="grid grid-cols-2 sm:grid-cols-3 gap-10 lg:gap-14">
               {/* Navigation */}
               <div>
                 <h4
@@ -189,49 +141,36 @@ const Footer: React.FC = () => {
                 </ul>
               </div>
 
-              {/* Contact */}
-              <div>
-                <h4
-                  className="mb-5 font-semibold uppercase text-white/30"
-                  style={{
-                    fontSize: "var(--typo-overline)",
-                    lineHeight: "var(--leading-overline)",
-                    letterSpacing: "0.18em",
-                  }}
+
+
+            {/* Right — columns */}
+            {/* Contact */}
+            <div>
+              <h4
+                className="mb-5 font-semibold uppercase text-white/30 footer-heading"
+              >
+                {t("footer.contactTitle")}
+              </h4>
+              <div className="space-y-2.5 font-light text-warm-grey-300">
+                <p className="footer-text">
+                {address}
+                </p>
+                <a
+                href={`mailto:${contactEmail}`}
+                className="block hover:text-white transition-colors duration-200 footer-text flex items-center gap-1.5"
                 >
-                  {t("footer.contactTitle")}
-                </h4>
-                <div className="space-y-2.5 font-light text-warm-grey-300">
-                  <p
-                    style={{
-                      fontSize: "var(--typo-small)",
-                      lineHeight: "var(--leading-small)",
-                    }}
-                  >
-                    {address}
-                  </p>
-                  <a
-                    href={`mailto:${contactEmail}`}
-                    className="block hover:text-white transition-colors duration-200"
-                    style={{
-                      fontSize: "var(--typo-small)",
-                      lineHeight: "var(--leading-small)",
-                    }}
-                  >
-                    {contactEmail}
-                  </a>
-                  <p
-                    className="flex items-center gap-1.5 text-warm-grey-400"
-                    style={{
-                      fontSize: "var(--typo-caption)",
-                      lineHeight: "var(--leading-caption)",
-                    }}
-                  >
-                    <Clock className="h-3 w-3 shrink-0" />
-                    <span>{hours}</span>
-                  </p>
-                </div>
+                <Mail className="h-4 w-4 shrink-0" />
+                {contactEmail}
+                </a>
+                <p
+                className="flex items-center gap-1.5 text-warm-grey-400 footer-caption"
+                >
+                <Clock className="h-3 w-3 shrink-0" />
+                <span>{hours}</span>
+                </p>
               </div>
+              </div>
+
 
               {/* Socials */}
               <div className="col-span-2 sm:col-span-1">
@@ -262,6 +201,22 @@ const Footer: React.FC = () => {
               </div>
             </div>
           </div>
+
+
+
+              {/* Socials */}
+ <div className="max-w-sm flex items-start">
+              <p
+                className="text-warm-grey-300 font-light"
+                style={{
+                  fontSize: "var(--typo-small)",
+                  lineHeight: "var(--leading-small)",
+                }}
+              >
+                {t("footer.tagline")}
+              </p>
+            </div>
+
 
           {/* ── Watermark ── */}
           <div

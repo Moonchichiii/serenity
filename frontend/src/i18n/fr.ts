@@ -43,18 +43,18 @@ export default {
       byAppointment: "Uniquement sur rendez-vous",
       approachLabel: "Mon approche",
     },
-   services: {
-  label: "CE QUE NOUS FAISONS",
-  title: "Nos services",
-  subtitle:
-    "Découvrez nos soins conçus pour libérer les tensions et révéler votre bien-être naturel",
-  slide: "GLISSER",
-  mostPopular: "Le plus populaire",
-  readMore: "En savoir plus",
-  hero: {
-    label: "Aperçu des services",
-  },
-},
+    services: {
+      label: "CE QUE NOUS FAISONS",
+      title: "Nos services",
+      subtitle:
+        "Découvrez nos soins conçus pour libérer les tensions et révéler votre bien-être naturel",
+      slide: "GLISSER",
+      mostPopular: "Le plus populaire",
+      readMore: "En savoir plus",
+      hero: {
+        label: "Aperçu des services",
+      },
+    },
     review: {
       trigger: "Laisser un avis",
       title: "Laisser un avis",
@@ -216,7 +216,7 @@ export default {
       cgv: "CGV",
       cookies: "Cookies",
       contactTitle: "Contact",
-      email: "contact@serenity-massage.fr",
+      email: "Contact",
       hours: "Horaires",
       hoursValue: "Lun–Sam : 9:00–19:00",
       allRights: "Tous droits réservés.",
@@ -262,6 +262,9 @@ export default {
       acceptAll: "Tout accepter",
       save: "Enregistrer",
     },
+    shell: {
+      brand: "La Serenity Essentials",
+    },
     gift: {
       trigger: "Offrir un cadeau",
       title: "Offrez la Détente",
@@ -287,6 +290,12 @@ export default {
         purchaserEmailPlaceholder: "marie@example.com",
         recipientNamePlaceholder: "Destinataire",
         recipientEmailPlaceholder: "dest@example.com",
+        availableTimes: "Créneaux disponibles",
+        noSlots: "Aucun créneau disponible.",
+        chooseService: "Choisir un soin...",
+        experience: "Choisir une expérience",
+        scheduleNow: "Date souhaitée (Optionnel)",
+        details: "Détails",
       },
       validation: { required: "Champ requis", email: "Email invalide" },
     },

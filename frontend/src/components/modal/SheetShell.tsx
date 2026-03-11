@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Sparkles } from "lucide-react";
+import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 
 type SheetShellProps = {
@@ -20,6 +21,7 @@ export function SheetShell({
   className,
 }: SheetShellProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   // Close on Escape key
   useEffect(() => {
@@ -66,7 +68,7 @@ export function SheetShell({
             className={cn(
               "relative z-10 h-full w-full bg-porcelain shadow-2xl overflow-hidden flex flex-col",
               "sm:max-w-md md:max-w-lg", // Width constraints
-              className
+              className,
             )}
           >
             {/* Premium Header */}
@@ -76,8 +78,7 @@ export function SheetShell({
 
               <div className="relative z-10">
                 <p className="flex items-center gap-2 text-terracotta-300 text-xs uppercase tracking-[0.15em] font-medium mb-1">
-                  <Sparkles className="w-3 h-3" />
-                  La Serenity Essentials
+                  {t("shell.brand", "La Serenity Essentials")}
                 </p>
                 {title && (
                   <h2 className="font-heading text-3xl tracking-tight text-white">

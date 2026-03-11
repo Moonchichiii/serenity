@@ -27,7 +27,8 @@ export default {
       guidesTitle: "What Guides Me",
       guide: {
         clientCareTitle: "Client-Centered Care",
-        clientCareBody: "Your comfort, safety, and goals are my top priorities.",
+        clientCareBody:
+          "Your comfort, safety, and goals are my top priorities.",
         excellenceTitle: "Professional Excellence",
         excellenceBody:
           "I am fully certified and committed to ongoing training.",
@@ -42,17 +43,17 @@ export default {
       approachLabel: "My Approach",
     },
     services: {
-  label: "WHAT WE DO",
-  title: "Our services",
-  subtitle:
-    "Explore our treatments designed to release tension and restore your natural well-being",
-  slide: "SLIDE",
-  mostPopular: "Most popular",
-  readMore: "Read more",
-  hero: {
-    label: "Services overview",
-  },
-},
+      label: "WHAT WE DO",
+      title: "Our services",
+      subtitle:
+        "Explore our treatments designed to release tension and restore your natural well-being",
+      slide: "SLIDE",
+      mostPopular: "Most popular",
+      readMore: "Read more",
+      hero: {
+        label: "Services overview",
+      },
+    },
     review: {
       trigger: "Leave a review",
       title: "Leave a review",
@@ -218,7 +219,7 @@ export default {
       cgv: "Terms & Conditions",
       cookies: "Cookie settings",
       contactTitle: "Contact",
-      email: "contact@serenity-massage.fr",
+      email: "Contact",
       hours: "Hours",
       hoursValue: "Mon–Sat: 9:00–19:00",
       allRights: "All rights reserved.",
@@ -256,7 +257,8 @@ export default {
       mediaDesc:
         "Enables Cloudinary images/videos (may set third-party cookies).",
       analyticsTitle: "Analytics",
-      analyticsDesc: "Loads the analytics tool if configured (none by default).",
+      analyticsDesc:
+        "Loads the analytics tool if configured (none by default).",
       learnMore: "Learn more",
       customize: "Customize",
       hideOptions: "Hide options",
@@ -265,6 +267,9 @@ export default {
       decline: "Decline non-essential",
       acceptAll: "Accept all",
       save: "Save choices",
+    },
+    shell: {
+      brand: "La Serenity Essentials",
     },
     gift: {
       trigger: "Offer a Gift",
@@ -293,6 +298,12 @@ export default {
         purchaserEmailPlaceholder: "jane@example.com",
         recipientNamePlaceholder: "Recipient name",
         recipientEmailPlaceholder: "recipient@example.com",
+        availableTimes: "Available Times",
+        noSlots: "No slots available.",
+        chooseService: "Choose a treatment...",
+        experience: "Select Experience",
+        scheduleNow: "Schedule Date (Optional)",
+        details: "Details",
       },
       validation: {
         required: "Required field",

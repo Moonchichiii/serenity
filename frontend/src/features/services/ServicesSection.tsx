@@ -325,16 +325,6 @@ const MobileServiceDrawer: FC<{
                 >
                   {formatPrice(service.price)}
                 </span>
-                <button
-                  onClick={onClose}
-                  className="rounded-full border border-terracotta-400 px-8 py-3 font-semibold uppercase tracking-widest text-terracotta-400 transition-colors hover:bg-terracotta-400 hover:text-sage-deep"
-                  style={{
-                    fontSize: "var(--typo-small)",
-                    lineHeight: "var(--leading-small)",
-                  }}
-                >
-                  Fermer
-                </button>
               </div>
             </div>
           </motion.div>

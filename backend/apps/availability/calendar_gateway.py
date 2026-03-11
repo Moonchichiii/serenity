@@ -1,7 +1,4 @@
-"""
-Updated create_booking_event to avoid "forbiddenForServiceAccounts" error.
-We do NOT add attendees. We just put the client info in the description.
-"""
+"""Google Calendar API integration for managing booking events."""
 import base64
 import json
 import logging
@@ -64,10 +61,7 @@ def _get_service() -> Any | None:
 
 
 def list_busy_days(year: int, month: int) -> list[str]:
-    """
-    Get dates (YYYY-MM-DD) that should be visually disabled in the
-    calendar.
-    """
+    """Get dates (YYYY-MM-DD) that should be visually disabled in the calendar."""
     service = _get_service()
     if not service:
         logger.error(
@@ -98,11 +92,8 @@ def list_busy_days(year: int, month: int) -> list[str]:
         busy_dates: set[str] = set()
 
         for event in events:
-            # 1. Check for "All Day" events.
             start_date = event["start"].get("date")
-
             if start_date:
-                # It is an all-day event -> Block this day entirely
                 busy_dates.add(start_date)
 
         return sorted(busy_dates)
@@ -154,7 +145,6 @@ def list_free_slots(
 
         events = events_result.get("items", [])
 
-        # All-day event check
         for event in events:
             if event["start"].get("date"):
                 logger.info(
@@ -163,7 +153,6 @@ def list_free_slots(
                 )
                 return []
 
-        # Build occupied ranges
         occupied: list[tuple[datetime, datetime]] = []
         for event in events:
             event_start = event["start"].get("dateTime")
@@ -176,7 +165,6 @@ def list_free_slots(
                     )
                 )
 
-        # Generate free slots
         slots: list[str] = []
         current_time = start
         slot_delta = timedelta(minutes=slot_minutes)
@@ -219,9 +207,6 @@ def create_booking_event(
         logger.error("No calendar credentials — cannot create event")
         return None
 
-    # --- FIX: Put Client Info in Description, NOT Attendees ---
-    # Service Accounts cannot invite external emails without Domain-Wide Delegation.
-    # So we just write the details here for the Admin to see.
     full_description = (
         f"CLIENT NAME: {client_name}\n"
         f"CLIENT EMAIL: {client_email}\n"
@@ -240,7 +225,6 @@ def create_booking_event(
             "dateTime": end_datetime.isoformat(),
             "timeZone": str(TZ),
         },
-        # We REMOVED the "attendees" list to stop the 403 error.
         "reminders": {
             "useDefault": False,
             "overrides": [
@@ -256,7 +240,6 @@ def create_booking_event(
             .insert(
                 calendarId=CALENDAR_ID,
                 body=event,
-                # sendUpdates="all" is removed because there are no attendees to notify
             )
             .execute()
         )
@@ -277,7 +260,7 @@ def create_booking_event(
 
 
 def delete_booking_event(event_id: str) -> bool:
-    """Delete a calendar event (for cancellations)."""
+    """Delete a calendar event."""
     service = _get_service()
     if not service:
         return False
@@ -286,7 +269,6 @@ def delete_booking_event(event_id: str) -> bool:
         service.events().delete(
             calendarId=CALENDAR_ID,
             eventId=event_id,
-            # sendUpdates="all" is removed here too just in case
         ).execute()
         return True
 
