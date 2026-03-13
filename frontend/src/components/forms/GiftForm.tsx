@@ -53,7 +53,7 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
   });
 
   // Watch fields to react to changes
-  const [selectedTime, selectedServiceId, selectedDateField, currentAmount] =
+  const [selectedTime, selectedServiceId, , currentAmount] =
     useWatch({
       control,
       name: ["selectedTime", "serviceId", "selectedDate", "amount"],
@@ -80,10 +80,7 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
     [activeStartDate],
   );
 
-  const { data: busyData, isFetching: busyFetching } = useBusyDays(
-    ym.year,
-    ym.month,
-  );
+  const { data: busyData } = useBusyDays(ym.year, ym.month);
   const busyDates = useMemo(() => new Set(busyData?.busy ?? []), [busyData]);
 
   const selectedDateIso = selectedDate
@@ -96,7 +93,16 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
   // CMS Helpers
   const fromCms = (en?: string, fr?: string, key?: string, def?: string) => {
     const val = lang === "fr" ? fr : en;
-    return val?.trim() ? val : key ? t(key, def) : "";
+
+    if (val?.trim()) {
+      return val;
+    }
+
+    if (!key) {
+      return "";
+    }
+
+    return def ? t(key, def) : t(key);
   };
 
   const submitLabel = fromCms(
@@ -105,7 +111,7 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
     "gift.form.submit",
     "Proceed to Payment",
   );
-  const sendingLabel = "Processing...";
+  const sendingLabel = t("gift.form.sending", "Processing...");
 
   const onSubmit = async (data: GiftFormValues) => {
     // Basic validation: Service must be selected
@@ -408,29 +414,37 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
       )}
 
       {/* 4. FOOTER (Total & Submit) */}
-      <div className="sticky bottom-0 -mx-6 -mb-6 p-6 bg-white/95 backdrop-blur-md border-t border-warm-grey-200 z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.05)]">
-        <div className="flex justify-between items-end mb-4">
+      <div className="sticky bottom-0 -mx-6 -mb-6 z-10 border-t border-warm-grey-200 bg-white/95 p-6 shadow-[-4px_0_10px_rgba(0,0,0,0.05)] backdrop-blur-md">
+        <div className="mb-4 flex justify-between items-end">
           <div>
-            <p className="text-xs text-charcoal/50 uppercase tracking-wider font-bold mb-1">
-              Total
+            <p className="mb-1 text-xs font-bold uppercase tracking-wider text-charcoal/50">
+              {t("gift.form.total", "Total")}
             </p>
             <p className="text-3xl font-heading text-sage-900">
               {currentAmount ? `€${currentAmount}` : "€0"}
             </p>
           </div>
-          <div className="flex items-center gap-1.5 text-[10px] text-charcoal/40 bg-sand-50 px-2 py-1 rounded-md">
-            <CreditCard className="w-3 h-3" />
-            Secure Payment
+
+          <div className="flex items-center gap-1.5 rounded-md bg-sand-50 px-2 py-1 text-[10px] text-charcoal/40">
+            <CreditCard className="h-3 w-3" />
+            {t("gift.form.poweredByStripe", "Secure checkout with Stripe")}
           </div>
         </div>
 
         <Button
           type="submit"
-          className="w-full h-14 text-lg bg-sage-deep hover:bg-sage-800 text-white rounded-xl shadow-warm transition-all active:scale-[0.98]"
+          className="w-full h-14 rounded-xl bg-sage-deep text-lg text-white shadow-warm transition-all active:scale-[0.98] hover:bg-sage-800"
           disabled={checkout.isPending || !selectedServiceId}
         >
           {checkout.isPending ? sendingLabel : submitLabel}
         </Button>
+
+        <p className="mt-3 text-center text-xs leading-relaxed text-charcoal/50">
+          {t(
+            "gift.form.paymentMethodsNote",
+            "Card, Klarna, and other available payment methods are shown at checkout.",
+          )}
+        </p>
       </div>
     </form>
   );

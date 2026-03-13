@@ -1,14 +1,15 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import type { ModalId } from "./modalTypes";
 
 type SheetShellProps = {
   isOpen: boolean;
   onClose: () => void;
-  title?: string;
+  modalId?: ModalId;
   children: React.ReactNode;
   className?: string;
 };
@@ -16,28 +17,44 @@ type SheetShellProps = {
 export function SheetShell({
   isOpen,
   onClose,
-  title,
+  modalId,
   children,
   className,
 }: SheetShellProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
 
-  // Close on Escape key
+  const title = useMemo(() => {
+    if (!modalId) return undefined;
+
+    const modalTitleMap: Partial<Record<ModalId, string>> = {
+      gift: t("gift.trigger", "Gift Voucher"),
+      contact: t("contact.form.title", "Contact"),
+      corporate: t("corp.subjectPrefix", "Corporate Inquiry"),
+      legal: t("footer.legalNotice", "Legal"),
+      cmsLogin: t("modal.cmsLogin", "CMS Login"),
+    };
+
+    return modalTitleMap[modalId] ?? modalId;
+  }, [modalId, t]);
+
   useEffect(() => {
     if (!isOpen) return;
+
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
+
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [isOpen, onClose]);
 
-  // Lock body scroll
   useEffect(() => {
     if (!isOpen) return;
+
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+
     return () => {
       document.body.style.overflow = prev;
     };
@@ -47,7 +64,6 @@ export function SheetShell({
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[9999] flex justify-end">
-          {/* Backdrop */}
           <motion.div
             ref={overlayRef}
             initial={{ opacity: 0 }}
@@ -59,27 +75,25 @@ export function SheetShell({
             className="absolute inset-0 bg-sage-deep/60 backdrop-blur-sm"
           />
 
-          {/* Slide-over Panel */}
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
             className={cn(
-              "relative z-10 h-full w-full bg-porcelain shadow-2xl overflow-hidden flex flex-col",
-              "sm:max-w-md md:max-w-lg", // Width constraints
+              "relative z-10 flex h-full w-full flex-col overflow-hidden bg-porcelain shadow-2xl",
+              "sm:max-w-md md:max-w-lg",
               className,
             )}
           >
-            {/* Premium Header */}
-            <div className="relative flex items-center justify-between px-6 py-6 bg-sage-deep text-porcelain shrink-0 overflow-hidden">
-              {/* Subtle texture in header */}
-              <div className="absolute inset-0 opacity-10 pointer-events-none noise-texture" />
+            <div className="relative flex items-center justify-between overflow-hidden bg-sage-deep px-6 py-6 text-porcelain shrink-0">
+              <div className="noise-texture pointer-events-none absolute inset-0 opacity-10" />
 
               <div className="relative z-10">
-                <p className="flex items-center gap-2 text-terracotta-300 text-xs uppercase tracking-[0.15em] font-medium mb-1">
+                <p className="mb-1 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.15em] text-terracotta-300">
                   {t("shell.brand", "La Serenity Essentials")}
                 </p>
+
                 {title && (
                   <h2 className="font-heading text-3xl tracking-tight text-white">
                     {title}
@@ -88,16 +102,16 @@ export function SheetShell({
               </div>
 
               <button
+                type="button"
                 onClick={onClose}
-                className="relative z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all text-white/90 hover:text-white"
-                aria-label="Close"
+                className="relative z-10 rounded-full bg-white/10 p-2 text-white/90 transition-all hover:bg-white/20 hover:text-white"
+                aria-label={t("review.close", "Close")}
               >
-                <X className="w-6 h-6" />
+                <X className="h-6 w-6" />
               </button>
             </div>
 
-            {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto p-6 md:p-8 modal-scroll bg-porcelain">
+            <div className="modal-scroll flex-1 overflow-y-auto bg-porcelain p-6 md:p-8">
               {children}
             </div>
           </motion.div>

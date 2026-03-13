@@ -272,11 +272,9 @@ export default {
       brand: "La Serenity Essentials",
     },
     gift: {
-      trigger: "Offer a Gift",
-      title: "Give the Gift of Relaxation",
-      subtitle: "Send a personalized massage voucher instantly.",
-      paymentNotice:
-        "Online payment is coming soon. For now, vouchers are sent by email and paid directly at the appointment.",
+       trigger: "Offer a Gift",
+  title: "Gift Voucher",
+  subtitle: "Send a personalized massage voucher instantly.",
       form: {
         purchaserSection: "Your Details",
         recipientSection: "Recipient Details",
@@ -288,7 +286,7 @@ export default {
         messagePlaceholder: "Happy Birthday! Enjoy a moment of peace...",
         date: "Preferred Date (Optional)",
         submit: "Send Gift Voucher",
-        sending: "Generating Voucher...",
+        sending: "Processing...",
         successTitle: "Voucher Sent!",
         successMessage:
           "We have emailed the voucher to the recipient and a copy to you.",
@@ -304,6 +302,10 @@ export default {
         experience: "Select Experience",
         scheduleNow: "Schedule Date (Optional)",
         details: "Details",
+        total: "Total",
+        poweredByStripe: "Secure checkout with Stripe",
+        paymentMethodsNote:
+          "Card, Klarna, and other available payment methods are shown at checkout.",
       },
       validation: {
         required: "Required field",

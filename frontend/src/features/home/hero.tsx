@@ -301,7 +301,7 @@ export const Hero: FC = () => {
   return (
     <section
       id="home"
-      className="relative flex min-h-screen items-end overflow-hidden pb-20 pt-24 md:items-center md:pb-0"
+      className="relative flex min-h-screen items-end overflow-hidden pb-28 pt-24 md:items-center md:pb-0"
       style={{
         paddingInline: "var(--space-container-x)",
       }}
@@ -324,7 +324,7 @@ export const Hero: FC = () => {
       </div>
 
       {/* Content */}
-      <div className="container relative z-10 mx-auto flex h-full max-w-[1100px] flex-col items-start justify-end text-left md:justify-center">
+      <div className="container relative z-10 mx-auto flex h-full w-full max-w-[1100px] flex-col items-start justify-end text-left md:justify-center">
         <motion.h1
           initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -355,13 +355,13 @@ export const Hero: FC = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={FADE_UP_DELAY_2}
-          className="flex w-full flex-col items-stretch gap-4 sm:w-auto sm:flex-row sm:items-center"
+          className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4"
         >
           <Button
             size="lg"
             onClick={handlePrivateClick}
             aria-label={content.ctaPrivate}
-            className="btn-primary h-[52px] w-full rounded-full px-8 font-bold uppercase tracking-widest sm:w-auto"
+            className="btn-primary h-[48px] rounded-full px-7 font-bold uppercase tracking-widest"
             style={{
               fontSize: "var(--typo-small)",
               lineHeight: "var(--leading-small)",
@@ -375,11 +375,10 @@ export const Hero: FC = () => {
             onClick={handleCorporateClick}
             aria-label={content.ctaCorporate}
             className={cn(
-              "group inline-flex items-center justify-center gap-2",
+              "group inline-flex items-center gap-2",
               "font-semibold tracking-wide",
               "text-white/70 transition-colors duration-300",
               "hover:text-white",
-              "py-2 sm:justify-start",
             )}
             style={{
               fontSize: "var(--typo-small)",

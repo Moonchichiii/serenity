@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 .env
 src/types/api/schema.generated.ts
+
+
+src/mocks/*
+src/test/*

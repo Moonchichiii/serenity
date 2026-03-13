@@ -266,11 +266,10 @@ export default {
     shell: {
       brand: "La Serenity Essentials",
     },
-    gift: {
+gift: {
       trigger: "Offrir un cadeau",
-      title: "Offrez la Détente",
-      subtitle: "Bon cadeau personnalisé instantané.",
-      paymentNotice: "Paiement lors du rendez-vous pour le moment.",
+  title: "Cadeau Bien-Être",
+  subtitle: "Bon cadeau personnalisé instantané.",
       form: {
         purchaserSection: "Vos Coordonnées",
         recipientSection: "Destinataire",
@@ -282,7 +281,7 @@ export default {
         messagePlaceholder: "Joyeux anniversaire...",
         date: "Date (Optionnel)",
         submit: "Envoyer le Bon",
-        sending: "Génération...",
+        sending: "Traitement en cours...",
         successTitle: "Bon Envoyé !",
         successMessage: "Envoyé au destinataire et copie pour vous.",
         codeLabel: "Code :",
@@ -297,8 +296,15 @@ export default {
         experience: "Choisir une expérience",
         scheduleNow: "Date souhaitée (Optionnel)",
         details: "Détails",
+        total: "Total",
+        poweredByStripe: "Paiement sécurisé avec Stripe",
+        paymentMethodsNote:
+          "Les moyens de paiement disponibles seront affichés à l'étape de paiement.",
       },
-      validation: { required: "Champ requis", email: "Email invalide" },
+      validation: {
+        required: "Champ requis",
+        email: "Email invalide"
+      },
     },
   },
 };

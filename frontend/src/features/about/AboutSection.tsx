@@ -20,7 +20,6 @@ import { useCMSPage, useCMSGlobals } from "@/hooks/useCMS";
 import { cmsText } from "@/lib/cmsText";
 import { cn } from "@/lib/utils";
 
-// ── Constants ────────────────────────────────────────────────────────
 const SECRET_TRIGGER_TAPS = 3;
 const SECRET_TRIGGER_WINDOW_MS = 900;
 
@@ -29,7 +28,6 @@ const FADE_IN_TRANSITION: Transition = {
   ease: [0.16, 1, 0.3, 1],
 };
 
-// ── Types ────────────────────────────────────────────────────────────
 interface GuideItem {
   icon: LucideIcon;
   titleKey: string;
@@ -49,7 +47,6 @@ interface AboutContent {
 
 type SupportedLang = "fr" | "en";
 
-// ── Guide definitions ────────────────────────────────────────────────
 const GUIDES: readonly GuideItem[] = [
   {
     icon: User,
@@ -68,7 +65,6 @@ const GUIDES: readonly GuideItem[] = [
   },
 ] as const;
 
-// ── Utilities ────────────────────────────────────────────────────────
 function stripHtml(html?: string | null): string {
   if (!html) return "";
   const el = document.createElement("div");
@@ -84,21 +80,21 @@ function pickLocalized<T>(lang: SupportedLang, fr: T, en: T): T {
   return lang === "fr" ? fr : en;
 }
 
-// ── Sub-components ───────────────────────────────────────────────────
 const GuideEntry: FC<{ item: GuideItem }> = ({ item }) => {
   const { t } = useTranslation();
   const Icon = item.icon;
 
   return (
-    <div className="flex items-start gap-4">
+    <div className="flex items-start gap-4 rounded-2xl border border-warm-grey-200/35 bg-white/20 p-3 sm:p-0 sm:rounded-none sm:border-0 sm:bg-transparent">
       <div
         className={cn(
           "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center",
-          "rounded-lg border border-warm-grey-200 bg-transparent"
+          "rounded-lg border border-warm-grey-200 bg-transparent",
         )}
       >
         <Icon className="h-4 w-4 stroke-[1.5] text-charcoal" />
       </div>
+
       <div>
         <h4
           className="mb-0.5 font-semibold tracking-wide text-charcoal"
@@ -110,7 +106,7 @@ const GuideEntry: FC<{ item: GuideItem }> = ({ item }) => {
           {t(item.titleKey)}
         </h4>
         <p
-          className="text-warm-grey-400"
+          className="text-warm-grey-500 sm:text-warm-grey-400"
           style={{
             fontSize: "var(--typo-small)",
             lineHeight: "var(--leading-small)",
@@ -151,7 +147,6 @@ const CertificationBadge: FC<{
   </div>
 );
 
-// ── Content builder hook ─────────────────────────────────────────────
 function useAboutContent(): AboutContent | null {
   const { t, i18n } = useTranslation();
   const cmsData = useCMSPage();
@@ -163,10 +158,11 @@ function useAboutContent(): AboutContent | null {
 
     const pick = <T,>(fr: T, en: T): T =>
       pickLocalized(lang, fr, en);
+
     const txt = (
       fr: unknown,
       en: unknown,
-      fallback: string
+      fallback: string,
     ): string =>
       cmsText(pick(fr, en) as string | undefined, fallback);
 
@@ -174,32 +170,32 @@ function useAboutContent(): AboutContent | null {
       title: txt(
         cmsData.about_title_fr,
         cmsData.about_title_en,
-        t("about.title")
+        t("about.title"),
       ),
       subtitle: txt(
         cmsData.about_subtitle_fr,
         cmsData.about_subtitle_en,
-        t("about.subtitle")
+        t("about.subtitle"),
       ),
       intro: txt(
         cmsData.about_intro_fr,
         cmsData.about_intro_en,
-        t("about.intro")
+        t("about.intro"),
       ),
       certification: txt(
         cmsData.about_certification_fr,
         cmsData.about_certification_en,
-        ""
+        "",
       ),
       approachTitle: txt(
         cmsData.about_approach_title_fr,
         cmsData.about_approach_title_en,
-        t("about.approachTitle")
+        t("about.approachTitle"),
       ),
       approachText: txt(
         cmsData.about_approach_text_fr,
         cmsData.about_approach_text_en,
-        t("about.approachText")
+        t("about.approachText"),
       ),
       studioDescription: t("about.studioDescriptionFallback"),
       address:
@@ -209,7 +205,6 @@ function useAboutContent(): AboutContent | null {
   }, [cmsData, globals, lang, t]);
 }
 
-// ── Main component ──────────────────────────────────────────────────
 export const About: FC = () => {
   const { t } = useTranslation();
   const { open } = useModal();
@@ -229,10 +224,9 @@ export const About: FC = () => {
       className="relative overflow-hidden bg-tint-cream py-[var(--space-section-y)]"
       aria-labelledby="about-heading"
     >
-      {/* Background texture */}
       <div className="noise-texture-subtle" aria-hidden="true" />
       <div
-        className="organic-blob organic-blob-sage absolute -top-60 -right-60 h-[400px] w-[400px] opacity-25"
+        className="organic-blob organic-blob-sage absolute -right-60 -top-60 h-[400px] w-[400px] opacity-25"
         aria-hidden="true"
       />
 
@@ -244,13 +238,12 @@ export const About: FC = () => {
           transition={
             reduceMotion ? undefined : FADE_IN_TRANSITION
           }
-          className="grid grid-cols-1 gap-[var(--space-grid-gap)] lg:grid-cols-12"
+          className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-[var(--space-grid-gap)]"
         >
-          {/* ─── LEFT: Bio, Certification & CTA ──────────── */}
-          <div className="flex flex-col items-start lg:col-span-5 lg:sticky lg:top-32 lg:h-max">
+          <div className="flex flex-col items-start gap-6 lg:col-span-5 lg:sticky lg:top-32 lg:h-max lg:gap-0">
             <h2
               id="about-heading"
-              className="mb-[var(--space-heading-to-paragraph)] font-serif font-light text-charcoal heading-accent"
+              className="heading-accent mb-[var(--space-heading-to-paragraph)] font-serif font-light text-charcoal"
               style={{
                 fontSize: "var(--typo-h2)",
                 lineHeight: "var(--leading-h2)",
@@ -260,15 +253,13 @@ export const About: FC = () => {
             </h2>
 
             <div
-              className="mb-[var(--space-heading-to-paragraph)] text-warm-grey-600"
+              className="mb-8 max-w-[34ch] text-warm-grey-600 sm:mb-[var(--space-heading-to-paragraph)]"
               style={{
                 fontSize: "var(--typo-body)",
-                lineHeight: "var(--leading-body)",
+                lineHeight: "1.7",
               }}
             >
-              <span className="inline">
-                {stripHtml(content.intro)}
-              </span>
+              <span className="inline">{stripHtml(content.intro)}</span>
               <span className="ml-1 inline-block align-baseline opacity-20 transition-opacity hover:opacity-100">
                 <SecretTrigger
                   modalId="cmsLogin"
@@ -282,17 +273,18 @@ export const About: FC = () => {
               </span>
             </div>
 
-            <div className="flex w-full flex-col gap-6">
+            <div className="flex w-full flex-col gap-5 sm:gap-6">
               {content.certification && (
                 <CertificationBadge
                   label={t("about.certificationLabel")}
                   value={stripHtml(content.certification)}
                 />
               )}
+
               <Button
                 variant="cta"
                 size="lg"
-                className="w-fit shadow-elevated"
+                className="w-fit border-terracotta-500 bg-terracotta-500 text-white shadow-warm hover:border-terracotta-600 hover:bg-terracotta-600"
                 aria-label={t("contact.open", {
                   defaultValue: "Open contact form",
                 })}
@@ -304,11 +296,9 @@ export const About: FC = () => {
             </div>
           </div>
 
-          {/* ─── RIGHT: Approach & Values ─────────────────── */}
           <div className="flex flex-col gap-[var(--space-title-to-content)] lg:col-span-7 lg:pt-2">
-            {/* Approach */}
             <div
-              className="space-y-4 border-t border-warm-grey-200/50"
+              className="space-y-4 border-t border-warm-grey-200/50 rounded-2xl bg-white/20 px-4 py-5 sm:rounded-none sm:bg-transparent sm:px-0 sm:py-0"
               style={{
                 paddingTop: "var(--space-heading-to-paragraph)",
               }}
@@ -323,19 +313,19 @@ export const About: FC = () => {
               >
                 {content.approachTitle}
               </h3>
+
               <p
-                className="font-serif italic text-warm-grey-500"
-                style={{
-                  fontSize: "var(--typo-pull-quote)",
-                  lineHeight: "var(--leading-pull-quote)",
-                }}
-              >
-                {stripHtml(content.approachText)}
-              </p>
+  className="max-w-[30ch] text-warm-grey-600 sm:max-w-none sm:font-serif sm:italic sm:text-warm-grey-500"
+  style={{
+    fontSize: "var(--typo-body)",
+    lineHeight: "1.8",
+  }}
+>
+  {stripHtml(content.approachText)}
+</p>
             </div>
 
-            {/* Guiding values */}
-            <div className="space-y-6">
+            <div className="hidden space-y-6 sm:block">
               <h3
                 className="font-serif text-charcoal"
                 style={{
@@ -345,7 +335,8 @@ export const About: FC = () => {
               >
                 {t("about.guidesTitle")}
               </h3>
-              <div className="grid gap-6">
+
+              <div className="grid gap-4 sm:gap-6">
                 {GUIDES.map((item) => (
                   <GuideEntry
                     key={item.titleKey}
