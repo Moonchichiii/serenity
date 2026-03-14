@@ -37,19 +37,14 @@ def test_get_site_for_request_exception(monkeypatch, rf):
 
 
 def test_get_homepage_for_site_no_site_returns_first_live(
-    homepage, hero_slides, specialties
+    homepage, hero_slides
 ):
     page = selectors.get_homepage_for_site(None)
     assert page is not None
     assert page.pk == homepage.pk
     assert [
-        s.title_en
-        for s in page.hero_slides.all().order_by("sort_order")
+        s.title_en for s in page.hero_slides.all().order_by("sort_order")
     ] == ["Slide A", "Slide B"]
-    assert [
-        s.title_en
-        for s in page.specialties.all().order_by("sort_order")
-    ] == ["Spec A", "Spec B"]
 
 
 def test_get_homepage_for_site_site_root_is_homepage(homepage_site):
@@ -154,7 +149,10 @@ def test_globals_no_settings_returns_none(monkeypatch, rf, homepage_site):
     request = rf.get("/", HTTP_HOST=homepage_site.hostname)
     payload = selectors.get_hydrated_homepage_payload(request=request)
 
-    assert (payload["globals"]["gift"] is not None or payload["globals"]["gift"] is None)
+    assert (
+        payload["globals"]["gift"] is not None
+        or payload["globals"]["gift"] is None
+    )
 
 
 # ── Performance & Contract Constraints ──────────────────────────────
@@ -166,7 +164,6 @@ def test_get_hydrated_homepage_payload_query_count(
     homepage_site,
     homepage,
     hero_slides,
-    specialties,
     gift_settings,
 ):
     """
@@ -176,10 +173,9 @@ def test_get_hydrated_homepage_payload_query_count(
     Expected Queries:
     1. Wagtail Site resolution
     2. HomePage resolution (live check)
-    3. HomePage hydration (prefetch_related for slides/specialties)
+    3. HomePage hydration (prefetch_related for slides)
     4. Services fetch
-    5. Testimonials fetch
-    6. GiftSettings fetch
+    5. GiftSettings fetch
     """
     request = rf.get("/", HTTP_HOST=homepage_site.hostname)
 
@@ -189,9 +185,7 @@ def test_get_hydrated_homepage_payload_query_count(
     MAX_QUERY_THRESHOLD = 12
 
     with CaptureQueriesContext(connection) as ctx:
-        payload = selectors.get_hydrated_homepage_payload(
-            request=request
-        )
+        payload = selectors.get_hydrated_homepage_payload(request=request)
 
     query_count = len(ctx)
 
@@ -199,7 +193,6 @@ def test_get_hydrated_homepage_payload_query_count(
     assert payload["page"]["id"] == homepage.id
     assert len(payload["page"]["hero_slides"]) == 2
     assert "services" in payload
-    assert "testimonials" in payload
 
     # Strict Performance Check
     assert query_count <= MAX_QUERY_THRESHOLD, (
@@ -225,13 +218,18 @@ def test_get_hydrated_homepage_payload_fails_deterministically(
 
     assert "No HomePage found" in str(excinfo.value)
 
+
 # ── _require_services import error ──────────────────────────────────
 
 
 def test_require_services_raises_on_import_error(rf, monkeypatch):
     import apps.cms.selectors as sel
 
-    original_import = __builtins__.__import__ if hasattr(__builtins__, '__import__') else __import__
+    original_import = (
+        __builtins__.__import__
+        if hasattr(__builtins__, "__import__")
+        else __import__
+    )
 
     def fake_import(name, *args, **kwargs):
         if "apps.services" in name:
@@ -242,25 +240,6 @@ def test_require_services_raises_on_import_error(rf, monkeypatch):
 
     with pytest.raises(sel.CmsHydrationError, match="Services dependency"):
         sel._require_services(request=rf.get("/"))
-
-
-# ── _require_testimonials import error ──────────────────────────────
-
-
-def test_require_testimonials_raises_on_import_error(monkeypatch):
-    import apps.cms.selectors as sel
-
-    original_import = __builtins__.__import__ if hasattr(__builtins__, '__import__') else __import__
-
-    def fake_import(name, *args, **kwargs):
-        if "apps.testimonials" in name:
-            raise ImportError("no testimonials module")
-        return original_import(name, *args, **kwargs)
-
-    monkeypatch.setattr("builtins.__import__", fake_import)
-
-    with pytest.raises(sel.CmsHydrationError, match="Testimonials dependency"):
-        sel._require_testimonials(limit=8)
 
 
 # ── _require_globals with site=None ─────────────────────────────────

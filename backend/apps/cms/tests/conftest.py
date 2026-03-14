@@ -3,7 +3,7 @@ import uuid
 import pytest
 from wagtail.models import Page, Site
 
-from apps.cms.pages import HeroSlide, HomePage, Specialty
+from apps.cms.pages import HeroSlide, HomePage
 from apps.cms.settings import GiftSettings
 
 pytestmark = pytest.mark.django_db
@@ -82,18 +82,6 @@ def hero_slides(homepage):
 
 
 @pytest.fixture
-def specialties(homepage):
-    """Provides deterministic Specialty instances for ordering tests."""
-    a = Specialty.objects.create(
-        page=homepage, sort_order=1, title_en="Spec A"
-    )
-    b = Specialty.objects.create(
-        page=homepage, sort_order=2, title_en="Spec B"
-    )
-    return [a, b]
-
-
-@pytest.fixture
 def homepage_with_content(homepage):
     """
     Compound fixture for tests requiring a pre-hydrated homepage
@@ -107,12 +95,6 @@ def homepage_with_content(homepage):
         page=homepage, sort_order=1, title_en="A"
     )
 
-    Specialty.objects.create(
-        page=homepage, sort_order=2, title_en="S2"
-    )
-    Specialty.objects.create(
-        page=homepage, sort_order=1, title_en="S1"
-    )
     return homepage
 
 

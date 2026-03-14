@@ -4,7 +4,6 @@ from apps.cms.serializers import (
     GiftSettingsSerializer,
     HeroSlideSerializer,
     HomePageSerializer,
-    SpecialtySerializer,
 )
 
 pytestmark = pytest.mark.django_db
@@ -56,31 +55,15 @@ def test_hero_slide_serializer_image_url_exception():
     assert data["image"]["title"] == "oops"
 
 
-# ── SpecialtySerializer ─────────────────────────────────────────────
-
-def test_specialty_serializer_no_image():
-    spec = type(
-        "Sp",
-        (),
-        {"title_en": "Sports", "title_fr": "Sportif", "image": None},
-    )()
-    data = SpecialtySerializer(spec).data
-    assert data["image"] is None
-    assert data["title_en"] == "Sports"
-
-
 # ── HomePageSerializer ──────────────────────────────────────────────
 
-def test_homepage_serializer_orders_related_items(homepage, hero_slides, specialties):
+def test_homepage_serializer_orders_related_items(homepage, hero_slides):
     payload = HomePageSerializer(homepage, context={"request": None}).data
     assert [s["title_en"] for s in payload["hero_slides"]] == [
         "Slide A",
         "Slide B",
     ]
-    assert [s["title_en"] for s in payload["specialties"]] == [
-        "Spec A",
-        "Spec B",
-    ]
+
 
 
 def test_services_hero_video_url_handles_no_file(homepage):
