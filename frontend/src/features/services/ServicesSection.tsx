@@ -463,34 +463,45 @@ export const Services: FC = () => {
 
           {/* Grid & List */}
           {!services ? (
-            <div
-              className="py-20 text-center text-sage-400"
-              style={{
-                fontSize: "var(--typo-body)",
-                lineHeight: "var(--leading-body)",
-              }}
-            >
-              No services available yet.
-            </div>
-          ) : (
-            <>
-              {/* MOBILE: Typography-First Apothecary Menu */}
-              <div className="flex flex-col md:hidden">
-                {services.map((s) => (
-                  <MobileListItem
-                    key={s.id}
-                    service={s}
-                    onClick={() =>
-                      setSelectedMobileService(s)
-                    }
-                  />
-                ))}
-              </div>
+  <div
+    className="py-20 text-center text-sage-400"
+    style={{
+      fontSize: "var(--typo-body)",
+      lineHeight: "var(--leading-body)",
+    }}
+  >
+    No services available yet.
+  </div>
+) : (
+  <>
+    {/* MOBILE: Small interaction hint */}
+    <p
+      className="mb-2 text-sage-300/75 md:hidden"
+      style={{
+        fontSize: "var(--typo-caption)",
+        lineHeight: "var(--leading-caption)",
+      }}
+    >
+      {t("services.mobileHint", {
+        defaultValue: "Tap a service to view details.",
+      })}
+    </p>
 
-              {/* DESKTOP: Image-First Editorial Grid */}
-              <DesktopGrid services={services} />
-            </>
-          )}
+    {/* MOBILE: Typography-First Apothecary Menu */}
+    <div className="flex flex-col md:hidden">
+      {services.map((s) => (
+        <MobileListItem
+          key={s.id}
+          service={s}
+          onClick={() => setSelectedMobileService(s)}
+        />
+      ))}
+    </div>
+
+    {/* DESKTOP: Image-First Editorial Grid */}
+    <DesktopGrid services={services} />
+  </>
+)}
         </div>
       </section>
 

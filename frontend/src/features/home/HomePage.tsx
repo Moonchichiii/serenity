@@ -27,7 +27,10 @@ export function HomePage() {
         <Services />
         <Faq />
       </Suspense>
-      <ReviewTrigger targetSectionId="testimonials" />
+      <ReviewTrigger
+        targetSectionId="testimonials"
+        hideSectionId="faq"
+      />
     </>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MessageSquarePlus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -6,42 +6,72 @@ import { ReviewSheet } from "./ReviewSheet";
 
 interface ReviewTriggerProps {
   targetSectionId: string;
+  hideSectionId?: string;
 }
 
-export function ReviewTrigger({ targetSectionId }: ReviewTriggerProps) {
+export function ReviewTrigger({
+  targetSectionId,
+  hideSectionId,
+}: ReviewTriggerProps) {
   const { t } = useTranslation();
-  const [isVisible, setIsVisible] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isInTargetSection, setIsInTargetSection] = useState(false);
+  const [isInHideSection, setIsInHideSection] = useState(false);
+
+  const isVisible = useMemo(
+    () => isInTargetSection && !isInHideSection,
+    [isInTargetSection, isInHideSection],
+  );
 
   useEffect(() => {
-    let observer: IntersectionObserver | null = null;
+    let targetObserver: IntersectionObserver | null = null;
+    let hideObserver: IntersectionObserver | null = null;
     let intervalId: number | null = null;
 
-    const setupObserver = (): boolean => {
+    const setupObservers = (): boolean => {
       const targetElement = document.getElementById(targetSectionId);
-      if (!targetElement) return false;
+      const hideElement = hideSectionId
+        ? document.getElementById(hideSectionId)
+        : null;
 
-      observer = new IntersectionObserver(
-        (entries) => {
-          const entry = entries[0];
-          setIsVisible(!!entry?.isIntersecting);
+      if (!targetElement) return false;
+      if (hideSectionId && !hideElement) return false;
+
+      targetObserver?.disconnect();
+      hideObserver?.disconnect();
+
+      targetObserver = new IntersectionObserver(
+        ([entry]) => {
+          setIsInTargetSection(!!entry?.isIntersecting);
         },
         {
           threshold: 0.1,
-          // Appears slightly before the section fully hits viewport center
           rootMargin: "0px 0px -20% 0px",
         },
       );
 
-      observer.observe(targetElement);
+      targetObserver.observe(targetElement);
+
+      if (hideElement) {
+        hideObserver = new IntersectionObserver(
+          ([entry]) => {
+            setIsInHideSection(!!entry?.isIntersecting);
+          },
+          {
+            threshold: 0.05,
+            rootMargin: "0px 0px -10% 0px",
+          },
+        );
+
+        hideObserver.observe(hideElement);
+      }
+
       return true;
     };
 
-    // Try immediately
-    if (!setupObserver()) {
-      // If the section is lazy-loaded, keep trying until it exists
+    if (!setupObservers()) {
       intervalId = window.setInterval(() => {
-        if (setupObserver() && intervalId !== null) {
+        if (setupObservers() && intervalId !== null) {
           window.clearInterval(intervalId);
           intervalId = null;
         }
@@ -49,10 +79,13 @@ export function ReviewTrigger({ targetSectionId }: ReviewTriggerProps) {
     }
 
     return () => {
-      if (intervalId !== null) window.clearInterval(intervalId);
-      observer?.disconnect();
+      if (intervalId !== null) {
+        window.clearInterval(intervalId);
+      }
+      targetObserver?.disconnect();
+      hideObserver?.disconnect();
     };
-  }, [targetSectionId]);
+  }, [targetSectionId, hideSectionId]);
 
   return (
     <>
@@ -66,6 +99,7 @@ export function ReviewTrigger({ targetSectionId }: ReviewTriggerProps) {
             className="fixed right-4 top-1/2 z-40 -translate-y-1/2"
           >
             <button
+              type="button"
               onClick={() => setIsOpen(true)}
               className="flex flex-col items-center gap-1 rounded-full bg-sage-600 px-6 py-4 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-sage-700"
               aria-label={t("review.trigger")}

@@ -44,10 +44,11 @@ export default {
       approachLabel: "Mon approche",
     },
     services: {
-      label: "CE QUE NOUS FAISONS",
-      title: "Nos services",
-      subtitle:
-        "Découvrez nos soins conçus pour libérer les tensions et révéler votre bien-être naturel",
+      mobileHint: "Touchez un service pour voir les détails.",
+      label: "LES SOINS",
+title: "Soins signature",
+subtitle:
+  "Découvrez des soins personnalisés conçus pour libérer les tensions et révéler votre bien-être naturel",
       slide: "GLISSER",
       mostPopular: "Le plus populaire",
       readMore: "En savoir plus",

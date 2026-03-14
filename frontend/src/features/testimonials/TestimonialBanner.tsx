@@ -137,13 +137,15 @@ export function TestimonialBanner() {
 
   return (
     <section
-      className="relative bg-white overflow-hidden"
-      id="testimonials"
-      style={{
-        paddingTop: 'var(--space-section-y)',
-        paddingBottom: 'var(--space-section-y)',
-      }}
-    >
+  className="relative overflow-hidden bg-white"
+  id="testimonials"
+  style={{
+    paddingTop: 'var(--space-section-y)',
+    paddingBottom: isMobile
+      ? 'calc(var(--space-section-y) + 5rem)'
+      : 'var(--space-section-y)',
+  }}
+>
       <div className="noise-texture-subtle" aria-hidden="true" />
 
       <div

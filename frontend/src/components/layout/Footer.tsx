@@ -173,32 +173,31 @@ const Footer: React.FC = () => {
 
 
               {/* Socials */}
-              <div className="col-span-2 sm:col-span-1">
-                <h4
-                  className="mb-5 font-semibold uppercase text-white/30"
-                  style={{
-                    fontSize: "var(--typo-overline)",
-                    lineHeight: "var(--leading-overline)",
-                    letterSpacing: "0.18em",
-                  }}
-                >
-                  {t("footer.socials", {
-                    defaultValue: "Socials",
-                  })}
-                </h4>
-                <div className="flex items-center gap-3">
-                  <AnimatedInstagramIcon
-                    magnetic
-                    size={42}
-                    href={instagram}
-                  />
-                  <AnimatedFacebookIcon
-                    magnetic
-                    size={42}
-                    href={facebook}
-                  />
-                </div>
-              </div>
+              {/* Socials */}
+<div className="col-span-2 sm:col-span-1">
+  <h4
+    className="mb-5 font-semibold uppercase text-white/30"
+    style={{
+      fontSize: "var(--typo-overline)",
+      lineHeight: "var(--leading-overline)",
+      letterSpacing: "0.18em",
+    }}
+  >
+    {t("footer.socials", {
+      defaultValue: "Socials",
+    })}
+  </h4>
+  <div className="flex items-center gap-4">
+    <AnimatedInstagramIcon
+      size={52}
+      href={instagram}
+    />
+    <AnimatedFacebookIcon
+      size={52}
+      href={facebook}
+    />
+  </div>
+</div>
             </div>
           </div>
 

@@ -43,10 +43,11 @@ export default {
       approachLabel: "My Approach",
     },
     services: {
-      label: "WHAT WE DO",
-      title: "Our services",
-      subtitle:
-        "Explore our treatments designed to release tension and restore your natural well-being",
+      mobileHint: "Tap a service to view details.",
+      label: "TREATMENTS",
+title: "Signature treatments",
+subtitle:
+  "Explore personalised treatments designed to release tension and restore your natural well-being",
       slide: "SLIDE",
       mostPopular: "Most popular",
       readMore: "Read more",

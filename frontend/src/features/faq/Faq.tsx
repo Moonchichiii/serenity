@@ -269,7 +269,7 @@ export const Faq: FC = () => {
             </div>
 
             {/* Location card — sticky on desktop */}
-            <div className="lg:col-span-2 lg:sticky lg:top-32 lg:h-max">
+            <div id="faq" className="lg:col-span-2 lg:sticky lg:top-32 lg:h-max">
               <div className="overflow-hidden rounded-2xl border border-warm-grey-200/50 bg-tint-cream/40">
                 <Suspense fallback={<MapFallback />}>
                   <LocationMap />
