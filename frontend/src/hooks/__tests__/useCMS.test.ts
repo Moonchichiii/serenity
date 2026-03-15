@@ -87,7 +87,7 @@ describe("useCMS — Flow 1: CMS Hydrated Load", () => {
     await waitFor(() => expect(r1.current.isSuccess).toBe(true));
 
     // Second hook using the same queryClient
-    const { result: r2 } = renderHookWithQuery(() => useHydratedCMS());
+    const { result: _r2 } = renderHookWithQuery(() => useHydratedCMS());
 
     // Because our test util creates a NEW queryClient each call,
     // this second hook will fire its own request.

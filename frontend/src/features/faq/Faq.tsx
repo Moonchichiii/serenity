@@ -45,6 +45,14 @@ interface FaqItem {
 
 type SupportedLang = "fr" | "en";
 
+interface FaqCmsFields {
+  faq_title_fr?: string;
+  faq_title_en?: string;
+  faq_subtitle_fr?: string;
+  faq_subtitle_en?: string;
+  [key: string]: unknown;
+}
+
 // ── Utilities ────────────────────────────────────────────────────────
 function resolveLang(language: string): SupportedLang {
   return language.startsWith("fr") ? "fr" : "en";
@@ -63,7 +71,7 @@ function stripHtml(html?: string | null): string {
 
 // ── Sub-components ───────────────────────────────────────────────────
 const MapFallback: FC = () => (
-  <div className="h-[200px] w-full animate-pulse rounded-2xl bg-sand-100" />
+  <div className="h-50 w-full animate-pulse rounded-2xl bg-sand-100" />
 );
 
 const AccordionItem: FC<{
@@ -145,28 +153,31 @@ function useFaqContent() {
   return useMemo(() => {
     if (!cmsData) return null;
 
+    const data = cmsData as unknown as FaqCmsFields;
     const pick = <T,>(fr: T, en: T): T => pickLocalized(lang, fr, en);
     const txt = (fr: unknown, en: unknown, fb: string): string =>
       cmsText(pick(fr, en) as string | undefined, fb);
 
     const title = txt(
-      cmsData.faq_title_fr,
-      cmsData.faq_title_en,
+      data.faq_title_fr,
+      data.faq_title_en,
       t("faq.title")
     );
 
     const subtitle = txt(
-      cmsData.faq_subtitle_fr,
-      cmsData.faq_subtitle_en,
+      data.faq_subtitle_fr,
+      data.faq_subtitle_en,
       t("faq.subtitle")
     );
 
     const items: FaqItem[] = [];
     for (let i = 1; i <= 8; i++) {
-      const qKey = `faq_q${i}_${lang}` as keyof typeof cmsData;
-      const aKey = `faq_a${i}_${lang}` as keyof typeof cmsData;
-      const q = stripHtml(cmsData[qKey] as string) || t(`faq.q${i}`);
-      const a = stripHtml(cmsData[aKey] as string) || t(`faq.a${i}`);
+      const qKey = `faq_q${i}_${lang}`;
+      const aKey = `faq_a${i}_${lang}`;
+      const q =
+        stripHtml(data[qKey] as string) || t(`faq.q${i}`);
+      const a =
+        stripHtml(data[aKey] as string) || t(`faq.a${i}`);
       if (q && a) items.push({ question: q, answer: a });
     }
 
@@ -269,7 +280,7 @@ export const Faq: FC = () => {
             </div>
 
             {/* Location card — sticky on desktop */}
-            <div id="faq" className="lg:col-span-2 lg:sticky lg:top-32 lg:h-max">
+            <div className="lg:col-span-2 lg:sticky lg:top-32 lg:h-max">
               <div className="overflow-hidden rounded-2xl border border-warm-grey-200/50 bg-tint-cream/40">
                 <Suspense fallback={<MapFallback />}>
                   <LocationMap />

@@ -75,7 +75,6 @@ function resolveServices(
 function accentFirstWord(text: string): ReactNode {
   const words = text.split(" ");
 
-  // Safety check if text is empty or single word
   if (words.length <= 1) {
     return (
       <span className="font-serif italic font-light">
@@ -84,18 +83,15 @@ function accentFirstWord(text: string): ReactNode {
     );
   }
 
-  const first = words.shift(); // Removes and returns the first word
-  const second = words.shift(); // Removes and returns the second word
-  const rest = words.join(" "); // Joins whatever is left
+  const first = words.shift();
+  const second = words.shift();
+  const rest = words.join(" ");
 
   return (
     <>
-      {/* First word: Italic/Light */}
       <span className="font-serif italic font-light mr-2">
         {first}
       </span>
-
-      {/* Second word: Bold + Honey Color */}
       {second && (
         <span
           className="font-bold mr-2"
@@ -104,8 +100,6 @@ function accentFirstWord(text: string): ReactNode {
           {second}
         </span>
       )}
-
-      {/* Rest of the sentence: Default Porcelain */}
       {rest}
     </>
   );
@@ -125,12 +119,12 @@ function useResolvedServices(): ResolvedService[] | null {
 
 // ── Sub-components ───────────────────────────────────────────────────
 
-// 1. DESKTOP ITEM (Image visible by default)
+// 1. DESKTOP ITEM
 const EditorialServiceItem: FC<{
   service: ResolvedService;
 }> = ({ service }) => (
   <article className="group flex cursor-pointer flex-col gap-6">
-    <div className="relative aspect-[4/5] w-full overflow-hidden bg-sage-deep/80">
+    <div className="relative aspect-4/5 w-full overflow-hidden bg-sage-deep/80">
       {service.image && (
         <ResponsiveImage
           image={service.image}
@@ -186,7 +180,7 @@ const EditorialServiceItem: FC<{
   </article>
 );
 
-// 2. MOBILE APOTHECARY LIST ITEM (Typography only)
+// 2. MOBILE APOTHECARY LIST ITEM
 const MobileListItem: FC<{
   service: ResolvedService;
   onClick: () => void;
@@ -228,7 +222,7 @@ const MobileListItem: FC<{
   </button>
 );
 
-// 3. MOBILE DRAWER (Reveals full image & details)
+// 3. MOBILE DRAWER
 const MobileServiceDrawer: FC<{
   service: ResolvedService | null;
   onClose: () => void;
@@ -245,7 +239,6 @@ const MobileServiceDrawer: FC<{
     <AnimatePresence>
       {service && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -254,7 +247,6 @@ const MobileServiceDrawer: FC<{
             className="fixed inset-0 z-50 bg-sage-deep/80 backdrop-blur-sm md:hidden"
           />
 
-          {/* Drawer */}
           <motion.div
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
@@ -266,7 +258,6 @@ const MobileServiceDrawer: FC<{
             }}
             className="fixed bottom-0 left-0 right-0 z-50 flex h-[85vh] flex-col overflow-hidden rounded-t-[2rem] bg-sage-deep shadow-[0_-10px_40px_rgba(0,0,0,0.3)] md:hidden"
           >
-            {/* Image Header */}
             <div className="relative h-2/5 w-full bg-sage-deep/80">
               {service.image && (
                 <ResponsiveImage
@@ -275,17 +266,17 @@ const MobileServiceDrawer: FC<{
                   className="h-full w-full object-cover opacity-90"
                 />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-sage-deep via-sage-deep/40 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-sage-deep via-sage-deep/40 to-transparent" />
 
               <button
                 onClick={onClose}
+                aria-label="Close service details"
                 className="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-sage-deep/60 text-white backdrop-blur-md transition-colors hover:bg-black/20"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            {/* Content Body */}
             <div className="flex-1 overflow-y-auto px-6 pb-10 pt-6">
               <span
                 className="mb-3 block font-semibold uppercase tracking-[0.2em] text-terracotta-400"
@@ -351,7 +342,7 @@ const DesktopGrid: FC<{ services: ResolvedService[] }> = ({
 
   return (
     <div className="hidden md:block">
-      <div className="mx-auto grid max-w-7xl grid-cols-3 gap-[var(--space-grid-gap)]">
+      <div className="mx-auto grid max-w-7xl grid-cols-3 gap-(--space-grid-gap)">
         {visible.map((s) => (
           <EditorialServiceItem key={s.id} service={s} />
         ))}
@@ -403,10 +394,9 @@ export const Services: FC = () => {
       <section
         id="services"
         aria-labelledby="services-heading"
-        className="bg-sage-deep py-[var(--space-section-y)]"
+        className="bg-sage-deep py-(--space-section-y)"
       >
-        <div className="container mx-auto px-[var(--space-container-x)]">
-          {/* Editorial Header Split Layout */}
+        <div className="container mx-auto px-(--space-container-x)">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -461,57 +451,54 @@ export const Services: FC = () => {
             </p>
           </motion.div>
 
-          {/* Grid & List */}
           {!services ? (
-  <div
-    className="py-20 text-center text-sage-400"
-    style={{
-      fontSize: "var(--typo-body)",
-      lineHeight: "var(--leading-body)",
-    }}
-  >
-    No services available yet.
-  </div>
-) : (
-  <>
-    {/* MOBILE: Small interaction hint */}
-    <p
-      className="mb-2 text-sage-300/75 md:hidden"
-      style={{
-        fontSize: "var(--typo-caption)",
-        lineHeight: "var(--leading-caption)",
-      }}
-    >
-      {t("services.mobileHint", {
-        defaultValue: "Tap a service to view details.",
-      })}
-    </p>
+            <div
+              className="py-20 text-center text-sage-400"
+              style={{
+                fontSize: "var(--typo-body)",
+                lineHeight: "var(--leading-body)",
+              }}
+            >
+              No services available yet.
+            </div>
+          ) : (
+            <>
+              <p
+                className="mb-2 text-sage-300/75 md:hidden"
+                style={{
+                  fontSize: "var(--typo-caption)",
+                  lineHeight: "var(--leading-caption)",
+                }}
+              >
+                {t("services.mobileHint", {
+                  defaultValue:
+                    "Tap a service to view details.",
+                })}
+              </p>
 
-    {/* MOBILE: Typography-First Apothecary Menu */}
-    <div className="flex flex-col md:hidden">
-      {services.map((s) => (
-        <MobileListItem
-          key={s.id}
-          service={s}
-          onClick={() => setSelectedMobileService(s)}
-        />
-      ))}
-    </div>
+              <div className="flex flex-col md:hidden">
+                {services.map((s) => (
+                  <MobileListItem
+                    key={s.id}
+                    service={s}
+                    onClick={() =>
+                      setSelectedMobileService(s)
+                    }
+                  />
+                ))}
+              </div>
 
-    {/* DESKTOP: Image-First Editorial Grid */}
-    <DesktopGrid services={services} />
-  </>
-)}
+              <DesktopGrid services={services} />
+            </>
+          )}
         </div>
       </section>
 
-      {/* Mobile Drawer Overlay */}
       <MobileServiceDrawer
         service={selectedMobileService}
         onClose={() => setSelectedMobileService(null)}
       />
 
-      {/* Hard cut back to light for Testimonials */}
       <TestimonialBanner />
     </div>
   );

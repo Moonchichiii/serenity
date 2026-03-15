@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { waitFor, act } from "@testing-library/react";
 import { renderHookWithQuery } from "@/test/utils";
 import {
@@ -16,7 +16,6 @@ import {
 } from "@/test/schemas";
 import {
   testimonialListFixture,
-  testimonialStatsFixture,
 } from "@/test/fixtures";
 import { z } from "zod";
 
@@ -237,11 +236,7 @@ describe("useSubmitTestimonial — Flow 9: Review Submit", () => {
       useSubmitTestimonial(),
     );
 
-    // Seed stats cache
-    queryClient.setQueryData(
-      ["testimonials", "stats"],
-      testimonialStatsFixture,
-    );
+    const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
 
     await act(async () => {
       result.current.mutate(validReview);
@@ -249,13 +244,11 @@ describe("useSubmitTestimonial — Flow 9: Review Submit", () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    // Stats should be invalidated (state becomes stale/refetching).
-    // Since there's no active observer, the data may still exist
-    // but the query state should be invalidated.
-    const statsState = queryClient.getQueryState(["testimonials", "stats"]);
-
-    // After invalidation, isInvalidated should be true
-    expect(statsState?.isInvalidated).toBe(true);
+    expect(invalidateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: expect.arrayContaining(["testimonials", "stats"])
+      })
+    );
   });
 });
 
@@ -347,15 +340,7 @@ describe("useReplyToTestimonial — Flow 10: Reply Submit", () => {
       useReplyToTestimonial(),
     );
 
-    // Seed both list and stats caches
-    queryClient.setQueryData(
-      ["testimonials", "list", 4],
-      testimonialListFixture,
-    );
-    queryClient.setQueryData(
-      ["testimonials", "stats"],
-      testimonialStatsFixture,
-    );
+    const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
 
     await act(async () => {
       result.current.mutate(validReply);
@@ -363,11 +348,10 @@ describe("useReplyToTestimonial — Flow 10: Reply Submit", () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    // Both should be invalidated (broad prefix match)
-    const listState = queryClient.getQueryState(["testimonials", "list", 4]);
-    const statsState = queryClient.getQueryState(["testimonials", "stats"]);
-
-    expect(listState?.isInvalidated).toBe(true);
-    expect(statsState?.isInvalidated).toBe(true);
+    expect(invalidateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: ["testimonials"]
+      })
+    );
   });
 });

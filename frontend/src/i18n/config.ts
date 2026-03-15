@@ -6,7 +6,7 @@ import fr from './fr';
 
 const resources = { en, fr };
 
-i18next
+void i18next
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({

@@ -65,13 +65,7 @@ interface HeroContent {
   tagline: string;
 }
 
-// ── Title line definitions per language ──────────────────────────────
-const TITLE_LINES: Record<SupportedLang, RegExp | null> = {
-  fr: /^(\S+)\s+(\S+)\s+(.+)$/,
-  en: /^(\S+)\s+(\S+)\s+(.+)$/,
-};
-
-function splitTitleIntoLines(title: string, lang: SupportedLang): string[] {
+function splitTitleIntoLines(title: string, _lang: SupportedLang): string[] {
   const lower = title.toLowerCase();
   const words = lower.split(/\s+/).filter(Boolean);
 
@@ -82,13 +76,19 @@ function splitTitleIntoLines(title: string, lang: SupportedLang): string[] {
   const lines: string[] = [];
   const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-  lines.push(capitalize(words[0]));
+  const firstWord = words[0];
+  if (!firstWord) return [];
+  lines.push(capitalize(firstWord));
 
   const rest = words.slice(1);
 
   for (let i = 0; i < rest.length; ) {
-    const wordsPerLine = i + 3 <= rest.length && rest.length - i === 3 ? 3 : 2;
-    const chunk = rest.slice(i, i + Math.min(wordsPerLine, rest.length - i));
+    const wordsPerLine =
+      i + 3 <= rest.length && rest.length - i === 3 ? 3 : 2;
+    const chunk = rest.slice(
+      i,
+      i + Math.min(wordsPerLine, rest.length - i),
+    );
     lines.push(
       chunk.map((w, idx) => (idx === 0 ? capitalize(w) : w)).join(" "),
     );
@@ -137,7 +137,8 @@ function useHeroContent(): HeroContent | null {
       benefits,
       hasPrice: Boolean(priceLabel || price),
       hasCTA: Boolean(cta),
-      tagline: lang === "fr" ? "Bien-être au travail" : "Corporate Wellness",
+      tagline:
+        lang === "fr" ? "Bien-être au travail" : "Corporate Wellness",
     };
   }, [page, lang]);
 }
@@ -156,7 +157,10 @@ const ImageBackground: FC<{
 
 const Overlays: FC = () => (
   <>
-    <div className="absolute inset-0 bg-sage-deep/55" aria-hidden="true" />
+    <div
+      className="absolute inset-0 bg-sage-deep/55"
+      aria-hidden="true"
+    />
     <div
       className="absolute inset-0 bg-gradient-to-t from-sage-deep/90 via-sage-deep/20 to-sage-deep/30"
       aria-hidden="true"

@@ -39,7 +39,7 @@ function VoucherSuccess() {
       }
     };
 
-    checkStatus(); // Initial check
+    void checkStatus();
 
     const interval = setInterval(async () => {
       const isPaid = await checkStatus();

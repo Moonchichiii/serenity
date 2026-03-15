@@ -10,20 +10,6 @@ import { cn } from "@/lib/utils";
 const MOBILE_IMAGE_SIZES = "(max-width: 640px) 90vw";
 const DESKTOP_IMAGE_SIZES = "(max-width: 1280px) 33vw, 400px";
 
-export const CARD_ENTRANCE: Variants = {
-  hidden: { opacity: 0, y: 40, scale: 0.97 },
-  show: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.7,
-      delay: i * 0.15,
-      ease: [0.16, 1, 0.3, 1],
-    },
-  }),
-};
-
 // ── Types ────────────────────────────────────────────────────────────
 export interface ResolvedService {
   id: number;

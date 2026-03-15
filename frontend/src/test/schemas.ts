@@ -29,7 +29,7 @@ export const GlobalSettingsSchema = z.object({
 });
 
 export const HydratedResponseSchema = z.object({
-  page: z.record(z.unknown()), // WagtailHomePage varies by CMS config
+  page: z.record(z.string(), z.unknown()),
   services: z.array(WagtailServiceSchema),
   globals: GlobalSettingsSchema,
 });
@@ -39,7 +39,9 @@ export const BusyDaySchema = z.object({
   date: z.string(), // ISO date
 });
 
-export const BusyResponseSchema = z.array(BusyDaySchema);
+export const BusyResponseSchema = z.object({
+  busy: z.array(z.string()),
+});
 
 export const TimeSlotSchema = z.object({
   start: z.string(), // ISO datetime
@@ -161,4 +163,24 @@ export const TestimonialStatsSchema = z.object({
   three_star_count: z.number(),
   two_star_count: z.number(),
   one_star_count: z.number(),
+});
+
+
+// ─── Checkout / Payments ────────────────────────────────────────
+export const CheckoutRequestSchema = z.object({
+  sender_name: z.string().min(1),
+  sender_email: z.string().email(),
+  recipient_name: z.string().min(1),
+  recipient_email: z.string().email(),
+  message: z.string().optional(),
+  amount: z.union([z.string(), z.number()]),
+  preferred_language: z.enum(["fr", "en"]),
+  service_id: z.number().optional(),
+  start_datetime: z.string().optional(),
+  end_datetime: z.string().optional(),
+});
+
+export const CheckoutResponseSchema = z.object({
+  url: z.string(),
+  session_id: z.string(),
 });

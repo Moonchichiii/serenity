@@ -7,7 +7,6 @@ import {
   ContactSubmissionSchema,
   ContactSubmissionResponseSchema,
 } from "@/test/schemas";
-import { contactSuccessFixture } from "@/test/fixtures";
 import { act } from "@testing-library/react";
 
 const validContactPayload = {
@@ -118,7 +117,7 @@ describe("useContact — Flow 5: Corporate Inquiry Submit", () => {
       r.url.includes("/api/contact/submit/")
     )?.body as Record<string, unknown>;
 
-    expect(body.subject).toMatch(/^\[CORPORATE\]/);
+    expect(body["subject"]).toMatch(/^\[CORPORATE\]/);
   });
 
   it("sends to the same /api/contact/submit/ endpoint", async () => {

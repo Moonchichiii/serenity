@@ -49,11 +49,9 @@ export const cmsHydratedFixture: z.infer<
 };
 
 // ─── Calendar ───────────────────────────────────────────────────
-export const busyDaysFixture = [
-  { date: "2026-03-05" },
-  { date: "2026-03-12" },
-  { date: "2026-03-19" },
-];
+export const busyDaysFixture = {
+  busy: ["2026-03-05", "2026-03-12", "2026-03-19"],
+};
 
 export const freeSlotsFixture = [
   { start: "2026-03-06T09:00:00Z", end: "2026-03-06T10:00:00Z" },
@@ -148,4 +146,10 @@ export const detailErrorFixture = {
 
 export const serverErrorBody = {
   detail: "Internal server error.",
+};
+
+// ─── Checkout / Payments ────────────────────────────────────────
+export const checkoutSuccessFixture = {
+  url: "https://checkout.stripe.com/pay/cs_test_abc123",
+  session_id: "cs_test_abc123",
 };

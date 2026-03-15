@@ -93,8 +93,16 @@ def list_busy_days(year: int, month: int) -> list[str]:
 
         for event in events:
             start_date = event["start"].get("date")
+            start_datetime = event["start"].get("dateTime")
+
             if start_date:
                 busy_dates.add(start_date)
+                continue
+
+            if start_datetime:
+                busy_dates.add(
+                    datetime.fromisoformat(start_datetime).date().isoformat()
+                )
 
         return sorted(busy_dates)
 

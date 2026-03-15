@@ -2,12 +2,6 @@ import type { ImgHTMLAttributes } from 'react'
 import type { ResponsiveImage } from '@/types/api'
 import { cn } from '@/lib/utils'
 
-declare module 'react' {
-  interface ImgHTMLAttributes<T> {
-    fetchPriority?: 'high' | 'low' | 'auto'
-  }
-}
-
 type Props = {
   image: ResponsiveImage | null | undefined
   alt?: string

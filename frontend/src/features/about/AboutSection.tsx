@@ -85,7 +85,7 @@ const GuideEntry: FC<{ item: GuideItem }> = ({ item }) => {
   const Icon = item.icon;
 
   return (
-    <div className="flex items-start gap-4 rounded-2xl border border-warm-grey-200/35 bg-white/20 p-3 sm:p-0 sm:rounded-none sm:border-0 sm:bg-transparent">
+    <div className="flex items-start gap-4">
       <div
         className={cn(
           "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center",
@@ -95,7 +95,7 @@ const GuideEntry: FC<{ item: GuideItem }> = ({ item }) => {
         <Icon className="h-4 w-4 stroke-[1.5] text-charcoal" />
       </div>
 
-      <div>
+      <div className="min-w-0">
         <h4
           className="mb-0.5 font-semibold tracking-wide text-charcoal"
           style={{
@@ -238,12 +238,13 @@ export const About: FC = () => {
           transition={
             reduceMotion ? undefined : FADE_IN_TRANSITION
           }
-          className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-[var(--space-grid-gap)]"
+          className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-[var(--space-grid-gap)]"
         >
-          <div className="flex flex-col items-start gap-6 lg:col-span-5 lg:sticky lg:top-32 lg:h-max lg:gap-0">
+          {/* ── Left Column ── */}
+          <div className="flex flex-col items-start lg:col-span-5 lg:sticky lg:top-32 lg:h-max">
             <h2
               id="about-heading"
-              className="heading-accent mb-[var(--space-heading-to-paragraph)] font-serif font-light text-charcoal"
+              className="heading-accent font-serif font-light text-charcoal"
               style={{
                 fontSize: "var(--typo-h2)",
                 lineHeight: "var(--leading-h2)",
@@ -253,13 +254,15 @@ export const About: FC = () => {
             </h2>
 
             <div
-              className="mb-8 max-w-[34ch] text-warm-grey-600 sm:mb-[var(--space-heading-to-paragraph)]"
+              className="mt-[var(--space-heading-to-paragraph)] max-w-[38ch] text-warm-grey-600"
               style={{
                 fontSize: "var(--typo-body)",
                 lineHeight: "1.7",
               }}
             >
-              <span className="inline">{stripHtml(content.intro)}</span>
+              <span className="inline">
+                {stripHtml(content.intro)}
+              </span>
               <span className="ml-1 inline-block align-baseline opacity-20 transition-opacity hover:opacity-100">
                 <SecretTrigger
                   modalId="cmsLogin"
@@ -273,36 +276,33 @@ export const About: FC = () => {
               </span>
             </div>
 
-            <div className="flex w-full flex-col gap-5 sm:gap-6">
-              {content.certification && (
+            {content.certification && (
+              <div className="mt-8">
                 <CertificationBadge
                   label={t("about.certificationLabel")}
                   value={stripHtml(content.certification)}
                 />
-              )}
+              </div>
+            )}
 
-              <Button
-                variant="cta"
-                size="lg"
-                className="w-fit border-terracotta-500 bg-terracotta-500 text-white shadow-warm hover:border-terracotta-600 hover:bg-terracotta-600"
-                aria-label={t("contact.open", {
-                  defaultValue: "Open contact form",
-                })}
-                onClick={openContactDefault}
-              >
-                {t("about.cta")}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            <Button
+              variant="cta"
+              size="lg"
+              className="mt-8 w-fit border-terracotta-500 bg-terracotta-500 text-white shadow-warm hover:border-terracotta-600 hover:bg-terracotta-600"
+              aria-label={t("contact.open", {
+                defaultValue: "Open contact form",
+              })}
+              onClick={openContactDefault}
+            >
+              {t("about.cta")}
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </div>
 
-          <div className="flex flex-col gap-[var(--space-title-to-content)] lg:col-span-7 lg:pt-2">
-            <div
-              className="space-y-4 border-t border-warm-grey-200/50 rounded-2xl bg-white/20 px-4 py-5 sm:rounded-none sm:bg-transparent sm:px-0 sm:py-0"
-              style={{
-                paddingTop: "var(--space-heading-to-paragraph)",
-              }}
-            >
+          {/* ── Right Column ── */}
+          <div className="flex flex-col gap-10 lg:col-span-7 lg:pt-2">
+            {/* Approach */}
+            <div className="space-y-4 rounded-2xl border border-warm-grey-200/30 bg-white/30 px-5 py-6 sm:rounded-none sm:border-0 sm:border-t sm:border-warm-grey-200/50 sm:bg-transparent sm:px-0 sm:py-0 sm:pt-[var(--space-heading-to-paragraph)]">
               <h3
                 className="font-serif font-light text-charcoal"
                 style={{
@@ -315,16 +315,17 @@ export const About: FC = () => {
               </h3>
 
               <p
-  className="max-w-[30ch] text-warm-grey-600 sm:max-w-none sm:font-serif sm:italic sm:text-warm-grey-500"
-  style={{
-    fontSize: "var(--typo-body)",
-    lineHeight: "1.8",
-  }}
->
-  {stripHtml(content.approachText)}
-</p>
+                className="max-w-[32ch] text-warm-grey-600 sm:max-w-none sm:font-serif sm:italic sm:text-warm-grey-500"
+                style={{
+                  fontSize: "var(--typo-body)",
+                  lineHeight: "1.8",
+                }}
+              >
+                {stripHtml(content.approachText)}
+              </p>
             </div>
 
+            {/* Guides — desktop only */}
             <div className="hidden space-y-6 sm:block">
               <h3
                 className="font-serif text-charcoal"
@@ -336,7 +337,7 @@ export const About: FC = () => {
                 {t("about.guidesTitle")}
               </h3>
 
-              <div className="grid gap-4 sm:gap-6">
+              <div className="grid gap-5">
                 {GUIDES.map((item) => (
                   <GuideEntry
                     key={item.titleKey}

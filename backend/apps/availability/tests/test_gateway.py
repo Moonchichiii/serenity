@@ -206,80 +206,66 @@ def test_get_credentials_returns_none_when_no_env(monkeypatch):
 
 
 def test_get_credentials_returns_none_on_bad_json(monkeypatch):
+    import base64
+    bad_b64 = base64.b64encode(b"not-valid-json").decode("utf-8")
     monkeypatch.setattr(
         gateway,
         "config",
-        lambda key, default=None: "not-valid-json"
-        if key == "GOOGLE_OAUTH_TOKEN_JSON"
+        lambda key, default=None: bad_b64
+        if key == "GOOGLE_SERVICE_ACCOUNT_BASE64"
         else default,
     )
     assert gateway._get_credentials() is None
 
 
-def test_get_credentials_refreshes_expired_creds(monkeypatch):
+def test_get_credentials_returns_service_account_credentials(monkeypatch):
+    import base64
     import json
 
-    token_data = json.dumps(
-        {
-            "token": "old",
-            "refresh_token": "refresh_tok",
-            "token_uri": "https://oauth2.googleapis.com/token",
-            "client_id": "cid",
-            "client_secret": "csec",
-        }
-    )
+    service_account_info = {
+        "type": "service_account",
+        "project_id": "serenity-test",
+        "private_key_id": "key-id",
+        "private_key": "-----BEGIN PRIVATE KEY-----\nABC\n-----END PRIVATE KEY-----\n",
+        "client_email": "test@serenity-test.iam.gserviceaccount.com",
+        "client_id": "1234567890",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/test",
+    }
+
+    encoded = base64.b64encode(
+        json.dumps(service_account_info).encode("utf-8")
+    ).decode("utf-8")
 
     monkeypatch.setattr(
         gateway,
         "config",
-        lambda key, default=None: token_data
-        if key == "GOOGLE_OAUTH_TOKEN_JSON"
+        lambda key, default=None: encoded
+        if key == "GOOGLE_SERVICE_ACCOUNT_BASE64"
         else default,
     )
 
     with patch(
-        "apps.availability.calendar_gateway.Credentials"
-    ) as MockCreds:
-        mock_instance = MagicMock()
-        mock_instance.expired = True
-        mock_instance.refresh_token = "refresh_tok"
-        MockCreds.return_value = mock_instance
+        "apps.availability.calendar_gateway.Credentials.from_service_account_info"
+    ) as mock_from_info:
+        mock_creds = MagicMock()
+        mock_from_info.return_value = mock_creds
 
         creds = gateway._get_credentials()
 
-        mock_instance.refresh.assert_called_once()
-        assert creds is mock_instance
+        mock_from_info.assert_called_once()
+        assert creds is mock_creds
 
 
-def test_get_credentials_skips_refresh_when_valid(monkeypatch):
-    import json
-
-    token_data = json.dumps(
-        {
-            "token": "valid",
-            "refresh_token": "r",
-            "token_uri": "https://oauth2.googleapis.com/token",
-            "client_id": "cid",
-            "client_secret": "csec",
-        }
-    )
-
+def test_get_credentials_returns_none_on_invalid_service_account_base64(monkeypatch):
     monkeypatch.setattr(
         gateway,
         "config",
-        lambda key, default=None: token_data
-        if key == "GOOGLE_OAUTH_TOKEN_JSON"
+        lambda key, default=None: "%%%not-base64%%%"
+        if key == "GOOGLE_SERVICE_ACCOUNT_BASE64"
         else default,
     )
 
-    with patch(
-        "apps.availability.calendar_gateway.Credentials"
-    ) as MockCreds:
-        mock_instance = MagicMock()
-        mock_instance.expired = False
-        MockCreds.return_value = mock_instance
-
-        creds = gateway._get_credentials()
-
-        mock_instance.refresh.assert_not_called()
-        assert creds is mock_instance
+    assert gateway._get_credentials() is None

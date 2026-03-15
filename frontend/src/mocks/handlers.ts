@@ -4,6 +4,7 @@ import {
   GiftVoucherPayloadSchema,
   TestimonialSubmissionSchema,
   ReplySubmissionSchema,
+  CheckoutRequestSchema,
 } from "../test/schemas";
 import {
   cmsHydratedFixture,
@@ -15,6 +16,7 @@ import {
   testimonialStatsFixture,
   testimonialSubmitSuccessFixture,
   replySuccessFixture,
+  checkoutSuccessFixture,
 } from "../test/fixtures";
 
 // ─── Global request tracker (tests read this) ──────────────────
@@ -75,15 +77,19 @@ export const handlers: HttpHandler[] = [
   http.get(`${BASE}/api/calendar/busy/`, ({ request }) => {
     log("GET", request.url);
     const url = new URL(request.url);
-    const start = url.searchParams.get("start");
-    const end = url.searchParams.get("end");
-    if (!start || !end) {
+    const year = url.searchParams.get("year");
+    const month = url.searchParams.get("month");
+    if (!year || !month) {
       return HttpResponse.json(
-        { detail: "start and end params required" },
+        { detail: "year and month params required" },
         { status: 400 }
       );
     }
-    return HttpResponse.json(busyDaysFixture);
+    // Convert fixture [{ date: "..." }] to { busy: string[] }
+    const busy = Array.isArray(busyDaysFixture)
+      ? busyDaysFixture.map((d) => d.date)
+      : [];
+    return HttpResponse.json({ busy });
   }),
 
   // ── Flow 3: Calendar Free Slots ───────────────────────────────
@@ -92,7 +98,7 @@ export const handlers: HttpHandler[] = [
     const url = new URL(request.url);
     const date = url.searchParams.get("date");
     // serviceId may be null for non-booking vouchers — allow it
-    const serviceId = url.searchParams.get("service_id");
+    const _serviceId = url.searchParams.get("service_id");
     if (!date) {
       return HttpResponse.json(
         { detail: "date param required" },
@@ -126,6 +132,21 @@ export const handlers: HttpHandler[] = [
         "/api/vouchers/create/"
       );
       return HttpResponse.json(voucherSuccessFixture);
+    }
+  ),
+
+  // ── Flow: Payments Checkout ───────────────────────────────────
+  http.post(
+    `${BASE}/api/payments/checkout/`,
+    async ({ request }) => {
+      const body = await request.json();
+      log("POST", request.url, body);
+      assertSchema(
+        CheckoutRequestSchema,
+        body,
+        "/api/payments/checkout/"
+      );
+      return HttpResponse.json(checkoutSuccessFixture);
     }
   ),
 
@@ -229,6 +250,14 @@ export const errorOverrides = {
             "Rate limit exceeded. Please try again later.",
         },
         { status: 429 }
+      )
+    ),
+
+  checkoutServerError: () =>
+    http.post(`${BASE}/api/payments/checkout/`, () =>
+      HttpResponse.json(
+        { detail: "Internal server error." },
+        { status: 500 }
       )
     ),
 

@@ -1,19 +1,27 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { testimonialsQuery, testimonialStatsQuery } from '@/queries/testimonials.queries'
-import { replyToTestimonialMutationOptions, submitTestimonialMutationOptions } from '@/queries/testimonials.mutations'
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  testimonialsQuery,
+  testimonialStatsQuery,
+} from "@/queries/testimonials.queries";
+import {
+  replyToTestimonialMutationOptions,
+  submitTestimonialMutationOptions,
+} from "@/queries/testimonials.mutations";
 
 export function useTestimonials(minRating: number) {
-  return useQuery(testimonialsQuery(minRating))
+  return useQuery(testimonialsQuery(minRating));
 }
 
 export function useTestimonialStats() {
-  return useQuery(testimonialStatsQuery())
+  return useQuery(testimonialStatsQuery());
 }
 
 export function useSubmitTestimonial() {
-  return useMutation(submitTestimonialMutationOptions())
+  const qc = useQueryClient();
+  return useMutation(submitTestimonialMutationOptions(qc));
 }
 
 export function useReplyToTestimonial() {
-  return useMutation(replyToTestimonialMutationOptions())
+  const qc = useQueryClient();
+  return useMutation(replyToTestimonialMutationOptions(qc));
 }

@@ -4,36 +4,26 @@ version = "1.0.0"
 description = "Serenity salon booking platform backend"
 requires-python = ">=3.12"
 dependencies = [
-    # Django core
     "django>=5.0.10,<5.1",
     "djangorestframework>=3.15.2,<4",
     "django-cors-headers>=4.6,<5",
     "django-filter>=24,<26",
     "django-csp>=4.0,<5",
     "django-ratelimit>=4.1,<5",
-    # Database
     "psycopg2-binary>=2.9.10,<3",
     "dj-database-url>=2.3,<3",
-    # Config
     "python-decouple>=3.8,<4",
-    # Date / Time
     "python-dateutil>=2.9,<3",
-    # Wagtail CMS
     "wagtail>=7.3,<8",
     "wagtail-localize>=1.10,<2",
-    # Images
     "Pillow>=11.0,<12",
-    # Cloudinary (media storage in production)
     "cloudinary>=1.40,<2",
     "django-cloudinary-storage>=0.3.0,<1",
-    # Google Calendar integration
     "google-auth>=2.37,<3",
     "google-auth-oauthlib>=1.2,<2",
     "google-auth-httplib2>=0.2,<1",
     "google-api-python-client>=2.158,<3",
-    # API docs
     "drf-spectacular>=0.28,<1",
-    # Production server & static files
     "gunicorn>=23,<24",
     "stripe>=14.4.0,<15",
     "whitenoise>=6.8,<7",
@@ -48,21 +38,17 @@ prod = [
 # ── Dev dependency group (PEP 735) ──────────────────
 [dependency-groups]
 dev = [
-    # Linting & formatting
     "ruff>=0.8.6",
-    # Type checking
     "mypy>=1.13,<2",
     "django-stubs>=5.1,<6",
     "djangorestframework-stubs>=3.15,<4",
     "types-python-dateutil>=2.9,<3",
     "types-requests>=2.32,<3",
-    # Testing
     "pytest>=8.0.0",
     "pytest-django>=4.8.0",
     "pytest-asyncio>=0.23.0",
     "pytest-cov>=5.0.0",
     "faker>=22.0.0",
-    # Dev tools
     "django-extensions>=3.2,<4",
     "ipython>=8.31,<9",
     "schemathesis>=4.10.2",
@@ -101,7 +87,6 @@ explicit_package_bases = true
 
 # ── Per-module overrides ────────────────────────────
 
-# Third-party libs without stubs / py.typed
 [[tool.mypy.overrides]]
 module = [
     "decouple",
@@ -125,7 +110,6 @@ module = [
 ]
 ignore_missing_imports = true
 
-# Pragmatic ignores for noisy areas (tighten later)
 [[tool.mypy.overrides]]
 module = [
     "apps.*.migrations.*",
@@ -157,25 +141,25 @@ exclude = [
 
 [tool.ruff.lint]
 select = [
-    "E",    # pycodestyle errors
-    "W",    # pycodestyle warnings
-    "F",    # pyflakes
-    "I",    # isort
-    "B",    # flake8-bugbear
-    "C4",   # flake8-comprehensions
-    "UP",   # pyupgrade
-    "DJ",   # flake8-django
-    "ANN",  # flake8-annotations
-    "TCH",  # flake8-type-checking
-    "RUF",  # Ruff-specific rules
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+    "DJ",
+    "ANN",
+    "TCH",
+    "RUF",
 ]
 ignore = [
-    "E501",   # line too long (formatter handles it)
-    "B008",   # function calls in argument defaults
-    "B904",   # raise without from
-    "ANN101", # missing type annotation for self
-    "ANN102", # missing type annotation for cls
-    "ANN401", # Dynamically typed expressions (typing.Any) disallowed
+    "E501",
+    "B008",
+    "B904",
+    "ANN101",
+    "ANN102",
+    "ANN401",
 ]
 
 [tool.ruff.lint.isort]
@@ -202,6 +186,8 @@ testpaths = ["apps", "e2e"]
 python_files = ["test_*.py"]
 python_classes = ["Test*Suite", "*Tests"]
 python_functions = ["test_*"]
+addopts = ["--import-mode=importlib", "-ra"]
 markers = [
     "performance: performance/queries tests",
+    "e2e: end-to-end tests",
 ]

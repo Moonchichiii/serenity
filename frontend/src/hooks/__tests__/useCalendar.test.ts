@@ -4,17 +4,11 @@ import { renderHookWithQuery } from "@/test/utils";
 import { useBusyDays, useFreeSlots } from "@/hooks/useCalendar";
 import { requestLog } from "@/mocks/handlers";
 import { BusyResponseSchema, SlotsResponseSchema } from "@/test/schemas";
-import {
-  busyDaysFixture,
-  freeSlotsFixture,
-} from "@/test/fixtures";
 
 describe("useCalendar — Flow 2: Busy Days", () => {
   // ── Category 1: Schema ──────────────────────────────────────
   it("returns data matching BusyResponseSchema", async () => {
-    const { result } = renderHookWithQuery(() =>
-      useBusyDays(2026, 3)
-    );
+    const { result } = renderHookWithQuery(() => useBusyDays(2026, 3));
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -22,28 +16,22 @@ describe("useCalendar — Flow 2: Busy Days", () => {
     expect(parsed.success).toBe(true);
   });
 
-  it("sends start and end query params", async () => {
-    const { result } = renderHookWithQuery(() =>
-      useBusyDays(2026, 3)
-    );
+  it("sends year and month query params", async () => {
+    const { result } = renderHookWithQuery(() => useBusyDays(2026, 3));
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    const call = requestLog.find((r) =>
-      r.url.includes("/api/calendar/busy/")
-    );
+    const call = requestLog.find((r) => r.url.includes("/api/calendar/busy/"));
     expect(call).toBeDefined();
 
     const url = new URL(call!.url);
-    expect(url.searchParams.get("start")).toBeTruthy();
-    expect(url.searchParams.get("end")).toBeTruthy();
+    expect(url.searchParams.get("year")).toBe("2026");
+    expect(url.searchParams.get("month")).toBe("3");
   });
 
   // ── Category 2: Call Count ──────────────────────────────────
   it("fires exactly 1 GET for a given month", async () => {
-    const { result } = renderHookWithQuery(() =>
-      useBusyDays(2026, 3)
-    );
+    const { result } = renderHookWithQuery(() => useBusyDays(2026, 3));
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -70,14 +58,10 @@ describe("useCalendar — Flow 2: Busy Days", () => {
   });
 
   it("fires a NEW request for a different month", async () => {
-    const { result: r1 } = renderHookWithQuery(() =>
-      useBusyDays(2026, 3)
-    );
+    const { result: r1 } = renderHookWithQuery(() => useBusyDays(2026, 3));
     await waitFor(() => expect(r1.current.isSuccess).toBe(true));
 
-    const { result: r2 } = renderHookWithQuery(() =>
-      useBusyDays(2026, 4)
-    );
+    const { result: r2 } = renderHookWithQuery(() => useBusyDays(2026, 4));
     await waitFor(() => expect(r2.current.isSuccess).toBe(true));
 
     // Two separate query clients = two requests expected
@@ -91,9 +75,7 @@ describe("useCalendar — Flow 2: Busy Days", () => {
 describe("useCalendar — Flow 3: Free Slots", () => {
   // ── Category 1: Schema ──────────────────────────────────────
   it("returns data matching SlotsResponseSchema", async () => {
-    const { result } = renderHookWithQuery(() =>
-      useFreeSlots("2026-03-06")
-    );
+    const { result } = renderHookWithQuery(() => useFreeSlots("2026-03-06"));
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -102,9 +84,7 @@ describe("useCalendar — Flow 3: Free Slots", () => {
   });
 
   it("sends date as query param", async () => {
-    const { result } = renderHookWithQuery(() =>
-      useFreeSlots("2026-03-06")
-    );
+    const { result } = renderHookWithQuery(() => useFreeSlots("2026-03-06"));
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -118,13 +98,11 @@ describe("useCalendar — Flow 3: Free Slots", () => {
   });
 
   it("each slot has start and end ISO strings", async () => {
-    const { result } = renderHookWithQuery(() =>
-      useFreeSlots("2026-03-06")
-    );
+    const { result } = renderHookWithQuery(() => useFreeSlots("2026-03-06"));
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    for (const slot of result.current.data!) {
+    for (const slot of result.current.data as { start: string; end: string; }[]) {
       expect(slot).toHaveProperty("start");
       expect(slot).toHaveProperty("end");
       // Verify they're parseable as dates
@@ -135,9 +113,7 @@ describe("useCalendar — Flow 3: Free Slots", () => {
 
   // ── Category 2: Call Count ──────────────────────────────────
   it("fires exactly 1 GET per date selection", async () => {
-    const { result } = renderHookWithQuery(() =>
-      useFreeSlots("2026-03-06")
-    );
+    const { result } = renderHookWithQuery(() => useFreeSlots("2026-03-06"));
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
