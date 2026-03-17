@@ -28,10 +28,14 @@ class StripePayment(models.Model):
     amount = models.DecimalField(max_digits=8, decimal_places=2)
     currency = models.CharField(max_length=10, default="eur")
 
-    stripe_checkout_session_id = models.CharField(max_length=255, unique=True)
-    stripe_payment_intent_id = models.CharField(max_length=255, blank=True, default="")
+    stripe_checkout_session_id = models.CharField(
+        max_length=255, unique=True
+    )
+    stripe_payment_intent_id = models.CharField(
+        max_length=255, blank=True, default=""
+    )
 
-    # Store voucher id once fulfilled (no FK to avoid circular imports if you want)
+    # Store voucher id once fulfilled (no FK to avoid circular imports)
     voucher_id = models.IntegerField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -41,16 +45,21 @@ class StripePayment(models.Model):
         ordering = ("-created_at",)
 
     def __str__(self) -> str:
-        return f"StripePayment({self.status}) session={self.stripe_checkout_session_id}"
+        return (
+            f"StripePayment({self.status}) "
+            f"session={self.stripe_checkout_session_id}"
+        )
 
 
 class StripeWebhookEvent(models.Model):
     """
-    Idempotency guard: Stripe can retry events.
+    Idempotency guard + audit log: Stripe can retry events.
     """
 
     stripe_event_id = models.CharField(max_length=255, unique=True)
     event_type = models.CharField(max_length=255)
+    livemode = models.BooleanField(default=False)
+    stripe_created_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:

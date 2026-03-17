@@ -10,5 +10,4 @@ export type PaymentStatusResponse = {
   voucher_id?: number | null;
 };
 
-// re-export so callers can just import from payments if they want
 export type { CheckoutRequest };

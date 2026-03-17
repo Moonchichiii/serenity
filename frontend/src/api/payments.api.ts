@@ -1,4 +1,5 @@
 import { apiClient } from "@/api/client";
+import { endpoints } from "@/api/endpoints";
 import type {
   CheckoutRequest,
   CheckoutResponse,
@@ -6,15 +7,21 @@ import type {
 } from "@/types/api/payments";
 
 export const paymentsApi = {
-  createCheckout: async (payload: CheckoutRequest): Promise<CheckoutResponse> => {
-    const res = await apiClient.post<CheckoutResponse>("/api/payments/checkout/", payload);
+  createCheckout: async (
+    payload: CheckoutRequest,
+  ): Promise<CheckoutResponse> => {
+    const res = await apiClient.post<CheckoutResponse>(
+      endpoints.paymentsCheckout(),
+      payload,
+    );
     return res.data;
   },
 
-  // Optional (recommended) if you add a backend status endpoint:
-  getPaymentStatus: async (sessionId: string): Promise<PaymentStatusResponse> => {
+  getPaymentStatus: async (
+    sessionId: string,
+  ): Promise<PaymentStatusResponse> => {
     const res = await apiClient.get<PaymentStatusResponse>(
-      `/api/payments/status/?session_id=${encodeURIComponent(sessionId)}`,
+      `${endpoints.paymentsStatus()}?session_id=${encodeURIComponent(sessionId)}`,
     );
     return res.data;
   },

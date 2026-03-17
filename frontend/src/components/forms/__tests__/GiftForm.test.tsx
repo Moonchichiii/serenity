@@ -36,6 +36,11 @@ vi.mock("@/hooks/useCalendar", () => ({
   }),
 }));
 
+vi.mock("react-calendar", () => ({
+  __esModule: true,
+  default: () => <div data-testid="mock-calendar" />,
+}));
+
 // ── Helpers ─────────────────────────────────────────────────────
 function inputByName(name: string): HTMLElement {
   const el = document.querySelector<HTMLElement>(
@@ -75,23 +80,22 @@ describe("GiftForm", () => {
   it("updates displayed amount when a service is selected", async () => {
     renderWithQuery(<GiftForm />);
 
-    // Removed the type assertion "as HTMLSelectElement" to fix the lint error
-    const select = screen.getByRole("combobox");
+    const select = screen.getByRole("combobox") as HTMLSelectElement;
 
-    // fireEvent is safer than userEvent for native select elements in testing libraries
-    fireEvent.change(select, { target: { value: "1" } });
+    // Directly invoke React's onChange by simulating the event
+    // the way React's event system expects it
+    Object.getOwnPropertyDescriptor(
+      HTMLSelectElement.prototype,
+      "value",
+    )!.set!.call(select, "1");
 
-    console.log("select.value after change:", (select as HTMLSelectElement).value);
-    console.log("body snippet:", document.body.textContent?.slice(0, 500));
+    select.dispatchEvent(new Event("change", { bubbles: true }));
 
     await waitFor(
       () => {
-        const text = document.body.textContent ?? "";
-        console.log("waitFor — body has 85?", text.includes("85"));
-        // Check for just "85" to avoid formatting/currency symbol issues
-        expect(text).toContain("85");
+        expect(document.body.textContent).toContain("€85");
       },
-      { timeout: 5_000 },
+      { timeout: 3000 },
     );
   });
 });

@@ -205,3 +205,15 @@ class GiftSettingsSerializer(serializers.ModelSerializer):
             sizes="(max-width: 640px) 90vw, 600px",
             quality="good",
         )
+
+
+class HydratedHomepageResponseSerializer(serializers.Serializer):
+    page = HomePageSerializer()
+    services = serializers.JSONField()
+    globals = serializers.JSONField(allow_null=True)
+    testimonials = serializers.JSONField()
+
+
+class ErrorResponseSerializer(serializers.Serializer):
+    error = serializers.CharField()
+    detail = serializers.CharField(required=False)

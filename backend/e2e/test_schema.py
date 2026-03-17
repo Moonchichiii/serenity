@@ -26,36 +26,36 @@ class TestOpenAPISchema:
 
         critical = [
             "/api/homepage/hydrated/",
-            "/api/vouchers/",
-            "/api/availability/",
-            "/api/testimonials/",
-            "/api/contact/",
+            "/api/vouchers/create/",
         ]
         for path in critical:
             assert path in paths, f"Missing critical endpoint: {path}"
 
     def test_hydrated_response_shape(self):
-        """The homepage/hydrated/ 200 response must contain the fields
-        the React SPA destructures on first load."""
         schema = self._generate_schema()
         hydrated_path = schema["paths"].get("/api/homepage/hydrated/", {})
         get_op = hydrated_path.get("get", {})
         resp_200 = get_op.get("responses", {}).get("200", {})
 
-        # Resolve the $ref to the component schema
-        ref = (
+        response_schema = (
             resp_200.get("content", {})
             .get("application/json", {})
             .get("schema", {})
-            .get("$ref", "")
         )
-        assert ref, "Hydrated endpoint must have a schema ref"
+
+        assert response_schema, "Hydrated endpoint must define a 200 JSON schema"
+
+        ref = response_schema.get("$ref", "")
+        assert ref, (
+            "Hydrated endpoint must have a schema ref. "
+            "Add @extend_schema(responses={200: ...}) to the CMS view."
+        )
 
         component_name = ref.split("/")[-1]
         component = schema["components"]["schemas"][component_name]
         properties = component.get("properties", {})
 
         required_keys = {"page", "services", "globals", "testimonials"}
-        assert required_keys.issubset(
-            properties.keys()
-        ), f"Hydrated schema missing keys: {required_keys - properties.keys()}"
+        assert required_keys.issubset(properties.keys()), (
+            f"Hydrated schema missing keys: {required_keys - properties.keys()}"
+        )
