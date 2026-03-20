@@ -107,3 +107,20 @@ export function getOptimizedThumbnail(
   ]
   return buildCloudinaryUrl(publicId, transforms)
 }
+
+// ── GLOBAL URL OPTIMIZER ────────────────────────────────────────────
+
+export function getOptimizedCloudinaryUrl(
+  url: string,
+  width?: number,
+): string {
+  if (!url || !url.includes('res.cloudinary.com')) {
+    return url
+  }
+
+  const transforms = ['f_auto', 'q_auto:eco']
+  if (width) transforms.push(`w_${width}`, 'c_limit')
+
+  // Safely inject transformations after /upload/ (handling optional versioning)
+  return url.replace(/\/upload\/(v\d+\/)?/, `/upload/${transforms.join(',')}/$1`)
+}

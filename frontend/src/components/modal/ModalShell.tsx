@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
@@ -21,8 +21,6 @@ export function ModalShell({
   className,
   scrollable = true,
 }: ModalShellProps) {
-  const overlayRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (!isOpen) return;
     const onKey = (e: KeyboardEvent) => {
@@ -45,7 +43,6 @@ export function ModalShell({
     <AnimatePresence>
       {isOpen && (
         <div
-          ref={overlayRef}
           className="
             fixed inset-0 z-[9999]
             h-[100dvh] w-screen overflow-hidden
@@ -54,15 +51,14 @@ export function ModalShell({
           "
           aria-modal="true"
           role="dialog"
-          onMouseDown={(e) => {
-            if (e.target === overlayRef.current) onClose();
-          }}
         >
           <motion.div
+            data-testid="modal-backdrop"
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            onMouseDown={onClose}
           />
 
           <motion.div
@@ -92,7 +88,6 @@ export function ModalShell({
               <div className="absolute inset-0 opacity-10 pointer-events-none noise-texture" />
 
               <div className="relative z-10">
-
                 {title ? (
                   <h2 className="font-heading text-2xl sm:text-3xl tracking-tight text-white">
                     {title}

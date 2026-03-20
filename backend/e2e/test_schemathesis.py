@@ -1,8 +1,9 @@
 """
-Property-based API smoke testing with Schemathesis.
+Property-based public API smoke testing with Schemathesis.
 
-Uses the current Schemathesis pytest integration and supports either
-schema.yml or schema.yaml at the project root.
+This test is intentionally scoped to public /api/ endpoints and normal
+HTTP methods. It excludes CMS/Wagtail admin routes and skips odd methods
+such as TRACE that are not part of the supported public contract.
 """
 from __future__ import annotations
 
@@ -25,6 +26,8 @@ SCHEMA_PATH = next(
     PROJECT_ROOT / "schema.yml",
 )
 
+ALLOWED_METHODS = {"GET", "POST", "PUT", "PATCH", "DELETE"}
+
 
 @pytest.fixture(scope="session")
 def loaded_schema() -> Any:
@@ -38,15 +41,35 @@ schema = schemathesis.pytest.from_fixture("loaded_schema")
 
 
 @pytest.mark.e2e
+@pytest.mark.django_db(transaction=True)
 @schema.parametrize()
-def test_all_endpoints(case: Any, live_server: Any) -> None:
+def test_all_endpoints(
+    case: Any,
+    live_server: Any,
+    transactional_db: Any,
+) -> None:
     """
-    Exercise all schema operations against the live Django test server
+    Exercise public schema operations against the live Django test server
     and assert they do not return 5xx responses.
     """
-    response = case.call(base_url=live_server.url)
+    method = case.method.upper()
+    path = case.path
+
+    # Scope this smoke test to the public API only.
+    if not path.startswith("/api/"):
+        pytest.skip(f"Skipping non-public path: {path}")
+
+    # Skip methods outside the application's supported public contract.
+    if method not in ALLOWED_METHODS:
+        pytest.skip(f"Skipping unsupported method: {method} {path}")
+
+    response = case.call(
+        base_url=live_server.url,
+        timeout=10,
+    )
+
     assert response.status_code < 500, (
-        f"{case.method} {case.path} returned {response.status_code}"
+        f"{method} {path} returned {response.status_code}"
     )
 
 

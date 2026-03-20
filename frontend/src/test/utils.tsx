@@ -1,16 +1,16 @@
+/* eslint-disable react-refresh/only-export-components */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   render,
   renderHook,
   type RenderOptions,
   type RenderHookOptions,
+  type RenderResult,
+  type RenderHookResult,
 } from "@testing-library/react";
 import type { ReactElement, ReactNode } from "react";
+import { ModalProvider } from "@/components/modal/ModalProvider";
 
-/**
- * Creates a fresh QueryClient for each test with
- * no retries and instant gc (so tests don't leak).
- */
 export function createTestQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: {
@@ -31,14 +31,10 @@ interface WrapperProps {
   children: ReactNode;
 }
 
-/**
- * Render a component with a fresh QueryClient.
- * Returns the queryClient so tests can inspect the cache.
- */
 export function renderWithQuery(
   ui: ReactElement,
-  options?: Omit<RenderOptions, "wrapper">
-) {
+  options?: Omit<RenderOptions, "wrapper">,
+): RenderResult & { queryClient: QueryClient } {
   const queryClient = createTestQueryClient();
 
   function Wrapper({ children }: WrapperProps) {
@@ -55,14 +51,39 @@ export function renderWithQuery(
   };
 }
 
-/**
- * Render a hook with a fresh QueryClient wrapper.
- * Returns the queryClient for cache inspection alongside the hook result.
- */
+function AppTestWrapper({
+  children,
+  queryClient,
+}: {
+  children: ReactNode;
+  queryClient: QueryClient;
+}) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ModalProvider>{children}</ModalProvider>
+    </QueryClientProvider>
+  );
+}
+
+export function renderWithApp(
+  ui: ReactElement,
+  options?: Omit<RenderOptions, "wrapper">,
+): RenderResult & { queryClient: QueryClient } {
+  const queryClient = createTestQueryClient();
+
+  return {
+    ...render(
+      <AppTestWrapper queryClient={queryClient}>{ui}</AppTestWrapper>,
+      options,
+    ),
+    queryClient,
+  };
+}
+
 export function renderHookWithQuery<TResult, TProps>(
   hook: (props: TProps) => TResult,
-  options?: Omit<RenderHookOptions<TProps>, "wrapper">
-) {
+  options?: Omit<RenderHookOptions<TProps>, "wrapper">,
+): RenderHookResult<TResult, TProps> & { queryClient: QueryClient } {
   const queryClient = createTestQueryClient();
 
   function Wrapper({ children }: WrapperProps) {
@@ -79,24 +100,16 @@ export function renderHookWithQuery<TResult, TProps>(
   };
 }
 
-/**
- * Collects every request URL that hits MSW.
- * Use in tests to assert call counts and detect phantom requests.
- */
 export function createRequestSpy() {
   const calls: { method: string; url: string; body?: unknown }[] = [];
 
   return {
     calls,
 
-    /**
-     * Call inside an MSW handler to record the request.
-     */
     track(method: string, url: string, body?: unknown) {
       calls.push({ method, url, body });
     },
 
-    /** Number of requests matching a substring in the URL */
     countByUrl(substring: string) {
       return calls.filter((c) => c.url.includes(substring)).length;
     },
@@ -105,27 +118,25 @@ export function createRequestSpy() {
       return calls.filter(
         (r) =>
           r.method.toUpperCase() === method.toUpperCase() &&
-          r.url.includes(substring)
+          r.url.includes(substring),
       ).length;
     },
 
-    /** All POST bodies sent to a URL matching the substring */
     bodiesFor(substring: string) {
       return calls
         .filter((c) => c.url.includes(substring))
         .map((c) => c.body);
     },
 
-    /** Asserts no requests were made to unexpected URLs */
     assertNoPhantoms(allowedSubstrings: string[]) {
       const phantoms = calls.filter(
-        (c) => !allowedSubstrings.some((s) => c.url.includes(s))
+        (c) => !allowedSubstrings.some((s) => c.url.includes(s)),
       );
       if (phantoms.length > 0) {
         throw new Error(
           `Phantom requests detected:\n${phantoms
             .map((p) => `  ${p.method} ${p.url}`)
-            .join("\n")}`
+            .join("\n")}`,
         );
       }
     },

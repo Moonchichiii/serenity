@@ -130,6 +130,7 @@ const EditorialServiceItem: FC<{
           image={service.image}
           alt={service.title}
           className="h-full w-full object-cover opacity-90 transition-transform duration-700 ease-out group-hover:scale-105 group-hover:opacity-100"
+          optimizeWidth={800}
         />
       )}
       <div className="absolute inset-0 bg-sage-deep/10 transition-opacity duration-500 group-hover:opacity-0" />
@@ -158,7 +159,7 @@ const EditorialServiceItem: FC<{
       </div>
 
       <p
-        className="line-clamp-3 font-light text-sage-200/80"
+        className="line-clamp-3 font-light text-sage-100/90"
         style={{
           fontSize: "var(--typo-small)",
           lineHeight: "var(--leading-small)",
@@ -264,11 +265,13 @@ const MobileServiceDrawer: FC<{
                   image={service.image}
                   alt={service.title}
                   className="h-full w-full object-cover opacity-90"
+                  optimizeWidth={800}
                 />
               )}
               <div className="absolute inset-0 bg-linear-to-t from-sage-deep via-sage-deep/40 to-transparent" />
 
               <button
+                type="button"
                 onClick={onClose}
                 aria-label="Close service details"
                 className="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-sage-deep/60 text-white backdrop-blur-md transition-colors hover:bg-black/20"
@@ -351,6 +354,7 @@ const DesktopGrid: FC<{ services: ResolvedService[] }> = ({
       {totalPages > 1 && (
         <div className="mt-20 flex items-center justify-center gap-6">
           <button
+            type="button"
             onClick={() =>
               setPage((p) => Math.max(0, p - 1))
             }
@@ -361,6 +365,7 @@ const DesktopGrid: FC<{ services: ResolvedService[] }> = ({
             <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
           </button>
           <button
+            type="button"
             onClick={() =>
               setPage((p) =>
                 Math.min(totalPages - 1, p + 1)
@@ -438,7 +443,7 @@ export const Services: FC = () => {
               </h2>
             </div>
             <p
-              className="max-w-md font-light text-sage-200/80"
+              className="max-w-md font-light text-sage-100/90"
               style={{
                 fontSize: "var(--typo-body)",
                 lineHeight: "var(--leading-body)",

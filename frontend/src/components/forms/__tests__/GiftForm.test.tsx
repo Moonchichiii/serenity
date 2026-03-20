@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { screen, waitFor, fireEvent } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { renderWithQuery } from "@/test/utils";
 import { GiftForm } from "../GiftForm";
 import "@/i18n/config";
@@ -73,14 +73,14 @@ describe("GiftForm", () => {
       .getByRole("combobox")
       .querySelectorAll<HTMLOptionElement>("option");
     expect(options).toHaveLength(3);
-    expect(options[1].textContent).toContain("Swedish Massage");
-    expect(options[2].textContent).toContain("Deep Tissue");
+    expect(options[1]?.textContent).toContain("Swedish Massage");
+    expect(options[2]?.textContent).toContain("Deep Tissue");
   });
 
   it("updates displayed amount when a service is selected", async () => {
     renderWithQuery(<GiftForm />);
 
-    const select = screen.getByRole("combobox") as HTMLSelectElement;
+    const select = screen.getByRole("combobox");
 
     // Directly invoke React's onChange by simulating the event
     // the way React's event system expects it

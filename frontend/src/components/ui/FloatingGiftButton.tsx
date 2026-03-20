@@ -44,6 +44,7 @@ export function FloatingGiftButton() {
                 aria-hidden="true"
                 className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-sm"
                 sizes="56px"
+                optimizeWidth={112}
               />
             ) : (
               <TicketPercent

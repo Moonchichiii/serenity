@@ -7,7 +7,7 @@ describe("FormField", () => {
   it("renders label and children", () => {
     render(
       <FormField label="Email">
-        <input data-testid="input" />
+        <input data-testid="input" aria-label="Email" />
       </FormField>
     );
 
@@ -23,7 +23,7 @@ describe("FormField", () => {
 
     render(
       <FormField label="Email" error={error}>
-        <input />
+        <input aria-label="Email" />
       </FormField>
     );
 
@@ -34,7 +34,7 @@ describe("FormField", () => {
   it("does not render error element when no error", () => {
     render(
       <FormField label="Email">
-        <input />
+        <input aria-label="Email" />
       </FormField>
     );
 

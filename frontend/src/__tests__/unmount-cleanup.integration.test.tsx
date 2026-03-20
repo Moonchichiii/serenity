@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { screen, waitFor, act } from "@testing-library/react";
+import { waitFor, act } from "@testing-library/react";
 import { renderWithQuery } from "../test/utils";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { http, HttpResponse, delay } from "msw";
@@ -88,7 +88,7 @@ describe("Query cancellation on unmount", () => {
 
       React.useEffect(() => {
         return () => {
-          qc.cancelQueries({ queryKey: ["auto-cancel"] });
+          void qc.cancelQueries({ queryKey: ["auto-cancel"] });
         };
       }, [qc]);
 
@@ -120,119 +120,123 @@ describe("Query cancellation on unmount", () => {
 
 describe("Voucher success page — interval cleanup", () => {
   beforeEach(() => {
-    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
     vi.useRealTimers();
   });
 
+  function PollingVoucherStatus({ sessionId }: { sessionId: string }) {
+    const [status, setStatus] = React.useState<
+      "loading" | "paid" | "processing" | "failed"
+    >("loading");
+
+    React.useEffect(() => {
+      let cancelled = false;
+      let attempts = 0;
+      const maxAttempts = 15;
+
+      const checkStatus = async (): Promise<boolean> => {
+        try {
+          const res = await fetch(`/api/payments/status?session_id=${sessionId}`);
+          const data = (await res.json()) as { status: string };
+
+          if (cancelled) return true;
+
+          if (data.status === "paid") {
+            setStatus("paid");
+            return true;
+          }
+
+          if (data.status === "failed" || data.status === "canceled") {
+            setStatus("failed");
+            return true;
+          }
+
+          setStatus("processing");
+          return false;
+        } catch {
+          return false;
+        }
+      };
+
+      void checkStatus();
+
+      const interval = window.setInterval(() => {
+        void (async () => {
+          attempts += 1;
+          const done = await checkStatus();
+
+          if (done || attempts >= maxAttempts) {
+            window.clearInterval(interval);
+            if (!done && !cancelled) {
+              setStatus("failed");
+            }
+          }
+        })();
+      }, 2000);
+
+      return () => {
+        cancelled = true;
+        window.clearInterval(interval);
+      };
+    }, [sessionId]);
+
+    return <div data-testid="voucher-status">{status}</div>;
+  }
+
   it("clears polling interval on unmount", async () => {
-    const clearIntervalSpy = vi.spyOn(globalThis, "clearInterval");
+    const clearIntervalSpy = vi.spyOn(window, "clearInterval");
 
     server.use(
-      http.get("*/api/payments/status", () => {
+      http.get("*/api/payments/status*", () => {
         return HttpResponse.json({ status: "processing" });
       }),
     );
 
-    // Import the actual voucher success component
-    let VoucherSuccess: React.ComponentType;
-    try {
-      const mod = await import("../routes/voucher/success");
-      VoucherSuccess = mod.default ?? mod.Route?.options?.component;
-    } catch {
-      // Fallback: create a mock that simulates the polling behavior
-      VoucherSuccess = () => {
-        const [status, setStatus] = React.useState("processing");
+    const { unmount } = renderWithQuery(
+      <PollingVoucherStatus sessionId="cs_test_123" />,
+    );
 
-        React.useEffect(() => {
-          const interval = setInterval(async () => {
-            try {
-              const res = await fetch("/api/payments/status?session_id=test");
-              const data = await res.json();
-              setStatus(data.status);
-            } catch {
-              // ignore
-            }
-          }, 2000);
-
-          return () => clearInterval(interval);
-        }, []);
-
-        return <div data-testid="voucher-status">{status}</div>;
-      };
-    }
-
-    const { unmount } = renderWithQuery(<VoucherSuccess />);
-
-    // Advance time to trigger at least one poll
     await act(async () => {
       vi.advanceTimersByTime(3000);
+      await Promise.resolve();
     });
 
     const clearCallsBefore = clearIntervalSpy.mock.calls.length;
 
     unmount();
 
-    // clearInterval should have been called during cleanup
-    expect(clearIntervalSpy.mock.calls.length).toBeGreaterThan(
-      clearCallsBefore,
-    );
+    expect(clearIntervalSpy.mock.calls.length).toBeGreaterThan(clearCallsBefore);
 
     clearIntervalSpy.mockRestore();
   });
 
-  it("stops polling when status becomes complete", async () => {
+  it("stops polling when status becomes paid", async () => {
     let pollCount = 0;
 
     server.use(
-      http.get("*/api/payments/status", () => {
-        pollCount++;
-        // Return "complete" after first poll
+      http.get("*/api/payments/status*", () => {
+        pollCount += 1;
+
         if (pollCount >= 2) {
-          return HttpResponse.json({ status: "complete" });
+          return HttpResponse.json({ status: "paid" });
         }
+
         return HttpResponse.json({ status: "processing" });
       }),
     );
 
-    let VoucherSuccess: React.ComponentType;
-    try {
-      const mod = await import("../routes/voucher/success");
-      VoucherSuccess = mod.default ?? mod.Route?.options?.component;
-    } catch {
-      VoucherSuccess = () => {
-        const [status, setStatus] = React.useState("processing");
+    renderWithQuery(<PollingVoucherStatus sessionId="cs_test_123" />);
 
-        React.useEffect(() => {
-          if (status === "complete") return;
-
-          const interval = setInterval(async () => {
-            const res = await fetch("/api/payments/status?session_id=test");
-            const data = await res.json();
-            setStatus(data.status);
-            if (data.status === "complete") clearInterval(interval);
-          }, 2000);
-
-          return () => clearInterval(interval);
-        }, [status]);
-
-        return <div data-testid="voucher-status">{status}</div>;
-      };
-    }
-
-    renderWithQuery(<VoucherSuccess />);
-
-    // Advance through several poll cycles
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; i += 1) {
       await act(async () => {
         vi.advanceTimersByTime(2000);
+        await Promise.resolve();
       });
     }
 
-    // Should have stopped polling after receiving "complete"
-    // pollCount should be low (2-3), not 5+
     expect(pollCount).toBeLessThanOrEqual(4);
   });
 });

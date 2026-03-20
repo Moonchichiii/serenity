@@ -152,13 +152,14 @@ const ImageBackground: FC<{
     alt=""
     priority
     className="absolute inset-0 h-full w-full object-cover object-center"
+    optimizeWidth={1920}
   />
 );
 
 const Overlays: FC = () => (
   <>
     <div
-      className="absolute inset-0 bg-sage-deep/55"
+      className="absolute inset-0 bg-sage-deep/70"
       aria-hidden="true"
     />
     <div
@@ -292,7 +293,7 @@ const BottomBar: FC<{
         <div className="flex items-baseline gap-2">
           {priceLabel && (
             <span
-              className="uppercase tracking-wide text-sand-300/70"
+              className="uppercase tracking-wide text-sand-300/90"
               style={{
                 fontSize: "var(--typo-overline)",
                 lineHeight: "var(--leading-overline)",
@@ -395,7 +396,7 @@ export const ServicesHero: FC = () => {
                   ? { duration: 0 }
                   : { ...FADE_UP_TRANSITION, delay: 0.4 }
               }
-              className="-mt-4 max-w-md italic text-sand-200/70"
+              className="-mt-4 max-w-md italic text-sand-200/90"
               style={{
                 fontSize: "var(--typo-pull-quote)",
                 lineHeight: "var(--leading-pull-quote)",

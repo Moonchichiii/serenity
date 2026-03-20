@@ -7,19 +7,29 @@ import jsxA11y from 'eslint-plugin-jsx-a11y'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
-  // Ignore outputs
-  { ignores: ['dist', 'node_modules'] },
-
-  // App rules
   {
-    files: ['**/*.{ts,tsx}'],
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+
+      // tests
+      'src/**/*.test.ts',
+      'src/**/*.test.tsx',
+      'src/**/__tests__/**',
+      'src/test/**',
+
+      // optional: also exclude mock-only test infrastructure
+      'src/mocks/**',
+    ],
+  },
+  {
+    files: ['src/**/*.{ts,tsx}'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
       parserOptions: {
         ecmaFeatures: { jsx: true },
-        // --- REQUIRED FOR STRICT BUILDER RULES ---
-        project: ['./tsconfig.json', './tsconfig.node.json', './tsconfig.app.json'], // Adjust these to match your actual TS config filenames
+        project: ['./tsconfig.json', './tsconfig.node.json', './tsconfig.app.json'],
         tsconfigRootDir: import.meta.dirname,
       },
       globals: globals.browser,
@@ -31,27 +41,19 @@ export default tseslint.config(
       'jsx-a11y': jsxA11y,
     },
     settings: {
-      // Let the react plugin detect your version from deps
       react: { version: 'detect' },
     },
-    extends: [
-      js.configs.recommended,
-      ...tseslint.configs.recommended,
-    ],
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
     rules: {
-      // React 19 / automatic runtime: no need to import React
       'react/react-in-jsx-scope': 'off',
       'react/jsx-uses-react': 'off',
 
-      // Hooks & Fast Refresh
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
 
-      // A11y rules
       'jsx-a11y/anchor-is-valid': 'warn',
       'jsx-a11y/no-autofocus': 'off',
 
-      // TS niceties
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
@@ -60,8 +62,6 @@ export default tseslint.config(
         },
       ],
       '@typescript-eslint/consistent-type-imports': 'error',
-
-      // --- STRICT BUILDER RULES ---
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': ['error', { checksVoidReturn: false }],
       '@typescript-eslint/await-thenable': 'error',

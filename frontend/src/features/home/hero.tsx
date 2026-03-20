@@ -17,6 +17,8 @@ import { useCMSPage } from "@/hooks/useCMS";
 import { cn } from "@/lib/utils";
 import type { RenderableImage, WagtailHeroSlide } from "@/types/api";
 
+
+
 // ── Constants ────────────────────────────────────────────────────────
 const SLIDE_INTERVAL_MS = 5_000;
 const SLIDE_TRANSITION_MS = 1_000;
@@ -244,18 +246,16 @@ const SlideImage: FC<{
 }> = ({ slide, index, isActive }) => (
   <div
     className={cn(
-      "absolute inset-0 transition-opacity ease-in-out",
+      "hero-slide-fade absolute inset-0",
       isActive ? "opacity-100" : "opacity-0",
     )}
-    style={{ transitionDuration: `${SLIDE_TRANSITION_MS}ms` }}
     aria-hidden="true"
   >
     <div
       className={cn(
-        "h-full w-full transition-transform ease-linear",
+        "hero-slide-scale h-full w-full",
         isActive ? "scale-110" : "scale-100",
       )}
-      style={{ transitionDuration: `${SCALE_TRANSITION_MS}ms` }}
     >
       <ResponsiveImage
         image={slide.image}
@@ -263,6 +263,7 @@ const SlideImage: FC<{
         priority={index === 0}
         className="h-full w-full object-cover"
         sizes="100vw"
+        optimizeWidth={1920}
       />
     </div>
   </div>
@@ -275,12 +276,12 @@ const BackgroundFallback: FC = () => (
 const Overlays: FC = () => (
   <>
     <div className="absolute inset-0 bg-sage-900/30" />
-    <div className="absolute inset-0 bg-gradient-to-r from-sage-900/45 via-transparent to-transparent" />
+    <div className="absolute inset-0 bg-linear-to-r from-sage-900/45 via-transparent to-transparent" />
   </>
 );
 
 const BottomFade: FC = () => (
-  <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-28 bg-gradient-to-b from-transparent to-cream" />
+  <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-28 bg-linear-to-b from-transparent to-cream" />
 );
 
 // ── Main component ──────────────────────────────────────────────────
@@ -301,10 +302,7 @@ export const Hero: FC = () => {
   return (
     <section
       id="home"
-      className="relative flex min-h-screen items-end overflow-hidden pb-28 pt-24 md:items-center md:pb-0"
-      style={{
-        paddingInline: "var(--space-container-x)",
-      }}
+      className="hero-section relative flex min-h-screen items-end overflow-hidden pb-28 pt-24 md:items-center md:pb-0"
     >
       {/* Background slideshow */}
       <div className="absolute inset-0 z-0">
@@ -324,15 +322,12 @@ export const Hero: FC = () => {
       </div>
 
       {/* Content */}
-      <div className="container relative z-10 mx-auto flex h-full w-full max-w-[1100px] flex-col items-start justify-end text-left md:justify-center">
+      <div className="container relative z-10 mx-auto flex h-full w-full max-w-275 flex-col items-start justify-end text-left md:justify-center">
         <motion.h1
           initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           transition={FADE_UP}
-          className="text-editorial-xl max-w-3xl text-white"
-          style={{
-            marginBottom: "var(--space-heading-to-paragraph)",
-          }}
+          className="hero-heading-mb text-editorial-xl max-w-3xl text-white"
         >
           {content.title}
         </motion.h1>
@@ -341,12 +336,7 @@ export const Hero: FC = () => {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={FADE_UP_DELAY_1}
-          className="max-w-xl text-white/65"
-          style={{
-            fontSize: "var(--typo-body)",
-            lineHeight: "var(--leading-body)",
-            marginBottom: "var(--space-title-to-content)",
-          }}
+          className="hero-subtitle max-w-xl text-white/65"
         >
           {content.subtitle}
         </motion.p>
@@ -361,11 +351,7 @@ export const Hero: FC = () => {
             size="lg"
             onClick={handlePrivateClick}
             aria-label={content.ctaPrivate}
-            className="btn-primary h-[48px] rounded-full px-7 font-bold uppercase tracking-widest"
-            style={{
-              fontSize: "var(--typo-small)",
-              lineHeight: "var(--leading-small)",
-            }}
+            className="hero-cta-text btn-primary h-12 rounded-full px-7 font-bold uppercase tracking-widest"
           >
             {content.ctaPrivate}
           </Button>
@@ -375,15 +361,11 @@ export const Hero: FC = () => {
             onClick={handleCorporateClick}
             aria-label={content.ctaCorporate}
             className={cn(
-              "group inline-flex items-center gap-2",
+              "hero-cta-text group inline-flex items-center gap-2",
               "font-semibold tracking-wide",
               "text-white/70 transition-colors duration-300",
               "hover:text-white",
             )}
-            style={{
-              fontSize: "var(--typo-small)",
-              lineHeight: "var(--leading-small)",
-            }}
           >
             {content.ctaCorporate}
             <ArrowRight

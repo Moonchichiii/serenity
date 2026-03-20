@@ -1,19 +1,21 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { screen, waitFor, act } from "@testing-library/react";
+import React from "react";
+import { describe, it, expect } from "vitest";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { renderWithQuery } from "../../../test/utils";
-import { ModalProvider, useModal } from "../ModalProvider";
-import { ModalShell } from "../ModalShell";
+import { ModalProvider } from "../ModalProvider";
+import { useModal } from "../useModal";
 
-// A harness component that gives us control over modal open/close
-function ModalHarness({
-  onMount,
-  onUnmount,
-}: {
-  onMount?: () => void;
-  onUnmount?: () => void;
-}) {
-  const { open, close, current } = useModal();
+function ModalHarness() {
+  const { open, close, isOpen } = useModal();
+
+  const current = isOpen("gift")
+    ? "gift"
+    : isOpen("contact")
+      ? "contact"
+      : isOpen("legal")
+        ? "legal"
+        : "none";
 
   return (
     <div>
@@ -21,30 +23,10 @@ function ModalHarness({
       <button onClick={() => open("contact")}>Open Contact</button>
       <button onClick={() => open("legal")}>Open Legal</button>
       <button onClick={() => close()}>Close Modal</button>
-      <div data-testid="current-modal">{current ?? "none"}</div>
+      <div data-testid="current-modal">{current}</div>
     </div>
   );
 }
-
-// Tracked component to verify mount/unmount lifecycle
-function TrackedContent({
-  onMount,
-  onUnmount,
-  label,
-}: {
-  onMount: () => void;
-  onUnmount: () => void;
-  label: string;
-}) {
-  React.useEffect(() => {
-    onMount();
-    return () => onUnmount();
-  }, [onMount, onUnmount]);
-
-  return <div data-testid="tracked-content">{label}</div>;
-}
-
-import React from "react";
 
 describe("ModalProvider integration", () => {
   it("starts with no modal open", () => {
@@ -57,7 +39,7 @@ describe("ModalProvider integration", () => {
     expect(screen.getByTestId("current-modal")).toHaveTextContent("none");
   });
 
-  it("opens gift modal and renders gift screen content", async () => {
+  it("opens gift modal", async () => {
     const user = userEvent.setup();
 
     renderWithQuery(
@@ -73,7 +55,7 @@ describe("ModalProvider integration", () => {
     });
   });
 
-  it("opens contact modal and renders contact screen content", async () => {
+  it("opens contact modal", async () => {
     const user = userEvent.setup();
 
     renderWithQuery(
@@ -89,7 +71,7 @@ describe("ModalProvider integration", () => {
     });
   });
 
-  it("opens legal modal and renders legal screen content", async () => {
+  it("opens legal modal", async () => {
     const user = userEvent.setup();
 
     renderWithQuery(
@@ -115,17 +97,19 @@ describe("ModalProvider integration", () => {
     );
 
     await user.click(screen.getByText("Open Gift"));
+
     await waitFor(() => {
       expect(screen.getByTestId("current-modal")).toHaveTextContent("gift");
     });
 
     await user.click(screen.getByText("Close Modal"));
+
     await waitFor(() => {
       expect(screen.getByTestId("current-modal")).toHaveTextContent("none");
     });
   });
 
-  it("switching modals unmounts previous content before mounting new", async () => {
+  it("switching modals replaces previous modal state", async () => {
     const user = userEvent.setup();
 
     renderWithQuery(
@@ -144,11 +128,10 @@ describe("ModalProvider integration", () => {
       expect(screen.getByTestId("current-modal")).toHaveTextContent("contact");
     });
 
-    // Gift content should no longer be in DOM
     expect(screen.getByTestId("current-modal")).not.toHaveTextContent("gift");
   });
 
-  it("rapid open/close cycles don't leave stale modal content", async () => {
+  it("rapid open/close cycles do not leave stale modal state", async () => {
     const user = userEvent.setup();
 
     renderWithQuery(
@@ -157,7 +140,6 @@ describe("ModalProvider integration", () => {
       </ModalProvider>,
     );
 
-    // Rapid cycle
     await user.click(screen.getByText("Open Gift"));
     await user.click(screen.getByText("Close Modal"));
     await user.click(screen.getByText("Open Contact"));

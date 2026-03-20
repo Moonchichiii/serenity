@@ -46,7 +46,7 @@ describe("ModalShell integration", () => {
   });
 
   it("calls onClose when backdrop/overlay is clicked", async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     const onClose = vi.fn();
 
     renderWithQuery(
@@ -55,18 +55,11 @@ describe("ModalShell integration", () => {
       </ModalShell>,
     );
 
-    // Click the overlay (the shell container, not the inner content)
-    const overlay = screen
-      .getByTestId("inner")
-      .closest("[data-testid='modal-overlay']") ??
-      screen.getByRole("dialog")?.parentElement;
+    await user.click(screen.getByTestId("modal-backdrop"));
 
-    if (overlay) {
-      await user.click(overlay);
-      await waitFor(() => {
-        expect(onClose).toHaveBeenCalled();
-      });
-    }
+    await waitFor(() => {
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("does not call onClose when inner content is clicked", async () => {

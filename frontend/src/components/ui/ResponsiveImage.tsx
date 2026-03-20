@@ -1,11 +1,13 @@
 import type { ImgHTMLAttributes } from 'react'
 import type { ResponsiveImage } from '@/types/api'
 import { cn } from '@/lib/utils'
+import { getOptimizedCloudinaryUrl } from '@/utils/cloudinary'
 
 type Props = {
   image: ResponsiveImage | null | undefined
   alt?: string
   priority?: boolean
+  optimizeWidth?: number
 
   /** Optional overrides (rare, but useful) */
   sizes?: string
@@ -19,6 +21,7 @@ export default function ResponsiveImage({
   image,
   alt,
   priority = false,
+  optimizeWidth,
   className,
   decoding = 'async',
   sizes,
@@ -33,7 +36,7 @@ export default function ResponsiveImage({
 
   return (
     <img
-      src={image.src}
+      src={getOptimizedCloudinaryUrl(image.src, optimizeWidth)}
       srcSet={computedSrcSet}
       sizes={computedSizes}
       width={image.width ?? undefined}

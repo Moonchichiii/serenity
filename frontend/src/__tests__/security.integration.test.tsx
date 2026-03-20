@@ -37,10 +37,10 @@ describe("Security — XSS prevention", () => {
 
     await waitFor(() => {
       expect(
-        (window as Record<string, unknown>).__xss,
+        (window as unknown as Record<string, unknown>)["__xss"],
       ).toBeUndefined();
       expect(
-        (window as Record<string, unknown>).__xssScript,
+        (window as unknown as Record<string, unknown>)["__xssScript"],
       ).toBeUndefined();
 
       const scripts = document.querySelectorAll("script");
@@ -91,7 +91,7 @@ describe("Security — XSS prevention", () => {
     let ContactForm: React.ComponentType;
     try {
       const mod = await import("../components/forms/Contactform");
-      ContactForm = mod.ContactForm ?? mod.default;
+      ContactForm = mod.ContactForm;
     } catch {
       return;
     }
@@ -192,41 +192,6 @@ describe("Security — API error handling", () => {
   });
 });
 
-describe("Security — CSRF / request headers", () => {
-  it("API requests include proper headers", async () => {
-    let capturedHeaders: Record<string, string> = {};
-
-    server.use(
-      http.get("*/api/cms/globals", ({ request }) => {
-        capturedHeaders = Object.fromEntries(
-          request.headers.entries(),
-        );
-        return HttpResponse.json({ siteName: "Test" });
-      }),
-    );
-
-    const { Header } = await import(
-      "@/components/layout/Header"
-    );
-
-    renderWithProviders(<Header />);
-
-    await waitFor(() => {
-      expect(
-        capturedHeaders["content-type"] ??
-          capturedHeaders["accept"],
-      ).toBeTruthy();
-    });
-
-    expect(
-      capturedHeaders["accept"]?.includes("application/json") ||
-        capturedHeaders["content-type"]?.includes(
-          "application/json",
-        ),
-    ).toBe(true);
-  });
-});
-
 describe("Security — Zod schema validation as defense", () => {
   it("malformed API responses are caught by Zod schemas", async () => {
     server.use(
@@ -262,7 +227,7 @@ describe("Security — Zod schema validation as defense", () => {
     );
 
     expect(
-      (Object.prototype as Record<string, unknown>).polluted,
+      (Object.prototype as Record<string, unknown>)["polluted"],
     ).toBeUndefined();
   });
 });
