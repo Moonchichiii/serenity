@@ -5,7 +5,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
-import viteCompression from "vite-plugin-compression";
+// import { compression } from "vite-plugin-compression2";
 import { ViteImageOptimizer } from "vite-plugin-image-optimizer";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -21,12 +21,11 @@ export default defineConfig({
     }),
     react(),
     tailwindcss(),
-    viteCompression({ algorithm: "gzip", threshold: 10_240 }),
-    viteCompression({
-      algorithm: "brotliCompress",
-      ext: ".br",
-      threshold: 10_240,
-    }),
+    // compression({
+    //   algorithms: ["gzip", "brotliCompress"],
+    //   threshold: 10_240,
+    //   include: /\.(js|css|html|svg|json|xml|txt)$/i,
+    // }),
     ViteImageOptimizer({
       png: { quality: 80 },
       jpeg: { quality: 80 },
@@ -49,19 +48,13 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          "react-vendor": [
-            "react",
-            "react-dom",
-            "react/jsx-runtime",
-          ],
           router: ["@tanstack/react-router"],
           query: ["@tanstack/react-query"],
           motion: ["framer-motion"],
           "ui-libs": ["lucide-react", "clsx", "tailwind-merge"],
         },
         assetFileNames: (assetInfo) => {
-          const name =
-            assetInfo.names?.[0] ?? assetInfo.name ?? "asset";
+          const name = assetInfo.names?.[0] ?? assetInfo.name ?? "asset";
           const ext = name.split(".").pop() ?? "";
           if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
             return "assets/images/[name]-[hash][extname]";

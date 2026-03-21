@@ -17,12 +17,8 @@ import { useCMSPage } from "@/hooks/useCMS";
 import { cn } from "@/lib/utils";
 import type { RenderableImage, WagtailHeroSlide } from "@/types/api";
 
-
-
 // ── Constants ────────────────────────────────────────────────────────
 const SLIDE_INTERVAL_MS = 5_000;
-const SLIDE_TRANSITION_MS = 1_000;
-const SCALE_TRANSITION_MS = 9_000;
 
 const FADE_UP: Transition = {
   duration: 0.9,
@@ -302,7 +298,7 @@ export const Hero: FC = () => {
   return (
     <section
       id="home"
-      className="hero-section relative flex min-h-screen items-end overflow-hidden pb-28 pt-24 md:items-center md:pb-0"
+      className="hero-section relative flex min-h-screen items-end overflow-hidden pb-40 pt-24 md:items-center md:pb-0"
     >
       {/* Background slideshow */}
       <div className="absolute inset-0 z-0">
@@ -336,7 +332,7 @@ export const Hero: FC = () => {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={FADE_UP_DELAY_1}
-          className="hero-subtitle max-w-xl text-white/65"
+          className="hero-subtitle max-w-xl text-white/65 mb-4 md:mb-8"
         >
           {content.subtitle}
         </motion.p>

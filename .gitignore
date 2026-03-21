@@ -182,3 +182,11 @@ staticfiles/
 *.swo
 gen.py
 .tanstack
+/frontend/src/routeTree.gen.ts
+/frontend/src/routeTree.gen.ts
+frontend/src/routeTree.gen.ts
+
+# Playwright
+playwright-report/
+test-results/
+blob-report/
