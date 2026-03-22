@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    UV_SYSTEM_PYTHON=1 \
+    UV_PROJECT_ENVIRONMENT="/usr/local" \
     UV_NO_CACHE=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \

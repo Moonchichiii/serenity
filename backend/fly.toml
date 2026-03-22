@@ -19,7 +19,7 @@ auto_stop_machines = false
 min_machines_running = 1
 
 [deploy]
-release_command = "bash -lc 'cd /app/backend && python manage.py migrate --noinit -v 2'"
+release_command = "python manage.py migrate --noinput -v 2"
 
 [[vm]]
 memory = "512mb"
