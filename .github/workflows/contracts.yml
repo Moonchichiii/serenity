@@ -54,21 +54,21 @@ jobs:
           name: openapi-schema
           path: backend
 
-      - uses: actions/setup-node@v4
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: 20
+          bun-version: latest
 
       - name: Install frontend deps
         working-directory: frontend
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Generate types from schema
         working-directory: frontend
-        run: npm run generate:types
+        run: bun run generate:types
 
       - name: TypeScript check
         working-directory: frontend
-        run: npm run typecheck
+        run: bun run typecheck
 
   schemathesis:
     needs: schema-validate
