@@ -11,7 +11,7 @@ from decouple import Csv, config
 # ── Paths ───────────────────────────────────────────
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-SECRET_KEY = config('DJANGO_SECRET_KEY', default='unsafe-dev-key-change-me')
+SECRET_KEY = config('DJANGO_SECRET_KEY')
 
 ALLOWED_HOSTS = config(
     'ALLOWED_HOSTS',
@@ -28,7 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Cloudinary (must be installed even locally for model compat)
+    # Cloudinary
     'cloudinary',
     'cloudinary_storage',
     # Third-party
