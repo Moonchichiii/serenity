@@ -1,3 +1,12 @@
+"""
+Customises the Wagtail admin dashboard.
+Replaces the default dashboard with a Serenity-branded welcome panel containing direct-edit links to content sections.
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
 from django.forms import Media
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
@@ -11,7 +20,6 @@ try:
 except ImportError:
     HomePage = None
     GiftSettings = None
-
 
 try:
     from apps.testimonials.models import Testimonial, TestimonialReply
@@ -30,8 +38,13 @@ except ImportError:
     GiftVoucher = None
 
 
-def get_snippet_url(model, action="list"):
-    """Generate Wagtail 7.x snippet URL, returning '#' on failure."""
+# Helpers
+
+
+def get_snippet_url(model: Any, action: str = "list") -> str:
+    """
+    Generate a Wagtail snippet URL. Returns '#' on failure.
+    """
     if not model:
         return "#"
 
@@ -45,29 +58,36 @@ def get_snippet_url(model, action="list"):
         return "#"
 
 
+# Dashboard panels
+
+
 @hooks.register("construct_homepage_panels")
-def add_welcome_panel(request, panels):
-    """Add custom welcome panel to Wagtail admin homepage."""
+def add_welcome_panel(request: Any, panels: list[Any]) -> list[Any]:
+    """
+    Replace the default Wagtail dashboard with a custom welcome panel.
+    """
 
     class WelcomePanel:
-        order = 0
-        media = Media()
+        order: int = 0
+        media: Media = Media()
 
-        def render(self):
-            # --- HomePage edit URL ---
+        def render(self) -> str:
             edit_url = "/cms-admin/pages/"
+            homepage_title = ""
+
             if HomePage:
                 homepage_obj = HomePage.objects.live().first()
                 if homepage_obj:
-                    edit_url = reverse("wagtailadmin_pages:edit", args=[homepage_obj.id])
+                    homepage_title = homepage_obj.title or ""
+                    edit_url = reverse(
+                        "wagtailadmin_pages:edit",
+                        args=[homepage_obj.id],
+                    )
 
-            # --- GiftSettings URL ---
             gift_settings_url = "#"
-
             if GiftSettings is not None:
                 app_label = GiftSettings._meta.app_label
                 model_name = GiftSettings._meta.model_name
-
                 try:
                     gift_settings_url = reverse(
                         "wagtailsettings:edit",
@@ -78,6 +98,7 @@ def add_welcome_panel(request, panels):
 
             context = {
                 "edit_url": edit_url,
+                "homepage_title": homepage_title,
                 "testimonial_list_url": get_snippet_url(Testimonial, "list"),
                 "testimonial_add_url": get_snippet_url(Testimonial, "add"),
                 "reply_list_url": get_snippet_url(TestimonialReply, "list"),
@@ -87,7 +108,7 @@ def add_welcome_panel(request, panels):
                 "gift_settings_url": gift_settings_url,
             }
 
-            html = render_to_string("admin/serenity_welcome.html", context)
+            html = render_to_string("admin/wagtail_admin.html", context)
             return format_html("{}", mark_safe(html))
 
     panels.insert(0, WelcomePanel())

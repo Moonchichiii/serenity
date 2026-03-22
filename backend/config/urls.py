@@ -5,32 +5,40 @@ from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
-    # 1. Auth / Core
+    # Core API wrapper
     path("api/", include("apps.core.urls")),
 
-    # 2. Wagtail Admin
+    # Wagtail
     path("cms-admin/", include("wagtail.admin.urls")),
-    #path("cms-admin/settings/", include("wagtail.contrib.settings.urls")),
     path("documents/", include("wagtail.documents.urls")),
 
-    # 3. Documentation (Schema)
-    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    # SPA boot (CMS)
+    path("api/", include("apps.cms.urls")),  # contains homepage/hydrated/
 
-    # 4. Serenity Apps
-    path("api/", include("apps.cms.urls")),
-    path("api/", include("apps.testimonials.urls")),
+    # Domain APIs
+    path("api/testimonials/", include("apps.testimonials.urls")),
     path("api/calendar/", include("apps.availability.urls")),
-    path("api/bookings/", include("apps.bookings.urls")),
     path("api/contact/", include("apps.contact.urls")),
+    path("api/payments/", include("apps.payments.urls")),
     path("api/vouchers/", include("apps.vouchers.urls")),
 
-    # 5. Django Admin
     path("admin/", admin.site.urls),
 ]
 
-# Swagger UI only in DEBUG
+# Schema and Swagger UI
+# Ideally, keep the raw schema available for CI/Building, or wrap in DEBUG as requested
 if settings.DEBUG:
     urlpatterns += [
-        path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema")),
+        path(
+            "api/schema/",
+            SpectacularAPIView.as_view(),
+            name="schema",
+        ),
+        path(
+            "api/docs/",
+            SpectacularSwaggerView.as_view(url_name="schema"),
+            name="swagger-ui",
+        ),
+        # Serving media files in development
+        *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
     ]
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

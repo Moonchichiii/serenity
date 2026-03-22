@@ -1,0 +1,472 @@
+openapi: 3.0.3
+info:
+  title: Serenity API
+  version: 1.0.0
+  description: Wellness & spa platform — bookings, vouchers, CMS, availability
+paths:
+  /api/calendar/busy/:
+    get:
+      operationId: calendar_busy_retrieve
+      description: Return busy dates for a given year and month.
+      tags:
+      - calendar
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/calendar/slots/:
+    get:
+      operationId: calendar_slots_retrieve
+      description: Return available time slots for a given date.
+      tags:
+      - calendar
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/contact/submit/:
+    post:
+      operationId: contact_submit_create
+      description: POST /api/contact/submit/
+      tags:
+      - contact
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/homepage/hydrated/:
+    get:
+      operationId: homepage_hydrated_retrieve
+      tags:
+      - homepage
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/testimonials/:
+    get:
+      operationId: testimonials_retrieve
+      description: Return approved testimonials, optionally filtered by min_rating.
+      tags:
+      - testimonials
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/testimonials/{testimonial_id}/reply/:
+    post:
+      operationId: testimonials_reply_create
+      description: Submit a reply to a testimonial for moderation.
+      parameters:
+      - in: path
+        name: testimonial_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - testimonials
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/testimonials/stats/:
+    get:
+      operationId: testimonials_stats_retrieve
+      description: Return aggregate statistics for approved testimonials.
+      tags:
+      - testimonials
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/testimonials/submit/:
+    post:
+      operationId: testimonials_submit_create
+      description: Submit a new testimonial for moderation.
+      tags:
+      - testimonials
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/vouchers/create/:
+    post:
+      operationId: vouchers_create_create
+      description: Create a gift voucher and optionally book a calendar slot.
+      tags:
+      - vouchers
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/vouchers/cancel/{confirmation_code}/:
+    delete:
+      operationId: vouchers_cancel_destroy
+      description: Cancel a booking by confirmation code.
+      parameters:
+      - in: path
+        name: confirmation_code
+        schema:
+          type: string
+        required: true
+      tags:
+      - vouchers
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        "200":
+          description: Booking cancelled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  confirmation_code:
+                    type: string
+                  status:
+                    type: string
+        "400":
+          description: Cannot cancel booking in current status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+        "404":
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+  /cms-admin/api/main/documents/:
+    get:
+      operationId: cms_admin_api_main_documents_retrieve
+      tags:
+      - cms-admin
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /cms-admin/api/main/documents/{id}/:
+    get:
+      operationId: cms_admin_api_main_documents_retrieve_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - cms-admin
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /cms-admin/api/main/documents/find/:
+    get:
+      operationId: cms_admin_api_main_documents_find_retrieve
+      tags:
+      - cms-admin
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /cms-admin/api/main/images/:
+    get:
+      operationId: cms_admin_api_main_images_retrieve
+      tags:
+      - cms-admin
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /cms-admin/api/main/images/{id}/:
+    get:
+      operationId: cms_admin_api_main_images_retrieve_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - cms-admin
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /cms-admin/api/main/images/find/:
+    get:
+      operationId: cms_admin_api_main_images_find_retrieve
+      tags:
+      - cms-admin
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /cms-admin/api/main/pages/:
+    get:
+      operationId: cms_admin_api_main_pages_retrieve
+      tags:
+      - cms-admin
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /cms-admin/api/main/pages/{id}/:
+    get:
+      operationId: cms_admin_api_main_pages_retrieve_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - cms-admin
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /cms-admin/api/main/pages/{id}/action/{action_name}/:
+    post:
+      operationId: cms_admin_api_main_pages_action_create
+      parameters:
+      - in: path
+        name: action_name
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - cms-admin
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /cms-admin/api/main/pages/find/:
+    get:
+      operationId: cms_admin_api_main_pages_find_retrieve
+      tags:
+      - cms-admin
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /cms-admin/localize/api/snippets/{app_label}/{model_name}/:
+    get:
+      operationId: cms_admin_localize_api_snippets_retrieve
+      parameters:
+      - in: path
+        name: app_label
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: model_name
+        schema:
+          type: string
+        required: true
+      tags:
+      - cms-admin
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /cms-admin/localize/api/snippets/{app_label}/{model_name}/{id}/:
+    get:
+      operationId: cms_admin_localize_api_snippets_retrieve_2
+      parameters:
+      - in: path
+        name: app_label
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: model_name
+        schema:
+          type: string
+        required: true
+      tags:
+      - cms-admin
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /cms-admin/localize/translate/{translation_id}/overrides/{overridable_segment_id}/edit/:
+    put:
+      operationId: cms_admin_localize_translate_overrides_edit_update
+      parameters:
+      - in: path
+        name: overridable_segment_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: translation_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - cms-admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: cms_admin_localize_translate_overrides_edit_destroy
+      parameters:
+      - in: path
+        name: overridable_segment_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: translation_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - cms-admin
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /cms-admin/localize/translate/{translation_id}/strings/{string_segment_id}/edit/:
+    put:
+      operationId: cms_admin_localize_translate_strings_edit_update
+      parameters:
+      - in: path
+        name: string_segment_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: translation_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - cms-admin
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: cms_admin_localize_translate_strings_edit_destroy
+      parameters:
+      - in: path
+        name: string_segment_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: translation_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - cms-admin
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+tags:
+- name: cms
+  description: CMS & hydrated homepage
+- name: vouchers
+  description: Gift voucher operations
+- name: availability
+  description: Google Calendar availability
+- name: testimonials
+  description: Testimonial submission & listing
+- name: contact
+  description: Contact form

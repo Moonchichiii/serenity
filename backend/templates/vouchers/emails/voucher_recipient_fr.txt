@@ -1,0 +1,22 @@
+Vous avez reçu un Bon Cadeau !
+
+Bonjour {{ voucher.recipient_name }},
+
+{{ voucher.sender_name }} vous a envoyé un bon cadeau pour {{ business_name }}.
+
+{% if voucher.message %}
+"{{ voucher.message }}"
+{% endif %}
+
+VOTRE CODE CADEAU : {{ voucher.code }}
+Valeur : {{ voucher.amount }} €
+
+{% if voucher.service %}
+Valable pour : {{ voucher.service.title_fr }}
+{% endif %}
+
+{% if voucher.start_datetime %}
+Réservé pour le : {{ voucher.start_datetime|date:"d F Y, H:i" }}
+{% endif %}
+
+Pour utiliser ce bon, merci de nous contacter.

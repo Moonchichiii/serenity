@@ -1,0 +1,94 @@
+name: API Contract Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  schema-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install backend deps
+        working-directory: backend
+        run: uv sync
+
+      - name: Generate schema
+        working-directory: backend
+        run: uv run python manage.py spectacular --color --file schema.yml
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.test
+
+      - name: Run schema validation tests
+        working-directory: backend
+        run: uv run pytest e2e/test_schema.py -v
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.test
+
+      - name: Upload schema artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-schema
+          path: backend/schema.yml
+
+  frontend-types:
+    needs: schema-validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download schema
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-schema
+          path: backend
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Generate types from schema
+        working-directory: frontend
+        run: npm run generate:types
+
+      - name: TypeScript check
+        working-directory: frontend
+        run: npm run typecheck
+
+  schemathesis:
+    needs: schema-validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v4
+
+      - name: Install backend deps
+        working-directory: backend
+        run: uv sync
+
+      - name: Fuzz API
+        working-directory: backend
+        run: |
+          uv run python manage.py runserver 0.0.0.0:8000 &
+          sleep 5
+          uv run schemathesis run http://localhost:8000/api/schema/ \
+            --checks all \
+            --hypothesis-max-examples 50
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.test

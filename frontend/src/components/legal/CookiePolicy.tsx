@@ -1,7 +1,7 @@
 import { Settings } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useModal } from '@/shared/hooks/useModal'
-import { requestCookieSettingsOpen } from '@/shared/consent'
+import { useModal } from '@/components/modal'
+import { requestCookieSettingsOpen } from '@/components/ui/consent'
 
 export function CookiePolicy() {
   const { t } = useTranslation()
@@ -10,7 +10,8 @@ export function CookiePolicy() {
   const sections = ['what', 'used', 'ads', 'consent'] as const
 
   const openCookieSettings = () => {
-    close('legal')
+    // Fix: close() takes no arguments in your Modal API
+    close()
     requestAnimationFrame(() => {
       requestCookieSettingsOpen()
     })

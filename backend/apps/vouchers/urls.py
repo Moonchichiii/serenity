@@ -1,7 +1,7 @@
 from django.urls import path
 
-from .views import create_voucher
+from .views import create_voucher_view
 
 urlpatterns = [
-    path("create/", create_voucher, name="create_voucher"),
+    path("create/", create_voucher_view, name="create_voucher"),
 ]

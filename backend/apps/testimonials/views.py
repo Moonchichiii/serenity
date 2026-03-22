@@ -1,161 +1,95 @@
-from django.core.cache import cache
-from django.db.models import Avg, Count, Prefetch
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from rest_framework import status
 from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
 
-from .models import Testimonial, TestimonialReply
-from .serializers import TestimonialSerializer
+from .models import Testimonial
+from .selectors import get_approved_testimonials, get_testimonial_stats
+from .serializers import (
+    SubmitReplySerializer,
+    SubmitTestimonialSerializer,
+    TestimonialSerializer,
+)
+from .services import create_reply, create_testimonial
+
+if TYPE_CHECKING:
+    from rest_framework.request import Request
 
 
 class TestimonialSubmissionThrottle(AnonRateThrottle):
-    rate = "3/hour"
+    rate = '3/hour'
 
 
-@api_view(["GET"])
-def get_testimonials(request):
-    """Return cached approved testimonials filtered by optional min_rating."""
-    min_rating = request.GET.get("min_rating")
+@api_view(['GET'])
+def get_testimonials(request: Request) -> Response:
+    """Return approved testimonials, optionally filtered by min_rating."""
     try:
-        min_rating = int(min_rating) if min_rating else 0
-    except ValueError:
+        min_rating = int(request.query_params.get('min_rating', 0))
+    except (TypeError, ValueError):
         min_rating = 0
 
-    cache_key = f"testimonials:list:{min_rating}"
-    data = cache.get(cache_key)
+    min_rating = max(0, min(5, min_rating))
 
-    if data is None:
-        testimonials = (
-            Testimonial.objects.filter(status="approved", rating__gte=min_rating)
-            .prefetch_related(
-                Prefetch(
-                    "replies",
-                    queryset=TestimonialReply.objects.filter(status="approved").order_by("created_at"),
-                )
-            )
-            .order_by("-created_at")[:20]
-        )
-
-        data = TestimonialSerializer(testimonials, many=True).data
-        cache.set(cache_key, data, 60 * 15)
-
+    testimonials = get_approved_testimonials(min_rating=min_rating)
+    data = TestimonialSerializer(testimonials, many=True).data
     return Response(data)
 
 
-@api_view(["POST"])
+@api_view(['POST'])
 @throttle_classes([TestimonialSubmissionThrottle])
-def submit_testimonial(request):
+def submit_testimonial(request: Request) -> Response:
     """Submit a new testimonial for moderation."""
-    name = request.data.get("name", "").strip()
-    email = request.data.get("email", "").strip()
-    rating = request.data.get("rating")
-    text = request.data.get("text", "").strip()
+    serializer = SubmitTestimonialSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
 
-    errors = {}
-    if not name or len(name) < 2:
-        errors["name"] = "Le nom doit contenir au moins 2 caractères"
-    if not text or len(text) < 10:
-        errors["text"] = "Le commentaire doit contenir au moins 10 caractères"
-    if not rating or not isinstance(rating, int) or rating < 1 or rating > 5:
-        errors["rating"] = "La note doit être entre 1 et 5"
-
-    if errors:
-        return Response({"errors": errors}, status=status.HTTP_400_BAD_REQUEST)
-
-    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
-    ip_address = (
-        x_forwarded_for.split(",")[0]
-        if x_forwarded_for
-        else request.META.get("REMOTE_ADDR")
-    )
-
-    testimonial = Testimonial.objects.create(
-        name=name,
-        email=email,
-        rating=rating,
-        text=text,
-        status="pending",
-        ip_address=ip_address,
+    testimonial = create_testimonial(
+        request=request, data=serializer.validated_data
     )
 
     return Response(
         {
-            "success": True,
-            "message": "Merci ! Votre avis sera publié après validation.",
-            "id": str(testimonial.id),
+            'success': True,
+            'message': 'Merci ! Votre avis sera publié après validation.',
+            'id': str(testimonial.id),
         },
         status=status.HTTP_201_CREATED,
     )
 
 
-@api_view(["POST"])
+@api_view(['POST'])
 @throttle_classes([TestimonialSubmissionThrottle])
-def submit_reply(request, testimonial_id):
-    """Submit a reply to a testimonial for moderation."""
-    try:
-        parent = Testimonial.objects.get(id=testimonial_id)
-    except Testimonial.DoesNotExist:
+def submit_reply(request: Request, testimonial_id: int) -> Response:
+    parent = Testimonial.objects.filter(
+        id=testimonial_id,
+        status='approved',
+    ).first()
+
+    if not parent:
         return Response(
-            {"error": "Témoignage introuvable"},
+            {'error': 'Témoignage introuvable'},
             status=status.HTTP_404_NOT_FOUND,
         )
 
-    name = request.data.get("name", "").strip()
-    email = request.data.get("email", "").strip()
-    text = request.data.get("text", "").strip()
+    serializer = SubmitReplySerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
 
-    errors = {}
-    if not name or len(name) < 2:
-        errors["name"] = "Le nom est requis"
-    if not email:
-        errors["email"] = "L'email est requis"
-    if not text or len(text) < 2:
-        errors["text"] = "Le message est requis"
-
-    if errors:
-        return Response({"errors": errors}, status=status.HTTP_400_BAD_REQUEST)
-
-    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
-    ip_address = (
-        x_forwarded_for.split(",")[0]
-        if x_forwarded_for
-        else request.META.get("REMOTE_ADDR")
-    )
-
-    TestimonialReply.objects.create(
+    create_reply(
+        request=request,
         parent=parent,
-        name=name,
-        email=email,
-        text=text,
-        status="pending",
-        ip_address=ip_address,
+        data=serializer.validated_data,
     )
 
     return Response(
-        {
-            "success": True,
-            "message": "Réponse envoyée pour modération.",
-        },
+        {'success': True, 'message': 'Réponse envoyée pour modération.'},
         status=status.HTTP_201_CREATED,
     )
 
 
-@api_view(["GET"])
-def get_testimonial_stats(request):
+@api_view(['GET'])
+def testimonial_stats_view(request: Request) -> Response:
     """Return aggregate statistics for approved testimonials."""
-    approved = Testimonial.objects.filter(status="approved")
-
-    stats = approved.aggregate(average=Avg("rating"), total=Count("id"))
-
-    return Response(
-        {
-            "average_rating": round(stats["average"] or 0, 1),
-            "total_reviews": stats["total"],
-            "five_star_count": approved.filter(rating=5).count(),
-            "four_star_count": approved.filter(rating=4).count(),
-            "three_star_count": approved.filter(rating=3).count(),
-            "two_star_count": approved.filter(rating=2).count(),
-            "one_star_count": approved.filter(rating=1).count(),
-        }
-    )
+    return Response(get_testimonial_stats())

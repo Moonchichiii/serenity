@@ -1,36 +1,42 @@
-from django.core.cache import cache
-from django.http import JsonResponse
-from django.views.decorators.cache import cache_page
+from __future__ import annotations
 
-from .google_calendar import list_busy_days, list_free_slots
+from typing import TYPE_CHECKING
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 
-@cache_page(60 * 5)
-def busy(request):
-    """Return busy dates for a given year and month."""
-    year = int(request.GET.get("year"))
-    month = int(request.GET.get("month"))
+from .selectors import get_busy_days, get_free_slots
+from .serializers import BusyDaysQuerySerializer, FreeSlotsQuerySerializer
 
-    cache_key = f"calendar:busy:{year}:{month}"
-    busy_dates = cache.get(cache_key)
-
-    if busy_dates is None:
-        busy_dates = list_busy_days(year, month)
-        cache.set(cache_key, busy_dates, 60 * 5)
-
-    return JsonResponse({"busy": busy_dates})
+if TYPE_CHECKING:
+    from rest_framework.request import Request
 
 
-@cache_page(60)
-def slots(request):
-    """Return available time slots for a given date."""
-    iso = request.GET.get("date")
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def busy(request: Request) -> Response:
+    """
+    Return busy dates for a given year and month.
+    """
+    ser = BusyDaysQuerySerializer(data=request.query_params)
+    ser.is_valid(raise_exception=True)
 
-    cache_key = f"calendar:slots:{iso}"
-    times = cache.get(cache_key)
+    data = get_busy_days(
+        year=ser.validated_data['year'],
+        month=ser.validated_data['month'],
+    )
+    return Response({'busy': data})
 
-    if times is None:
-        times = list_free_slots(iso)
-        cache.set(cache_key, times, 60)
 
-    return JsonResponse({"times": times})
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def slots(request: Request) -> Response:
+    """
+    Return available time slots for a given date.
+    """
+    ser = FreeSlotsQuerySerializer(data=request.query_params)
+    ser.is_valid(raise_exception=True)
+
+    times = get_free_slots(date_iso=ser.validated_data['date'].isoformat())
+    return Response({'times': times})

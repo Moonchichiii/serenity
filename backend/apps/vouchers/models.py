@@ -1,48 +1,61 @@
 import secrets
+import string
 
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 from wagtail.snippets.models import register_snippet
 
+from apps.services.models import Service
 
-def generate_voucher_code() -> str:
-    # 8 chars, uppercase, readable, safe for URLs
-    return secrets.token_urlsafe(6).upper().replace("-", "")[:8]
+
+def generate_voucher_code(length: int = 10) -> str:
+    alphabet = string.ascii_uppercase + string.digits
+    return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
 @register_snippet
 class GiftVoucher(models.Model):
-    code = models.CharField(max_length=16, unique=True, editable=False)
+    code = models.CharField(max_length=20, unique=True, blank=True)
 
-    # Purchaser details
-    purchaser_name = models.CharField(_("Purchaser Name"), max_length=128)
-    purchaser_email = models.EmailField(_("Purchaser Email"))
+    recipient_name = models.CharField(max_length=200)
+    recipient_email = models.EmailField()
 
-    # Recipient details
-    recipient_name = models.CharField(_("Recipient Name"), max_length=128)
-    recipient_email = models.EmailField(_("Recipient Email"))
+    sender_name = models.CharField(max_length=200)
+    sender_email = models.EmailField()
 
-    message = models.TextField(_("Message"), blank=True)
-    preferred_date = models.DateField(_("Preferred Date"), null=True, blank=True)
+    message = models.TextField(blank=True, default="")
+    amount = models.DecimalField(max_digits=8, decimal_places=2)
 
-    # Meta
+    preferred_language = models.CharField(max_length=2, default="fr")
+    is_redeemed = models.BooleanField(default=False)
+
+    # Optional: voucher linked to a service
+    service = models.ForeignKey(
+        Service,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="gift_vouchers",
+    )
+
+    # Optional: if client books at purchase time
+    start_datetime = models.DateTimeField(null=True, blank=True)
+    end_datetime = models.DateTimeField(null=True, blank=True)
+
+    # Calendar metadata (stored on voucher, not a Booking model)
+    calendar_event_id = models.CharField(max_length=255, blank=True, default="")
+    calendar_event_link = models.URLField(blank=True, default="")
+    calendar_event_status = models.CharField(max_length=64, blank=True, default="")
+
     created_at = models.DateTimeField(auto_now_add=True)
-    is_redeemed = models.BooleanField(_("Redeemed"), default=False)
-    redeemed_at = models.DateTimeField(_("Redeemed At"), null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["-created_at"]
-        verbose_name = _("Gift Voucher")
-        verbose_name_plural = _("Gift Vouchers")
+        ordering = ("-created_at",)
 
-    def __str__(self):
-        return f"{self.code} – {self.recipient_name} (From: {self.purchaser_name})"
+    def __str__(self) -> str:
+        return f"Voucher {self.code} — {self.recipient_name}"
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         if not self.code:
-            code = generate_voucher_code()
-            # Ensure uniqueness
-            while GiftVoucher.objects.filter(code=code).exists():
-                code = generate_voucher_code()
-            self.code = code
+            self.code = generate_voucher_code()
         super().save(*args, **kwargs)

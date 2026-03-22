@@ -23,3 +23,131 @@ dist-ssr
 *.sln
 *.sw?
 .env
+src/types/api/schema.generated.ts
+
+
+src/mocks/*
+src/test/*
+
+
+# ===== GENERAL =====
+.DS_Store
+*.log
+*.pid
+*.pid.lock
+*.seed
+*.tmp
+*.bak
+*.backup
+*.swp
+*.swo
+*~
+
+# ===== ENV FILES =====
+.env
+.env.local
+.env.*.local
+.env.*
+!.env.example
+*.env.docker
+
+# ===== PYTHON / DJANGO =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+.ruff_cache/
+
+# Python packaging/build
+build/
+dist/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+.installed.cfg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Django specific
+*.sqlite3
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+static/
+local_settings.py
+celerybeat-schedule
+celerybeat.pid
+ipython_config.py
+.ipynb_checkpoints/
+
+# ===== NODE / FRONTEND =====
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+dist-ssr/
+coverage/
+.nyc_output/
+.turbo/
+.tanstack/
+
+# ===== PLAYWRIGHT =====
+playwright-report/
+test-results/
+blob-report/
+
+# ===== EDITORS / IDE =====
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+
+# ===== OS FILES =====
+.AppleDouble
+.LSOverride
+._*
+.fuse_hidden*
+.directory
+.Trash-*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ===== SECRETS & CREDENTIALS =====
+credentials.json
+client_secret*.json
+client_secret_*.json
+token.json
+token_backup.txt
+.stripe/
+*.pem
+*.key
+*.crt
+
+# ===== PROJECT-SPECIFIC =====
+backend/staticfiles/
+backend/apps/backend/locale/
+frontend/src/routeTree.gen.ts
+gen.py

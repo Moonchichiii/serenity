@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #f8f9fa; padding: 15px; text-align: center; border-radius: 5px; }
+        .details { margin-top: 20px; border: 1px solid #eee; padding: 15px; border-radius: 5px; }
+        .footer { margin-top: 30px; font-size: 0.8em; color: #777; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Merci pour votre commande !</h2>
+        </div>
+
+        <p>Bonjour {{ voucher.sender_name }},</p>
+
+        <p>Votre achat d'un bon cadeau chez <strong>{{ business_name }}</strong> a été confirmé.</p>
+
+        <div class="details">
+            <p><strong>Code du bon :</strong> {{ voucher.code }}</p>
+            <p><strong>Montant :</strong> {{ voucher.amount }} €</p>
+            <p><strong>Destinataire :</strong> {{ voucher.recipient_name }}</p>
+            <p><strong>Message inclus :</strong> "{{ voucher.message }}"</p>
+        </div>
+
+        <p>Le bon cadeau a été envoyé par email à {{ voucher.recipient_email }}.</p>
+
+        <div class="footer">
+            <p>{{ business_name }}<br>
+            {{ business_address }}<br>
+            {{ business_phone }}</p>
+        </div>
+    </div>
+</body>
+</html>

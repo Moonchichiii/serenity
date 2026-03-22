@@ -1,105 +1,66 @@
 from __future__ import annotations
 
-import cloudinary.utils
+from typing import Any
+
 from rest_framework import serializers
-from wagtail.images.models import Image
 
 from apps.cms.pages import HomePage
-from apps.cms.settings import GiftSettings
-from apps.services.models import Service
-from apps.testimonials.models import Testimonial, TestimonialReply
-
-
-class WagtailImageSerializer(serializers.ModelSerializer):
-    url = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Image
-        fields = ("title", "width", "height", "url")
-
-    def get_url(self, obj: Image):
-        try:
-            f = getattr(obj, "file", None)
-            return getattr(f, "url", None) if f else None
-        except Exception:
-            return None
+from apps.cms.settings import GiftSettings, SerenitySettings
+from apps.core.images import (
+    HERO_SIZES,
+    IMG_WIDTHS_HERO,
+    SECTION_HERO_SIZES,
+    serialize_image,
+)
 
 
 class HeroSlideSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
     title_en = serializers.CharField(required=False)
     title_fr = serializers.CharField(required=False)
     subtitle_en = serializers.CharField(required=False)
     subtitle_fr = serializers.CharField(required=False)
     image = serializers.SerializerMethodField()
 
-    def get_image(self, obj):
-        img = getattr(obj, "image", None)
-        if not img:
-            return None
-        try:
-            f = getattr(img, "file", None)
-            base_url = getattr(f, "url", None) if f else None
-        except Exception:
-            base_url = None
-        return {
-            "title": getattr(img, "title", "") or "",
-            "width": getattr(img, "width", None),
-            "height": getattr(img, "height", None),
-            "url": base_url,
-        }
-
-
-class SpecialtySerializer(serializers.Serializer):
-    title_en = serializers.CharField(required=False)
-    title_fr = serializers.CharField(required=False)
-    image = WagtailImageSerializer(required=False, allow_null=True)
+    def get_image(self, obj: Any) -> dict[str, Any] | None:
+        return serialize_image(
+            getattr(obj, "image", None),
+            sizes=HERO_SIZES,
+            widths=IMG_WIDTHS_HERO,
+            quality="good",
+        )
 
 
 class HomePageSerializer(serializers.ModelSerializer):
-    hero_slides = HeroSlideSerializer(many=True)
-    hero_image = WagtailImageSerializer(required=False, allow_null=True)
-    specialties = SpecialtySerializer(many=True, required=False)
-    services_hero_poster_image = WagtailImageSerializer(
-        required=False,
-        allow_null=True,
-    )
+    hero_slides = HeroSlideSerializer(many=True, read_only=True)
+    hero_image = serializers.SerializerMethodField()
+
+    services_hero_poster_image = serializers.SerializerMethodField()
     services_hero_video_url = serializers.SerializerMethodField()
 
     class Meta:
         model = HomePage
-        fields = [
-            # Hero
+        fields = (
+            "id",
+            "slug",
             "hero_title_en",
             "hero_title_fr",
             "hero_subtitle_en",
             "hero_subtitle_fr",
             "hero_image",
             "hero_slides",
-            # About – Header
             "about_title_en",
             "about_title_fr",
             "about_subtitle_en",
             "about_subtitle_fr",
-            # About – Intro
             "about_intro_en",
             "about_intro_fr",
             "about_certification_en",
             "about_certification_fr",
-            # About – Approach
             "about_approach_title_en",
             "about_approach_title_fr",
             "about_approach_text_en",
             "about_approach_text_fr",
-            # About – Specialties
-            "about_specialties_title_en",
-            "about_specialties_title_fr",
-            "specialties",
-            # Contact
-            "phone",
-            "email",
-            "address_en",
-            "address_fr",
-            # Services Hero
             "services_hero_title_en",
             "services_hero_title_fr",
             "services_hero_pricing_label_en",
@@ -117,23 +78,63 @@ class HomePageSerializer(serializers.ModelSerializer):
             "services_hero_video_public_id",
             "services_hero_video_url",
             "services_hero_poster_image",
-        ]
+            "faq_title_en",
+            "faq_title_fr",
+            "faq_subtitle_en",
+            "faq_subtitle_fr",
+            "faq_q1_en",
+            "faq_q1_fr",
+            "faq_a1_en",
+            "faq_a1_fr",
+            "faq_q2_en",
+            "faq_q2_fr",
+            "faq_a2_en",
+            "faq_a2_fr",
+            "faq_q3_en",
+            "faq_q3_fr",
+            "faq_a3_en",
+            "faq_a3_fr",
+            "faq_q4_en",
+            "faq_q4_fr",
+            "faq_a4_en",
+            "faq_a4_fr",
+            "faq_q5_en",
+            "faq_q5_fr",
+            "faq_a5_en",
+            "faq_a5_fr",
+            "faq_q6_en",
+            "faq_q6_fr",
+            "faq_a6_en",
+            "faq_a6_fr",
+            "faq_q7_en",
+            "faq_q7_fr",
+            "faq_a7_en",
+            "faq_a7_fr",
+            "faq_q8_en",
+            "faq_q8_fr",
+            "faq_a8_en",
+            "faq_a8_fr",
+        )
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
+    def get_hero_image(self, obj: HomePage) -> dict[str, Any] | None:
+        return serialize_image(
+            obj.hero_image,
+            sizes=HERO_SIZES,
+            widths=IMG_WIDTHS_HERO,
+            quality="good",
+        )
 
-        # Maintain consistent ordering
-        data["hero_slides"] = HeroSlideSerializer(
-            instance.hero_slides.all().order_by("sort_order"), many=True
-        ).data
+    def get_services_hero_poster_image(
+        self, obj: HomePage
+    ) -> dict[str, Any] | None:
+        return serialize_image(
+            obj.services_hero_poster_image,
+            sizes=SECTION_HERO_SIZES,
+            widths=IMG_WIDTHS_HERO,
+            quality="good",
+        )
 
-        data["specialties"] = SpecialtySerializer(
-            instance.specialties.all().order_by("sort_order"), many=True
-        ).data
-
-        return data
-
-    def get_services_hero_video_url(self, obj):
+    def get_services_hero_video_url(self, obj: HomePage) -> str | None:
         f = getattr(obj, "services_hero_video_file", None)
         try:
             return f.url if f else None
@@ -141,90 +142,29 @@ class HomePageSerializer(serializers.ModelSerializer):
             return None
 
 
-class ServiceSerializer(serializers.ModelSerializer):
-    image = WagtailImageSerializer(required=False, allow_null=True)
-
+class SerenitySettingsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Service
-        fields = [
-            "id",
-            "title_en",
-            "title_fr",
-            "description_en",
-            "description_fr",
-            "duration_minutes",
-            "price",
-            "image",
-            "is_available",
-        ]
-
-
-class ReplySerializer(serializers.ModelSerializer):
-    date = serializers.SerializerMethodField()
-
-    class Meta:
-        model = TestimonialReply
-        fields = ["id", "name", "text", "date"]
-
-    def get_date(self, obj):
-        if obj.created_at:
-            return obj.created_at.strftime("%Y-%m-%d")
-        return ""
-
-
-class TestimonialSerializer(serializers.ModelSerializer):
-    """Serializer matching frontend expectations: name, rating, text, date, avatar, replies."""
-
-    avatar = serializers.SerializerMethodField()
-    date = serializers.SerializerMethodField()
-    # NEW: Include replies
-    replies = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Testimonial
-        fields = ["id", "name", "rating", "text", "date", "avatar", "replies"]
-
-    def get_date(self, obj):
-        """Return creation date as YYYY-MM-DD or empty string."""
-        if obj.created_at:
-            return obj.created_at.strftime("%Y-%m-%d")
-        return ""
-
-    def get_avatar(self, obj):
-        """Return avatar URL from UI Avatars using the testimonial name."""
-        import urllib.parse
-
-        name = obj.name or "Anonymous"
-        encoded_name = urllib.parse.quote(name)
-        return f"https://ui-avatars.com/api/?name={encoded_name}&background=random&size=128"
-
-    def get_replies(self, obj):
-        approved_replies = obj.replies.filter(status="approved").order_by("created_at")
-        return ReplySerializer(approved_replies, many=True).data
-
-
-class TestimonialStatsSerializer(serializers.Serializer):
-    """Serializer for testimonial statistics."""
-
-    average_rating = serializers.FloatField()
-    total_reviews = serializers.IntegerField()
-    five_star_count = serializers.IntegerField()
-    four_star_count = serializers.IntegerField()
-    three_star_count = serializers.IntegerField()
-    two_star_count = serializers.IntegerField()
-    one_star_count = serializers.IntegerField()
-
+        model = SerenitySettings
+        fields = (
+            "brand",
+            "instagram_url",
+            "facebook_url",
+            "business_hours",
+            "email",
+            "address_full",
+        )
 
 
 class GiftSettingsSerializer(serializers.ModelSerializer):
-    # Override floating_icon to return the custom optimized object
     floating_icon = serializers.SerializerMethodField()
+    voucher_image = serializers.SerializerMethodField()
 
     class Meta:
         model = GiftSettings
-        fields = [
+        fields = (
             "is_enabled",
             "floating_icon",
+            "voucher_image",
             "modal_title_en",
             "modal_title_fr",
             "modal_text_en",
@@ -249,34 +189,31 @@ class GiftSettingsSerializer(serializers.ModelSerializer):
             "email_redeem_fr",
             "email_closing_en",
             "email_closing_fr",
-        ]
+        )
 
-    def get_floating_icon(self, obj):
-        """
-        Generates a Cloudinary optimized URL (w_150, q_auto, f_auto)
-        """
-        if not obj.floating_icon:
-            return None
+    def get_floating_icon(self, obj: GiftSettings) -> dict[str, Any] | None:
+        return serialize_image(
+            obj.floating_icon,
+            widths=(150, 300),
+            sizes="150px",
+            quality="eco",
+        )
 
-        try:
-            # In Django-Cloudinary-Storage, file.name is usually the Public ID
-            public_id = obj.floating_icon.file.name
+    def get_voucher_image(self, obj: GiftSettings) -> dict[str, Any] | None:
+        return serialize_image(
+            obj.voucher_image,
+            sizes="(max-width: 640px) 90vw, 600px",
+            quality="good",
+        )
 
-            # Generate the URL using Cloudinary SDK
-            url, _ = cloudinary.utils.cloudinary_url(
-                public_id,
-                width=150,
-                crop="scale",
-                quality="auto",
-                fetch_format="auto",
-                secure=True,
-            )
 
-            return {
-                "url": url,
-                "width": 150,
-                "height": 150,
-                "title": obj.floating_icon.title,
-            }
-        except Exception:
-            return None
+class HydratedHomepageResponseSerializer(serializers.Serializer):
+    page = HomePageSerializer()
+    services = serializers.JSONField()
+    globals = serializers.JSONField(allow_null=True)
+    testimonials = serializers.JSONField()
+
+
+class ErrorResponseSerializer(serializers.Serializer):
+    error = serializers.CharField()
+    detail = serializers.CharField(required=False)

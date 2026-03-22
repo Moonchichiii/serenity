@@ -1,3 +1,11 @@
+"""
+Wagtail Page and Orderable models for the Serenity homepage.
+"""
+
+from __future__ import annotations
+
+from typing import ClassVar
+
 from django.db import models
 from modelcluster.fields import ParentalKey
 from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
@@ -6,22 +14,32 @@ from wagtail.images.models import Image
 from wagtail.models import Orderable, Page
 from wagtail.search import index
 
+# Orderables
+
 
 class HeroSlide(Orderable):
-    """Slide for homepage hero carousel."""
+    """
+    Slide for the homepage hero carousel.
+    """
 
     page = ParentalKey(
-        "cms.HomePage", related_name="hero_slides", on_delete=models.CASCADE
+        "cms.HomePage",
+        related_name="hero_slides",
+        on_delete=models.CASCADE,
     )
     image = models.ForeignKey(
-        Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
+        Image,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
     )
     title_en = models.CharField(max_length=200, blank=True, default="")
     title_fr = models.CharField(max_length=200, blank=True, default="")
     subtitle_en = models.CharField(max_length=300, blank=True, default="")
     subtitle_fr = models.CharField(max_length=300, blank=True, default="")
 
-    panels = [
+    panels: ClassVar[list] = [
         FieldPanel("image"),
         FieldPanel("title_en"),
         FieldPanel("title_fr"),
@@ -29,58 +47,210 @@ class HeroSlide(Orderable):
         FieldPanel("subtitle_fr"),
     ]
 
-    def __str__(self):
+    class Meta:
+        ordering = ["sort_order"]
+
+    def __str__(self) -> str:
         return self.title_en or self.title_fr or f"Slide {self.pk}"
 
 
-class Specialty(Orderable):
-    """Specialty for homepage specialties section."""
+# Panel definitions
 
-    page = ParentalKey(
-        "cms.HomePage", related_name="specialties", on_delete=models.CASCADE
-    )
-    title_en = models.CharField(max_length=200, blank=True, default="")
-    title_fr = models.CharField(max_length=200, blank=True, default="")
-    image = models.ForeignKey(
-        Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
-    )
+_HERO_PANELS: list = [
+    FieldPanel("hero_title_en", heading="Title (English)"),
+    FieldPanel("hero_title_fr", heading="Title (Français)"),
+    FieldPanel("hero_subtitle_en", heading="Subtitle (English)"),
+    FieldPanel("hero_subtitle_fr", heading="Subtitle (Français)"),
+    FieldPanel("hero_image", heading="Background Image (fallback)"),
+    InlinePanel("hero_slides", label="Slides"),
+]
 
-    panels = [
-        FieldPanel("title_en"),
-        FieldPanel("title_fr"),
-        FieldPanel("image"),
-    ]
+_ABOUT_HEADER_PANELS: list = [
+    FieldPanel("about_title_en", heading="Section Title (English)"),
+    FieldPanel("about_title_fr", heading="Section Title (Français)"),
+    FieldPanel("about_subtitle_en", heading="Subtitle (English)"),
+    FieldPanel("about_subtitle_fr", heading="Subtitle (Français)"),
+]
 
-    def __str__(self):
-        return self.title_en or self.title_fr or f"Specialty {self.pk}"
+_ABOUT_INTRO_PANELS: list = [
+    FieldPanel("about_intro_en", heading="Introduction (English)"),
+    FieldPanel("about_intro_fr", heading="Introduction (Français)"),
+    FieldPanel(
+        "about_certification_en", heading="Certification Badge (English)"
+    ),
+    FieldPanel(
+        "about_certification_fr", heading="Certification Badge (Français)"
+    ),
+]
+
+_ABOUT_APPROACH_PANELS: list = [
+    FieldPanel("about_approach_title_en", heading="Approach Title (English)"),
+    FieldPanel(
+        "about_approach_title_fr", heading="Approach Title (Français)"
+    ),
+    FieldPanel(
+        "about_approach_text_en", heading="Approach Description (English)"
+    ),
+    FieldPanel(
+        "about_approach_text_fr", heading="Approach Description (Français)"
+    ),
+]
+
+_SERVICES_HERO_PANELS: list = [
+    FieldPanel("services_hero_title_en"),
+    FieldPanel("services_hero_title_fr"),
+    FieldPanel("services_hero_pricing_label_en"),
+    FieldPanel("services_hero_pricing_label_fr"),
+    FieldPanel("services_hero_price_en"),
+    FieldPanel("services_hero_price_fr"),
+    FieldPanel("services_hero_cta_en"),
+    FieldPanel("services_hero_cta_fr"),
+    FieldPanel("services_hero_benefit_1_en"),
+    FieldPanel("services_hero_benefit_1_fr"),
+    FieldPanel("services_hero_benefit_2_en"),
+    FieldPanel("services_hero_benefit_2_fr"),
+    FieldPanel("services_hero_benefit_3_en"),
+    FieldPanel("services_hero_benefit_3_fr"),
+    FieldPanel(
+        "services_hero_video_public_id",
+        heading="Background video (Cloudinary ID)",
+    ),
+    FieldPanel(
+        "services_hero_video_file",
+        heading="Background video file (MP4)",
+    ),
+    FieldPanel(
+        "services_hero_poster_image",
+        heading="Poster image (Wagtail image)",
+    ),
+]
+
+_FAQ_PANELS: list = [
+    FieldPanel("faq_title_en", heading="Section Title (English)"),
+    FieldPanel("faq_title_fr", heading="Section Title (Français)"),
+    FieldPanel("faq_subtitle_en", heading="Subtitle (English)"),
+    FieldPanel("faq_subtitle_fr", heading="Subtitle (Français)"),
+    MultiFieldPanel(
+        [
+            FieldPanel("faq_q1_en", heading="Question (EN)"),
+            FieldPanel("faq_q1_fr", heading="Question (FR)"),
+            FieldPanel("faq_a1_en", heading="Answer (EN)"),
+            FieldPanel("faq_a1_fr", heading="Answer (FR)"),
+        ],
+        heading="Question 1",
+        classname="collapsible collapsed",
+    ),
+    MultiFieldPanel(
+        [
+            FieldPanel("faq_q2_en", heading="Question (EN)"),
+            FieldPanel("faq_q2_fr", heading="Question (FR)"),
+            FieldPanel("faq_a2_en", heading="Answer (EN)"),
+            FieldPanel("faq_a2_fr", heading="Answer (FR)"),
+        ],
+        heading="Question 2",
+        classname="collapsible collapsed",
+    ),
+    MultiFieldPanel(
+        [
+            FieldPanel("faq_q3_en", heading="Question (EN)"),
+            FieldPanel("faq_q3_fr", heading="Question (FR)"),
+            FieldPanel("faq_a3_en", heading="Answer (EN)"),
+            FieldPanel("faq_a3_fr", heading="Answer (FR)"),
+        ],
+        heading="Question 3",
+        classname="collapsible collapsed",
+    ),
+    MultiFieldPanel(
+        [
+            FieldPanel("faq_q4_en", heading="Question (EN)"),
+            FieldPanel("faq_q4_fr", heading="Question (FR)"),
+            FieldPanel("faq_a4_en", heading="Answer (EN)"),
+            FieldPanel("faq_a4_fr", heading="Answer (FR)"),
+        ],
+        heading="Question 4",
+        classname="collapsible collapsed",
+    ),
+    MultiFieldPanel(
+        [
+            FieldPanel("faq_q5_en", heading="Question (EN)"),
+            FieldPanel("faq_q5_fr", heading="Question (FR)"),
+            FieldPanel("faq_a5_en", heading="Answer (EN)"),
+            FieldPanel("faq_a5_fr", heading="Answer (FR)"),
+        ],
+        heading="Question 5",
+        classname="collapsible collapsed",
+    ),
+    MultiFieldPanel(
+        [
+            FieldPanel("faq_q6_en", heading="Question (EN)"),
+            FieldPanel("faq_q6_fr", heading="Question (FR)"),
+            FieldPanel("faq_a6_en", heading="Answer (EN)"),
+            FieldPanel("faq_a6_fr", heading="Answer (FR)"),
+        ],
+        heading="Question 6",
+        classname="collapsible collapsed",
+    ),
+    MultiFieldPanel(
+        [
+            FieldPanel("faq_q7_en", heading="Question (EN)"),
+            FieldPanel("faq_q7_fr", heading="Question (FR)"),
+            FieldPanel("faq_a7_en", heading="Answer (EN)"),
+            FieldPanel("faq_a7_fr", heading="Answer (FR)"),
+        ],
+        heading="Question 7",
+        classname="collapsible collapsed",
+    ),
+    MultiFieldPanel(
+        [
+            FieldPanel("faq_q8_en", heading="Question (EN)"),
+            FieldPanel("faq_q8_fr", heading="Question (FR)"),
+            FieldPanel("faq_a8_en", heading="Answer (EN)"),
+            FieldPanel("faq_a8_fr", heading="Answer (FR)"),
+        ],
+        heading="Question 8",
+        classname="collapsible collapsed",
+    ),
+]
+
+
+# HomePage
 
 
 class HomePage(Page):
-    """Single multilingual home page."""
+    """
+    Multilingual homepage for the React SPA.
+    """
 
+    # ── Hero ──────────────────────────────────────────────
     hero_title_en = models.CharField(
         max_length=200,
         blank=True,
         default="",
-        help_text="Main headline - Keep it short and impactful (e.g., 'Find Your Balance')",
+        help_text=(
+            "Main headline — keep it short and impactful "
+            "(e.g. 'Find Your Balance')."
+        ),
     )
     hero_title_fr = models.CharField(
         max_length=200,
         blank=True,
         default="",
-        help_text="Titre principal - Court et percutant (ex: 'Trouvez Votre Équilibre')",
+        help_text=(
+            "Titre principal — court et percutant "
+            "(ex : 'Trouvez Votre Équilibre')."
+        ),
     )
     hero_subtitle_en = models.CharField(
         max_length=300,
         blank=True,
         default="",
-        help_text="Tagline under the title - Describe what you offer in one sentence",
+        help_text="Tagline under the title — describe your offer in one sentence.",
     )
     hero_subtitle_fr = models.CharField(
         max_length=300,
         blank=True,
         default="",
-        help_text="Sous-titre - Décrivez votre offre en une phrase",
+        help_text="Sous-titre — décrivez votre offre en une phrase.",
     )
     hero_image = models.ForeignKey(
         Image,
@@ -88,100 +258,99 @@ class HomePage(Page):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
-        help_text="Background image for hero section - Choose a calming, professional spa photo",
+        help_text=(
+            "Background image for hero section — "
+            "choose a calming, professional spa photo."
+        ),
     )
 
+    # ── About ─────────────────────────────────────────────
     about_title_en = models.CharField(
         max_length=200,
         blank=True,
         default="",
-        help_text="Section heading (e.g., 'About Me')",
+        help_text="Section heading (e.g. 'About Me').",
     )
     about_title_fr = models.CharField(
         max_length=200,
         blank=True,
         default="",
-        help_text="Titre de section (ex: 'À Propos de Moi')",
+        help_text="Titre de section (ex : 'À Propos de Moi').",
     )
     about_subtitle_en = models.CharField(
         max_length=200,
         blank=True,
         default="",
-        help_text="Subtitle under About title (e.g., 'Dedicated to Your Wellness')",
+        help_text="Subtitle under About title (e.g. 'Dedicated to Your Wellness').",
     )
     about_subtitle_fr = models.CharField(
         max_length=200,
         blank=True,
         default="",
-        help_text="Sous-titre (ex: 'Dédiée à Votre Bien-Être')",
+        help_text="Sous-titre (ex : 'Dédiée à Votre Bien-Être').",
     )
-
     about_intro_en = RichTextField(
         blank=True,
         default="",
-        help_text="Your professional introduction - Who you are and your experience",
+        help_text="Your professional introduction — who you are and your experience.",
     )
     about_intro_fr = RichTextField(
         blank=True,
         default="",
-        help_text="Votre présentation professionnelle - Qui vous êtes et votre expérience",
+        help_text=(
+            "Votre présentation professionnelle — "
+            "qui vous êtes et votre expérience."
+        ),
     )
     about_certification_en = models.CharField(
         max_length=200,
         blank=True,
         default="",
-        help_text="Your main certification (e.g., 'Certified Professional Massage Therapist')",
+        help_text=(
+            "Your main certification "
+            "(e.g. 'Certified Professional Massage Therapist')."
+        ),
     )
     about_certification_fr = models.CharField(
         max_length=200,
         blank=True,
         default="",
-        help_text="Votre certification principale (ex: 'Massothérapeute Professionnelle Certifiée')",
+        help_text=(
+            "Votre certification principale "
+            "(ex : 'Massothérapeute Professionnelle Certifiée')."
+        ),
     )
-
     about_approach_title_en = models.CharField(
         max_length=200,
         blank=True,
         default="",
-        help_text="Title for your approach section (e.g., 'My Approach')",
+        help_text="Title for your approach section (e.g. 'My Approach').",
     )
     about_approach_title_fr = models.CharField(
         max_length=200,
         blank=True,
         default="",
-        help_text="Titre de votre approche (ex: 'Mon Approche')",
+        help_text="Titre de votre approche (ex : 'Mon Approche').",
     )
     about_approach_text_en = RichTextField(
         blank=True,
         default="",
-        help_text="Describe your unique approach to massage therapy",
+        help_text="Describe your unique approach to massage therapy.",
     )
     about_approach_text_fr = RichTextField(
         blank=True,
         default="",
-        help_text="Décrivez votre approche unique du massage thérapeutique",
+        help_text="Décrivez votre approche unique du massage thérapeutique.",
     )
 
-    about_specialties_title_en = models.CharField(
-        max_length=200,
-        blank=True,
-        default="",
-        help_text="Title for specialties section (e.g., 'Specialties')",
-    )
-    about_specialties_title_fr = models.CharField(
-        max_length=200,
-        blank=True,
-        default="",
-        help_text="Titre des spécialités (ex: 'Spécialités')",
-    )
-
+    # ── Services Hero ─────────────────────────────────────
     services_hero_video_public_id = models.CharField(
         max_length=255,
         blank=True,
         default="",
         help_text=(
             "Cloudinary public ID for background video "
-            "(e.g. 'serenity/corporate-loop'). Do NOT include extension."
+            "(e.g. 'serenity/corporate-loop'). Do NOT include file extension."
         ),
     )
     services_hero_video_file = models.FileField(
@@ -190,7 +359,7 @@ class HomePage(Page):
         null=True,
         help_text=(
             "Upload MP4 background video for the corporate hero section. "
-            "This is stored on Cloudinary."
+            "Stored on Cloudinary."
         ),
     )
     services_hero_poster_image = models.ForeignKey(
@@ -199,86 +368,56 @@ class HomePage(Page):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
-        help_text="Poster image shown before / instead of video (background still).",
+        help_text="Poster image shown before/instead of video.",
     )
-
-    phone = models.CharField(
-        max_length=64,
-        blank=True,
-        default="",
-        help_text="Phone number with country code (e.g., +33 6 00 00 00 00)",
-    )
-    email = models.EmailField(
-        blank=True,
-        default="",
-        help_text="Professional email address for bookings and inquiries",
-    )
-    address_en = models.CharField(
-        max_length=300,
-        blank=True,
-        default="",
-        help_text="Your business address in English (e.g., 'Paris, France' or full address)",
-    )
-    address_fr = models.CharField(
-        max_length=300,
-        blank=True,
-        default="",
-        help_text="Votre adresse professionnelle en français (ex: 'Paris, France' ou adresse complète)",
-    )
-
-    # --- Services Hero Section ---
     services_hero_title_en = models.CharField(
         max_length=255,
         blank=True,
         default="Corporate Wellness Programs",
-        help_text="Main title for the services hero section (English)",
+        help_text="Main title for the services hero section (English).",
     )
     services_hero_title_fr = models.CharField(
         max_length=255,
         blank=True,
         default="Programmes de Bien-être en Entreprise",
-        help_text="Main title for the services hero section (Français)",
+        help_text="Main title for the services hero section (Français).",
     )
-
     services_hero_price_en = models.CharField(
         max_length=100,
         blank=True,
         default="€45/person",
-        help_text="Displayed price (English)",
+        help_text="Displayed price (English).",
     )
     services_hero_price_fr = models.CharField(
         max_length=100,
         blank=True,
         default="45€/personne",
-        help_text="Displayed price (Français)",
+        help_text="Displayed price (Français).",
     )
-
     services_hero_pricing_label_en = models.CharField(
         max_length=100,
         blank=True,
         default="Starting from",
-        help_text="Label before price (English)",
+        help_text="Label before price (English).",
     )
     services_hero_pricing_label_fr = models.CharField(
         max_length=100,
         blank=True,
         default="À partir de",
-        help_text="Label before price (Français)",
+        help_text="Label before price (Français).",
     )
-
     services_hero_cta_en = models.CharField(
         max_length=100,
         blank=True,
         default="Request a Quote",
-        help_text="CTA button text (English)",
+        help_text="CTA button text (English).",
     )
     services_hero_cta_fr = models.CharField(
         max_length=100,
         blank=True,
         default="Demander un Devis",
-        help_text="CTA button text (Français)",
+        help_text="CTA button text (Français).",
     )
-
     services_hero_benefit_1_en = models.CharField(
         max_length=200,
         blank=True,
@@ -310,141 +449,137 @@ class HomePage(Page):
         default="Améliorez le bien-être et le moral de l'équipe",
     )
 
-    search_fields = Page.search_fields + [
+    # ── FAQ ───────────────────────────────────────────────
+    faq_title_en = models.CharField(
+        max_length=200,
+        blank=True,
+        default="",
+        help_text="FAQ section heading (English).",
+    )
+    faq_title_fr = models.CharField(
+        max_length=200,
+        blank=True,
+        default="",
+        help_text="Titre de la section FAQ (Français).",
+    )
+    faq_subtitle_en = models.CharField(
+        max_length=300,
+        blank=True,
+        default="",
+        help_text="Short subtitle under the FAQ heading (English).",
+    )
+    faq_subtitle_fr = models.CharField(
+        max_length=300,
+        blank=True,
+        default="",
+        help_text="Sous-titre de la section FAQ (Français).",
+    )
+
+    faq_q1_en = models.CharField(max_length=300, blank=True, default="")
+    faq_q1_fr = models.CharField(max_length=300, blank=True, default="")
+    faq_a1_en = RichTextField(blank=True, default="")
+    faq_a1_fr = RichTextField(blank=True, default="")
+
+    faq_q2_en = models.CharField(max_length=300, blank=True, default="")
+    faq_q2_fr = models.CharField(max_length=300, blank=True, default="")
+    faq_a2_en = RichTextField(blank=True, default="")
+    faq_a2_fr = RichTextField(blank=True, default="")
+
+    faq_q3_en = models.CharField(max_length=300, blank=True, default="")
+    faq_q3_fr = models.CharField(max_length=300, blank=True, default="")
+    faq_a3_en = RichTextField(blank=True, default="")
+    faq_a3_fr = RichTextField(blank=True, default="")
+
+    faq_q4_en = models.CharField(max_length=300, blank=True, default="")
+    faq_q4_fr = models.CharField(max_length=300, blank=True, default="")
+    faq_a4_en = RichTextField(blank=True, default="")
+    faq_a4_fr = RichTextField(blank=True, default="")
+
+    faq_q5_en = models.CharField(max_length=300, blank=True, default="")
+    faq_q5_fr = models.CharField(max_length=300, blank=True, default="")
+    faq_a5_en = RichTextField(blank=True, default="")
+    faq_a5_fr = RichTextField(blank=True, default="")
+
+    faq_q6_en = models.CharField(max_length=300, blank=True, default="")
+    faq_q6_fr = models.CharField(max_length=300, blank=True, default="")
+    faq_a6_en = RichTextField(blank=True, default="")
+    faq_a6_fr = RichTextField(blank=True, default="")
+
+    faq_q7_en = models.CharField(max_length=300, blank=True, default="")
+    faq_q7_fr = models.CharField(max_length=300, blank=True, default="")
+    faq_a7_en = RichTextField(blank=True, default="")
+    faq_a7_fr = RichTextField(blank=True, default="")
+
+    faq_q8_en = models.CharField(max_length=300, blank=True, default="")
+    faq_q8_fr = models.CharField(max_length=300, blank=True, default="")
+    faq_a8_en = RichTextField(blank=True, default="")
+    faq_a8_fr = RichTextField(blank=True, default="")
+
+    # ── Search ────────────────────────────────────────────
+    search_fields: ClassVar[list] = [
+        *Page.search_fields,
         index.SearchField("hero_title_en"),
         index.SearchField("hero_title_fr"),
         index.SearchField("about_intro_en"),
         index.SearchField("about_intro_fr"),
         index.SearchField("about_approach_text_en"),
         index.SearchField("about_approach_text_fr"),
+        index.SearchField("faq_title_en"),
+        index.SearchField("faq_title_fr"),
     ]
 
-    content_panels = Page.content_panels + [
+    # ── Admin panels ──────────────────────────────────────
+    content_panels: ClassVar[list] = [
+        *Page.content_panels,
         MultiFieldPanel(
-            [
-                FieldPanel("hero_title_en", heading="Title (English)"),
-                FieldPanel("hero_title_fr", heading="Title (Français)"),
-                FieldPanel("hero_subtitle_en", heading="Subtitle (English)"),
-                FieldPanel("hero_subtitle_fr", heading="Subtitle (Français)"),
-                FieldPanel("hero_image", heading="Background Image (fallback)"),
-                InlinePanel("hero_slides", label="Slides"),
-            ],
+            _HERO_PANELS,
             heading="🏠 Hero Section",
-            help_text="If slides exist, frontend shows slider; else falls back to single hero image.",
+            help_text=(
+                "If slides exist the frontend shows a slider; "
+                "otherwise it falls back to the single hero image."
+            ),
             classname="collapsible",
         ),
         MultiFieldPanel(
-            [
-                FieldPanel("about_title_en", heading="Section Title (English)"),
-                FieldPanel("about_title_fr", heading="Section Title (Français)"),
-                FieldPanel("about_subtitle_en", heading="Subtitle (English)"),
-                FieldPanel("about_subtitle_fr", heading="Subtitle (Français)"),
-            ],
-            heading="👤 About Section - Header",
-            help_text="The main heading for your About section.",
+            _ABOUT_HEADER_PANELS,
+            heading="👤 About — Header",
             classname="collapsible",
         ),
         MultiFieldPanel(
-            [
-                FieldPanel("about_intro_en", heading="Introduction (English)"),
-                FieldPanel("about_intro_fr", heading="Introduction (Français)"),
-                FieldPanel(
-                    "about_certification_en", heading="Certification Badge (English)"
-                ),
-                FieldPanel(
-                    "about_certification_fr", heading="Certification Badge (Français)"
-                ),
-            ],
-            heading="👤 About Section - Introduction",
+            _ABOUT_INTRO_PANELS,
+            heading="👤 About — Introduction",
             help_text="Your professional introduction and credentials.",
             classname="collapsible",
         ),
         MultiFieldPanel(
-            [
-                FieldPanel(
-                    "about_approach_title_en", heading="Approach Title (English)"
-                ),
-                FieldPanel(
-                    "about_approach_title_fr", heading="Approach Title (Français)"
-                ),
-                FieldPanel(
-                    "about_approach_text_en", heading="Approach Description (English)"
-                ),
-                FieldPanel(
-                    "about_approach_text_fr", heading="Approach Description (Français)"
-                ),
-            ],
-            heading="👤 About Section - Your Approach",
+            _ABOUT_APPROACH_PANELS,
+            heading="👤 About — Your Approach",
             help_text="Describe your unique approach to massage therapy.",
             classname="collapsible",
         ),
         MultiFieldPanel(
-            [
-                FieldPanel(
-                    "about_specialties_title_en",
-                    heading="Section Title (English)",
-                ),
-                FieldPanel(
-                    "about_specialties_title_fr",
-                    heading="Section Title (Français)",
-                ),
-                InlinePanel(
-                    "specialties",
-                    label="Specialties (image + title)",
-                ),
-            ],
-            heading="👤 About Section - Your Specialties",
-            help_text="Order controls the display order on the site.",
-            classname="collapsible",
-        ),
-        MultiFieldPanel(
-            [
-                FieldPanel("phone", heading="Phone Number (with country code)"),
-                FieldPanel("email", heading="Email Address"),
-                FieldPanel("address_en", heading="Address (English)"),
-                FieldPanel("address_fr", heading="Address (Français)"),
-            ],
-            heading="📞 Contact Information",
-            help_text="Your contact details displayed in the footer and contact sections.",
-            classname="collapsible",
-        ),
-        MultiFieldPanel(
-            [
-                FieldPanel("services_hero_title_en"),
-                FieldPanel("services_hero_title_fr"),
-                FieldPanel("services_hero_pricing_label_en"),
-                FieldPanel("services_hero_pricing_label_fr"),
-                FieldPanel("services_hero_price_en"),
-                FieldPanel("services_hero_price_fr"),
-                FieldPanel("services_hero_cta_en"),
-                FieldPanel("services_hero_cta_fr"),
-                FieldPanel("services_hero_benefit_1_en"),
-                FieldPanel("services_hero_benefit_1_fr"),
-                FieldPanel("services_hero_benefit_2_en"),
-                FieldPanel("services_hero_benefit_2_fr"),
-                FieldPanel("services_hero_benefit_3_en"),
-                FieldPanel("services_hero_benefit_3_fr"),
-                FieldPanel(
-                    "services_hero_video_public_id",
-                    heading="Background video (Cloudinary public ID)",
-                ),
-                FieldPanel(
-                    "services_hero_video_file",
-                    heading="Background video file (MP4, optional)",
-                ),
-                FieldPanel(
-                    "services_hero_poster_image",
-                    heading="Poster image (Wagtail image)",
-                ),
-            ],
+            _SERVICES_HERO_PANELS,
             heading="💼 Services Hero Section",
+            classname="collapsible",
+        ),
+        MultiFieldPanel(
+            _FAQ_PANELS,
+            heading="❓ FAQ Section",
+            help_text=(
+                "Up to 8 questions. Empty pairs are skipped by the frontend. "
+                "The frontend falls back to built-in translations for any "
+                "blank field."
+            ),
             classname="collapsible",
         ),
     ]
 
-    parent_page_types = ["wagtailcore.Page"]
-    subpage_types = []
+    parent_page_types: ClassVar[list[str]] = ["wagtailcore.Page"]
+    subpage_types: ClassVar[list[str]] = []
     max_count = 1
 
     class Meta:
         verbose_name = "Home Page"
+
+    def __str__(self) -> str:
+        return self.title or "HomePage (untitled)"

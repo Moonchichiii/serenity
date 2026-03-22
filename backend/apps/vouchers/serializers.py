@@ -1,16 +1,85 @@
+from __future__ import annotations
+
 from rest_framework import serializers
+
+from apps.services.models import Service
 
 from .models import GiftVoucher
 
 
-class GiftVoucherSerializer(serializers.ModelSerializer):
+class GiftVoucherInputSerializer(serializers.Serializer):
+    recipient_name = serializers.CharField(max_length=200)
+    recipient_email = serializers.EmailField()
+    sender_name = serializers.CharField(max_length=200)
+    sender_email = serializers.EmailField()
+
+    message = serializers.CharField(
+        required=False, allow_blank=True, default=""
+    )
+    amount = serializers.DecimalField(max_digits=8, decimal_places=2)
+
+    preferred_language = serializers.ChoiceField(
+        choices=["fr", "en"], default="fr"
+    )
+
+    service_id = serializers.IntegerField(
+        required=False, allow_null=True
+    )
+    start_datetime = serializers.DateTimeField(
+        required=False, allow_null=True
+    )
+    end_datetime = serializers.DateTimeField(
+        required=False, allow_null=True
+    )
+
+    def validate(self, attrs):
+        service_id = attrs.get("service_id")
+        start_dt = attrs.get("start_datetime")
+        end_dt = attrs.get("end_datetime")
+
+        # Only enforce all-three-together when a DATE is provided.
+        # service_id alone is fine (gift without a pre-booked slot).
+        if (start_dt or end_dt) and not (
+            service_id and start_dt and end_dt
+        ):
+            raise serializers.ValidationError(
+                "If booking a slot, provide service_id, "
+                "start_datetime, and end_datetime together."
+            )
+
+        if service_id:
+            if not Service.objects.filter(
+                id=service_id, is_available=True
+            ).exists():
+                raise serializers.ValidationError(
+                    {"service_id": "Invalid or unavailable service."}
+                )
+
+        return attrs
+
+
+class GiftVoucherResponseSerializer(serializers.ModelSerializer):
+    service_id = serializers.IntegerField(
+        source="service.id", allow_null=True, required=False
+    )
+
     class Meta:
         model = GiftVoucher
         fields = [
-            "purchaser_name",
-            "purchaser_email",
+            "id",
+            "code",
             "recipient_name",
             "recipient_email",
+            "sender_name",
+            "sender_email",
             "message",
-            "preferred_date",
+            "amount",
+            "preferred_language",
+            "service_id",
+            "start_datetime",
+            "end_datetime",
+            "calendar_event_id",
+            "calendar_event_link",
+            "calendar_event_status",
+            "created_at",
         ]
