@@ -1,66 +1,38 @@
-import { Suspense, lazy, useMemo } from "react"
-import { useModal } from "@/components/modal/useModal"
+import { useMemo } from "react";
+import { useModal } from "@/components/modal/useModal";
+
+import { LegalNotice } from "@/components/legal/LegalNotice";
+import { PrivacyPolicy } from "@/components/legal/PrivacyPolicy";
+import { CookiePolicy } from "@/components/legal/CookiePolicy";
+import { TermsAndConditions } from "@/components/legal/TermsAndConditions";
+import { AccessibilityStatement } from "@/components/legal/AccessibilityStatement";
 
 type LegalPageKey =
   | "legal"
   | "privacy"
   | "cookies"
   | "terms"
-  | "accessibility"
-
-const LegalNotice = lazy(() =>
-  import("@/components/legal/LegalNotice").then((m) => ({
-    default: m.LegalNotice,
-  })),
-)
-const PrivacyPolicy = lazy(() =>
-  import("@/components/legal/PrivacyPolicy").then((m) => ({
-    default: m.PrivacyPolicy,
-  })),
-)
-const CookiePolicy = lazy(() =>
-  import("@/components/legal/CookiePolicy").then((m) => ({
-    default: m.CookiePolicy,
-  })),
-)
-const TermsAndConditions = lazy(() =>
-  import("@/components/legal/TermsAndConditions").then((m) => ({
-    default: m.TermsAndConditions,
-  })),
-)
-const AccessibilityStatement = lazy(() =>
-  import("@/components/legal/AccessibilityStatement").then((m) => ({
-    default: m.AccessibilityStatement,
-  })),
-)
+  | "accessibility";
 
 export default function LegalModalScreen() {
-  const { getPayload } = useModal()
-  const page = (getPayload("legal")?.page ?? "legal") as LegalPageKey
+  const { getPayload } = useModal();
+  const page = (getPayload("legal")?.page ?? "legal") as LegalPageKey;
 
   const Content = useMemo(() => {
     switch (page) {
       case "privacy":
-        return PrivacyPolicy
+        return PrivacyPolicy;
       case "cookies":
-        return CookiePolicy
+        return CookiePolicy;
       case "terms":
-        return TermsAndConditions
+        return TermsAndConditions;
       case "accessibility":
-        return AccessibilityStatement
+        return AccessibilityStatement;
       case "legal":
       default:
-        return LegalNotice
+        return LegalNotice;
     }
-  }, [page])
+  }, [page]);
 
-  return (
-    <Suspense
-      fallback={
-        <div className="p-2 text-center text-charcoal/70">Loading…</div>
-      }
-    >
-      <Content />
-    </Suspense>
-  )
+  return <Content />;
 }

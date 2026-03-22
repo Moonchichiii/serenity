@@ -52,7 +52,7 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
     },
   });
 
-  const [selectedTime, selectedServiceId, , currentAmount] = useWatch({
+  const [, selectedServiceId, , currentAmount] = useWatch({
     control,
     name: ["selectedTime", "serviceId", "selectedDate", "amount"],
   });
@@ -61,9 +61,7 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
     if (selectedServiceId) {
       const service = services.find((s) => s.id === selectedServiceId);
       if (service) {
-        const price = Number(
-          service.price.toString().replace(/[^0-9.]/g, ""),
-        );
+        const price = Number(service.price.toString().replace(/[^0-9.]/g, ""));
         setValue("amount", price, { shouldValidate: true });
       }
     }
@@ -78,34 +76,17 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
   );
 
   const { data: busyData } = useBusyDays(ym.year, ym.month);
-  const busyDates = useMemo(
-    () => new Set(busyData?.busy ?? []),
-    [busyData],
-  );
+  const busyDates = useMemo(() => new Set(busyData?.busy ?? []), [busyData]);
 
-  const selectedDateIso = selectedDate
-    ? format(selectedDate, "yyyy-MM-dd")
-    : "";
-  const { data: slotsData, isFetching: slotsFetching } =
-    useFreeSlots(selectedDateIso);
+  const selectedDateIso = selectedDate ? format(selectedDate, "yyyy-MM-dd") : "";
+  const { data: slotsData, isFetching: slotsFetching } = useFreeSlots(selectedDateIso);
   const availableTimes = slotsData?.times ?? [];
 
-  const fromCms = (
-    en?: string,
-    fr?: string,
-    key?: string,
-    def?: string,
-  ) => {
+  const fromCms = (en?: string, fr?: string, key?: string, def?: string) => {
     const val = lang === "fr" ? fr : en;
 
-    if (val?.trim()) {
-      return val;
-    }
-
-    if (!key) {
-      return "";
-    }
-
+    if (val?.trim()) return val;
+    if (!key) return "";
     return def ? t(key, def) : t(key);
   };
 
@@ -119,12 +100,7 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
 
   const onSubmit = async (data: GiftFormValues) => {
     if (!data.serviceId || data.amount <= 0) {
-      toast.error(
-        t(
-          "gift.error.noService",
-          "Please select an experience to gift.",
-        ),
-      );
+      toast.error(t("gift.error.noService", "Please select an experience to gift."));
       return;
     }
 
@@ -132,24 +108,14 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
     let end_datetime: string | undefined;
 
     if (data.selectedDate && !data.selectedTime) {
-      toast.error(
-        t(
-          "gift.error.incompleteTime",
-          "Please select a time slot.",
-        ),
-      );
+      toast.error(t("gift.error.incompleteTime", "Please select a time slot."));
       return;
     }
 
     if (data.selectedDate && data.selectedTime) {
       const service = services.find((s) => s.id === data.serviceId);
-      const start = new Date(
-        `${data.selectedDate}T${data.selectedTime}:00`,
-      );
-      const end = new Date(
-        start.getTime() +
-          (service?.duration_minutes ?? 60) * 60_000,
-      );
+      const start = new Date(`${data.selectedDate}T${data.selectedTime}:00`);
+      const end = new Date(start.getTime() + (service?.duration_minutes ?? 60) * 60_000);
       start_datetime = start.toISOString();
       end_datetime = end.toISOString();
     }
@@ -184,7 +150,6 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
     }
   };
 
-  /* ─── STYLES ─── */
   const sectionTitleClass =
     "text-xs font-bold uppercase tracking-wider text-charcoal/50 mb-3 flex items-center gap-2";
   const inputBase =
@@ -192,34 +157,30 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
     "text-charcoal placeholder:text-warm-grey-400 " +
     "focus:outline-none focus:ring-2 focus:ring-sage-400/20 focus:border-sage-400 " +
     "transition-all duration-200";
-  const labelBase =
-    "block text-sm font-medium text-charcoal/80 mb-1.5";
+  const labelBase = "block text-sm font-medium text-charcoal/80 mb-1.5";
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="space-y-8 pb-4"
-    >
-      {/* 1. SENDER & RECIPIENT */}
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 pb-4">
       <div className="space-y-6">
         <div>
           <h3 className={sectionTitleClass}>
             <User className="w-3.5 h-3.5" />
             {t("gift.form.details", "Details")}
           </h3>
+
           <div className="grid grid-cols-1 gap-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className={labelBase}>
+                <label htmlFor="senderName" className={labelBase}>
                   {t("gift.form.purchaserName")}
                 </label>
                 <input
+                  id="senderName"
                   type="text"
                   {...register("senderName")}
                   className={inputBase}
-                  placeholder={t(
-                    "gift.form.purchaserNamePlaceholder",
-                  )}
+                  placeholder={t("gift.form.purchaserNamePlaceholder")}
+                  aria-invalid={!!errors.senderName}
                 />
                 {errors.senderName && (
                   <p className="text-terracotta-500 text-xs mt-1">
@@ -227,17 +188,18 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
                   </p>
                 )}
               </div>
+
               <div>
-                <label className={labelBase}>
+                <label htmlFor="senderEmail" className={labelBase}>
                   {t("gift.form.purchaserEmail")}
                 </label>
                 <input
+                  id="senderEmail"
                   type="email"
                   {...register("senderEmail")}
                   className={inputBase}
-                  placeholder={t(
-                    "gift.form.purchaserEmailPlaceholder",
-                  )}
+                  placeholder={t("gift.form.purchaserEmailPlaceholder")}
+                  aria-invalid={!!errors.senderEmail}
                 />
                 {errors.senderEmail && (
                   <p className="text-terracotta-500 text-xs mt-1">
@@ -249,16 +211,16 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className={labelBase}>
+                <label htmlFor="recipientName" className={labelBase}>
                   {t("gift.form.recipientName")}
                 </label>
                 <input
+                  id="recipientName"
                   type="text"
                   {...register("recipientName")}
                   className={inputBase}
-                  placeholder={t(
-                    "gift.form.recipientNamePlaceholder",
-                  )}
+                  placeholder={t("gift.form.recipientNamePlaceholder")}
+                  aria-invalid={!!errors.recipientName}
                 />
                 {errors.recipientName && (
                   <p className="text-terracotta-500 text-xs mt-1">
@@ -266,17 +228,18 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
                   </p>
                 )}
               </div>
+
               <div>
-                <label className={labelBase}>
+                <label htmlFor="recipientEmail" className={labelBase}>
                   {t("gift.form.recipientEmail")}
                 </label>
                 <input
+                  id="recipientEmail"
                   type="email"
                   {...register("recipientEmail")}
                   className={inputBase}
-                  placeholder={t(
-                    "gift.form.recipientEmailPlaceholder",
-                  )}
+                  placeholder={t("gift.form.recipientEmailPlaceholder")}
+                  aria-invalid={!!errors.recipientEmail}
                 />
                 {errors.recipientEmail && (
                   <p className="text-terracotta-500 text-xs mt-1">
@@ -286,19 +249,25 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
               </div>
             </div>
 
-            <textarea
-              {...register("message")}
-              rows={2}
-              className={`${inputBase} resize-none`}
-              placeholder={t("gift.form.messagePlaceholder")}
-            />
+            <div>
+              <label htmlFor="giftMessage" className={labelBase}>
+                {t("gift.form.message", "Personal Message")}
+              </label>
+              <textarea
+                id="giftMessage"
+                {...register("message")}
+                rows={2}
+                className={`${inputBase} resize-none`}
+                placeholder={t("gift.form.messagePlaceholder")}
+                aria-invalid={!!errors.message}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       <div className="h-px w-full bg-warm-grey-100" />
 
-      {/* 2. EXPERIENCE SELECTION */}
       <div>
         <h3 className={sectionTitleClass}>
           <Sparkles className="w-3.5 h-3.5" />
@@ -306,16 +275,15 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
         </h3>
 
         <div className="relative">
+          <label htmlFor="giftService" className="sr-only">
+            {t("gift.form.chooseService", "Choose a treatment...")}
+          </label>
           <select
+            id="giftService"
             value={selectedServiceId ?? ""}
-            aria-label={t(
-              "gift.form.chooseService",
-              "Choose a treatment...",
-            )}
+            aria-label={t("gift.form.chooseService", "Choose a treatment...")}
             onChange={(e) => {
-              const id = e.target.value
-                ? Number(e.target.value)
-                : undefined;
+              const id = e.target.value ? Number(e.target.value) : undefined;
               setValue("serviceId", id as number);
               setValue("selectedDate", undefined);
               setValue("selectedTime", undefined);
@@ -323,51 +291,25 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
             }}
             className={`${inputBase} appearance-none font-medium text-sage-900 bg-white border-sage-200 py-4`}
           >
-            <option value="">
-              {t(
-                "gift.form.chooseService",
-                "Choose a treatment...",
-              )}
-            </option>
+            <option value="">{t("gift.form.chooseService", "Choose a treatment...")}</option>
             {services.map((s) => (
               <option key={s.id} value={s.id}>
-                {lang === "fr" ? s.title_fr : s.title_en} — €
-                {s.price}
+                {lang === "fr" ? s.title_fr : s.title_en} — €{s.price}
               </option>
             ))}
           </select>
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-sage-500">
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="m6 9 6 6 6-6" />
-            </svg>
-          </div>
         </div>
         {errors.amount && (
-          <p className="text-terracotta-500 text-xs mt-2">
-            {errors.amount.message}
-          </p>
+          <p className="text-terracotta-500 text-xs mt-2">{errors.amount.message}</p>
         )}
       </div>
 
-      {/* 3. CALENDAR */}
       {selectedServiceId && (
         <div className="animate-slide-up">
           <div className="flex items-center gap-2 mb-4 mt-6">
             <CalendarIcon className="w-4 h-4 text-sage-500" />
             <span className="text-sm font-medium text-charcoal">
-              {t(
-                "gift.form.scheduleNow",
-                "Schedule Date (Optional)",
-              )}
+              {t("gift.form.scheduleNow", "Schedule Date (Optional)")}
             </span>
           </div>
 
@@ -375,51 +317,27 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
             <Calendar
               value={selectedDate}
               onChange={(value) => {
-                const date = Array.isArray(value)
-                  ? value[0]
-                  : value;
+                const date = Array.isArray(value) ? value[0] : value;
                 setSelectedDate(date);
                 if (date) {
-                  setValue(
-                    "selectedDate",
-                    format(date, "yyyy-MM-dd"),
-                  );
+                  setValue("selectedDate", format(date, "yyyy-MM-dd"));
                   setValue("selectedTime", undefined);
                 }
               }}
-              onActiveStartDateChange={({
-                activeStartDate: d,
-              }) => d && setActiveStartDate(d)}
+              onActiveStartDateChange={({ activeStartDate: d }) => d && setActiveStartDate(d)}
               tileDisabled={({ date, view }) => {
                 if (view !== "month") return false;
-                return (
-                  isPastDate(date) ||
-                  busyDates.has(format(date, "yyyy-MM-dd"))
-                );
+                return isPastDate(date) || busyDates.has(format(date, "yyyy-MM-dd"));
               }}
               calendarType="iso8601"
               prev2Label={null}
               next2Label={null}
-              className="w-full! font-sans! border-none! bg-transparent!
-                  [&_.react-calendar__tile]:rounded-full
-                  [&_.react-calendar__tile]:h-9! [&_.react-calendar__tile]:w-9!
-                  [&_.react-calendar__tile]:flex! [&_.react-calendar__tile]:items-center! [&_.react-calendar__tile]:justify-center!
-                  [&_.react-calendar__tile]:text-sm! [&_.react-calendar__tile]:text-charcoal!
-                  [&_.react-calendar__tile:enabled:hover]:bg-terracotta-50!
-                  [&_.react-calendar__tile--active]:bg-terracotta-400! [&_.react-calendar__tile--active]:text-white!
-                  [&_.react-calendar__tile--now]:bg-sand-100!
-                  [&_.react-calendar__navigation__label]:text-charcoal/80! [&_.react-calendar__navigation__label]:font-bold!
-                  [&_.react-calendar__month-view__weekdays]:text-[10px]! [&_.react-calendar__month-view__weekdays]:text-charcoal/40! [&_.react-calendar__month-view__weekdays]:uppercase!"
             />
 
-            {/* Time Slots */}
             {selectedDate && (
               <div className="mt-6 animate-fade-in border-t border-warm-grey-100 pt-4">
                 <label className="block text-xs font-bold uppercase tracking-wider text-charcoal/40 mb-3">
-                  {t(
-                    "gift.form.availableTimes",
-                    "Available Times",
-                  )}
+                  {t("gift.form.availableTimes", "Available Times")}
                 </label>
                 {slotsFetching ? (
                   <div className="flex gap-2">
@@ -428,10 +346,7 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
                   </div>
                 ) : availableTimes.length === 0 ? (
                   <p className="text-xs text-charcoal/50 italic">
-                    {t(
-                      "gift.form.noSlots",
-                      "No slots available.",
-                    )}
+                    {t("gift.form.noSlots", "No slots available.")}
                   </p>
                 ) : (
                   <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
@@ -440,14 +355,7 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
                         key={time}
                         type="button"
                         disabled={checkout.isPending}
-                        onClick={() =>
-                          setValue("selectedTime", time)
-                        }
-                        className={`px-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                          selectedTime === time
-                            ? "bg-terracotta-400 text-white shadow-md"
-                            : "bg-sage-50 text-charcoal hover:bg-terracotta-50 border border-transparent hover:border-terracotta-200"
-                        }`}
+                        onClick={() => setValue("selectedTime", time)}
                       >
                         {time}
                       </button>
@@ -460,24 +368,20 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
         </div>
       )}
 
-      {/* 4. FOOTER */}
       <div className="sticky bottom-0 -mx-6 -mb-6 z-10 border-t border-warm-grey-200 bg-white/95 p-6 shadow-[-4px_0_10px_rgba(0,0,0,0.05)] backdrop-blur-md">
         <div className="mb-4 flex justify-between items-end">
           <div>
             <p className="mb-1 text-xs font-bold uppercase tracking-wider text-charcoal/50">
               {t("gift.form.total", "Total")}
             </p>
-            <p className="text-3xl font-heading text-sage-900">
+            <p className="text-3xl font-heading text-sage-900" data-testid="gift-total">
               {currentAmount ? `€${currentAmount}` : "€0"}
             </p>
           </div>
 
           <div className="flex items-center gap-1.5 rounded-md bg-sand-50 px-2 py-1 text-[10px] text-charcoal/40">
             <CreditCard className="h-3 w-3" />
-            {t(
-              "gift.form.poweredByStripe",
-              "Secure checkout with Stripe",
-            )}
+            {t("gift.form.poweredByStripe", "Secure checkout with Stripe")}
           </div>
         </div>
 

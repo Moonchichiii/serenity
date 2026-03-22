@@ -38,6 +38,8 @@ export function SheetShell({
     return modalTitleMap[modalId] ?? modalId;
   }, [modalId, t]);
 
+  const headingId = modalId ? `${modalId}-modal-title` : undefined;
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -63,7 +65,7 @@ export function SheetShell({
   const ui = (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] flex justify-end">
+        <div className="fixed inset-0 z-9999 flex justify-end">
           <motion.div
             ref={overlayRef}
             initial={{ opacity: 0 }}
@@ -80,6 +82,10 @@ export function SheetShell({
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={headingId}
+            data-testid={modalId ? `${modalId}-modal` : "modal-shell"}
             className={cn(
               "relative z-10 flex h-full w-full flex-col overflow-hidden bg-porcelain shadow-2xl",
               "sm:max-w-md md:max-w-lg",
@@ -95,7 +101,10 @@ export function SheetShell({
                 </p>
 
                 {title && (
-                  <h2 className="font-heading text-3xl tracking-tight text-white">
+                  <h2
+                    id={headingId}
+                    className="font-heading text-3xl tracking-tight text-white"
+                  >
                     {title}
                   </h2>
                 )}

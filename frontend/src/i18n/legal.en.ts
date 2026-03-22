@@ -10,7 +10,7 @@ export const legalEn = {
           'Legal Status: [Registration in progress]',
           'Address: [TO BE COMPLETED]',
           'SIRET/Registration ID: [PENDING]',
-          'Contact Email: [YOUR EMAIL]',
+          'Contact Email: contact@laserenity.com',
         ],
       },
       hosting: {
@@ -20,7 +20,8 @@ export const legalEn = {
           'Backend & Database: Fly.io and Neon.tech.',
           'Frontend & CDN: Cloudflare Inc.',
         ],
-        outro: 'Data is stored securely, and providers adhere to international security standards.',
+        outro:
+          'Data is stored securely, and providers adhere to international security standards.',
       },
       ip: {
         title: '3. Intellectual Property',
@@ -37,23 +38,42 @@ export const legalEn = {
       },
       data: {
         title: '2. Data Collection',
-        intro: 'We collect only the data strictly necessary to process your request via our forms (Contact and Corporate):',
-        items: ['Name', 'Email address', 'Phone number', 'Event details (for corporate inquiries)'],
+        intro:
+          'We collect only the data strictly necessary to process your request via our forms (Contact and Corporate):',
+        items: [
+          'Name',
+          'Email address',
+          'Phone number',
+          'Event details (for corporate inquiries)',
+        ],
       },
       purpose: {
         title: '3. Purpose of Data',
         intro: 'The collected information is used solely to:',
-        items: ['Respond to your inquiries or booking requests.', 'Create quotes for corporate services.'],
-        highlight: 'Privacy Commitment: Your data is never sold, rented, or used for advertising/marketing purposes. We will not send you newsletters without your explicit consent.',
+        items: [
+          'Respond to your inquiries or booking requests.',
+          'Create quotes for corporate services.',
+        ],
+        highlight:
+          'Privacy Commitment: Your data is never sold, rented, or used for advertising/marketing purposes. We will not send you newsletters without your explicit consent.',
       },
       retention: {
         title: '4. Data Retention',
-        items: ['Contact inquiries: 12 months after the last communication.', 'Billing data (if applicable): 10 years (legal obligation).'],
+        items: [
+          'Contact inquiries: 12 months after the last communication.',
+          'Billing data (if applicable): 10 years (legal obligation).',
+        ],
       },
       processors: {
         title: '5. Technical Service Providers',
-        intro: 'To ensure site functionality, technical data may be processed by our trusted providers:',
-        items: ['Fly.io & Neon: Server hosting and database.', 'Cloudinary: Media management.', 'Cloudflare: Site security and delivery (CDN).'],
+        intro:
+          'To ensure site functionality, technical data may be processed by our trusted providers:',
+        items: [
+          'Fly.io & Neon: Server hosting and database.',
+          'Cloudinary: Media management.',
+          'Cloudflare: Site security and delivery (CDN).',
+          'Stripe: Used for secure payment processing. Stripe collects and processes your payment data in accordance with its own privacy policy.',
+        ],
       },
       rights: {
         title: '6. Your Rights',
@@ -70,7 +90,8 @@ export const legalEn = {
       },
       used: {
         title: '2. Cookies used on this site',
-        intro: 'We prioritize a minimalist approach that respects your privacy.',
+        intro:
+          'We prioritize a minimalist approach that respects your privacy.',
         items: [
           'Strictly Necessary Cookies: Essential for technical operation (e.g., CSRF security, Cloudflare load balancing). These cannot be disabled.',
           'Preference Cookies: Used to remember your language choice (French/English).',
@@ -90,29 +111,46 @@ export const legalEn = {
   terms: {
     title: 'Terms and Conditions',
     sections: {
-      object: { title: '1. Object', body: 'These terms govern the sale of wellness massage services offered by La Serenity.' },
+      object: {
+        title: '1. Object',
+        body: 'These terms govern the sale of wellness massage services offered by La Serenity.',
+      },
       nature: {
         title: '2. Nature of Services',
         body: 'The massages offered are strictly for wellness and relaxation purposes. They have no therapeutic, medical, or physiotherapeutic aim and are not a substitute for medical treatment.',
       },
       pricing: {
-        title: '3. Pricing and Payment',
-        body: 'Prices are indicated in Euros (€) on the "Services" page. Payment is made [TO BE COMPLETED - e.g., on-site via cash or card].',
+        title: '3. Pricing',
+        body: 'Prices are indicated in Euros (€) and displayed on the website at the time of booking.',
+      },
+      payments: {
+        title: '4. Secure Payment',
+        body: 'Payment for services is made online at the time of booking through the secure Stripe payment platform. Payment card data is encrypted and is never stored on our servers.',
+      },
+      withdrawal: {
+        title: '5. Right of Withdrawal',
+        body: 'In accordance with article L.221-18 of the French Consumer Code, the customer has a period of 14 days to exercise their right of withdrawal.',
+        exception:
+          'However, in accordance with article L.221-28 of the French Consumer Code, where the service is fully performed before the end of this period, or begins on a date expressly agreed before the end of this period, the customer expressly waives their right of withdrawal.',
       },
       cancellation: {
-        title: '4. Appointments and Cancellation',
+        title: '6. Appointments and Cancellation',
         items: [
-          'Lateness: Delays of more than [15] minutes may result in a reduced session time or cancellation.',
-          'Cancellation: Cancellations must be made at least [24 or 48] hours in advance. Missed appointments or late cancellations may be charged.',
+          'Lateness: Delays of more than 15 minutes may result in a reduced session time.',
+          'Cancellation: Cancellations must be made at least 24 hours in advance.',
         ],
       },
       vouchers: {
-        title: '5. Gift Vouchers',
+        title: '7. Gift Vouchers',
         body: 'Gift vouchers are valid for [X] months from the date of purchase. They are non-refundable and cannot be exchanged for cash.',
       },
       contraindications: {
-        title: '6. Contre-indications',
-        body: 'Le client s’engage à informer le praticien de tout problème de santé, allergie, ou grossesse avant le début de la séance. Le praticien se réserve le droit de refuser une prestation en cas de contre-indication médicale.',
+        title: '8. Contraindications',
+        body: 'The client must inform the practitioner of any health issue, allergy, or pregnancy before the start of the session.',
+      },
+      mediation: {
+        title: '9. Consumer Mediation',
+        body: 'In accordance with articles L.616-1 and R.616-1 of the French Consumer Code, in the event of a dispute, you may use a consumer mediation service free of charge. The details of the competent mediator will be provided or specified here once appointed.',
       },
     },
   },
@@ -125,10 +163,18 @@ export const legalEn = {
       },
       standard: {
         title: 'Technical Standard',
-        intro: 'This site was built using modern technologies (React, semantic HTML) following WCAG (Web Content Accessibility Guidelines) best practices:',
-        items: ['Optimized color contrast.', 'Screen-reader friendly navigation.', 'Alternative text for images.'],
+        intro:
+          'This site was built using modern technologies (React, semantic HTML) following WCAG (Web Content Accessibility Guidelines) best practices:',
+        items: [
+          'Optimized color contrast.',
+          'Screen-reader friendly navigation.',
+          'Alternative text for images.',
+        ],
       },
-      feedback: { title: 'Feedback', body: 'If you encounter any navigation barriers, please contact us so we can assist you: [YOUR EMAIL].' },
+      feedback: {
+        title: 'Feedback',
+        body: 'If you encounter any navigation barriers, please contact us so we can assist you: [YOUR EMAIL].',
+      },
     },
   },
 };

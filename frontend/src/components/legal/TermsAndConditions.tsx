@@ -5,14 +5,19 @@ type TermsSections = {
   object: { title: string; body: string }
   nature: { title: string; body: string }
   pricing: { title: string; body: string }
+  payments: { title: string; body: string }
+  withdrawal: { title: string; body: string; exception: string }
   cancellation: { title: string; items: string[] }
   vouchers: { title: string; body: string }
   contraindications: { title: string; body: string }
+  mediation: { title: string; body: string }
 }
 
 export function TermsAndConditions() {
   const { t } = useTranslation()
-  const s = t('legalPages.terms.sections', { returnObjects: true }) as TermsSections
+  const s = t('legalPages.terms.sections', {
+    returnObjects: true,
+  }) as TermsSections
 
   return (
     <LegalPageLayout title={t('legalPages.terms.title')}>
@@ -31,9 +36,24 @@ export function TermsAndConditions() {
         <p>{s.pricing.body}</p>
       </section>
 
+      <section aria-labelledby="payments">
+        <h2 id="payments">{s.payments.title}</h2>
+        <p>{s.payments.body}</p>
+      </section>
+
+      <section aria-labelledby="withdrawal">
+        <h2 id="withdrawal">{s.withdrawal.title}</h2>
+        <p>{s.withdrawal.body}</p>
+        <p className="mt-4 font-medium">{s.withdrawal.exception}</p>
+      </section>
+
       <section aria-labelledby="cancellation">
         <h2 id="cancellation">{s.cancellation.title}</h2>
-        <ul>{s.cancellation.items.map((x) => <li key={x}>{x}</li>)}</ul>
+        <ul>
+          {s.cancellation.items.map((x) => (
+            <li key={x}>{x}</li>
+          ))}
+        </ul>
       </section>
 
       <section aria-labelledby="vouchers">
@@ -44,6 +64,11 @@ export function TermsAndConditions() {
       <section aria-labelledby="contraindications">
         <h2 id="contraindications">{s.contraindications.title}</h2>
         <p>{s.contraindications.body}</p>
+      </section>
+
+      <section aria-labelledby="mediation">
+        <h2 id="mediation">{s.mediation.title}</h2>
+        <p>{s.mediation.body}</p>
       </section>
     </LegalPageLayout>
   )

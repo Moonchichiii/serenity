@@ -44,8 +44,8 @@ export function ModalShell({
       {isOpen && (
         <div
           className="
-            fixed inset-0 z-[9999]
-            h-[100dvh] w-screen overflow-hidden
+            fixed inset-0 z-9999
+            h-dvh w-screen overflow-hidden
             flex flex-col items-center justify-end sm:justify-center
             p-0 sm:p-4
           "
