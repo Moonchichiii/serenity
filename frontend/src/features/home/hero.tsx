@@ -238,7 +238,7 @@ const SlideImage: FC<{
         priority={index === 0}
         className="h-full w-full object-cover"
         sizes="100vw"
-        optimizeWidth={1920}
+        optimizeWidth={1280}
       />
     </div>
   </div>
