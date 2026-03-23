@@ -11,19 +11,15 @@ import {
   onCookieSettingsOpen,
 } from '@/components/ui/consent'
 
-/**
- * Schedule a callback after the browser is idle.
- * Uses requestIdleCallback where available, falls back to setTimeout.
- */
 function afterIdle(cb: () => void, timeout = 2500): number {
-  if ('requestIdleCallback' in window) {
+  if (typeof window.requestIdleCallback === 'function') {
     return window.requestIdleCallback(cb, { timeout })
   }
-  return window.setTimeout(cb, timeout)
+  return setTimeout(cb, timeout) as unknown as number
 }
 
 function cancelIdle(id: number) {
-  if ('requestIdleCallback' in window) {
+  if (typeof window.cancelIdleCallback === 'function') {
     window.cancelIdleCallback(id)
   } else {
     clearTimeout(id)
@@ -41,29 +37,24 @@ export default function CookieConsent({
   const initial = useMemo(() => getConsent(), [])
   const needsBanner = !initial
 
-  // ---------- deferred visibility ----------
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    // Already consented → never show, skip idle scheduling
     if (!needsBanner) return
 
     const id = afterIdle(() => setReady(true), 2500)
     return () => cancelIdle(id)
   }, [needsBanner])
 
-  // ---------- banner open / close state ----------
   const [isOpen, setIsOpen] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [media, setMedia] = useState(initial?.media ?? false)
   const [analytics, setAnalytics] = useState(initial?.analytics ?? false)
 
-  // Once the deferred timer fires, actually open the banner
   useEffect(() => {
     if (ready && needsBanner) setIsOpen(true)
   }, [ready, needsBanner])
 
-  // ---------- "Cookie Settings" re-open listener ----------
   useEffect(() => {
     return onCookieSettingsOpen(() => {
       const latest = getConsent()
@@ -88,14 +79,9 @@ export default function CookieConsent({
         <div className="p-4 sm:p-5">
           <p className="text-sm text-charcoal/90 sm:text-base">
             {t('cookie.intro')}{' '}
-            <span className="font-medium">
-              {t('cookie.mediaTitle')}
-            </span>{' '}
+            <span className="font-medium">{t('cookie.mediaTitle')}</span>{' '}
             {t('and', { defaultValue: 'and' })}{' '}
-            <span className="font-medium">
-              {t('cookie.analyticsTitle')}
-            </span>
-            .
+            <span className="font-medium">{t('cookie.analyticsTitle')}</span>.
             <button
               type="button"
               onClick={() => openModal('legal', { page: 'privacy' })}
@@ -113,9 +99,7 @@ export default function CookieConsent({
               onClick={() => setExpanded((v) => !v)}
               aria-expanded={expanded}
             >
-              {expanded
-                ? t('cookie.hideOptions')
-                : t('cookie.customize')}
+              {expanded ? t('cookie.hideOptions') : t('cookie.customize')}
             </button>
 
             {expanded && (
@@ -143,9 +127,7 @@ export default function CookieConsent({
                     type="checkbox"
                     className="mt-1 accent-sage-500"
                     checked={media}
-                    onChange={(e) =>
-                      setMedia(e.currentTarget.checked)
-                    }
+                    onChange={(e) => setMedia(e.currentTarget.checked)}
                   />
                   <div>
                     <div className="font-medium text-charcoal">
@@ -162,9 +144,7 @@ export default function CookieConsent({
                     type="checkbox"
                     className="mt-1 accent-sage-500"
                     checked={analytics}
-                    onChange={(e) =>
-                      setAnalytics(e.currentTarget.checked)
-                    }
+                    onChange={(e) => setAnalytics(e.currentTarget.checked)}
                   />
                   <div>
                     <div className="font-medium text-charcoal">
