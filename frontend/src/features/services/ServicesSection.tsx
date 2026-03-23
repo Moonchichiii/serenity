@@ -169,7 +169,7 @@ const EditorialServiceItem: FC<{
       </p>
 
       <span
-        className="mt-2 font-semibold uppercase tracking-[0.15em] text-sage-400 transition-colors group-hover:text-terracotta-300"
+        className="mt-2 font-semibold uppercase tracking-[0.15em] text-sage-200 transition-colors group-hover:text-terracotta-300"
         style={{
           fontSize: "var(--typo-overline)",
           lineHeight: "var(--leading-overline)",
@@ -212,7 +212,7 @@ const MobileListItem: FC<{
       </span>
     </div>
     <span
-      className="font-semibold uppercase tracking-[0.15em] text-sage-400"
+      className="font-semibold uppercase tracking-[0.15em] text-sage-200"
       style={{
         fontSize: "var(--typo-overline)",
         lineHeight: "var(--leading-overline)",
@@ -469,7 +469,7 @@ export const Services: FC = () => {
           ) : (
             <>
               <p
-                className="mb-2 text-sage-300/75 md:hidden"
+                className="mb-2 text-sage-200 md:hidden"
                 style={{
                   fontSize: "var(--typo-caption)",
                   lineHeight: "var(--leading-caption)",
