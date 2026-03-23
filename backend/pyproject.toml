@@ -27,6 +27,7 @@ dependencies = [
     "gunicorn>=23,<24",
     "stripe>=14.4.0,<15",
     "whitenoise>=6.8,<7",
+    "uvicorn[standard]>=0.42.0",
 ]
 
 [project.optional-dependencies]
