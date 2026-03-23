@@ -19,20 +19,15 @@ import type { RenderableImage, WagtailHeroSlide } from "@/types/api";
 
 const SLIDE_INTERVAL_MS = 5_000;
 
-const FADE_UP: Transition = {
-  duration: 0.9,
-  ease: [0.16, 1, 0.3, 1],
-};
-
 const FADE_UP_DELAY_1: Transition = {
-  duration: 0.9,
-  delay: 0.3,
+  duration: 0.55,
+  delay: 0.1,
   ease: [0.16, 1, 0.3, 1],
 };
 
 const FADE_UP_DELAY_2: Transition = {
-  duration: 0.9,
-  delay: 0.55,
+  duration: 0.55,
+  delay: 0.18,
   ease: [0.16, 1, 0.3, 1],
 };
 
@@ -94,9 +89,7 @@ function hasRenderableImage(
   );
 }
 
-function useHeroSlides(): HeroSlidesResult {
-  const cmsData = useCMSPage();
-
+function useHeroSlides(cmsData: ReturnType<typeof useCMSPage>): HeroSlidesResult {
   return useMemo(() => {
     if (!cmsData) {
       return { slides: null, isCarousel: false };
@@ -114,13 +107,13 @@ function useHeroSlides(): HeroSlidesResult {
     }
 
     if (cmsData.hero_image?.src) {
-      const img: RenderableImage = {
+      const image: RenderableImage = {
         ...cmsData.hero_image,
         src: cmsData.hero_image.src,
       };
 
       return {
-        slides: [{ image: img }],
+        slides: [{ image }],
         isCarousel: false,
       };
     }
@@ -173,18 +166,13 @@ function useAutoAdvance(count: number): number {
 }
 
 function useHeroContent(
+  cmsData: ReturnType<typeof useCMSPage>,
   slides: NormalizedSlide[] | null,
   isCarousel: boolean,
   activeIndex: number,
 ): HeroContent {
   const { t, i18n } = useTranslation();
-  const cmsData = useCMSPage();
   const lang = resolveLang(i18n.language);
-
-  const pageTitleFr = cmsData?.hero_title_fr;
-  const pageTitleEn = cmsData?.hero_title_en;
-  const pageSubtitleFr = cmsData?.hero_subtitle_fr;
-  const pageSubtitleEn = cmsData?.hero_subtitle_en;
 
   return useMemo(() => {
     const activeSlide = slides?.[activeIndex];
@@ -206,11 +194,15 @@ function useHeroContent(
       : undefined;
 
     const pageTitle = nonEmpty(
-      pickLocalized(lang, pageTitleFr, pageTitleEn),
+      pickLocalized(lang, cmsData?.hero_title_fr, cmsData?.hero_title_en),
     );
 
     const pageSubtitle = nonEmpty(
-      pickLocalized(lang, pageSubtitleFr, pageSubtitleEn),
+      pickLocalized(
+        lang,
+        cmsData?.hero_subtitle_fr,
+        cmsData?.hero_subtitle_en,
+      ),
     );
 
     return {
@@ -219,17 +211,7 @@ function useHeroContent(
       ctaPrivate: t("hero.ctaPrivate"),
       ctaCorporate: t("hero.ctaCorporate"),
     };
-  }, [
-    slides,
-    isCarousel,
-    activeIndex,
-    lang,
-    pageTitleFr,
-    pageTitleEn,
-    pageSubtitleFr,
-    pageSubtitleEn,
-    t,
-  ]);
+  }, [slides, isCarousel, activeIndex, cmsData, lang, t]);
 }
 
 const SlideImage: FC<{
@@ -247,7 +229,7 @@ const SlideImage: FC<{
     <div
       className={cn(
         "hero-slide-scale h-full w-full",
-        isActive ? "scale-110" : "scale-100",
+        isActive ? "scale-105" : "scale-100",
       )}
     >
       <ResponsiveImage
@@ -278,10 +260,12 @@ const BottomFade: FC = () => (
 );
 
 export const Hero: FC = () => {
+  const cmsData = useCMSPage();
   const { open } = useModal();
-  const { slides, isCarousel } = useHeroSlides();
+
+  const { slides, isCarousel } = useHeroSlides(cmsData);
   const active = useAutoAdvance(slides?.length ?? 0);
-  const content = useHeroContent(slides, isCarousel, active);
+  const content = useHeroContent(cmsData, slides, isCarousel, active);
 
   const handlePrivateClick = useCallback(() => {
     open("contact", { defaultSubject: "Private session inquiry" });
@@ -313,17 +297,12 @@ export const Hero: FC = () => {
       </div>
 
       <div className="container relative z-10 mx-auto flex h-full w-full max-w-275 flex-col items-start justify-end text-left md:justify-center">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={FADE_UP}
-          className="hero-heading-mb text-editorial-xl max-w-3xl text-white"
-        >
+        <h1 className="hero-heading-mb max-w-3xl text-editorial-xl text-white">
           {content.title}
-        </motion.h1>
+        </h1>
 
         <motion.p
-          initial={{ opacity: 0, y: 14 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={FADE_UP_DELAY_1}
           className="hero-subtitle mb-4 max-w-xl text-white/80 md:mb-8"
@@ -332,7 +311,7 @@ export const Hero: FC = () => {
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={FADE_UP_DELAY_2}
           className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4"
