@@ -13,17 +13,15 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 WORKDIR /app
 
-# Copy lockfile + pyproject first for layer caching
 COPY pyproject.toml uv.lock ./
 
-# Install production deps (no dev, frozen lockfile)
 RUN uv sync --no-dev --frozen
 
-# Copy the rest of the backend code
 COPY . /app
 
 ENV PYTHONPATH=/app
-ENV DJANGO_SETTINGS_MODULE=config.settings
+ENV DJANGO_SETTINGS_MODULE=config.settings.production
+ENV ENVIRONMENT=production
 
 RUN --mount=type=secret,id=django_secret_key,required=false \
     --mount=type=secret,id=database_url,required=false \
