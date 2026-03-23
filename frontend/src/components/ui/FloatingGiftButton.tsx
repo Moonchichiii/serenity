@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useModal } from "@/components/modal";
 import { useCMSGlobals } from "@/hooks/useCMS";
 import ResponsiveImage from "@/components/ui/ResponsiveImage";
+import { getOptimizedCloudinaryUrl } from "@/utils/cloudinary";
 
 export function FloatingGiftButton() {
   const { open } = useModal();
@@ -45,7 +46,13 @@ export function FloatingGiftButton() {
                 aria-hidden="true"
                 className="h-12 w-12 object-contain drop-shadow-sm sm:h-14 sm:w-14"
                 sizes="(min-width: 640px) 56px, 48px"
-                optimizeWidth={96}
+                optimizeWidth={64}
+                srcSet={[
+                  `${getOptimizedCloudinaryUrl(icon.src, 48)} 48w`,
+                  `${getOptimizedCloudinaryUrl(icon.src, 64)} 64w`,
+                  `${getOptimizedCloudinaryUrl(icon.src, 96)} 96w`,
+                  `${getOptimizedCloudinaryUrl(icon.src, 128)} 128w`,
+                ].join(", ")}
               />
             ) : (
               <TicketPercent
