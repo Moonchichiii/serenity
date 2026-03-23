@@ -1,67 +1,68 @@
-import { motion, AnimatePresence } from 'framer-motion'
-import { TicketPercent } from 'lucide-react'
-import { useModal } from '@/components/modal'
-import { useTranslation } from 'react-i18next'
-import { useCMSGlobals } from '@/hooks/useCMS'
-import  ResponsiveImage from '@/components/ui/ResponsiveImage'
+import { AnimatePresence, motion } from "framer-motion";
+import { TicketPercent } from "lucide-react";
+import { useTranslation } from "react-i18next";
+
+import { useModal } from "@/components/modal";
+import { useCMSGlobals } from "@/hooks/useCMS";
+import ResponsiveImage from "@/components/ui/ResponsiveImage";
 
 export function FloatingGiftButton() {
-  const { open } = useModal()
-  const { t } = useTranslation()
+  const { open } = useModal();
+  const { t } = useTranslation();
+  const globals = useCMSGlobals();
 
-  // 1. Use the dedicated globals hook
-  const globals = useCMSGlobals()
+  if (!globals) return null;
 
-  // 2. Derive state directly (no useEffect needed)
-  if (!globals) return null
-
-  const enabled = globals.gift?.is_enabled ?? false
-  const icon = globals.gift?.floating_icon ?? null
+  const enabled = globals.gift?.is_enabled ?? false;
+  const icon = globals.gift?.floating_icon ?? null;
+  const label = t("gift.trigger", "Offer a Gift");
 
   return (
     <AnimatePresence>
       {enabled && (
         <motion.button
           key="gift-button"
+          type="button"
           initial={{ scale: 0, rotate: 180 }}
           animate={{ scale: 1, rotate: 0 }}
           exit={{ scale: 0, opacity: 0 }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => open('gift')}
-          className="fixed z-40 bottom-6 right-6 sm:bottom-10 sm:right-10 group"
-          aria-label={t('gift.trigger', 'Offer a Gift')}
-          title={t('gift.trigger', 'Offer a Gift')}
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.96 }}
+          onClick={() => open("gift")}
+          className="group fixed bottom-6 right-6 z-40 sm:bottom-10 sm:right-10"
+          aria-label={label}
+          title={label}
         >
-          <span className="sr-only">{t('gift.trigger', 'Offer a Gift')}</span>
-          <div className="absolute inset-0 bg-terracotta-400 rounded-full animate-pulse-warm opacity-30" />
+          <span className="sr-only">{label}</span>
 
-          <div className="relative flex items-center justify-center w-16 h-16 sm:w-18 sm:h-18 bg-white/90 backdrop-blur-sm rounded-full shadow-elevated border-2 border-white/50 transition-all group-hover:border-terracotta-200 overflow-hidden p-1.5">
+          <div className="absolute inset-0 animate-pulse-warm rounded-full bg-terracotta-400 opacity-30" />
+
+          <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-white/50 bg-white/90 p-1.5 shadow-elevated backdrop-blur-sm transition-all group-hover:border-terracotta-200 sm:h-18 sm:w-18">
             {icon?.src ? (
               <ResponsiveImage
                 image={icon}
                 alt=""
                 aria-hidden="true"
-                className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-sm"
-                sizes="56px"
-                optimizeWidth={112}
+                className="h-12 w-12 object-contain drop-shadow-sm sm:h-14 sm:w-14"
+                sizes="(min-width: 640px) 56px, 48px"
+                optimizeWidth={96}
               />
             ) : (
               <TicketPercent
-                className="w-8 h-8 text-terracotta-500"
+                className="h-8 w-8 text-terracotta-500"
                 strokeWidth={1.5}
               />
             )}
           </div>
 
           <span
-            className="absolute right-full mr-4 top-1/2 -translate-y-1/2 px-4 py-2 bg-charcoal/90 text-white text-xs font-medium tracking-wide rounded-xl opacity-0 -translate-x-2 pointer-events-none transition-all group-hover:opacity-100 group-hover:translate-x-0 whitespace-nowrap hidden sm:block backdrop-blur-md shadow-lg"
+            className="pointer-events-none absolute right-full top-1/2 mr-4 hidden -translate-x-2 -translate-y-1/2 whitespace-nowrap rounded-xl bg-charcoal/90 px-4 py-2 text-xs font-medium tracking-wide text-white opacity-0 shadow-lg transition-all group-hover:translate-x-0 group-hover:opacity-100 sm:block"
             aria-hidden="true"
           >
-            {t('gift.trigger')}
+            {label}
           </span>
         </motion.button>
       )}
     </AnimatePresence>
-  )
+  );
 }
