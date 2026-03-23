@@ -73,7 +73,7 @@ const Footer: React.FC = () => {
              <div className="grid grid-cols-2 sm:grid-cols-3 gap-10 lg:gap-14">
               {/* Navigation */}
               <div>
-                <h4
+                <h3
                   className="mb-5 font-semibold uppercase text-white/30"
                   style={{
                     fontSize: "var(--typo-overline)",
@@ -84,7 +84,7 @@ const Footer: React.FC = () => {
                   {t("footer.navigation", {
                     defaultValue: "Navigation",
                   })}
-                </h4>
+                </h3>
                 <ul className="space-y-2.5">
                   <li>
                     <a
