@@ -42,21 +42,21 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          "react-core": ["react", "react-dom", "scheduler"],
-          router: ["@tanstack/react-router"],
-          query: ["@tanstack/react-query"],
-          motion: ["framer-motion"],
-          "ui-libs": ["lucide-react", "clsx", "tailwind-merge"],
-          i18n: [
-            "i18next",
-            "react-i18next",
-            "i18next-browser-languagedetector",
-          ],
-          forms: ["react-hook-form", "@hookform/resolvers", "zod"],
-          maps: ["@react-google-maps/api"],
-          toast: ["react-hot-toast"],
-          vendor: ["axios", "date-fns"],
-        },
+  "react-core": ["react", "react-dom"],
+  router: ["@tanstack/react-router"],
+  query: ["@tanstack/react-query"],
+  motion: ["framer-motion"],
+  "ui-libs": ["lucide-react", "clsx", "tailwind-merge"],
+  i18n: [
+    "i18next",
+    "react-i18next",
+    "i18next-browser-languagedetector",
+  ],
+  forms: ["react-hook-form", "@hookform/resolvers", "zod"],
+  maps: ["@react-google-maps/api"],
+  toast: ["react-hot-toast"],
+  vendor: ["axios", "date-fns"],
+},
         assetFileNames: (assetInfo) => {
           const name =
             assetInfo.names?.[0] ?? assetInfo.name ?? "asset";
