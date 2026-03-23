@@ -9,7 +9,6 @@ import type { ResponsiveImage as ResponsiveImageType } from "@/types/api";
 
 type SupportedLang = "fr" | "en";
 
-// ── Types ────────────────────────────────────────────────────────────
 interface HeroContent {
   title: string;
   priceLabel: string;
@@ -54,7 +53,6 @@ function splitTitleIntoLines(title: string, _lang: SupportedLang): string[] {
   return lines;
 }
 
-// ── Utilities ────────────────────────────────────────────────────────
 function resolveLang(language: string): SupportedLang {
   return language.startsWith("fr") ? "fr" : "en";
 }
@@ -64,7 +62,6 @@ function toSentenceCase(s?: string): string {
   return s.charAt(0).toLocaleUpperCase() + s.slice(1).toLocaleLowerCase();
 }
 
-// ── Hooks ────────────────────────────────────────────────────────────
 function useHeroContent(): HeroContent | null {
   const { i18n } = useTranslation();
   const page = useCMSPage();
@@ -99,19 +96,21 @@ function useHeroContent(): HeroContent | null {
   }, [page, lang]);
 }
 
-// ── Sub-components ───────────────────────────────────────────────────
 const ImageBackground: FC<{
   image: ResponsiveImageType | null | undefined;
-}> = ({ image }) => (
-  <ResponsiveImage
-    image={image}
-    alt=""
-    priority
-    className="absolute inset-0 h-full w-full object-cover object-center"
-    sizes="100vw"
-    optimizeWidth={1280}
-  />
-);
+}> = ({ image }) =>
+  image?.src ? (
+    <ResponsiveImage
+      image={image}
+      alt=""
+      priority={false}
+      className="absolute inset-0 h-full w-full object-cover object-center"
+      sizes="100vw"
+      optimizeWidth={1280}
+    />
+  ) : (
+    <div className="absolute inset-0 bg-sage-deep" aria-hidden="true" />
+  );
 
 const Overlays: FC = () => (
   <>
@@ -132,6 +131,7 @@ const CircleCTA: FC<{
   onClick: () => void;
 }> = ({ label, onClick }) => (
   <button
+    type="button"
     onClick={onClick}
     aria-label={label}
     className="group flex h-28 w-28 items-center justify-center rounded-full bg-[#F7FB7D] text-center shadow-elevated transition-transform duration-200 ease-out hover:scale-105 hover:brightness-105 active:scale-95 sm:h-32 sm:w-32 lg:h-36 lg:w-36"
@@ -148,14 +148,6 @@ const CircleCTA: FC<{
   </button>
 );
 
-/**
- * JUSTIFIED EXCEPTION — ServicesHero editorial title
- *
- * Uses --typo-services-display / --typo-services-display-sub
- * instead of the standard scale. These are larger display sizes
- * with controlled viewport growth (rem floor + capped vw) for
- * the corporate wellness marketing CTA hero.
- */
 const EditorialTitle: FC<{
   title: string;
   lang: SupportedLang;
@@ -169,7 +161,7 @@ const EditorialTitle: FC<{
     >
       {lines.map((line, i) => (
         <span
-          key={i}
+          key={`${line}-${i}`}
           className={`block tracking-tight text-white ${
             i === 0
               ? "font-serif italic font-light"
@@ -197,7 +189,6 @@ const BottomBar: FC<{
   hasPrice: boolean;
 }> = ({ tagline, priceLabel, price, benefits, hasPrice }) => (
   <div className="grid w-full grid-cols-1 items-end gap-[var(--space-card-gap)] border-t border-white/15 pt-6 sm:grid-cols-[auto_1fr] lg:grid-cols-[200px_1fr_1fr]">
-    {/* Left — tagline + price */}
     <div className="flex flex-col gap-1">
       <span
         className="font-bold uppercase tracking-widest text-terracotta-300"
@@ -208,6 +199,7 @@ const BottomBar: FC<{
       >
         {tagline}
       </span>
+
       {hasPrice && (
         <div className="flex items-baseline gap-2">
           {priceLabel && (
@@ -236,10 +228,9 @@ const BottomBar: FC<{
       )}
     </div>
 
-    {/* Right — benefits in columns */}
     {benefits.slice(0, 2).map((b, i) => (
       <p
-        key={i}
+        key={`${b}-${i}`}
         className="max-w-xs text-sand-200/80"
         style={{
           fontSize: "var(--typo-body)",
@@ -252,7 +243,6 @@ const BottomBar: FC<{
   </div>
 );
 
-// ── Main component ───────────────────────────────────────────────────
 export const ServicesHero: FC = () => {
   const { t, i18n } = useTranslation();
   const { open } = useModal();

@@ -6,7 +6,6 @@ import {
   type FC,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { motion, type Transition } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
@@ -18,18 +17,6 @@ import { cn } from "@/lib/utils";
 import type { RenderableImage, WagtailHeroSlide } from "@/types/api";
 
 const SLIDE_INTERVAL_MS = 5_000;
-
-const FADE_UP_DELAY_1: Transition = {
-  duration: 0.55,
-  delay: 0.1,
-  ease: [0.16, 1, 0.3, 1],
-};
-
-const FADE_UP_DELAY_2: Transition = {
-  duration: 0.55,
-  delay: 0.18,
-  ease: [0.16, 1, 0.3, 1],
-};
 
 type SupportedLang = "fr" | "en";
 
@@ -89,7 +76,9 @@ function hasRenderableImage(
   );
 }
 
-function useHeroSlides(cmsData: ReturnType<typeof useCMSPage>): HeroSlidesResult {
+function useHeroSlides(
+  cmsData: ReturnType<typeof useCMSPage>,
+): HeroSlidesResult {
   return useMemo(() => {
     if (!cmsData) {
       return { slides: null, isCarousel: false };
@@ -301,21 +290,11 @@ export const Hero: FC = () => {
           {content.title}
         </h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={FADE_UP_DELAY_1}
-          className="hero-subtitle mb-4 max-w-xl text-white/80 md:mb-8"
-        >
+        <p className="hero-subtitle mb-4 max-w-xl text-white/80 md:mb-8">
           {content.subtitle}
-        </motion.p>
+        </p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={FADE_UP_DELAY_2}
-          className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4"
-        >
+        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4">
           <Button
             size="lg"
             onClick={handlePrivateClick}
@@ -341,7 +320,7 @@ export const Hero: FC = () => {
               aria-hidden="true"
             />
           </button>
-        </motion.div>
+        </div>
       </div>
 
       <CookieConsent />
