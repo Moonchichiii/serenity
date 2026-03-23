@@ -22,35 +22,40 @@ DATABASES = {
 }
 
 # ── Cache — Redis ───────────────────────────────────
-REDIS_URL = config("REDIS_URL", default=None)
+# REDIS_URL = config("REDIS_URL", default=None)
 
-if REDIS_URL:
-    CACHES = {
-        "default": {
-            "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": REDIS_URL,
-            "OPTIONS": {
-                "CLIENT_CLASS": "django_redis.client.DefaultClient",
-                "IGNORE_EXCEPTIONS": True,
-                "CONNECTION_POOL_KWARGS": {
-                    "max_connections": 50,
-                    "health_check_interval": 30,
-                    "retry_on_timeout": True,
-                    },
-                "SOCKET_CONNECT_TIMEOUT": 5,
-                "SOCKET_TIMEOUT": 5,
-            },
-            "KEY_PREFIX": "serenity",
-        }
+# if REDIS_URL:
+#     CACHES = {
+#         "default": {
+#             "BACKEND": "django_redis.cache.RedisCache",
+#             "LOCATION": REDIS_URL,
+#             "OPTIONS": {
+#                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#                 "IGNORE_EXCEPTIONS": True,
+#                 "CONNECTION_POOL_KWARGS": {
+#                     "max_connections": 50,
+#                     "health_check_interval": 30,
+#                     "retry_on_timeout": True,
+#                     },
+#                 "SOCKET_CONNECT_TIMEOUT": 5,
+#                 "SOCKET_TIMEOUT": 5,
+#             },
+#             "KEY_PREFIX": "serenity",
+#         }
+#     }
+# else:
+#     CACHES = {
+#         "default": {
+#             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+#             "LOCATION": "serenity-prod-fallback",
+#         }
+#     }
+# ── Cache — disabled for launch (no stale content) ─
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
     }
-else:
-    CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-            "LOCATION": "serenity-prod-fallback",
-        }
-    }
-
+}
 # ── Cloudinary ──────────────────────────────────────
 _cloudinary.config(
     cloud_name=config("CLOUDINARY_CLOUD_NAME"),
