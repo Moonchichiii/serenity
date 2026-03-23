@@ -41,22 +41,42 @@ export default defineConfig({
 
     rollupOptions: {
       output: {
-        manualChunks: {
-  "react-core": ["react", "react-dom"],
-  router: ["@tanstack/react-router"],
-  query: ["@tanstack/react-query"],
-  motion: ["framer-motion"],
-  "ui-libs": ["lucide-react", "clsx", "tailwind-merge"],
-  i18n: [
-    "i18next",
-    "react-i18next",
-    "i18next-browser-languagedetector",
-  ],
-  forms: ["react-hook-form", "@hookform/resolvers", "zod"],
-  maps: ["@react-google-maps/api"],
-  toast: ["react-hot-toast"],
-  vendor: ["axios", "date-fns"],
-},
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("react-dom") || id.includes("/react/")) {
+              return "react-core";
+            }
+            if (id.includes("@tanstack/react-router")) return "router";
+            if (id.includes("@tanstack/react-query")) return "query";
+            if (id.includes("framer-motion")) return "motion";
+            if (id.includes("@react-google-maps")) return "maps";
+            if (
+              id.includes("react-hook-form") ||
+              id.includes("@hookform") ||
+              id.includes("/zod/")
+            ) {
+              return "forms";
+            }
+            if (
+              id.includes("i18next") ||
+              id.includes("react-i18next") ||
+              id.includes("i18next-browser-languagedetector")
+            ) {
+              return "i18n";
+            }
+            if (
+              id.includes("lucide-react") ||
+              id.includes("/clsx/") ||
+              id.includes("tailwind-merge")
+            ) {
+              return "ui-libs";
+            }
+            if (id.includes("react-hot-toast")) return "toast";
+            if (id.includes("/axios/") || id.includes("date-fns")) {
+              return "vendor";
+            }
+          }
+        },
         assetFileNames: (assetInfo) => {
           const name =
             assetInfo.names?.[0] ?? assetInfo.name ?? "asset";
