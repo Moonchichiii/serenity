@@ -5,7 +5,6 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
-// import { compression } from "vite-plugin-compression2";
 import { ViteImageOptimizer } from "vite-plugin-image-optimizer";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -21,11 +20,6 @@ export default defineConfig({
     }),
     react(),
     tailwindcss(),
-    // compression({
-    //   algorithms: ["gzip", "brotliCompress"],
-    //   threshold: 10_240,
-    //   include: /\.(js|css|html|svg|json|xml|txt)$/i,
-    // }),
     ViteImageOptimizer({
       png: { quality: 80 },
       jpeg: { quality: 80 },
@@ -42,23 +36,36 @@ export default defineConfig({
   build: {
     target: "es2022",
     cssCodeSplit: true,
-    sourcemap: false,
-    chunkSizeWarningLimit: 600,
+    sourcemap: "hidden",
+    chunkSizeWarningLimit: 500,
 
     rollupOptions: {
       output: {
         manualChunks: {
+          "react-core": ["react", "react-dom", "scheduler"],
           router: ["@tanstack/react-router"],
           query: ["@tanstack/react-query"],
           motion: ["framer-motion"],
           "ui-libs": ["lucide-react", "clsx", "tailwind-merge"],
+          i18n: [
+            "i18next",
+            "react-i18next",
+            "i18next-browser-languagedetector",
+          ],
+          forms: ["react-hook-form", "@hookform/resolvers", "zod"],
+          maps: ["@react-google-maps/api"],
+          toast: ["react-hot-toast"],
+          vendor: ["axios", "date-fns"],
         },
         assetFileNames: (assetInfo) => {
-          const name = assetInfo.names?.[0] ?? assetInfo.name ?? "asset";
+          const name =
+            assetInfo.names?.[0] ?? assetInfo.name ?? "asset";
           const ext = name.split(".").pop() ?? "";
+
           if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
             return "assets/images/[name]-[hash][extname]";
           }
+
           return "assets/[name]-[hash][extname]";
         },
       },

@@ -1,8 +1,16 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, Suspense } from "react";
 import { ModalContext } from "./ModalContext";
 import { SheetShell } from "./SheetShell";
 import { modalRegistry, modalMeta } from "./modalRegistry";
 import type { ModalId, ModalPayloadMap, ModalState } from "./modalTypes";
+
+function ModalFallback() {
+  return (
+    <div className="flex items-center justify-center p-12">
+      <div className="h-6 w-6 animate-spin rounded-full border-2 border-sage-300 border-t-sage-700" />
+    </div>
+  );
+}
 
 export function ModalProvider({ children }: { children: React.ReactNode }) {
   const [modalState, setModalState] = useState<ModalState>({
@@ -36,7 +44,9 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
     [modalState],
   );
 
-  const ActiveComponent = modalState.id ? modalRegistry[modalState.id] : null;
+  const ActiveComponent = modalState.id
+    ? modalRegistry[modalState.id]
+    : null;
   const meta = modalState.id ? modalMeta[modalState.id] : null;
 
   return (
@@ -49,7 +59,9 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
           modalId={modalState.id}
           className={meta?.className}
         >
-          <ActiveComponent />
+          <Suspense fallback={<ModalFallback />}>
+            <ActiveComponent />
+          </Suspense>
         </SheetShell>
       )}
     </ModalContext.Provider>

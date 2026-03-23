@@ -1,11 +1,21 @@
-import type { ComponentType } from "react";
+import { lazy, type ComponentType } from "react";
 import type { ModalId } from "./modalTypes";
 
-import ContactModalScreen from "@/components/screens/ContactModalScreen";
-import CorporateModalScreen from "@/components/screens/CorporateInquiryScreen";
-import GiftVoucherModalScreen from "@/components/screens/GiftVoucherModalScreen";
-import CMSLoginModalScreen from "@/components/screens/CMSLoginModalScreen";
-import LegalModalScreen from "@/components/screens/LegalModalScreen";
+const ContactModalScreen = lazy(
+  () => import("@/components/screens/ContactModalScreen"),
+);
+const CorporateModalScreen = lazy(
+  () => import("@/components/screens/CorporateInquiryScreen"),
+);
+const GiftVoucherModalScreen = lazy(
+  () => import("@/components/screens/GiftVoucherModalScreen"),
+);
+const CMSLoginModalScreen = lazy(
+  () => import("@/components/screens/CMSLoginModalScreen"),
+);
+const LegalModalScreen = lazy(
+  () => import("@/components/screens/LegalModalScreen"),
+);
 
 export const modalRegistry: Record<ModalId, ComponentType> = {
   contact: ContactModalScreen,

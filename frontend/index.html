@@ -8,16 +8,22 @@
     <meta name="theme-color" content="#F5EDE4" />
     <meta name="msapplication-TileColor" content="#F5EDE4" />
 
+    <!-- Preconnect: critical origins (above fold) -->
     <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
     <link rel="preconnect" href="https://serenity.fly.dev" crossorigin />
 
-    <!-- Fonts -->
+    <!-- DNS prefetch: lazy-loaded origins (below fold) -->
+    <link rel="dns-prefetch" href="https://maps.googleapis.com" />
+    <link rel="dns-prefetch" href="https://maps.gstatic.com" />
+
+    <!-- Fonts (self-hosted, LCP-critical) -->
     <link
       rel="preload"
       as="font"
       href="/fonts/DMSerifDisplay-Regular.woff2"
       type="font/woff2"
       crossorigin
+      fetchpriority="high"
     />
     <link
       rel="preload"
@@ -25,13 +31,28 @@
       href="/fonts/PlusJakartaSans-Regular.woff2"
       type="font/woff2"
       crossorigin
+      fetchpriority="high"
     />
 
     <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/favicon-16x16.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/apple-touch-icon.png"
+    />
     <link rel="manifest" href="/site.webmanifest" />
 
     <!-- SEO -->
@@ -45,18 +66,32 @@
 
     <!-- Alternate Languages -->
     <link rel="alternate" href="https://www.laserenity.fr/" hreflang="fr" />
-    <link rel="alternate" href="https://www.laserenity.fr/en/" hreflang="en" />
-    <link rel="alternate" href="https://www.laserenity.fr/" hreflang="x-default" />
+    <link
+      rel="alternate"
+      href="https://www.laserenity.fr/en/"
+      hreflang="en"
+    />
+    <link
+      rel="alternate"
+      href="https://www.laserenity.fr/"
+      hreflang="x-default"
+    />
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Serenity — Massages Thérapeutiques à Marseille" />
+    <meta
+      property="og:title"
+      content="Serenity — Massages Thérapeutiques à Marseille"
+    />
     <meta
       property="og:description"
       content="Californien, drainage lymphatique, massage prénatal et AMMA assis. Séances personnalisées."
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.laserenity.fr/" />
-    <meta property="og:image" content="https://www.laserenity.fr/og-image.jpg" />
+    <meta
+      property="og:image"
+      content="https://www.laserenity.fr/og-image.jpg"
+    />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:site_name" content="Serenity" />
@@ -87,9 +122,7 @@
           "@type": "City",
           "name": "Marseille"
         },
-        "sameAs": [
-          "https://www.instagram.com/laserenity_marseille"
-        ]
+        "sameAs": ["https://www.instagram.com/laserenity_marseille"]
       }
     </script>
   </head>
