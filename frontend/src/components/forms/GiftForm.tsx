@@ -21,7 +21,7 @@ import { useCMSServices } from "@/hooks/useCMS";
 import { isPastDate } from "@/lib/utils";
 import { normalizeHttpError } from "@/api/httpError";
 import type { CheckoutRequest } from "@/types/api/payments";
-
+import "react-calendar/dist/Calendar.css";
 interface GiftFormProps {
   settings?: GlobalSettings["gift"] | null;
   onSuccess?: () => void;
