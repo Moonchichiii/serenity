@@ -52,10 +52,10 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
     },
   });
 
-  const [, selectedServiceId, , currentAmount] = useWatch({
-    control,
-    name: ["selectedTime", "serviceId", "selectedDate", "amount"],
-  });
+  const [selectedTime, selectedServiceId, , currentAmount] = useWatch({
+  control,
+  name: ["selectedTime", "serviceId", "selectedDate", "amount"],
+});
 
   useEffect(() => {
     if (selectedServiceId) {
@@ -352,13 +352,20 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
                   <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
                     {availableTimes.map((time) => (
                       <button
-                        key={time}
-                        type="button"
-                        disabled={checkout.isPending}
-                        onClick={() => setValue("selectedTime", time)}
-                      >
-                        {time}
-                      </button>
+  key={time}
+  type="button"
+  disabled={checkout.isPending}
+  onClick={() => setValue("selectedTime", time)}
+  className={`rounded-lg px-3 py-2 text-sm font-medium transition-all
+    ${
+      selectedTime === time
+        ? "bg-sage-deep text-white shadow-md ring-2 ring-sage-400/30"
+        : "bg-sand-50 text-charcoal hover:bg-sage-100 border border-warm-grey-200/50"
+    }
+    disabled:opacity-50 disabled:cursor-not-allowed`}
+>
+  {time}
+</button>
                     ))}
                   </div>
                 )}
