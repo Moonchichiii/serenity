@@ -17,25 +17,25 @@ import { useCMSPage } from "@/hooks/useCMS";
 import { cn } from "@/lib/utils";
 import type { RenderableImage, WagtailHeroSlide } from "@/types/api";
 
-// ── Constants ────────────────────────────────────────────────────────
 const SLIDE_INTERVAL_MS = 5_000;
 
 const FADE_UP: Transition = {
   duration: 0.9,
   ease: [0.16, 1, 0.3, 1],
 };
+
 const FADE_UP_DELAY_1: Transition = {
   duration: 0.9,
   delay: 0.3,
   ease: [0.16, 1, 0.3, 1],
 };
+
 const FADE_UP_DELAY_2: Transition = {
   duration: 0.9,
   delay: 0.55,
   ease: [0.16, 1, 0.3, 1],
 };
 
-// ── Types ────────────────────────────────────────────────────────────
 type SupportedLang = "fr" | "en";
 
 interface NormalizedSlide extends Omit<WagtailHeroSlide, "image"> {
@@ -54,7 +54,6 @@ interface HeroContent {
   ctaCorporate: string;
 }
 
-// ── Utilities ────────────────────────────────────────────────────────
 function resolveLang(language: string): SupportedLang {
   return language.startsWith("fr") ? "fr" : "en";
 }
@@ -63,9 +62,7 @@ function pickLocalized<T>(lang: SupportedLang, fr: T, en: T): T {
   return lang === "fr" ? fr : en;
 }
 
-function nonEmpty(
-  value: string | null | undefined,
-): string | undefined {
+function nonEmpty(value: string | null | undefined): string | undefined {
   const trimmed = value?.trim();
   return trimmed?.length ? trimmed : undefined;
 }
@@ -73,19 +70,18 @@ function nonEmpty(
 function scrollToElement(id: string): void {
   const el = document.getElementById(id);
   if (!el) return;
+
   el.scrollIntoView({ behavior: "smooth", block: "start" });
+
   if (window.history?.pushState) {
     window.history.pushState(null, "", `#${id}`);
   }
 }
 
 function slideKey(slide: NormalizedSlide, index: number): string {
-  return slide.id != null
-    ? String(slide.id)
-    : `${slide.image.src}:${index}`;
+  return slide.id != null ? String(slide.id) : `${slide.image.src}:${index}`;
 }
 
-// ── Type guard ───────────────────────────────────────────────────────
 function hasRenderableImage(
   slide: WagtailHeroSlide,
 ): slide is Omit<WagtailHeroSlide, "image"> & {
@@ -98,13 +94,13 @@ function hasRenderableImage(
   );
 }
 
-// ── Hooks ────────────────────────────────────────────────────────────
-
 function useHeroSlides(): HeroSlidesResult {
   const cmsData = useCMSPage();
 
   return useMemo(() => {
-    if (!cmsData) return { slides: null, isCarousel: false };
+    if (!cmsData) {
+      return { slides: null, isCarousel: false };
+    }
 
     const fromSlides = (cmsData.hero_slides ?? []).filter(
       hasRenderableImage,
@@ -122,7 +118,11 @@ function useHeroSlides(): HeroSlidesResult {
         ...cmsData.hero_image,
         src: cmsData.hero_image.src,
       };
-      return { slides: [{ image: img }], isCarousel: false };
+
+      return {
+        slides: [{ image: img }],
+        isCarousel: false,
+      };
     }
 
     return { slides: null, isCarousel: false };
@@ -139,6 +139,7 @@ function useAutoAdvance(count: number): number {
 
     const start = () => {
       if (intervalId !== null) return;
+
       intervalId = window.setInterval(() => {
         setActive((prev) => (prev + 1) % count);
       }, SLIDE_INTERVAL_MS);
@@ -146,13 +147,17 @@ function useAutoAdvance(count: number): number {
 
     const stop = () => {
       if (intervalId === null) return;
+
       window.clearInterval(intervalId);
       intervalId = null;
     };
 
     const handleVisibility = () => {
-      if (document.hidden) stop();
-      else start();
+      if (document.hidden) {
+        stop();
+      } else {
+        start();
+      }
     };
 
     start();
@@ -160,10 +165,7 @@ function useAutoAdvance(count: number): number {
 
     return () => {
       stop();
-      document.removeEventListener(
-        "visibilitychange",
-        handleVisibility,
-      );
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, [count]);
 
@@ -189,11 +191,7 @@ function useHeroContent(
 
     const slideTitle = isCarousel
       ? nonEmpty(
-          pickLocalized(
-            lang,
-            activeSlide?.title_fr,
-            activeSlide?.title_en,
-          ),
+          pickLocalized(lang, activeSlide?.title_fr, activeSlide?.title_en),
         )
       : undefined;
 
@@ -210,6 +208,7 @@ function useHeroContent(
     const pageTitle = nonEmpty(
       pickLocalized(lang, pageTitleFr, pageTitleEn),
     );
+
     const pageSubtitle = nonEmpty(
       pickLocalized(lang, pageSubtitleFr, pageSubtitleEn),
     );
@@ -232,8 +231,6 @@ function useHeroContent(
     t,
   ]);
 }
-
-// ── Sub-components ───────────────────────────────────────────────────
 
 const SlideImage: FC<{
   slide: NormalizedSlide;
@@ -280,7 +277,6 @@ const BottomFade: FC = () => (
   <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-28 bg-linear-to-b from-transparent to-cream" />
 );
 
-// ── Main component ──────────────────────────────────────────────────
 export const Hero: FC = () => {
   const { open } = useModal();
   const { slides, isCarousel } = useHeroSlides();
@@ -300,7 +296,6 @@ export const Hero: FC = () => {
       id="home"
       className="hero-section relative flex min-h-screen items-end overflow-hidden pb-40 pt-24 md:items-center md:pb-0"
     >
-      {/* Background slideshow */}
       <div className="absolute inset-0 z-0">
         {slides ? (
           slides.map((slide, idx) => (
@@ -317,11 +312,10 @@ export const Hero: FC = () => {
         <Overlays />
       </div>
 
-      {/* Content */}
       <div className="container relative z-10 mx-auto flex h-full w-full max-w-275 flex-col items-start justify-end text-left md:justify-center">
         <motion.h1
-          initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={FADE_UP}
           className="hero-heading-mb text-editorial-xl max-w-3xl text-white"
         >
@@ -332,7 +326,7 @@ export const Hero: FC = () => {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={FADE_UP_DELAY_1}
-          className="hero-subtitle max-w-xl text-white/65 mb-4 md:mb-8"
+          className="hero-subtitle mb-4 max-w-xl text-white/80 md:mb-8"
         >
           {content.subtitle}
         </motion.p>
@@ -358,8 +352,7 @@ export const Hero: FC = () => {
             aria-label={content.ctaCorporate}
             className={cn(
               "hero-cta-text group inline-flex items-center gap-2",
-              "font-semibold tracking-wide",
-              "text-white/70 transition-colors duration-300",
+              "font-semibold tracking-wide text-white/80 transition-colors duration-300",
               "hover:text-white",
             )}
           >
