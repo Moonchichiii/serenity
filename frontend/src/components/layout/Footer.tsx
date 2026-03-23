@@ -73,14 +73,7 @@ const Footer: React.FC = () => {
              <div className="grid grid-cols-2 sm:grid-cols-3 gap-10 lg:gap-14">
               {/* Navigation */}
               <div>
-                <h3
-                  className="mb-5 font-semibold uppercase text-white/30"
-                  style={{
-                    fontSize: "var(--typo-overline)",
-                    lineHeight: "var(--leading-overline)",
-                    letterSpacing: "0.18em",
-                  }}
-                >
+                <h3 className="mb-5 font-semibold uppercase text-white/30 footer-overline">
                   {t("footer.navigation", {
                     defaultValue: "Navigation",
                   })}
@@ -146,11 +139,11 @@ const Footer: React.FC = () => {
             {/* Right — columns */}
             {/* Contact */}
             <div>
-              <h4
+              <h3
                 className="mb-5 font-semibold uppercase text-white/30 footer-heading"
               >
                 {t("footer.contactTitle")}
-              </h4>
+              </h3>
               <div className="space-y-2.5 font-light text-warm-grey-300">
                 <p className="footer-text">
                 {address}
@@ -175,18 +168,11 @@ const Footer: React.FC = () => {
               {/* Socials */}
               {/* Socials */}
 <div className="col-span-2 sm:col-span-1">
-  <h4
-    className="mb-5 font-semibold uppercase text-white/30"
-    style={{
-      fontSize: "var(--typo-overline)",
-      lineHeight: "var(--leading-overline)",
-      letterSpacing: "0.18em",
-    }}
-  >
+  <h3 className="mb-5 font-semibold uppercase text-white/30 footer-overline">
     {t("footer.socials", {
       defaultValue: "Socials",
     })}
-  </h4>
+  </h3>
   <div className="flex items-center gap-4">
     <AnimatedInstagramIcon
       size={52}
