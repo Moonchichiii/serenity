@@ -222,7 +222,7 @@ subtitle:
       contactTitle: "Contact",
       email: "Contact",
       hours: "Hours",
-      hoursValue: "Sat–Sun: 9:00–19:00",
+      hoursValue: "Week-end : 9:00-19:00",
       allRights: "All rights reserved.",
       designedBy: "Website by",
     },

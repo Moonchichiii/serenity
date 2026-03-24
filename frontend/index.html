@@ -28,10 +28,25 @@
     <link
       rel="preload"
       as="font"
-      href="/fonts/PlusJakartaSans-Regular.woff2"
+      href="/fonts/PlusJakartaSans-Variable.woff2"
       type="font/woff2"
       crossorigin
       fetchpriority="high"
+    />
+
+    <!-- Hero Image (LCP-critical) -->
+    <link
+      rel="preload"
+      as="image"
+      type="image/webp"
+      fetchpriority="high"
+      imagesrcset="
+        https://res.cloudinary.com/dbzlaawqt/image/upload/f_auto,q_auto:eco,w_320/original_images/hero-spa_1_abgk21_tcip3z 320w,
+        https://res.cloudinary.com/dbzlaawqt/image/upload/f_auto,q_auto:eco,w_640/original_images/hero-spa_1_abgk21_tcip3z 640w,
+        https://res.cloudinary.com/dbzlaawqt/image/upload/f_auto,q_auto:eco,w_1024/original_images/hero-spa_1_abgk21_tcip3z 1024w,
+        https://res.cloudinary.com/dbzlaawqt/image/upload/f_auto,q_auto:eco,w_1376/original_images/hero-spa_1_abgk21_tcip3z 1376w
+      "
+      imagesizes="100vw"
     />
 
     <!-- Favicons -->

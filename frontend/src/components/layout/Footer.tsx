@@ -16,12 +16,12 @@ const Footer: React.FC = () => {
   const brand = globals?.site?.brand?.trim() || "La Serenity";
   const contactEmail = globals?.site?.email?.trim() || t("footer.email");
   const address = globals?.site?.address_full?.trim() || t("footer.addressFull");
-  const hours = globals?.site?.business_hours?.trim() || t("footer.hoursValue");
+  const hours = t("footer.hoursValue");
   const instagram =
     globals?.site?.instagram_url?.trim() ||
     "https://www.instagram.com/laserenity_marseille/";
   const facebook =
-    globals?.site?.facebook_url?.trim() || "https://facebook.com/yourpage";
+    globals?.site?.facebook_url?.trim() || "https://facebook.com/laserenity_marseille";
 
   const handleNav =
     (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {

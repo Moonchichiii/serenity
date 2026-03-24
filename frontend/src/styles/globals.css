@@ -12,17 +12,9 @@
 @font-face {
   font-family: 'Plus Jakarta Sans';
   font-style: normal;
-  font-weight: 400;
+  font-weight: 200 800;
   font-display: swap;
-  src: url('/fonts/PlusJakartaSans-Regular.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Plus Jakarta Sans';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('/fonts/PlusJakartaSans-Medium.woff2') format('woff2');
+  src: url('/fonts/PlusJakartaSans-Variable.woff2') format('woff2');
 }
 
 @font-face {
@@ -33,7 +25,6 @@
   line-gap-override: 0%;
   size-adjust: 104%;
 }
-
 /* THEME */
 @theme {
   --font-heading: 'DM Serif Display', Georgia, serif;

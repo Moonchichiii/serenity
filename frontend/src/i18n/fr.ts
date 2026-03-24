@@ -220,7 +220,7 @@ subtitle:
       contactTitle: "Contact",
       email: "Contact",
       hours: "Horaires",
-      hoursValue: "Lun–Sam : 9:00–19:00",
+      hoursValue: "Sam–Dim : 9:00–19:00",
       allRights: "Tous droits réservés.",
       designedBy: "Site par",
     },
