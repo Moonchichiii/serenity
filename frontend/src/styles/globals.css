@@ -1,36 +1,52 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
-/* FONTS */
+/* ── FONTS ─────────────────────────────────────────────── */
+
+/* Sentient — headings (variable serif, weight 300–700) */
 @font-face {
-  font-family: 'DM Serif Display';
+  font-family: "Sentient";
   font-style: normal;
-  font-weight: 400;
+  font-weight: 300 700;
   font-display: swap;
-  src: url('/fonts/DMSerifDisplay-Regular.woff2') format('woff2');
+  src: url("/fonts/Sentient-Variable.woff2") format("woff2");
 }
 
+/* General Sans — body (variable sans, weight 200–700) */
 @font-face {
-  font-family: 'Plus Jakarta Sans';
+  font-family: "General Sans";
   font-style: normal;
-  font-weight: 200 800;
+  font-weight: 200 700;
   font-display: swap;
-  src: url('/fonts/PlusJakartaSans-Variable.woff2') format('woff2');
+  src: url("/fonts/GeneralSans-Variable.woff2") format("woff2");
 }
 
+/* ── SIZE-ADJUSTED FALLBACKS (CLS prevention) ─────────── */
+
+/* Fallback for Sentient → Georgia */
 @font-face {
-  font-family: 'Plus Jakarta Sans Fallback';
-  src: local('Arial');
-  ascent-override: 95%;
-  descent-override: 25%;
+  font-family: "Sentient Fallback";
+  src: local("Georgia");
+  ascent-override: 90%;
+  descent-override: 22%;
   line-gap-override: 0%;
-  size-adjust: 104%;
+  size-adjust: 105%;
 }
+
+/* Fallback for General Sans → Arial */
+@font-face {
+  font-family: "General Sans Fallback";
+  src: local("Arial");
+  ascent-override: 95%;
+  descent-override: 24%;
+  line-gap-override: 0%;
+  size-adjust: 103%;
+}
+
 /* THEME */
 @theme {
-  --font-heading: 'DM Serif Display', Georgia, serif;
-  --font-serif: 'DM Serif Display', Georgia, serif;
-  --font-sans: 'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', system-ui,
-    sans-serif;
+  --font-heading: "Sentient", "Sentient Fallback", Georgia, serif;
+  --font-serif: "Sentient", "Sentient Fallback", Georgia, serif;
+  --font-sans: "General Sans", "General Sans Fallback", system-ui, sans-serif;
 
   --typo-display: clamp(2rem, 1.5rem + 2.5vw, 3.5rem);
   --typo-h2: clamp(1.625rem, 1.3rem + 1.6vw, 2.75rem);
@@ -254,7 +270,7 @@
   @media (pointer: coarse) {
     a,
     button,
-    [role='button'],
+    [role="button"],
     input,
     select,
     textarea {
@@ -285,7 +301,7 @@
   contain-intrinsic-size: 1px 1000px;
 }
 
-input[type='date']::-webkit-calendar-picker-indicator {
+input[type="date"]::-webkit-calendar-picker-indicator {
   opacity: 0;
   position: absolute;
   inset: 0;
@@ -364,7 +380,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
   }
 
   .heading-accent::after {
-    content: '';
+    content: "";
     display: block;
     width: 3rem;
     height: 3px;
