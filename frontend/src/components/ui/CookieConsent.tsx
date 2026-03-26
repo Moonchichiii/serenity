@@ -1,93 +1,95 @@
-import { useEffect, useMemo, useState } from 'react'
-import { createPortal } from 'react-dom'
-import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/Button'
-import { useModal } from '@/components/modal/useModal'
+import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/Button";
+import { useModal } from "@/components/modal/useModal";
 import {
   getConsent,
   saveConsent,
   defaultConsent,
   CONSENT_VERSION,
   onCookieSettingsOpen,
-} from '@/components/ui/consent'
+} from "@/components/ui/consent";
 
-function afterIdle(cb: () => void, timeout = 2500): number {
-  if (typeof window.requestIdleCallback === 'function') {
-    return window.requestIdleCallback(cb, { timeout })
+function afterIdle(cb: () => void, timeout = 5000): number {
+  if (typeof window.requestIdleCallback === "function") {
+    return window.requestIdleCallback(cb, { timeout });
   }
-  return setTimeout(cb, timeout) as unknown as number
+  return setTimeout(cb, timeout) as unknown as number;
 }
 
 function cancelIdle(id: number) {
-  if (typeof window.cancelIdleCallback === 'function') {
-    window.cancelIdleCallback(id)
+  if (typeof window.cancelIdleCallback === "function") {
+    window.cancelIdleCallback(id);
   } else {
-    clearTimeout(id)
+    clearTimeout(id);
   }
 }
 
 export default function CookieConsent({
-  className = '',
+  className = "",
 }: {
-  className?: string
+  className?: string;
 }) {
-  const { t } = useTranslation()
-  const { open: openModal } = useModal()
+  const { t } = useTranslation();
+  const { open: openModal } = useModal();
 
-  const initial = useMemo(() => getConsent(), [])
-  const needsBanner = !initial
+  const initial = useMemo(() => getConsent(), []);
+  const needsBanner = !initial;
 
-  const [ready, setReady] = useState(false)
+  // ── Single visibility state (fixes ESLint set-state-in-effect) ──
+  const [visible, setVisible] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [media, setMedia] = useState(initial?.media ?? false);
+  const [analytics, setAnalytics] = useState(initial?.analytics ?? false);
 
+  // Delay banner appearance until after idle (5 s cap)
   useEffect(() => {
-    if (!needsBanner) return
+    if (!needsBanner) return;
 
-    const id = afterIdle(() => setReady(true), 2500)
-    return () => cancelIdle(id)
-  }, [needsBanner])
+    const id = afterIdle(() => setVisible(true), 5000);
+    return () => cancelIdle(id);
+  }, [needsBanner]);
 
-  const [isOpen, setIsOpen] = useState(false)
-  const [expanded, setExpanded] = useState(false)
-  const [media, setMedia] = useState(initial?.media ?? false)
-  const [analytics, setAnalytics] = useState(initial?.analytics ?? false)
-
-  useEffect(() => {
-    if (ready && needsBanner) setIsOpen(true)
-  }, [ready, needsBanner])
-
+  // Allow re-opening from footer "Cookie settings" link
   useEffect(() => {
     return onCookieSettingsOpen(() => {
-      const latest = getConsent()
-      setMedia(latest?.media ?? false)
-      setAnalytics(latest?.analytics ?? false)
-      setExpanded(true)
-      setIsOpen(true)
-    })
-  }, [])
+      const latest = getConsent();
+      setMedia(latest?.media ?? false);
+      setAnalytics(latest?.analytics ?? false);
+      setExpanded(true);
+      setVisible(true);
+    });
+  }, []);
 
-  if (!isOpen) return null
+  const close = () => setVisible(false);
+
+  if (!visible) return null;
 
   const ui = (
     <div
       className={[
-        'pointer-events-none fixed inset-x-0 bottom-4 z-[9998] flex justify-center px-4',
+        "pointer-events-none fixed inset-x-0 bottom-4 z-9998 flex justify-center px-4",
         className,
-      ].join(' ')}
+      ].join(" ")}
       aria-live="polite"
     >
       <div className="pointer-events-auto w-full max-w-2xl rounded-3xl border-2 border-sage-200 bg-white/95 shadow-elevated backdrop-blur-md">
         <div className="p-4 sm:p-5">
-          <p className="text-sm text-charcoal/90 sm:text-base">
-            {t('cookie.intro')}{' '}
-            <span className="font-medium">{t('cookie.mediaTitle')}</span>{' '}
-            {t('and', { defaultValue: 'and' })}{' '}
-            <span className="font-medium">{t('cookie.analyticsTitle')}</span>.
+          <p className="text-sm text-charcoal/90">
+            {t("cookie.intro")}{" "}
+            <span className="font-medium">{t("cookie.mediaTitle")}</span>{" "}
+            {t("and", { defaultValue: "and" })}{" "}
+            <span className="font-medium">
+              {t("cookie.analyticsTitle")}
+            </span>
+            .
             <button
               type="button"
-              onClick={() => openModal('legal', { page: 'privacy' })}
+              onClick={() => openModal("legal", { page: "privacy" })}
               className="warm-underline ml-1 rounded-sm font-medium text-charcoal hover:text-charcoal/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-400"
             >
-              {t('cookie.learnMore')}
+              {t("cookie.learnMore")}
             </button>
             .
           </p>
@@ -99,7 +101,9 @@ export default function CookieConsent({
               onClick={() => setExpanded((v) => !v)}
               aria-expanded={expanded}
             >
-              {expanded ? t('cookie.hideOptions') : t('cookie.customize')}
+              {expanded
+                ? t("cookie.hideOptions")
+                : t("cookie.customize")}
             </button>
 
             {expanded && (
@@ -114,10 +118,10 @@ export default function CookieConsent({
                   />
                   <div>
                     <div className="font-medium text-charcoal">
-                      {t('cookie.essentials')}
+                      {t("cookie.essentials")}
                     </div>
                     <div className="text-sm text-charcoal/90">
-                      {t('cookie.alwaysOn')}
+                      {t("cookie.alwaysOn")}
                     </div>
                   </div>
                 </label>
@@ -131,10 +135,10 @@ export default function CookieConsent({
                   />
                   <div>
                     <div className="font-medium text-charcoal">
-                      {t('cookie.mediaTitle')}
+                      {t("cookie.mediaTitle")}
                     </div>
                     <div className="text-sm text-charcoal/90">
-                      {t('cookie.mediaDesc')}
+                      {t("cookie.mediaDesc")}
                     </div>
                   </div>
                 </label>
@@ -144,14 +148,16 @@ export default function CookieConsent({
                     type="checkbox"
                     className="mt-1 accent-sage-500"
                     checked={analytics}
-                    onChange={(e) => setAnalytics(e.currentTarget.checked)}
+                    onChange={(e) =>
+                      setAnalytics(e.currentTarget.checked)
+                    }
                   />
                   <div>
                     <div className="font-medium text-charcoal">
-                      {t('cookie.analyticsTitle')}
+                      {t("cookie.analyticsTitle")}
                     </div>
                     <div className="text-sm text-charcoal/90">
-                      {t('cookie.analyticsDesc')}
+                      {t("cookie.analyticsDesc")}
                     </div>
                   </div>
                 </label>
@@ -168,11 +174,11 @@ export default function CookieConsent({
                   ...defaultConsent(),
                   media: false,
                   analytics: false,
-                })
-                setIsOpen(false)
+                });
+                close();
               }}
             >
-              {t('cookie.decline')}
+              {t("cookie.decline")}
             </Button>
 
             <Button
@@ -184,11 +190,11 @@ export default function CookieConsent({
                   media: true,
                   analytics: true,
                   ts: Date.now(),
-                })
-                setIsOpen(false)
+                });
+                close();
               }}
             >
-              {t('cookie.acceptAll')}
+              {t("cookie.acceptAll")}
             </Button>
 
             <Button
@@ -200,17 +206,17 @@ export default function CookieConsent({
                   media,
                   analytics,
                   ts: Date.now(),
-                })
-                setIsOpen(false)
+                });
+                close();
               }}
             >
-              {t('cookie.save')}
+              {t("cookie.save")}
             </Button>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 
-  return createPortal(ui, document.body)
+  return createPortal(ui, document.body);
 }

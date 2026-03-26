@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type FC,
 } from "react";
@@ -61,7 +62,9 @@ function scrollToElement(id: string): void {
 }
 
 function slideKey(slide: NormalizedSlide, index: number): string {
-  return slide.id != null ? String(slide.id) : `${slide.image.src}:${index}`;
+  return slide.id != null
+    ? String(slide.id)
+    : `${slide.image.src}:${index}`;
 }
 
 function hasRenderableImage(
@@ -147,7 +150,10 @@ function useAutoAdvance(count: number): number {
 
     return () => {
       stop();
-      document.removeEventListener("visibilitychange", handleVisibility);
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibility,
+      );
     };
   }, [count]);
 
@@ -168,7 +174,11 @@ function useHeroContent(
 
     const slideTitle = isCarousel
       ? nonEmpty(
-          pickLocalized(lang, activeSlide?.title_fr, activeSlide?.title_en),
+          pickLocalized(
+            lang,
+            activeSlide?.title_fr,
+            activeSlide?.title_en,
+          ),
         )
       : undefined;
 
@@ -183,7 +193,11 @@ function useHeroContent(
       : undefined;
 
     const pageTitle = nonEmpty(
-      pickLocalized(lang, cmsData?.hero_title_fr, cmsData?.hero_title_en),
+      pickLocalized(
+        lang,
+        cmsData?.hero_title_fr,
+        cmsData?.hero_title_en,
+      ),
     );
 
     const pageSubtitle = nonEmpty(
@@ -203,11 +217,36 @@ function useHeroContent(
   }, [slides, isCarousel, activeIndex, cmsData, lang, t]);
 }
 
+// ── Track which slide indices have been activated ──────────
+function useMountedSlides(active: number, count: number): Set<number> {
+  const mounted = useRef(new Set<number>([0]));
+
+  useEffect(() => {
+    if (count < 2) return;
+
+    // Mount active slide
+    mounted.current.add(active);
+
+    // Pre-mount next slide so its image can start loading
+    const next = (active + 1) % count;
+    mounted.current.add(next);
+  }, [active, count]);
+
+  // Return a new Set each render so downstream memo works
+  return useMemo(() => {
+    const s = new Set(mounted.current);
+    s.add(active);
+    if (count >= 2) s.add((active + 1) % count);
+    return s;
+  }, [active, count]);
+}
+
 const SlideImage: FC<{
   slide: NormalizedSlide;
   index: number;
   isActive: boolean;
-}> = ({ slide, index, isActive }) => (
+  shouldMount: boolean;
+}> = ({ slide, index, isActive, shouldMount }) => (
   <div
     className={cn(
       "hero-slide-fade absolute inset-0",
@@ -221,14 +260,16 @@ const SlideImage: FC<{
         isActive ? "scale-105" : "scale-100",
       )}
     >
-      <ResponsiveImage
-        image={slide.image}
-        alt=""
-        priority={index === 0}
-        className="h-full w-full object-cover"
-        sizes="100vw"
-        optimizeWidth={1280}
-      />
+      {shouldMount && (
+        <ResponsiveImage
+          image={slide.image}
+          alt=""
+          priority={index === 0}
+          className="h-full w-full object-cover"
+          sizes="100vw"
+          optimizeWidth={1280}
+        />
+      )}
     </div>
   </div>
 );
@@ -253,7 +294,9 @@ export const Hero: FC = () => {
   const { open } = useModal();
 
   const { slides, isCarousel } = useHeroSlides(cmsData);
-  const active = useAutoAdvance(slides?.length ?? 0);
+  const slideCount = slides?.length ?? 0;
+  const active = useAutoAdvance(slideCount);
+  const mountedSlides = useMountedSlides(active, slideCount);
   const content = useHeroContent(cmsData, slides, isCarousel, active);
 
   const handlePrivateClick = useCallback(() => {
@@ -277,6 +320,7 @@ export const Hero: FC = () => {
               slide={slide}
               index={idx}
               isActive={active === idx}
+              shouldMount={mountedSlides.has(idx)}
             />
           ))
         ) : (
