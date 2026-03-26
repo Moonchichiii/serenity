@@ -10,6 +10,11 @@ export function getOptimizedCloudinaryUrl(
     return url;
   }
 
+  // Skip URLs that already have Cloudinary transforms
+  if (/\/upload\/[a-z]_/.test(url)) {
+    return url;
+  }
+
   const q =
     quality === "good"
       ? "q_auto:good"

@@ -35,7 +35,10 @@ function buildResponsiveSrcSet(
         : [1280];
 
   return finalWidths
-    .map((width) => `${getOptimizedCloudinaryUrl(src, width)} ${width}w`)
+    .map(
+      (width) =>
+        `${getOptimizedCloudinaryUrl(src, width)} ${width}w`,
+    )
     .join(", ");
 }
 
@@ -44,12 +47,19 @@ function getFallbackWidth(
   originalWidth?: number,
 ): number {
   const requested = optimizeWidth ?? 1280;
-
-  if (!originalWidth) {
-    return requested;
-  }
-
+  if (!originalWidth) return requested;
   return Math.min(requested, originalWidth);
+}
+
+/**
+ * True when the backend already serialized this image with
+ * Cloudinary transforms (srcset + optimized src).
+ * In that case we must NOT re-transform the src.
+ */
+function isBackendOptimized(
+  image: ResponsiveImage,
+): boolean {
+  return Boolean(image.srcset && image.src?.includes("/upload/"));
 }
 
 export default function ResponsiveImage({
@@ -68,16 +78,26 @@ export default function ResponsiveImage({
   const resolvedAlt = alt ?? image.title ?? "";
   const resolvedSizes = sizes ?? image.sizes ?? "100vw";
 
+  // Backend provides srcset → use it. Otherwise build client-side.
+  const backendOwned = isBackendOptimized(image);
+
   const resolvedSrcSet =
     srcSet ??
     image.srcset ??
     buildResponsiveSrcSet(image.src, image.width ?? undefined);
 
-  const fallbackWidth = getFallbackWidth(optimizeWidth, image.width ?? undefined);
+  // If backend already optimized the src, use it as-is.
+  // Only apply frontend transforms for non-CMS images (local, etc.)
+  const resolvedSrc = backendOwned
+    ? image.src
+    : getOptimizedCloudinaryUrl(
+        image.src,
+        getFallbackWidth(optimizeWidth, image.width ?? undefined),
+      );
 
   return (
     <img
-      src={getOptimizedCloudinaryUrl(image.src, fallbackWidth)}
+      src={resolvedSrc}
       srcSet={resolvedSrcSet}
       sizes={resolvedSizes}
       width={image.width ?? undefined}

@@ -1,6 +1,5 @@
 """
-Note: Granular endpoints (services, globals) are DEPRECATED.
-All SPA initialization must use 'homepage/hydrated/'.
+CMS URL Configuration for Serenity Backend.
 """
 
 from django.urls import path

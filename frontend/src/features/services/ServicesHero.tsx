@@ -38,12 +38,8 @@ function splitTitleIntoLines(title: string, _lang: SupportedLang): string[] {
   const rest = words.slice(1);
 
   for (let i = 0; i < rest.length; ) {
-    const wordsPerLine =
-      i + 3 <= rest.length && rest.length - i === 3 ? 3 : 2;
-    const chunk = rest.slice(
-      i,
-      i + Math.min(wordsPerLine, rest.length - i),
-    );
+    const wordsPerLine = i + 3 <= rest.length && rest.length - i === 3 ? 3 : 2;
+    const chunk = rest.slice(i, i + Math.min(wordsPerLine, rest.length - i));
     lines.push(
       chunk.map((w, idx) => (idx === 0 ? capitalize(w) : w)).join(" "),
     );
@@ -90,8 +86,7 @@ function useHeroContent(): HeroContent | null {
       benefits,
       hasPrice: Boolean(priceLabel || price),
       hasCTA: Boolean(cta),
-      tagline:
-        lang === "fr" ? "Bien-être au travail" : "Corporate Wellness",
+      tagline: lang === "fr" ? "Bien-être au travail" : "Corporate Wellness",
     };
   }, [page, lang]);
 }
@@ -103,7 +98,7 @@ const ImageBackground: FC<{
     <ResponsiveImage
       image={image}
       alt=""
-      priority={true}
+      priority={false}
       className="absolute inset-0 h-full w-full object-cover object-center"
       sizes="100vw"
       optimizeWidth={1280}
@@ -114,10 +109,7 @@ const ImageBackground: FC<{
 
 const Overlays: FC = () => (
   <>
-    <div
-      className="absolute inset-0 bg-sage-deep/70"
-      aria-hidden="true"
-    />
+    <div className="absolute inset-0 bg-sage-deep/70" aria-hidden="true" />
     <div
       className="absolute inset-0 bg-gradient-to-t from-sage-deep/90 via-sage-deep/20 to-sage-deep/30"
       aria-hidden="true"
@@ -137,7 +129,7 @@ const CircleCTA: FC<{
     className="group flex h-28 w-28 items-center justify-center rounded-full bg-[#F7FB7D] text-center shadow-elevated transition-transform duration-200 ease-out hover:scale-105 hover:brightness-105 active:scale-95 sm:h-32 sm:w-32 lg:h-36 lg:w-36"
   >
     <span
-      className="font-bold uppercase tracking-wider text-sage-deep"
+      className="text-sage-deep font-bold uppercase tracking-wider"
       style={{
         fontSize: "var(--typo-overline)",
         lineHeight: "var(--leading-overline)",
@@ -164,7 +156,7 @@ const EditorialTitle: FC<{
           key={`${line}-${i}`}
           className={`block tracking-tight text-white ${
             i === 0
-              ? "font-serif italic font-light"
+              ? "font-serif font-light italic"
               : "font-serif font-semibold"
           }`}
           style={{
@@ -191,7 +183,7 @@ const BottomBar: FC<{
   <div className="grid w-full grid-cols-1 items-end gap-[var(--space-card-gap)] border-t border-white/15 pt-6 sm:grid-cols-[auto_1fr] lg:grid-cols-[200px_1fr_1fr]">
     <div className="flex flex-col gap-1">
       <span
-        className="font-bold uppercase tracking-widest text-terracotta-300"
+        className="text-terracotta-300 font-bold uppercase tracking-widest"
         style={{
           fontSize: "var(--typo-overline)",
           lineHeight: "var(--leading-overline)",
