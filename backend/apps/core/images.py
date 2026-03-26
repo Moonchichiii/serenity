@@ -47,9 +47,23 @@ def _cloudinary_public_id(img: Image) -> str | None:
         name = getattr(f, "name", None) if f else None
         if not name:
             return None
-        if name.startswith(("media/", "media\\", "/")):
+
+        name = str(name)
+
+        # Local filesystem files (not on Cloudinary)
+        if name.startswith(("/", "\\")):
             return None
-        return str(name)
+
+        # Check if the file URL is actually on Cloudinary
+        url = getattr(f, "url", None)
+        if url and "res.cloudinary.com" in url:
+            return name
+
+        # Non-Cloudinary media/ paths (local storage)
+        if name.startswith(("media/", "media\\")):
+            return None
+
+        return name
     except Exception:
         return None
 
