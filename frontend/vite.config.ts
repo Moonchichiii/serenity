@@ -72,14 +72,14 @@ export default defineConfig({
               return "ui-libs";
             }
             if (id.includes("react-hot-toast")) return "toast";
-            if (id.includes("/axios/") || id.includes("date-fns")) {
-              return "vendor";
-            }
+
+            // ── Split the old "vendor" monolith ──
+            if (id.includes("/axios/")) return "axios";
+            if (id.includes("date-fns")) return "date-fns";
           }
         },
         assetFileNames: (assetInfo) => {
-          const name =
-            assetInfo.names?.[0] ?? assetInfo.name ?? "asset";
+          const name = assetInfo.names?.[0] ?? assetInfo.name ?? "asset";
           const ext = name.split(".").pop() ?? "";
 
           if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {

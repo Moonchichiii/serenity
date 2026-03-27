@@ -2,7 +2,6 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type FC,
 } from "react";
@@ -219,26 +218,25 @@ function useHeroContent(
 
 // ── Track which slide indices have been activated ──────────
 function useMountedSlides(active: number, count: number): Set<number> {
-  const mounted = useRef(new Set<number>([0]));
+  const [mounted, setMounted] = useState<Set<number>>(() => {
+    const initial = new Set([0]);
+    if (count >= 2) initial.add(1);
+    return initial;
+  });
 
-  useEffect(() => {
-    if (count < 2) return;
-
-    // Mount active slide
-    mounted.current.add(active);
-
-    // Pre-mount next slide so its image can start loading
+  // Adjust state during render to accumulate mounted slides.
+  // This avoids `useEffect` and is the React-recommended way to derive state.
+  if (count >= 2) {
     const next = (active + 1) % count;
-    mounted.current.add(next);
-  }, [active, count]);
+    if (!mounted.has(active) || !mounted.has(next)) {
+      const nextMounted = new Set(mounted);
+      nextMounted.add(active);
+      nextMounted.add(next);
+      setMounted(nextMounted);
+    }
+  }
 
-  // Return a new Set each render so downstream memo works
-  return useMemo(() => {
-    const s = new Set(mounted.current);
-    s.add(active);
-    if (count >= 2) s.add((active + 1) % count);
-    return s;
-  }, [active, count]);
+  return mounted;
 }
 
 const SlideImage: FC<{
@@ -330,20 +328,29 @@ export const Hero: FC = () => {
       </div>
 
       <div className="container relative z-10 mx-auto flex h-full w-full max-w-275 flex-col items-start justify-end text-left md:justify-center">
-        <h1 className="hero-heading-mb max-w-3xl text-editorial-xl text-white">
+        {/* ── Heading: must remain largest contentful element ── */}
+        <h1 className="hero-heading-mb max-w-3xl text-editorial-lg text-white sm:text-editorial-xl">
           {content.title}
         </h1>
 
-        <p className="hero-subtitle mb-4 max-w-xl text-white/80 md:mb-8">
+        {/* ── Subtitle: smaller box on mobile so h1 stays LCP ── */}
+        <p className="hero-subtitle mb-4 max-w-sm text-sm/relaxed text-white/80 sm:max-w-xl sm:text-base/relaxed md:mb-8">
           {content.subtitle}
         </p>
 
-        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4">
+        {/* ── CTAs: full-width button on mobile, inline on sm+ ── */}
+        <div className="flex w-full flex-col items-start gap-2.5 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
           <Button
             size="lg"
             onClick={handlePrivateClick}
             aria-label={content.ctaPrivate}
-            className="hero-cta-text btn-primary h-12 rounded-full px-7 font-bold uppercase tracking-widest"
+            className={cn(
+              "hero-cta-text btn-primary rounded-full font-bold uppercase",
+              // Mobile: compact, full-width, centered text
+              "h-11 w-full px-5 text-xs tracking-wider",
+              // sm+: restore desktop sizing
+              "sm:h-12 sm:w-auto sm:px-7 sm:text-sm sm:tracking-widest",
+            )}
           >
             {content.ctaPrivate}
           </Button>
@@ -354,8 +361,9 @@ export const Hero: FC = () => {
             aria-label={content.ctaCorporate}
             className={cn(
               "hero-cta-text group inline-flex items-center gap-2",
-              "font-semibold tracking-wide text-white/80 transition-colors duration-300",
-              "hover:text-white",
+              "text-sm font-semibold tracking-wide text-white/80",
+              "transition-colors duration-300 hover:text-white",
+              "sm:text-base",
             )}
           >
             {content.ctaCorporate}

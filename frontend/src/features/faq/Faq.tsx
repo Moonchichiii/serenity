@@ -2,6 +2,8 @@ import {
   useMemo,
   useState,
   useCallback,
+  useEffect,
+  useRef,
   lazy,
   Suspense,
   type FC,
@@ -23,7 +25,7 @@ import { cn } from "@/lib/utils";
 const LocationMap = lazy(() =>
   import("@/components/ui/LocationMap").then((m) => ({
     default: m.LocationMap,
-  }))
+  })),
 );
 
 // ── Constants ────────────────────────────────────────────────────────
@@ -84,7 +86,7 @@ const AccordionItem: FC<{
   <div
     className={cn(
       "border-b border-warm-grey-200/50 transition-colors",
-      isOpen && "bg-white/30"
+      isOpen && "bg-white/30",
     )}
   >
     <button
@@ -111,7 +113,7 @@ const AccordionItem: FC<{
       <ChevronDown
         className={cn(
           "h-4 w-4 shrink-0 text-warm-grey-400 transition-transform duration-300",
-          isOpen && "rotate-180"
+          isOpen && "rotate-180",
         )}
       />
     </button>
@@ -124,7 +126,9 @@ const AccordionItem: FC<{
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: "auto", opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
-          transition={reduceMotion ? { duration: 0 } : EXPAND_TRANSITION}
+          transition={
+            reduceMotion ? { duration: 0 } : EXPAND_TRANSITION
+          }
           className="overflow-hidden"
         >
           <p
@@ -154,20 +158,21 @@ function useFaqContent() {
     if (!cmsData) return null;
 
     const data = cmsData as unknown as FaqCmsFields;
-    const pick = <T,>(fr: T, en: T): T => pickLocalized(lang, fr, en);
+    const pick = <T,>(fr: T, en: T): T =>
+      pickLocalized(lang, fr, en);
     const txt = (fr: unknown, en: unknown, fb: string): string =>
       cmsText(pick(fr, en) as string | undefined, fb);
 
     const title = txt(
       data.faq_title_fr,
       data.faq_title_en,
-      t("faq.title")
+      t("faq.title"),
     );
 
     const subtitle = txt(
       data.faq_subtitle_fr,
       data.faq_subtitle_en,
-      t("faq.subtitle")
+      t("faq.subtitle"),
     );
 
     const items: FaqItem[] = [];
@@ -182,10 +187,37 @@ function useFaqContent() {
     }
 
     const address =
-      globals?.site?.address_full?.trim() || t("footer.addressFull");
+      globals?.site?.address_full?.trim() ||
+      t("footer.addressFull");
 
     return { title, subtitle, items, address };
   }, [cmsData, globals, lang, t]);
+}
+
+// ── Hook: IntersectionObserver gate for map chunk ────────────────────
+function useMapInView() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "300px" },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return { ref, inView };
 }
 
 // ── Main component ──────────────────────────────────────────────────
@@ -194,10 +226,12 @@ export const Faq: FC = () => {
   const reduceMotion = useReducedMotion();
   const content = useFaqContent();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const { ref: mapGateRef, inView: mapInView } = useMapInView();
 
   const toggle = useCallback(
-    (i: number) => setOpenIndex((prev) => (prev === i ? null : i)),
-    []
+    (i: number) =>
+      setOpenIndex((prev) => (prev === i ? null : i)),
+    [],
   );
 
   if (!content) return null;
@@ -225,9 +259,11 @@ export const Faq: FC = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.1 }}
-          transition={reduceMotion ? undefined : FADE_TRANSITION}
+          transition={
+            reduceMotion ? undefined : FADE_TRANSITION
+          }
         >
-          {/* ─── Header ──────────────────────────────────────────── */}
+          {/* ─── Header ─────────────────────────────────────── */}
           <div
             className="max-w-2xl"
             style={{
@@ -240,7 +276,8 @@ export const Faq: FC = () => {
               style={{
                 fontSize: "var(--typo-h2)",
                 lineHeight: "var(--leading-h2)",
-                marginBottom: "var(--space-heading-to-paragraph)",
+                marginBottom:
+                  "var(--space-heading-to-paragraph)",
               }}
             >
               {content.title}
@@ -258,7 +295,7 @@ export const Faq: FC = () => {
             )}
           </div>
 
-          {/* ─── Two-column: FAQ + Location ──────────────────────── */}
+          {/* ─── Two-column: FAQ + Location ──────────────────── */}
           <div
             className="grid grid-cols-1 lg:grid-cols-5"
             style={{ gap: "var(--space-grid-gap)" }}
@@ -280,11 +317,18 @@ export const Faq: FC = () => {
             </div>
 
             {/* Location card — sticky on desktop */}
-            <div className="lg:col-span-2 lg:sticky lg:top-32 lg:h-max">
+            <div
+              ref={mapGateRef}
+              className="lg:col-span-2 lg:sticky lg:top-32 lg:h-max"
+            >
               <div className="overflow-hidden rounded-2xl border border-warm-grey-200/50 bg-tint-cream/40">
-                <Suspense fallback={<MapFallback />}>
-                  <LocationMap />
-                </Suspense>
+                {mapInView ? (
+                  <Suspense fallback={<MapFallback />}>
+                    <LocationMap />
+                  </Suspense>
+                ) : (
+                  <MapFallback />
+                )}
                 <div className="space-y-2 px-5 py-4">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-3.5 w-3.5 text-warm-grey-400" />
