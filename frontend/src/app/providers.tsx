@@ -1,14 +1,14 @@
-import { StrictMode } from 'react'
-import { QueryClientProvider } from '@tanstack/react-query'
-import { RouterProvider } from '@tanstack/react-router'
-import { Toaster } from 'react-hot-toast'
-import '@/i18n/config'
-import '@/styles/globals.css'
+import { StrictMode } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { RouterProvider } from "@tanstack/react-router";
+import "@/i18n/config";
+import "@/styles/globals.css";
 
-import { router } from './router'
-import { queryClient } from '../lib/queryClient'
-import { ModalProvider } from '@/components/modal'
-import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { router } from "./router";
+import { queryClient } from "../lib/queryClient";
+import { ModalProvider } from "@/components/modal";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { LazyToaster } from "@/components/ui/LazyToaster";
 
 export function AppProviders() {
   return (
@@ -19,27 +19,9 @@ export function AppProviders() {
             <RouterProvider router={router} />
           </ModalProvider>
 
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: '#f7f6f4',
-                color: '#2e2e2e',
-                borderRadius: '1rem',
-                boxShadow: '0 4px 20px rgba(46, 46, 46, 0.1)',
-                border: '2px solid #dce5df',
-              },
-              success: {
-                iconTheme: { primary: '#6d9177', secondary: '#f7f6f4' },
-              },
-              error: {
-                iconTheme: { primary: '#e86a47', secondary: '#f7f6f4' },
-              },
-            }}
-          />
+          <LazyToaster />
         </QueryClientProvider>
       </ErrorBoundary>
     </StrictMode>
-  )
+  );
 }

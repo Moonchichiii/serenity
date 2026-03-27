@@ -11,21 +11,6 @@ import {
   onCookieSettingsOpen,
 } from "@/components/ui/consent";
 
-function afterIdle(cb: () => void, timeout = 5000): number {
-  if (typeof window.requestIdleCallback === "function") {
-    return window.requestIdleCallback(cb, { timeout });
-  }
-  return setTimeout(cb, timeout) as unknown as number;
-}
-
-function cancelIdle(id: number) {
-  if (typeof window.cancelIdleCallback === "function") {
-    window.cancelIdleCallback(id);
-  } else {
-    clearTimeout(id);
-  }
-}
-
 export default function CookieConsent({
   className = "",
 }: {
@@ -37,21 +22,61 @@ export default function CookieConsent({
   const initial = useMemo(() => getConsent(), []);
   const needsBanner = !initial;
 
-  // ── Single visibility state (fixes ESLint set-state-in-effect) ──
   const [visible, setVisible] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [media, setMedia] = useState(initial?.media ?? false);
-  const [analytics, setAnalytics] = useState(initial?.analytics ?? false);
+  const [analytics, setAnalytics] = useState(
+    initial?.analytics ?? false,
+  );
 
-  // Delay banner appearance until after idle (5 s cap)
+  // ── Show banner after LCP window closes ──────────────────
+  // LCP observation stops at first user input. We wait for
+  // interaction + 500 ms. 10 s hard fallback for Lighthouse
+  // and passive visitors.
   useEffect(() => {
     if (!needsBanner) return;
 
-    const id = afterIdle(() => setVisible(true), 5000);
-    return () => cancelIdle(id);
+    let interactionTimer: ReturnType<typeof setTimeout>;
+
+    const show = () => {
+      cleanup();
+      setVisible(true);
+    };
+
+    const onFirstInput = () => {
+      events.forEach((e) =>
+        window.removeEventListener(e, onFirstInput),
+      );
+      clearTimeout(fallbackTimer);
+      interactionTimer = setTimeout(show, 500);
+    };
+
+    const events: Array<keyof WindowEventMap> = [
+      "pointerdown",
+      "scroll",
+      "keydown",
+    ];
+    events.forEach((e) =>
+      window.addEventListener(e, onFirstInput, {
+        once: true,
+        passive: true,
+      }),
+    );
+
+    const fallbackTimer = setTimeout(show, 10_000);
+
+    function cleanup() {
+      clearTimeout(interactionTimer);
+      clearTimeout(fallbackTimer);
+      events.forEach((e) =>
+        window.removeEventListener(e, onFirstInput),
+      );
+    }
+
+    return cleanup;
   }, [needsBanner]);
 
-  // Allow re-opening from footer "Cookie settings" link
+  // ── Re-open from footer "Cookie settings" link ──────────
   useEffect(() => {
     return onCookieSettingsOpen(() => {
       const latest = getConsent();
@@ -78,7 +103,9 @@ export default function CookieConsent({
         <div className="p-4 sm:p-5">
           <p className="text-sm text-charcoal/90">
             {t("cookie.intro")}{" "}
-            <span className="font-medium">{t("cookie.mediaTitle")}</span>{" "}
+            <span className="font-medium">
+              {t("cookie.mediaTitle")}
+            </span>{" "}
             {t("and", { defaultValue: "and" })}{" "}
             <span className="font-medium">
               {t("cookie.analyticsTitle")}
@@ -86,7 +113,9 @@ export default function CookieConsent({
             .
             <button
               type="button"
-              onClick={() => openModal("legal", { page: "privacy" })}
+              onClick={() =>
+                openModal("legal", { page: "privacy" })
+              }
               className="warm-underline ml-1 rounded-sm font-medium text-charcoal hover:text-charcoal/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-400"
             >
               {t("cookie.learnMore")}
@@ -131,7 +160,9 @@ export default function CookieConsent({
                     type="checkbox"
                     className="mt-1 accent-sage-500"
                     checked={media}
-                    onChange={(e) => setMedia(e.currentTarget.checked)}
+                    onChange={(e) =>
+                      setMedia(e.currentTarget.checked)
+                    }
                   />
                   <div>
                     <div className="font-medium text-charcoal">
