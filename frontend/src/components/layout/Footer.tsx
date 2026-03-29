@@ -13,13 +13,11 @@ const Footer: React.FC = () => {
   const globals = useCMSGlobals();
   const currentYear = new Date().getFullYear();
 
-  const brand =
-    globals?.site?.brand?.trim() || "La Serenity";
+  const brand = globals?.site?.brand?.trim() || "La Serenity";
   const contactEmail =
     globals?.site?.email?.trim() || t("footer.email");
   const address =
-    globals?.site?.address_full?.trim() ||
-    t("footer.addressFull");
+    globals?.site?.address_full?.trim() || t("footer.addressFull");
   const hours = t("footer.hoursValue");
   const instagram =
     globals?.site?.instagram_url?.trim() ||
@@ -29,8 +27,7 @@ const Footer: React.FC = () => {
     "https://facebook.com/laserenity_marseille";
 
   const handleNav =
-    (href: string) =>
-    (e: React.MouseEvent<HTMLAnchorElement>) => {
+    (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
       if (
         e.metaKey ||
         e.ctrlKey ||
@@ -55,8 +52,7 @@ const Footer: React.FC = () => {
       }
     };
 
-  const headingClass =
-    "mb-4 font-semibold uppercase text-white/30";
+  const headingClass = "mb-4 font-semibold uppercase text-white/50";
   const linkClass =
     "font-light text-warm-grey-300 transition-colors duration-200 hover:text-white";
   const smallTextStyle = {
@@ -109,10 +105,7 @@ const Footer: React.FC = () => {
               <div className="grid grid-cols-1 gap-10 min-[400px]:grid-cols-2 sm:grid-cols-3 lg:gap-14">
                 {/* ── Navigation ── */}
                 <div>
-                  <h3
-                    className={headingClass}
-                    style={overlineStyle}
-                  >
+                  <h3 className={headingClass} style={overlineStyle}>
                     {t("footer.navigation", {
                       defaultValue: "Navigation",
                     })}
@@ -164,10 +157,7 @@ const Footer: React.FC = () => {
 
                 {/* ── Contact ── */}
                 <div>
-                  <h3
-                    className={headingClass}
-                    style={overlineStyle}
-                  >
+                  <h3 className={headingClass} style={overlineStyle}>
                     {t("footer.contactTitle")}
                   </h3>
 
@@ -195,10 +185,7 @@ const Footer: React.FC = () => {
 
                 {/* ── Socials ── */}
                 <div className="min-[400px]:col-span-2 sm:col-span-1">
-                  <h3
-                    className={headingClass}
-                    style={overlineStyle}
-                  >
+                  <h3 className={headingClass} style={overlineStyle}>
                     {t("footer.socials", {
                       defaultValue: "Socials",
                     })}
@@ -209,10 +196,7 @@ const Footer: React.FC = () => {
                       size={44}
                       href={instagram}
                     />
-                    <AnimatedFacebookIcon
-                      size={44}
-                      href={facebook}
-                    />
+                    <AnimatedFacebookIcon size={44} href={facebook} />
                   </div>
                 </div>
               </div>
@@ -222,6 +206,7 @@ const Footer: React.FC = () => {
           {/* ── Brand watermark ── */}
           <div
             className="pointer-events-none w-full select-none overflow-hidden"
+            role="presentation"
             aria-hidden="true"
           >
             <p className="font-serif whitespace-nowrap text-center tracking-tight text-white/[0.06] leading-[0.82] text-[18vw] md:text-[15vw] lg:text-[12vw]">
@@ -231,7 +216,7 @@ const Footer: React.FC = () => {
 
           {/* ── Bottom bar ── */}
           <div
-            className="relative flex flex-col gap-4 border-t border-white/[0.06] py-6 uppercase text-warm-grey-500 sm:flex-row sm:items-center sm:justify-between"
+            className="relative flex flex-col gap-4 border-t border-white/[0.06] py-6 uppercase text-warm-grey-400 sm:flex-row sm:items-center sm:justify-between"
             style={{
               fontSize: "var(--typo-overline)",
               lineHeight: "var(--leading-overline)",
@@ -239,17 +224,14 @@ const Footer: React.FC = () => {
             }}
           >
             <p className="shrink-0">
-              © {currentYear} {brand}.{" "}
-              {t("footer.allRights")}
+              © {currentYear} {brand}. {t("footer.allRights")}
             </p>
 
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <button
                 type="button"
-                onClick={() =>
-                  open("legal", { page: "privacy" })
-                }
-                className="cursor-pointer transition-colors duration-200 hover:text-warm-grey-300"
+                onClick={() => open("legal", { page: "privacy" })}
+                className="cursor-pointer transition-colors duration-200 hover:text-white"
               >
                 {t("footer.privacy")}
               </button>
@@ -263,22 +245,20 @@ const Footer: React.FC = () => {
 
               <button
                 type="button"
-                onClick={() =>
-                  open("legal", { page: "legal" })
-                }
-                className="cursor-pointer transition-colors duration-200 hover:text-warm-grey-300"
+                onClick={() => open("legal", { page: "legal" })}
+                className="cursor-pointer transition-colors duration-200 hover:text-white"
               >
                 {t("footer.legalNotice")}
               </button>
             </div>
 
-            <span className="flex items-center gap-1.5 shrink-0">
+            <span className="flex shrink-0 items-center gap-1.5 text-warm-grey-400">
               {t("footer.designedBy")}
               <a
                 href="https://www.nordiccodeworks.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sage-200 transition-colors duration-200 hover:text-terracotta-300"
+                className="text-sage-300 transition-colors duration-200 hover:text-terracotta-300"
               >
                 Nordic Code Works
               </a>
