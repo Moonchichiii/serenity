@@ -13,19 +13,31 @@ const Footer: React.FC = () => {
   const globals = useCMSGlobals();
   const currentYear = new Date().getFullYear();
 
-  const brand = globals?.site?.brand?.trim() || "La Serenity";
-  const contactEmail = globals?.site?.email?.trim() || t("footer.email");
-  const address = globals?.site?.address_full?.trim() || t("footer.addressFull");
+  const brand =
+    globals?.site?.brand?.trim() || "La Serenity";
+  const contactEmail =
+    globals?.site?.email?.trim() || t("footer.email");
+  const address =
+    globals?.site?.address_full?.trim() ||
+    t("footer.addressFull");
   const hours = t("footer.hoursValue");
   const instagram =
     globals?.site?.instagram_url?.trim() ||
     "https://www.instagram.com/laserenity_marseille/";
   const facebook =
-    globals?.site?.facebook_url?.trim() || "https://facebook.com/laserenity_marseille";
+    globals?.site?.facebook_url?.trim() ||
+    "https://facebook.com/laserenity_marseille";
 
   const handleNav =
-    (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) {
+    (href: string) =>
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      if (
+        e.metaKey ||
+        e.ctrlKey ||
+        e.shiftKey ||
+        e.altKey ||
+        e.button !== 0
+      ) {
         return;
       }
 
@@ -35,12 +47,16 @@ const Footer: React.FC = () => {
       const el = document.getElementById(id);
 
       if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        el.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
         window.history.pushState(null, "", href);
       }
     };
 
-  const headingClass = "mb-5 font-semibold uppercase text-white/30";
+  const headingClass =
+    "mb-4 font-semibold uppercase text-white/30";
   const linkClass =
     "font-light text-warm-grey-300 transition-colors duration-200 hover:text-white";
   const smallTextStyle = {
@@ -54,9 +70,15 @@ const Footer: React.FC = () => {
   } as const;
 
   return (
-    <footer id="site-footer" className="relative mt-0 contain-content">
+    <footer
+      id="site-footer"
+      className="relative mt-0 contain-content"
+    >
       <div className="relative overflow-hidden bg-sage-deep text-white">
-        <div className="noise-texture-subtle opacity-[0.05]" aria-hidden="true" />
+        <div
+          className="noise-texture-subtle opacity-[0.05]"
+          aria-hidden="true"
+        />
 
         <div
           className="relative z-10 container mx-auto"
@@ -65,13 +87,15 @@ const Footer: React.FC = () => {
             paddingRight: "var(--space-container-x)",
           }}
         >
+          {/* ── Main content ── */}
           <div
             style={{
               paddingTop: "var(--space-section-y)",
               paddingBottom: "var(--space-title-to-content)",
             }}
           >
-            <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,22rem)_1fr] lg:gap-24">
+            <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,22rem)_1fr] lg:gap-24">
+              {/* ── Tagline ── */}
               <div className="max-w-sm">
                 <p
                   className="font-light text-warm-grey-300"
@@ -81,9 +105,14 @@ const Footer: React.FC = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-10 sm:grid-cols-3 lg:gap-14">
+              {/* ── Link columns ── */}
+              <div className="grid grid-cols-1 gap-10 min-[400px]:grid-cols-2 sm:grid-cols-3 lg:gap-14">
+                {/* ── Navigation ── */}
                 <div>
-                  <h3 className={headingClass} style={overlineStyle}>
+                  <h3
+                    className={headingClass}
+                    style={overlineStyle}
+                  >
                     {t("footer.navigation", {
                       defaultValue: "Navigation",
                     })}
@@ -133,8 +162,12 @@ const Footer: React.FC = () => {
                   </ul>
                 </div>
 
+                {/* ── Contact ── */}
                 <div>
-                  <h3 className={headingClass} style={overlineStyle}>
+                  <h3
+                    className={headingClass}
+                    style={overlineStyle}
+                  >
                     {t("footer.contactTitle")}
                   </h3>
 
@@ -160,72 +193,96 @@ const Footer: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="col-span-2 sm:col-span-1">
-                  <h3 className={headingClass} style={overlineStyle}>
+                {/* ── Socials ── */}
+                <div className="min-[400px]:col-span-2 sm:col-span-1">
+                  <h3
+                    className={headingClass}
+                    style={overlineStyle}
+                  >
                     {t("footer.socials", {
                       defaultValue: "Socials",
                     })}
                   </h3>
 
-                  <div className="flex items-center gap-4">
-                    <AnimatedInstagramIcon size={52} href={instagram} />
-                    <AnimatedFacebookIcon size={52} href={facebook} />
+                  <div className="flex items-center gap-3">
+                    <AnimatedInstagramIcon
+                      size={44}
+                      href={instagram}
+                    />
+                    <AnimatedFacebookIcon
+                      size={44}
+                      href={facebook}
+                    />
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
+          {/* ── Brand watermark ── */}
           <div
-            className="pointer-events-none w-full select-none overflow-hidden -mb-[1vw]"
+            className="pointer-events-none w-full select-none overflow-hidden"
             aria-hidden="true"
           >
-            <p className="font-serif whitespace-nowrap text-center tracking-tight text-white/15 leading-[0.82] text-[18vw] md:text-[15vw] lg:text-[12vw]">
+            <p className="font-serif whitespace-nowrap text-center tracking-tight text-white/[0.06] leading-[0.82] text-[18vw] md:text-[15vw] lg:text-[12vw]">
               {brand}
             </p>
           </div>
 
+          {/* ── Bottom bar ── */}
           <div
-            className="relative mt-4 flex flex-col items-start justify-between gap-3 border-t border-white/6 py-6 uppercase text-warm-grey-500 md:flex-row md:items-center"
+            className="relative flex flex-col gap-4 border-t border-white/[0.06] py-6 uppercase text-warm-grey-500 sm:flex-row sm:items-center sm:justify-between"
             style={{
               fontSize: "var(--typo-overline)",
               lineHeight: "var(--leading-overline)",
               letterSpacing: "0.12em",
             }}
           >
-            <p>
-              © {currentYear} {brand}. {t("footer.allRights")}
+            <p className="shrink-0">
+              © {currentYear} {brand}.{" "}
+              {t("footer.allRights")}
             </p>
 
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-5">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <button
                 type="button"
-                onClick={() => open("legal", { page: "privacy" })}
+                onClick={() =>
+                  open("legal", { page: "privacy" })
+                }
                 className="cursor-pointer transition-colors duration-200 hover:text-warm-grey-300"
               >
                 {t("footer.privacy")}
               </button>
 
+              <span
+                className="hidden text-white/10 sm:inline"
+                aria-hidden="true"
+              >
+                |
+              </span>
+
               <button
                 type="button"
-                onClick={() => open("legal", { page: "legal" })}
+                onClick={() =>
+                  open("legal", { page: "legal" })
+                }
                 className="cursor-pointer transition-colors duration-200 hover:text-warm-grey-300"
               >
                 {t("footer.legalNotice")}
               </button>
-
-              <span className="flex items-center gap-1.5">
-                {t("footer.designedBy")}
-                <a
-                  href="https://www.nordiccodeworks.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sage-200 transition-colors duration-200 hover:text-terracotta-300"
-                >
-                  Nordic Code Works
-                </a>
-              </span>
             </div>
+
+            <span className="flex items-center gap-1.5 shrink-0">
+              {t("footer.designedBy")}
+              <a
+                href="https://www.nordiccodeworks.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sage-200 transition-colors duration-200 hover:text-terracotta-300"
+              >
+                Nordic Code Works
+              </a>
+            </span>
           </div>
         </div>
       </div>
