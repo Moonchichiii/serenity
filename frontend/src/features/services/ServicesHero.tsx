@@ -126,10 +126,17 @@ const CircleCTA: FC<{
     type="button"
     onClick={onClick}
     aria-label={label}
-    className="group flex h-28 w-28 flex-col items-center justify-center gap-1 rounded-full bg-[#F7FB7D] text-center shadow-elevated transition-transform duration-200 ease-out hover:scale-105 hover:brightness-105 active:scale-95 sm:h-32 sm:w-32 lg:h-36 lg:w-36"
+    className="group relative flex h-28 w-28 flex-col items-center justify-center gap-1 rounded-full bg-[#F7FB7D] text-center shadow-elevated transition-transform duration-200 ease-out hover:scale-105 hover:brightness-105 active:scale-95 sm:h-32 sm:w-32 lg:h-36 lg:w-36"
   >
+    {/* Rotating orbit rings */}
+    <span className="cta-orbit-ring" aria-hidden="true" />
     <span
-      className="px-2 font-bold uppercase tracking-wider text-sage-deep"
+      className="cta-orbit-ring cta-orbit-ring--outer"
+      aria-hidden="true"
+    />
+
+    <span
+      className="relative z-10 px-2 font-bold uppercase tracking-wider text-sage-deep"
       style={{
         fontSize: "var(--typo-overline)",
         lineHeight: "var(--leading-overline)",
@@ -138,7 +145,7 @@ const CircleCTA: FC<{
       {toSentenceCase(label)}
     </span>
     <svg
-      className="h-4 w-4 text-sage-deep transition-transform duration-300 ease-out group-hover:translate-x-1"
+      className="relative z-10 h-4 w-4 text-sage-deep transition-transform duration-300 ease-out group-hover:translate-x-1"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
