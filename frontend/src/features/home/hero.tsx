@@ -334,7 +334,7 @@ export const Hero: FC = () => {
         </h1>
 
         {/* ── Subtitle: smaller box on mobile so h1 stays LCP ── */}
-        <p className="hero-subtitle mb-4 max-w-sm text-sm/relaxed text-white/80 sm:max-w-xl sm:text-base/relaxed md:mb-8">
+        <p className="hero-subtitle mb-4 max-w-xs text-sm/relaxed text-white/80 line-clamp-2 sm:line-clamp-none sm:max-w-xl sm:text-base/relaxed md:mb-8">
           {content.subtitle}
         </p>
 

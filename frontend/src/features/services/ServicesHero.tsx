@@ -126,10 +126,10 @@ const CircleCTA: FC<{
     type="button"
     onClick={onClick}
     aria-label={label}
-    className="group flex h-28 w-28 items-center justify-center rounded-full bg-[#F7FB7D] text-center shadow-elevated transition-transform duration-200 ease-out hover:scale-105 hover:brightness-105 active:scale-95 sm:h-32 sm:w-32 lg:h-36 lg:w-36"
+    className="group flex h-28 w-28 flex-col items-center justify-center gap-1 rounded-full bg-[#F7FB7D] text-center shadow-elevated transition-transform duration-200 ease-out hover:scale-105 hover:brightness-105 active:scale-95 sm:h-32 sm:w-32 lg:h-36 lg:w-36"
   >
     <span
-      className="text-sage-deep font-bold uppercase tracking-wider"
+      className="px-2 font-bold uppercase tracking-wider text-sage-deep"
       style={{
         fontSize: "var(--typo-overline)",
         lineHeight: "var(--leading-overline)",
@@ -137,6 +137,20 @@ const CircleCTA: FC<{
     >
       {toSentenceCase(label)}
     </span>
+    <svg
+      className="h-4 w-4 text-sage-deep transition-transform duration-300 ease-out group-hover:translate-x-1"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2.5}
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M14 5l7 7m0 0l-7 7m7-7H3"
+      />
+    </svg>
   </button>
 );
 

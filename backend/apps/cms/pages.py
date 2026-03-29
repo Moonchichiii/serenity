@@ -48,7 +48,7 @@ class HeroSlide(Orderable):
     ]
 
     class Meta:
-        ordering = ["sort_order"]
+        ordering = ("sort_order",)
 
     def __str__(self) -> str:
         return self.title_en or self.title_fr or f"Slide {self.pk}"

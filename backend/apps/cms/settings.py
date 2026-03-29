@@ -136,7 +136,6 @@ class GiftSettings(BaseSiteSetting):
         related_name="+",
         help_text=(
             "The small floating button icon (e.g. gift box, heart). "
-            "Best size: around 150×150 px WebP/PNG."
         ),
     )
 
