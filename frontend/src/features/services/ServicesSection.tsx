@@ -11,7 +11,7 @@ import {
   AnimatePresence,
   useReducedMotion,
 } from "framer-motion";
-import { ArrowLeft, ArrowRight, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronRight, X } from "lucide-react";
 
 import { ServicesHero } from "./ServicesHero";
 import { useCMSServices } from "@/hooks/useCMS";
@@ -59,13 +59,12 @@ function resolveLang(language: string): SupportedLang {
 
 function resolveServices(
   raw: ServiceItem[],
-  lang: SupportedLang
+  lang: SupportedLang,
 ): ResolvedService[] {
   return raw.map((s) => ({
     id: s.id,
     title: getLocalizedText(s, "title", lang) || "Service",
-    description:
-      getLocalizedText(s, "description", lang) || "",
+    description: getLocalizedText(s, "description", lang) || "",
     durationMinutes: s.duration_minutes,
     price: s.price,
     image: s.image ?? null,
@@ -77,9 +76,7 @@ function accentFirstWord(text: string): ReactNode {
 
   if (words.length <= 1) {
     return (
-      <span className="font-serif italic font-light">
-        {text}
-      </span>
+      <span className="font-serif italic font-light">{text}</span>
     );
   }
 
@@ -89,12 +86,12 @@ function accentFirstWord(text: string): ReactNode {
 
   return (
     <>
-      <span className="font-serif italic font-light mr-2">
+      <span className="mr-2 font-serif italic font-light">
         {first}
       </span>
       {second && (
         <span
-          className="font-bold mr-2"
+          className="mr-2 font-bold"
           style={{ color: "var(--color-honey-300)" }}
         >
           {second}
@@ -189,11 +186,33 @@ const MobileListItem: FC<{
   <button
     type="button"
     onClick={onClick}
-    className="group flex w-full flex-col gap-2 border-b border-white/10 py-6 text-left transition-colors hover:border-sage-600 active:bg-white/5"
+    className="group flex w-full items-center gap-4 rounded-2xl bg-white/[0.04] px-4 py-4 text-left transition-all duration-200 active:scale-[0.98] active:bg-white/[0.08]"
   >
-    <div className="flex w-full items-baseline justify-between gap-4">
+    {/* ── Thumbnail ── */}
+    {service.image ? (
+      <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-sage-800">
+        <ResponsiveImage
+          image={service.image}
+          alt={service.title}
+          className="h-full w-full object-cover"
+          optimizeWidth={128}
+        />
+      </div>
+    ) : (
+      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-sage-800/60">
+        <span
+          className="font-serif text-sage-400"
+          style={{ fontSize: "var(--typo-h4)" }}
+        >
+          ✦
+        </span>
+      </div>
+    )}
+
+    {/* ── Text content ── */}
+    <div className="flex min-w-0 flex-1 flex-col gap-1.5">
       <h3
-        className="font-serif tracking-tight text-porcelain transition-colors group-hover:text-white"
+        className="truncate font-serif tracking-tight text-porcelain"
         style={{
           fontSize: "var(--typo-h4)",
           lineHeight: "var(--leading-h4)",
@@ -201,25 +220,36 @@ const MobileListItem: FC<{
       >
         {service.title}
       </h3>
-      <span
-        className="shrink-0 font-medium tracking-widest text-terracotta-300"
-        style={{
-          fontSize: "var(--typo-small)",
-          lineHeight: "var(--leading-small)",
-        }}
-      >
-        {formatPrice(service.price)}
-      </span>
+      <div className="flex items-center gap-3">
+        <span
+          className="font-semibold uppercase tracking-[0.15em] text-sage-300"
+          style={{
+            fontSize: "var(--typo-overline)",
+            lineHeight: "var(--leading-overline)",
+          }}
+        >
+          {service.durationMinutes} Min
+        </span>
+        <span className="text-sage-500" aria-hidden="true">
+          ·
+        </span>
+        <span
+          className="font-medium tracking-widest text-terracotta-300"
+          style={{
+            fontSize: "var(--typo-overline)",
+            lineHeight: "var(--leading-overline)",
+          }}
+        >
+          {formatPrice(service.price)}
+        </span>
+      </div>
     </div>
-    <span
-      className="font-semibold uppercase tracking-[0.15em] text-sage-200"
-      style={{
-        fontSize: "var(--typo-overline)",
-        lineHeight: "var(--leading-overline)",
-      }}
-    >
-      {service.durationMinutes} Min
-    </span>
+
+    {/* ── Chevron ── */}
+    <ChevronRight
+      className="h-5 w-5 shrink-0 text-sage-500 transition-transform duration-200 group-active:translate-x-0.5"
+      aria-hidden="true"
+    />
   </button>
 );
 
@@ -332,12 +362,10 @@ const DesktopGrid: FC<{ services: ResolvedService[] }> = ({
   services,
 }) => {
   const [page, setPage] = useState(0);
-  const totalPages = Math.ceil(
-    services.length / DESKTOP_PAGE_SIZE
-  );
+  const totalPages = Math.ceil(services.length / DESKTOP_PAGE_SIZE);
   const visible = services.slice(
     page * DESKTOP_PAGE_SIZE,
-    page * DESKTOP_PAGE_SIZE + DESKTOP_PAGE_SIZE
+    page * DESKTOP_PAGE_SIZE + DESKTOP_PAGE_SIZE,
   );
 
   const canPrev = page > 0;
@@ -355,9 +383,7 @@ const DesktopGrid: FC<{ services: ResolvedService[] }> = ({
         <div className="mt-20 flex items-center justify-center gap-6">
           <button
             type="button"
-            onClick={() =>
-              setPage((p) => Math.max(0, p - 1))
-            }
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={!canPrev}
             aria-label="Previous services"
             className="group flex h-14 w-14 items-center justify-center rounded-full border border-sage-700 text-porcelain transition-all duration-300 hover:border-terracotta-300 hover:text-terracotta-300 disabled:opacity-20 disabled:hover:border-sage-700 disabled:hover:text-porcelain"
@@ -367,9 +393,7 @@ const DesktopGrid: FC<{ services: ResolvedService[] }> = ({
           <button
             type="button"
             onClick={() =>
-              setPage((p) =>
-                Math.min(totalPages - 1, p + 1)
-              )
+              setPage((p) => Math.min(totalPages - 1, p + 1))
             }
             disabled={!canNext}
             aria-label="Next services"
@@ -407,15 +431,12 @@ export const Services: FC = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={
-              reduceMotion
-                ? { duration: 0 }
-                : { duration: 0.8 }
+              reduceMotion ? { duration: 0 } : { duration: 0.8 }
             }
             className="flex flex-col items-start gap-8 border-b border-white/10 md:flex-row md:items-end md:justify-between"
             style={{
               marginBottom: "var(--space-grid-gap)",
-              paddingBottom:
-                "var(--space-title-to-content)",
+              paddingBottom: "var(--space-title-to-content)",
             }}
           >
             <div className="max-w-2xl">
@@ -436,9 +457,8 @@ export const Services: FC = () => {
               >
                 {accentFirstWord(
                   t("services.title", {
-                    defaultValue:
-                      "Nos soins signatures",
-                  })
+                    defaultValue: "Nos soins signatures",
+                  }),
                 )}
               </h2>
             </div>
@@ -468,27 +488,12 @@ export const Services: FC = () => {
             </div>
           ) : (
             <>
-              <p
-                className="mb-2 text-sage-200 md:hidden"
-                style={{
-                  fontSize: "var(--typo-caption)",
-                  lineHeight: "var(--leading-caption)",
-                }}
-              >
-                {t("services.mobileHint", {
-                  defaultValue:
-                    "Tap a service to view details.",
-                })}
-              </p>
-
-              <div className="flex flex-col md:hidden">
+              <div className="flex flex-col gap-3 md:hidden">
                 {services.map((s) => (
                   <MobileListItem
                     key={s.id}
                     service={s}
-                    onClick={() =>
-                      setSelectedMobileService(s)
-                    }
+                    onClick={() => setSelectedMobileService(s)}
                   />
                 ))}
               </div>
