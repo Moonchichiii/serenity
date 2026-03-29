@@ -16,8 +16,10 @@ import { useCMSPage } from "@/hooks/useCMS";
 import { cn } from "@/lib/utils";
 import type { RenderableImage, WagtailHeroSlide } from "@/types/api";
 
+// ── Constants ────────────────────────────────────────────
 const SLIDE_INTERVAL_MS = 5_000;
 
+// ── Types ────────────────────────────────────────────────
 type SupportedLang = "fr" | "en";
 
 interface NormalizedSlide extends Omit<WagtailHeroSlide, "image"> {
@@ -36,6 +38,7 @@ interface HeroContent {
   ctaCorporate: string;
 }
 
+// ── Helpers ──────────────────────────────────────────────
 function resolveLang(language: string): SupportedLang {
   return language.startsWith("fr") ? "fr" : "en";
 }
@@ -78,6 +81,7 @@ function hasRenderableImage(
   );
 }
 
+// ── Hooks ────────────────────────────────────────────────
 function useHeroSlides(
   cmsData: ReturnType<typeof useCMSPage>,
 ): HeroSlidesResult {
@@ -209,23 +213,24 @@ function useHeroContent(
 
     return {
       title: slideTitle ?? pageTitle ?? t("hero.title"),
-      subtitle: slideSubtitle ?? pageSubtitle ?? t("hero.subtitle"),
+      subtitle:
+        slideSubtitle ?? pageSubtitle ?? t("hero.subtitle"),
       ctaPrivate: t("hero.ctaPrivate"),
       ctaCorporate: t("hero.ctaCorporate"),
     };
   }, [slides, isCarousel, activeIndex, cmsData, lang, t]);
 }
 
-// ── Track which slide indices have been activated ──────────
-function useMountedSlides(active: number, count: number): Set<number> {
+function useMountedSlides(
+  active: number,
+  count: number,
+): Set<number> {
   const [mounted, setMounted] = useState<Set<number>>(() => {
     const initial = new Set([0]);
     if (count >= 2) initial.add(1);
     return initial;
   });
 
-  // Adjust state during render to accumulate mounted slides.
-  // This avoids `useEffect` and is the React-recommended way to derive state.
   if (count >= 2) {
     const next = (active + 1) % count;
     if (!mounted.has(active) || !mounted.has(next)) {
@@ -239,6 +244,7 @@ function useMountedSlides(active: number, count: number): Set<number> {
   return mounted;
 }
 
+// ── Presentational components ────────────────────────────
 const SlideImage: FC<{
   slide: NormalizedSlide;
   index: number;
@@ -287,6 +293,7 @@ const BottomFade: FC = () => (
   <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-28 bg-linear-to-b from-transparent to-cream" />
 );
 
+// ── Hero ─────────────────────────────────────────────────
 export const Hero: FC = () => {
   const cmsData = useCMSPage();
   const { open } = useModal();
@@ -295,7 +302,12 @@ export const Hero: FC = () => {
   const slideCount = slides?.length ?? 0;
   const active = useAutoAdvance(slideCount);
   const mountedSlides = useMountedSlides(active, slideCount);
-  const content = useHeroContent(cmsData, slides, isCarousel, active);
+  const content = useHeroContent(
+    cmsData,
+    slides,
+    isCarousel,
+    active,
+  );
 
   const handlePrivateClick = useCallback(() => {
     open("contact", { defaultSubject: "Private session inquiry" });
@@ -308,8 +320,9 @@ export const Hero: FC = () => {
   return (
     <section
       id="home"
-      className="hero-section relative flex min-h-screen items-end overflow-hidden pb-40 pt-24 md:items-center md:pb-0"
+      className="hero-section relative flex min-h-[100svh] items-end overflow-hidden pb-28 pt-24 sm:pb-40 md:items-center md:pb-0"
     >
+      {/* Background slides */}
       <div className="absolute inset-0 z-0">
         {slides ? (
           slides.map((slide, idx) => (
@@ -327,28 +340,30 @@ export const Hero: FC = () => {
         <Overlays />
       </div>
 
-      <div className="container relative z-10 mx-auto flex h-full w-full max-w-275 flex-col items-start justify-end text-left md:justify-center">
-        {/* ── Heading: must remain largest contentful element ── */}
+      {/* Content */}
+      <div className="container relative z-10 mx-auto flex h-full w-full max-w-275 flex-col items-start justify-end px-[var(--space-container-x)] text-left md:justify-center">
         <h1 className="hero-heading-mb max-w-3xl text-editorial-lg text-white sm:text-editorial-xl">
           {content.title}
         </h1>
 
-        {/* ── Subtitle: smaller box on mobile so h1 stays LCP ── */}
-        <p className="hero-subtitle mb-4 max-w-xs text-sm/relaxed text-white/80 line-clamp-2 sm:line-clamp-none sm:max-w-xl sm:text-base/relaxed md:mb-8">
+        <p
+          className="max-w-xs text-sm/relaxed text-white/80 line-clamp-2 sm:line-clamp-none sm:max-w-xl sm:text-base/relaxed"
+          style={{
+            marginBottom: "clamp(1.5rem, 1rem + 2vw, 2.5rem)",
+          }}
+        >
           {content.subtitle}
         </p>
 
-        {/* ── CTAs: full-width button on mobile, inline on sm+ ── */}
-        <div className="flex w-full flex-col items-start gap-2.5 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
+        {/* CTAs */}
+        <div className="flex w-full flex-col items-start gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-5">
           <Button
             size="lg"
             onClick={handlePrivateClick}
             aria-label={content.ctaPrivate}
             className={cn(
               "hero-cta-text btn-primary rounded-full font-bold uppercase",
-              // Mobile: compact, full-width, centered text
               "h-11 w-full px-5 text-xs tracking-wider",
-              // sm+: restore desktop sizing
               "sm:h-12 sm:w-auto sm:px-7 sm:text-sm sm:tracking-widest",
             )}
           >
@@ -361,9 +376,9 @@ export const Hero: FC = () => {
             aria-label={content.ctaCorporate}
             className={cn(
               "hero-cta-text group inline-flex items-center gap-2",
-              "text-sm font-semibold tracking-wide text-white/80",
+              "text-sm font-semibold tracking-wide text-white/90",
               "transition-colors duration-300 hover:text-white",
-              "sm:text-base",
+              "py-2 sm:text-base",
             )}
           >
             {content.ctaCorporate}
