@@ -13,13 +13,11 @@ const Footer: React.FC = () => {
   const globals = useCMSGlobals();
   const currentYear = new Date().getFullYear();
 
-  const brand =
-    globals?.site?.brand?.trim() || "La Serenity";
+  const brand = globals?.site?.brand?.trim() || "La Serenity";
   const contactEmail =
     globals?.site?.email?.trim() || t("footer.email");
   const address =
-    globals?.site?.address_full?.trim() ||
-    t("footer.addressFull");
+    globals?.site?.address_full?.trim() || t("footer.addressFull");
   const hours = t("footer.hoursValue");
   const instagram =
     globals?.site?.instagram_url?.trim() ||
@@ -29,8 +27,7 @@ const Footer: React.FC = () => {
     "https://facebook.com/laserenity_marseille";
 
   const handleNav =
-    (href: string) =>
-    (e: React.MouseEvent<HTMLAnchorElement>) => {
+    (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
       if (
         e.metaKey ||
         e.ctrlKey ||
@@ -56,8 +53,7 @@ const Footer: React.FC = () => {
     };
 
   /* ── Shared styles ── */
-  const headingClass =
-    "mb-4 font-semibold uppercase text-sage-300";
+  const headingClass = "mb-4 font-semibold uppercase text-sage-300";
   const linkClass =
     "font-light text-warm-grey-300 transition-colors duration-200 hover:text-white";
   const smallTextStyle = {
@@ -92,8 +88,7 @@ const Footer: React.FC = () => {
           <div
             style={{
               paddingTop: "var(--space-section-y)",
-              paddingBottom:
-                "var(--space-title-to-content)",
+              paddingBottom: "var(--space-title-to-content)",
             }}
           >
             <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,22rem)_1fr] lg:gap-24">
@@ -111,10 +106,7 @@ const Footer: React.FC = () => {
               <div className="grid grid-cols-1 gap-10 min-[400px]:grid-cols-2 sm:grid-cols-3 lg:gap-14">
                 {/* ── Navigation ── */}
                 <div>
-                  <h3
-                    className={headingClass}
-                    style={overlineStyle}
-                  >
+                  <h3 className={headingClass} style={overlineStyle}>
                     {t("footer.navigation", {
                       defaultValue: "Navigation",
                     })}
@@ -144,9 +136,7 @@ const Footer: React.FC = () => {
                     <li>
                       <a
                         href="#services-hero"
-                        onClick={handleNav(
-                          "#services-hero"
-                        )}
+                        onClick={handleNav("#services-hero")}
                         className={linkClass}
                         style={smallTextStyle}
                       >
@@ -168,10 +158,7 @@ const Footer: React.FC = () => {
 
                 {/* ── Contact ── */}
                 <div>
-                  <h3
-                    className={headingClass}
-                    style={overlineStyle}
-                  >
+                  <h3 className={headingClass} style={overlineStyle}>
                     {t("footer.contactTitle")}
                   </h3>
 
@@ -199,10 +186,7 @@ const Footer: React.FC = () => {
 
                 {/* ── Socials ── */}
                 <div className="min-[400px]:col-span-2 sm:col-span-1">
-                  <h3
-                    className={headingClass}
-                    style={overlineStyle}
-                  >
+                  <h3 className={headingClass} style={overlineStyle}>
                     {t("footer.socials", {
                       defaultValue: "Socials",
                     })}
@@ -213,10 +197,7 @@ const Footer: React.FC = () => {
                       size={44}
                       href={instagram}
                     />
-                    <AnimatedFacebookIcon
-                      size={44}
-                      href={facebook}
-                    />
+                    <AnimatedFacebookIcon size={44} href={facebook} />
                   </div>
                 </div>
               </div>
@@ -229,7 +210,7 @@ const Footer: React.FC = () => {
             role="presentation"
             aria-hidden="true"
           >
-            <p className="font-serif whitespace-nowrap text-center tracking-tight text-white/[0.06] leading-[0.82] text-[18vw] md:text-[15vw] lg:text-[12vw]">
+            <p className="font-serif whitespace-nowrap text-center tracking-tight text-white/[0.14] leading-[0.82] text-[18vw] md:text-[15vw] lg:text-[12vw]">
               {brand}
             </p>
           </div>
@@ -244,16 +225,13 @@ const Footer: React.FC = () => {
             }}
           >
             <p className="shrink-0">
-              © {currentYear} {brand}.{" "}
-              {t("footer.allRights")}
+              © {currentYear} {brand}. {t("footer.allRights")}
             </p>
 
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <button
                 type="button"
-                onClick={() =>
-                  open("legal", { page: "privacy" })
-                }
+                onClick={() => open("legal", { page: "privacy" })}
                 className="cursor-pointer transition-colors duration-200 hover:text-white"
               >
                 {t("footer.privacy")}
@@ -268,9 +246,7 @@ const Footer: React.FC = () => {
 
               <button
                 type="button"
-                onClick={() =>
-                  open("legal", { page: "legal" })
-                }
+                onClick={() => open("legal", { page: "legal" })}
                 className="cursor-pointer transition-colors duration-200 hover:text-white"
               >
                 {t("footer.legalNotice")}
