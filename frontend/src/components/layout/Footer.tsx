@@ -205,15 +205,15 @@ const Footer: React.FC = () => {
           </div>
 
           {/* ── Brand watermark (decorative) ── */}
-          <div
-            className="pointer-events-none w-full select-none overflow-hidden"
-            role="presentation"
-            aria-hidden="true"
-          >
-            <p className="font-serif whitespace-nowrap text-center tracking-tight text-white/10 leading-[0.82] text-[18vw] md:text-[15vw] lg:text-[12vw]">
-              {brand}
-            </p>
-          </div>
+<div
+  className="pointer-events-none hidden w-full select-none overflow-hidden md:block"
+  role="presentation"
+  aria-hidden="true"
+>
+  <p className="font-serif whitespace-nowrap text-center tracking-tight text-white/10 leading-[0.82] text-[15vw] lg:text-[12vw]">
+    {brand}
+  </p>
+</div>
 
           {/* ── Bottom bar ── */}
           <div
