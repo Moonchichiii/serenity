@@ -204,6 +204,7 @@
 
   html {
     scroll-behavior: smooth;
+    scrollbar-gutter: stable;
     text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
     -webkit-font-smoothing: antialiased;
@@ -218,6 +219,7 @@
     font-size: var(--typo-body);
     line-height: var(--leading-body);
     font-optical-sizing: auto;
+    min-block-size: 100svh;
   }
 
   h1,
