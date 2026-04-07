@@ -46,12 +46,12 @@ export function FloatingGiftButton() {
                 aria-hidden="true"
                 className="h-12 w-12 object-contain drop-shadow-sm sm:h-14 sm:w-14"
                 sizes="(min-width: 640px) 56px, 48px"
-                optimizeWidth={64}
+                optimizeWidth={96}
                 srcSet={[
                   `${getOptimizedCloudinaryUrl(icon.src, 48)} 48w`,
                   `${getOptimizedCloudinaryUrl(icon.src, 64)} 64w`,
                   `${getOptimizedCloudinaryUrl(icon.src, 96)} 96w`,
-                  `${getOptimizedCloudinaryUrl(icon.src, 128)} 128w`,
+                  `${getOptimizedCloudinaryUrl(icon.src, 112)} 112w`,
                 ].join(", ")}
               />
             ) : (
