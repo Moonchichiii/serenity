@@ -98,7 +98,7 @@ const ImageBackground: FC<{
     <ResponsiveImage
       image={image}
       alt=""
-      priority
+      priority={true}
       className="absolute inset-0 h-full w-full object-cover object-center"
       sizes="100vw"
       optimizeWidth={1280}
