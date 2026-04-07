@@ -38,8 +38,12 @@ function splitTitleIntoLines(title: string, _lang: SupportedLang): string[] {
   const rest = words.slice(1);
 
   for (let i = 0; i < rest.length; ) {
-    const wordsPerLine = i + 3 <= rest.length && rest.length - i === 3 ? 3 : 2;
-    const chunk = rest.slice(i, i + Math.min(wordsPerLine, rest.length - i));
+    const wordsPerLine =
+      i + 3 <= rest.length && rest.length - i === 3 ? 3 : 2;
+    const chunk = rest.slice(
+      i,
+      i + Math.min(wordsPerLine, rest.length - i),
+    );
     lines.push(
       chunk.map((w, idx) => (idx === 0 ? capitalize(w) : w)).join(" "),
     );
@@ -86,7 +90,8 @@ function useHeroContent(): HeroContent | null {
       benefits,
       hasPrice: Boolean(priceLabel || price),
       hasCTA: Boolean(cta),
-      tagline: lang === "fr" ? "Bien-être au travail" : "Corporate Wellness",
+      tagline:
+        lang === "fr" ? "Bien-être au travail" : "Corporate Wellness",
     };
   }, [page, lang]);
 }
@@ -101,7 +106,7 @@ const ImageBackground: FC<{
       priority={false}
       className="absolute inset-0 h-full w-full object-cover object-center"
       sizes="100vw"
-      optimizeWidth={1280}
+      optimizeWidth={768}
     />
   ) : (
     <div className="absolute inset-0 bg-sage-deep" aria-hidden="true" />
@@ -109,7 +114,10 @@ const ImageBackground: FC<{
 
 const Overlays: FC = () => (
   <>
-    <div className="absolute inset-0 bg-sage-deep/70" aria-hidden="true" />
+    <div
+      className="absolute inset-0 bg-sage-deep/70"
+      aria-hidden="true"
+    />
     <div
       className="absolute inset-0 bg-gradient-to-t from-sage-deep/90 via-sage-deep/20 to-sage-deep/30"
       aria-hidden="true"
@@ -274,6 +282,10 @@ export const ServicesHero: FC = () => {
         defaultValue: "Services Overview",
       })}
       className="relative flex min-h-screen items-end overflow-hidden"
+      style={{
+        contentVisibility: "auto",
+        containIntrinsicSize: "100vh",
+      }}
     >
       <ImageBackground image={poster} />
       <Overlays />
