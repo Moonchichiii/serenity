@@ -210,7 +210,7 @@ const Footer: React.FC = () => {
             role="presentation"
             aria-hidden="true"
           >
-            <p className="font-serif whitespace-nowrap text-center tracking-tight text-white/[0.14] leading-[0.82] text-[18vw] md:text-[15vw] lg:text-[12vw]">
+            <p className="font-serif whitespace-nowrap text-center tracking-tight text-white/10 leading-[0.82] text-[18vw] md:text-[15vw] lg:text-[12vw]">
               {brand}
             </p>
           </div>
