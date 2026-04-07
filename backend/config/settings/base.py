@@ -159,7 +159,7 @@ SPECTACULAR_SETTINGS = {
 STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY", default="")
 STRIPE_WEBHOOK_SECRET = config("STRIPE_WEBHOOK_SECRET", default="")
 
-FRONTEND_URL = config("FRONTEND_URL", default="http://localhost:5173")
+FRONTEND_URL = config("FRONTEND_URL")
 
 STRIPE_SUCCESS_URL = config(
     "STRIPE_SUCCESS_URL",
@@ -173,8 +173,11 @@ STRIPE_CANCEL_URL = config(
 STRIPE_CURRENCY = config("STRIPE_CURRENCY", default="eur")
 STRIPE_API_VERSION = config("STRIPE_API_VERSION", default="2024-06-20")
 
-# IMPORTANT: cast=bool is risky for env strings ("False" becomes True in many setups)
-STRIPE_LIVEMODE = config("STRIPE_LIVEMODE", default=False, cast=lambda v: str(v).lower() in ("1","true","yes","on"))
+STRIPE_LIVEMODE = config(
+    "STRIPE_LIVEMODE",
+    default=False,
+    cast=lambda v: str(v).lower() in ("1", "true", "yes", "on"),
+)
 
 # ── CORS ────────────────────────────────────────────
 CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', cast=Csv(), default='')
