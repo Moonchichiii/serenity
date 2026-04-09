@@ -68,7 +68,7 @@ jobs:
 
       - name: TypeScript check
         working-directory: frontend
-        run: bun run typecheck
+        run: bun run type-check
 
   schemathesis:
     needs: schema-validate
@@ -85,10 +85,11 @@ jobs:
       - name: Fuzz API
         working-directory: backend
         run: |
+          uv run python manage.py collectstatic --noinput
           uv run python manage.py runserver 0.0.0.0:8000 &
           sleep 5
           uv run schemathesis run http://localhost:8000/api/schema/ \
             --checks all \
-            --hypothesis-max-examples 50
+            --max-examples 50
         env:
           DJANGO_SETTINGS_MODULE: config.settings.test
