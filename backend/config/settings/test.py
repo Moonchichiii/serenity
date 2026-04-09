@@ -16,7 +16,7 @@ SECRET_KEY = "test-secret-key-not-for-production"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",
+        "NAME": BASE_DIR / "test.sqlite3",
     }
 }
 
