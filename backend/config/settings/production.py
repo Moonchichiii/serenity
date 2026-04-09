@@ -13,6 +13,9 @@ from .base import *
 DEBUG = False
 ENVIRONMENT = "production"
 
+SECRET_KEY = config("DJANGO_SECRET_KEY")
+FRONTEND_URL = config("FRONTEND_URL")
+
 # ── Database — Postgres via DATABASE_URL ────────────
 DATABASES = {
     "default": dj_database_url.parse(
@@ -20,6 +23,8 @@ DATABASES = {
         conn_max_age=600,
     )
 }
+
+
 
 # ── Cache — Redis ───────────────────────────────────
 # REDIS_URL = config("REDIS_URL", default=None)

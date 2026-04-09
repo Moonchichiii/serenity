@@ -11,7 +11,7 @@ from decouple import Csv, config
 # ── Paths ───────────────────────────────────────────
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-SECRET_KEY = config('DJANGO_SECRET_KEY')
+SECRET_KEY = config("DJANGO_SECRET_KEY", default="override-me-in-env-settings")
 
 ALLOWED_HOSTS = config(
     'ALLOWED_HOSTS',
@@ -123,14 +123,6 @@ EMAIL_SUBJECT_PREFIX = '[Serenity] '
 ADMINS = [('Serenity Admin', EMAIL_HOST_USER)]
 MANAGERS = ADMINS
 
-# GIFT_VOUCHER_SETTINGS = {
-#     "business_name": "Serenity Touch",
-#     # This ensures the admin email is sent to YOU
-#     "business_email": config("EMAIL_HOST_USER"),
-#     "business_phone": "+33 6 12 34 56 78",
-#     "business_address": "123 Wellness Street, Paris",
-#     "site_url": "http://localhost:5173",
-# }
 
 # ── DRF / Schema ───────────────────────────────────
 REST_FRAMEWORK = {
@@ -159,7 +151,7 @@ SPECTACULAR_SETTINGS = {
 STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY", default="")
 STRIPE_WEBHOOK_SECRET = config("STRIPE_WEBHOOK_SECRET", default="")
 
-FRONTEND_URL = config("FRONTEND_URL")
+FRONTEND_URL = config("FRONTEND_URL", default="http://localhost:5173")
 
 STRIPE_SUCCESS_URL = config(
     "STRIPE_SUCCESS_URL",
