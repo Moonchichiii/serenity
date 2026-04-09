@@ -13,7 +13,7 @@ urlpatterns = [
     path("documents/", include("wagtail.documents.urls")),
 
     # SPA boot (CMS)
-    path("api/", include("apps.cms.urls")),  # contains homepage/hydrated/
+    path("api/", include("apps.cms.urls")),
 
     # Domain APIs
     path("api/testimonials/", include("apps.testimonials.urls")),
@@ -25,20 +25,22 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 ]
 
-# Schema and Swagger UI
-# Ideally, keep the raw schema available for CI/Building, or wrap in DEBUG as requested
+# Schema endpoint — always available (needed by CI + schema generation)
+urlpatterns += [
+    path(
+        "api/schema/",
+        SpectacularAPIView.as_view(),
+        name="schema",
+    ),
+]
+
+# Swagger UI + media files — development only
 if settings.DEBUG:
     urlpatterns += [
-        path(
-            "api/schema/",
-            SpectacularAPIView.as_view(),
-            name="schema",
-        ),
         path(
             "api/docs/",
             SpectacularSwaggerView.as_view(url_name="schema"),
             name="swagger-ui",
         ),
-        # Serving media files in development
         *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
     ]
