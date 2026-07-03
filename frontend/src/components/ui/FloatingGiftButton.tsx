@@ -1,12 +1,18 @@
-import { TicketPercent } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { useModal } from "@/components/modal";
 import { useCMSGlobals } from "@/hooks/useCMS";
 import { useMountTransition } from "@/hooks/useMountTransition";
-import ResponsiveImage from "@/components/ui/ResponsiveImage";
-import { getOptimizedCloudinaryUrl } from "@/utils/cloudinary";
 
+/**
+ * FloatingGiftButton — the prototype's honey badge.
+ *
+ * A round honey disc with the italic "Offrir / un bon cadeau →" wordmark
+ * (i18n FR/EN), replacing the white icon bubble. Same behaviour: shown
+ * only when gifts are enabled in the CMS, mount/unmount via the shared
+ * CSS transition, opens the gift modal. Note: the CMS floating icon is
+ * intentionally no longer rendered — the badge is typographic.
+ */
 export function FloatingGiftButton() {
   const { open } = useModal();
   const { t } = useTranslation();
@@ -17,52 +23,35 @@ export function FloatingGiftButton() {
 
   if (!globals || !rendered) return null;
 
-  const icon = globals.gift?.floating_icon ?? null;
   const label = t("gift.trigger", "Offer a Gift");
 
   return (
     <button
       type="button"
       onClick={() => open("gift")}
-      className={`group fixed bottom-6 right-6 z-40 transition-all duration-300 ease-out motion-reduce:transition-none sm:bottom-10 sm:right-10 ${
-        shown ? "scale-100 rotate-0 opacity-100" : "scale-0 rotate-45 opacity-0"
-      } hover:scale-105 active:scale-95`}
       aria-label={label}
       title={label}
+      className={`group fixed bottom-6 right-6 z-40 flex h-24 w-24 items-center justify-center rounded-full bg-honey-300 text-sage-950 shadow-elevated transition-all duration-300 ease-out will-change-transform hover:-rotate-6 hover:scale-105 active:scale-95 motion-reduce:transition-none sm:bottom-10 sm:right-10 sm:h-28 sm:w-28 ${
+        shown ? "scale-100 opacity-100" : "scale-0 opacity-0"
+      }`}
     >
-      <span className="sr-only">{label}</span>
-
-      <div className="absolute inset-0 animate-pulse-warm rounded-full bg-terracotta-400 opacity-30" />
-
-      <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-white/50 bg-white/90 p-1.5 shadow-elevated backdrop-blur-sm transition-all group-hover:border-terracotta-200 sm:h-18 sm:w-18">
-        {icon?.src ? (
-          <ResponsiveImage
-            image={icon}
-            alt=""
-            aria-hidden="true"
-            className="h-12 w-12 object-contain drop-shadow-sm sm:h-14 sm:w-14"
-            sizes="(min-width: 640px) 56px, 48px"
-            optimizeWidth={96}
-            srcSet={[
-              `${getOptimizedCloudinaryUrl(icon.src, 48)} 48w`,
-              `${getOptimizedCloudinaryUrl(icon.src, 64)} 64w`,
-              `${getOptimizedCloudinaryUrl(icon.src, 96)} 96w`,
-              `${getOptimizedCloudinaryUrl(icon.src, 112)} 112w`,
-            ].join(", ")}
-          />
-        ) : (
-          <TicketPercent
-            className="h-8 w-8 text-terracotta-500"
-            strokeWidth={1.5}
-          />
-        )}
-      </div>
-
-      <span
-        className="pointer-events-none absolute right-full top-1/2 mr-4 hidden -translate-x-2 -translate-y-1/2 whitespace-nowrap rounded-xl bg-charcoal/90 px-4 py-2 text-xs font-medium tracking-wide text-white opacity-0 shadow-lg transition-all group-hover:translate-x-0 group-hover:opacity-100 sm:block"
-        aria-hidden="true"
-      >
-        {label}
+      <span className="pointer-events-none flex flex-col items-center leading-tight">
+        <span
+          className="font-heading italic"
+          style={{ fontSize: "var(--typo-h4)" }}
+        >
+          {t("gift.badge.title", "Offrir")}
+        </span>
+        <span
+          className="mt-1 uppercase"
+          style={{
+            fontSize: "0.5625rem",
+            letterSpacing: "0.14em",
+          }}
+        >
+          {t("gift.badge.sub", "un bon cadeau")}
+          <span aria-hidden="true"> →</span>
+        </span>
       </span>
     </button>
   );
