@@ -94,12 +94,16 @@ export default function CookieConsent({
   const ui = (
     <div
       className={[
-        "pointer-events-none fixed inset-x-0 bottom-4 z-9998 flex justify-center px-4",
+        "pointer-events-none fixed inset-x-0 bottom-4 z-9998 flex justify-center px-4 sm:bottom-6 sm:justify-start sm:px-6 lg:px-10",
         className,
       ].join(" ")}
       aria-live="polite"
     >
-      <div className="pointer-events-auto w-full max-w-2xl rounded-3xl border-2 border-sage-200 bg-white/95 shadow-elevated backdrop-blur-md">
+      <div className="pointer-events-auto w-full max-w-xl rounded-2xl border border-sand-300 bg-cream shadow-elevated sm:max-w-md">
+        <div
+          aria-hidden="true"
+          className="h-1 w-full rounded-t-2xl bg-terracotta-600"
+        />
         <div className="p-4 sm:p-5">
           <p className="text-sm text-charcoal/90">
             {t("cookie.intro")}{" "}
@@ -116,7 +120,7 @@ export default function CookieConsent({
               onClick={() =>
                 openModal("legal", { page: "privacy" })
               }
-              className="warm-underline ml-1 rounded-sm font-medium text-charcoal hover:text-charcoal/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-400"
+              className="ml-1 rounded-sm font-medium text-charcoal underline underline-offset-4 hover:text-terracotta-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-400"
             >
               {t("cookie.learnMore")}
             </button>
@@ -198,7 +202,7 @@ export default function CookieConsent({
 
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
             <Button
-              variant="secondary"
+              variant="ghost"
               className="sm:w-auto"
               onClick={() => {
                 saveConsent({
@@ -213,7 +217,7 @@ export default function CookieConsent({
             </Button>
 
             <Button
-              className="sm:w-auto"
+              className="btn-accent rounded-full sm:w-auto"
               onClick={() => {
                 saveConsent({
                   version: CONSENT_VERSION,

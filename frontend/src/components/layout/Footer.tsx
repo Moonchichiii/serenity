@@ -53,9 +53,9 @@ const Footer: React.FC = () => {
     };
 
   /* ── Shared styles ── */
-  const headingClass = "mb-4 font-semibold uppercase text-sage-300";
+  const headingClass = "mb-4 font-semibold uppercase text-sage-200";
   const linkClass =
-    "font-light text-warm-grey-300 transition-colors duration-200 hover:text-white";
+    "font-light text-warm-grey-200 transition-colors duration-200 hover:text-white";
   const smallTextStyle = {
     fontSize: "var(--typo-small)",
     lineHeight: "var(--leading-small)",
@@ -95,7 +95,7 @@ const Footer: React.FC = () => {
               {/* ── Tagline ── */}
               <div className="max-w-sm">
                 <p
-                  className="font-light text-warm-grey-300"
+                  className="font-light text-warm-grey-200"
                   style={smallTextStyle}
                 >
                   {t("footer.tagline")}
@@ -162,7 +162,7 @@ const Footer: React.FC = () => {
                     {t("footer.contactTitle")}
                   </h3>
 
-                  <div className="space-y-2.5 font-light text-warm-grey-300">
+                  <div className="space-y-2.5 font-light text-warm-grey-200">
                     <p style={smallTextStyle}>{address}</p>
 
                     <a
@@ -217,7 +217,7 @@ const Footer: React.FC = () => {
 
           {/* ── Bottom bar ── */}
           <div
-            className="relative flex flex-col gap-4 border-t border-white/[0.06] py-6 uppercase text-warm-grey-300 sm:flex-row sm:items-center sm:justify-between"
+            className="relative flex flex-col gap-4 border-t border-white/[0.06] py-6 pb-28 uppercase text-warm-grey-200 sm:flex-row sm:items-center sm:justify-between sm:pb-6 lg:pr-44"
             style={{
               fontSize: "var(--typo-overline)",
               lineHeight: "var(--leading-overline)",
@@ -259,7 +259,7 @@ const Footer: React.FC = () => {
                 href="https://www.nordiccodeworks.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sage-200 transition-colors duration-200 hover:text-terracotta-300"
+                className="text-sage-100 transition-colors duration-200 hover:text-terracotta-200"
               >
                 Nordic Code Works
               </a>

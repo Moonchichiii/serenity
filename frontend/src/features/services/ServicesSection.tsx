@@ -345,7 +345,7 @@ const MobileServiceDrawer: FC<{
 
             <div className="flex-1 overflow-y-auto px-6 pb-10 pt-6">
               <span
-                className="mb-3 block font-semibold uppercase tracking-[0.2em] text-terracotta-400"
+                className="mb-3 block font-semibold uppercase tracking-[0.2em] text-honey-300"
                 style={{
                   fontSize: "var(--typo-overline)",
                   lineHeight: "var(--leading-overline)",
@@ -469,7 +469,7 @@ export const Services: FC = () => {
           >
             <div className="max-w-2xl" data-reveal>
               <p
-                className="mb-6 font-semibold uppercase tracking-[0.25em] text-terracotta-400"
+                className="mb-6 font-semibold uppercase tracking-[0.25em] text-honey-300"
                 style={{
                   fontSize: "var(--typo-overline)",
                   lineHeight: "var(--leading-overline)",

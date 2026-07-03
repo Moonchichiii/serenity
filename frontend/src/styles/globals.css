@@ -288,7 +288,7 @@
   }
 
   a:hover {
-    color: var(--color-terracotta-500);
+    color: var(--color-terracotta-700);
   }
 
   input:focus,
@@ -412,21 +412,45 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
   /* Accent action — terracotta is reserved for "do this" moments (V2). */
   .btn-accent {
-    background-color: var(--color-terracotta-500);
+    background-color: var(--color-terracotta-600);
     color: #ffffff;
-    border: 2px solid var(--color-terracotta-500);
+    border: 2px solid var(--color-terracotta-600);
     transition: var(--transition-smooth);
   }
 
   .btn-accent:hover {
-    background-color: var(--color-terracotta-600);
-    border-color: var(--color-terracotta-600);
+    background-color: var(--color-terracotta-700);
+    border-color: var(--color-terracotta-700);
     box-shadow: var(--shadow-warm);
     transform: translateY(-2px);
   }
 
   .btn-accent:active {
     transform: translateY(0) scale(0.98);
+  }
+
+  /* ── Hero entrance — pure CSS (LCP-safe: no JS gating paint) ── */
+  @keyframes reveal-rise {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .reveal-stagger > [data-reveal] {
+    animation: reveal-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .reveal-stagger > [data-reveal]:nth-child(1) { animation-delay: 0.1s; }
+  .reveal-stagger > [data-reveal]:nth-child(2) { animation-delay: 0.22s; }
+  .reveal-stagger > [data-reveal]:nth-child(3) { animation-delay: 0.34s; }
+  .reveal-stagger > [data-reveal]:nth-child(4) { animation-delay: 0.46s; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal-stagger > [data-reveal] {
+      animation: none;
+    }
   }
 
   /* ── Header V2 motion (no framer-motion) ─────────────────── */
@@ -509,13 +533,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     font-size: var(--typo-overline);
     letter-spacing: 0.24em;
     text-transform: uppercase;
-    color: var(--color-terracotta-500);
+    color: var(--color-terracotta-700);
   }
   .section-eyebrow::before {
     content: "";
     width: 1.75rem;
     height: 1px;
-    background-color: var(--color-terracotta-400);
+    background-color: var(--color-terracotta-600);
   }
 
   /* ── Pure-CSS marquee (replaces the framer-motion loops) ──────

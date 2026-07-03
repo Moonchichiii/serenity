@@ -2,7 +2,6 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type FC,
 } from "react";
@@ -10,11 +9,9 @@ import { useTranslation } from "react-i18next";
 import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
-import ResponsiveImage from "@/components/ui/ResponsiveImage";
 import CookieConsent from "@/components/ui/CookieConsent";
 import { useModal } from "@/components/modal/useModal";
 import { useCMSPage } from "@/hooks/useCMS";
-import { useGsapReveal } from "@/hooks/useGsapReveal";
 import { renderAccentTitle } from "@/lib/accentTitle";
 import { cn } from "@/lib/utils";
 import type { RenderableImage, WagtailHeroSlide } from "@/types/api";
@@ -65,12 +62,6 @@ function scrollToElement(id: string): void {
   if (window.history?.pushState) {
     window.history.pushState(null, "", `#${id}`);
   }
-}
-
-function slideKey(slide: NormalizedSlide, index: number): string {
-  return slide.id != null
-    ? String(slide.id)
-    : `${slide.image.src}:${index}`;
 }
 
 function hasRenderableImage(
@@ -226,74 +217,7 @@ function useHeroContent(
   }, [slides, isCarousel, activeIndex, cmsData, lang, t]);
 }
 
-function useMountedSlides(
-  active: number,
-  count: number,
-): Set<number> {
-  const [mounted, setMounted] = useState<Set<number>>(() => {
-    const initial = new Set([0]);
-    if (count >= 2) initial.add(1);
-    return initial;
-  });
-
-  if (count >= 2) {
-    const next = (active + 1) % count;
-    if (!mounted.has(active) || !mounted.has(next)) {
-      const nextMounted = new Set(mounted);
-      nextMounted.add(active);
-      nextMounted.add(next);
-      setMounted(nextMounted);
-    }
-  }
-
-  return mounted;
-}
-
 // ── Presentational components ────────────────────────────
-const SlideImage: FC<{
-  slide: NormalizedSlide;
-  index: number;
-  isActive: boolean;
-  shouldMount: boolean;
-}> = ({ slide, index, isActive, shouldMount }) => (
-  <div
-    className={cn(
-      "hero-slide-fade absolute inset-0",
-      isActive ? "opacity-100" : "opacity-0",
-    )}
-    aria-hidden="true"
-  >
-    <div
-      className={cn(
-        "hero-slide-scale h-full w-full",
-        isActive ? "scale-105" : "scale-100",
-      )}
-    >
-      {shouldMount && (
-        <ResponsiveImage
-          image={slide.image}
-          alt=""
-          priority={index === 0}
-          className="h-full w-full object-cover"
-          sizes="100vw"
-          optimizeWidth={1280}
-        />
-      )}
-    </div>
-  </div>
-);
-
-const BackgroundFallback: FC = () => (
-  <div className="absolute inset-0 bg-sage-900" aria-hidden="true" />
-);
-
-const Overlays: FC = () => (
-  <>
-    <div className="absolute inset-0 bg-sage-950/55" />
-    <div className="absolute inset-0 bg-linear-to-t from-sage-950/90 via-sage-950/60 to-sage-950/30" />
-  </>
-);
-
 const BottomFade: FC = () => (
   <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-28 bg-linear-to-b from-transparent to-cream" />
 );
@@ -306,7 +230,6 @@ export const Hero: FC = () => {
   const { slides, isCarousel } = useHeroSlides(cmsData);
   const slideCount = slides?.length ?? 0;
   const active = useAutoAdvance(slideCount);
-  const mountedSlides = useMountedSlides(active, slideCount);
   const content = useHeroContent(
     cmsData,
     slides,
@@ -322,36 +245,27 @@ export const Hero: FC = () => {
     scrollToElement("services-hero");
   }, []);
 
-  const contentRef = useRef<HTMLDivElement>(null);
-  useGsapReveal(contentRef, { delay: 0.55, stagger: 0.09 });
-
   return (
     <section
       id="home"
       className="hero-section relative flex min-h-[100svh] items-end overflow-hidden pb-28 pt-24 sm:pb-40 md:items-center md:pb-0"
     >
-      {/* Background slides */}
-      <div className="absolute inset-0 z-0">
-        {slides ? (
-          slides.map((slide, idx) => (
-            <SlideImage
-              key={slideKey(slide, idx)}
-              slide={slide}
-              index={idx}
-              isActive={active === idx}
-              shouldMount={mountedSlides.has(idx)}
-            />
-          ))
-        ) : (
-          <BackgroundFallback />
-        )}
-        <Overlays />
+      {/* Prototype forest canvas — CMS hero photos intentionally not
+          rendered in V2 (flat typographic hero per the approved design) */}
+      <div className="absolute inset-0 z-0 bg-sage-950" aria-hidden="true">
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(110% 75% at 72% 8%, rgba(230, 234, 78, 0.05), transparent 55%)",
+          }}
+        />
+        <div className="absolute inset-0 bg-linear-to-t from-sage-950 via-transparent to-transparent" />
       </div>
 
       {/* Content */}
       <div
-        ref={contentRef}
-        className="container relative z-10 mx-auto flex h-full w-full max-w-275 flex-col items-start justify-end px-[var(--space-container-x)] text-left md:justify-center"
+        className="reveal-stagger container relative z-10 mx-auto flex h-full w-full max-w-275 flex-col items-start justify-end px-[var(--space-container-x)] text-left md:justify-center"
       >
         <p className="hero-eyebrow mb-5" data-reveal>
           {content.eyebrow}

@@ -198,7 +198,7 @@ export function TestimonialBanner() {
           )}
         </h2>
         <p
-          className="mx-auto max-w-xl font-light text-charcoal/60"
+          className="mx-auto max-w-xl font-light text-charcoal/75"
           style={{
             fontSize: "var(--typo-body)",
             lineHeight: "var(--leading-body)",

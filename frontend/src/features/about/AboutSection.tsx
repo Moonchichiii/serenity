@@ -97,7 +97,7 @@ const GuideEntry: FC<{ item: GuideItem }> = ({ item }) => {
           {t(item.titleKey)}
         </h4>
         <p
-          className="text-warm-grey-500 sm:text-warm-grey-400"
+          className="text-warm-grey-600"
           style={{
             fontSize: "var(--typo-small)",
             lineHeight: "var(--leading-small)",
@@ -126,7 +126,7 @@ const CertificationBadge: FC<{
         {label}
       </p>
       <p
-        className="text-warm-grey-400"
+        className="text-warm-grey-600"
         style={{
           fontSize: "var(--typo-caption)",
           lineHeight: "var(--leading-caption)",

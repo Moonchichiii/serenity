@@ -113,7 +113,7 @@ const AccordionItem: FC<{
     >
       <div className="min-h-0 overflow-hidden">
         <p
-            className="text-warm-grey-500"
+            className="text-warm-grey-600"
             style={{
               paddingBottom: "var(--space-card-gap)",
               fontSize: "var(--typo-small)",
@@ -258,7 +258,7 @@ export const Faq: FC = () => {
             </h2>
             {content.subtitle && (
               <p
-                className="text-warm-grey-500"
+                className="text-warm-grey-600"
                 style={{
                   fontSize: "var(--typo-body)",
                   lineHeight: "var(--leading-body)",
