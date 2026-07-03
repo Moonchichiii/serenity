@@ -9,7 +9,8 @@ export const createContactSchema = (t: TFunction) =>
     name: z
       .string()
       .min(1, t('contact.form.validation.nameRequired', 'Name is required'))
-      .min(2, t('contact.form.validation.nameTooShort', 'Name is too short')),
+      .min(2, t('contact.form.validation.nameTooShort', 'Name is too short'))
+      .max(100, t('formErrors.byCode.max_length', 'This text is too long.')),
 
     email: z
       .string()
@@ -27,7 +28,8 @@ export const createContactSchema = (t: TFunction) =>
       .min(
         1,
         t('contact.form.validation.subjectRequired', 'Subject is required'),
-      ),
+      )
+      .max(200, t('formErrors.byCode.max_length', 'This text is too long.')),
 
     message: z
       .string()
@@ -38,7 +40,13 @@ export const createContactSchema = (t: TFunction) =>
       .min(
         10,
         t('contact.form.validation.messageTooShort', 'Message is too short'),
+      )
+      .max(
+        1500,
+        t('formErrors.byField.message.max_length', 'Your message is too long.'),
       ),
+
+    website: z.string().optional(),
   })
 
 export type ContactFormValues = z.infer<ReturnType<typeof createContactSchema>>

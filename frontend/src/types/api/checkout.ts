@@ -5,6 +5,7 @@ export type CheckoutRequest = {
   recipient_email: string;
 
   message?: string;
+  website?: string;
   amount: string | number; // match what your form provides; backend will Decimal(str())
   preferred_language: "fr" | "en";
 

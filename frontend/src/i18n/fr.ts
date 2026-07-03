@@ -268,8 +268,47 @@ subtitle:
     shell: {
       brand: "La Serenity Essentials",
     },
+giftSection: {
+  eyebrow: "La Serenity Essentials",
+  title: "Offrir un moment de calme",
+  lede: "Un bon cadeau pour quelqu'un qui ne prendrait jamais ce moment pour lui-m\u00eame. Choisissez un soin, ajoutez un mot personnel \u2014 nous nous occupons du reste.",
+  cardTitle: "Un moment pour vous",
+  cardTag: "Bon cadeau",
+  from: "De la part de",
+  to: "Pour",
+  treatment: "Soin",
+  sampleFrom: "Marie",
+  sampleTo: "Camille",
+  sampleTreatment: "Massage Californien \u2014 60 min",
+  cta: "Envoyer le bon",
+  secure: "Paiement s\u00e9curis\u00e9 via Stripe",
+},
+formErrors: {
+  byCode: {
+    required: "Ce champ est requis.",
+    blank: "Ce champ est requis.",
+    invalid: "Cette valeur n'est pas valide.",
+    max_length: "Ce texte est trop long.",
+    min_length: "Ce texte est trop court.",
+    spam_detected: "Votre message n'a pas pu \u00eatre envoy\u00e9. Merci de r\u00e9essayer.",
+    rate_limited: "Trop de demandes. Merci de r\u00e9essayer dans quelques minutes.",
+    network: "Connexion impossible. V\u00e9rifiez votre r\u00e9seau et r\u00e9essayez.",
+    server: "Une erreur est survenue de notre c\u00f4t\u00e9. R\u00e9essayez dans un instant.",
+    unknown: "Une erreur inattendue est survenue. Merci de r\u00e9essayer.",
+  },
+  byField: {
+    name: { required: "Veuillez saisir votre nom." },
+    email: {
+      required: "Veuillez saisir votre adresse e-mail.",
+      invalid: "Veuillez saisir une adresse e-mail valide.",
+    },
+    subject: { invalid: "Le sujet ne peut pas contenir de retour \u00e0 la ligne." },
+    message: { max_length: "Votre message est trop long." },
+  },
+},
 gift: {
       trigger: "Offrir un cadeau",
+      badge: { title: "Offrir", sub: "un bon cadeau" },
   title: "Cadeau Bien-Être",
   subtitle: "Bon cadeau personnalisé instantané.",
       form: {

@@ -47,7 +47,7 @@ export const createGiftSchema = (t: TFunction) =>
         ),
       }),
 
-    message: z.string(),
+    message: z.string().max(500, t('formErrors.byCode.max_length', 'This text is too long.')),
 
     amount: z.number().min(1, {
       message: t(
@@ -72,6 +72,7 @@ export const createGiftSchema = (t: TFunction) =>
 
     selectedDate: z.string().optional(),
     selectedTime: z.string().optional(),
+    website: z.string().optional(),
   });
 
 export type GiftFormValues = z.infer<

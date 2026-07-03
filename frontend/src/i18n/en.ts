@@ -273,8 +273,47 @@ subtitle:
     shell: {
       brand: "La Serenity Essentials",
     },
-    gift: {
+    giftSection: {
+  eyebrow: "La Serenity Essentials",
+  title: "Give a moment of calm",
+  lede: "A gift card for someone who would never take this moment for themselves. Choose a treatment, add a personal note \u2014 we take care of the rest.",
+  cardTitle: "A moment for you",
+  cardTag: "Gift card",
+  from: "From",
+  to: "For",
+  treatment: "Treatment",
+  sampleFrom: "Marie",
+  sampleTo: "Camille",
+  sampleTreatment: "Californian Massage \u2014 60 min",
+  cta: "Send the gift card",
+  secure: "Secure payment via Stripe",
+},
+formErrors: {
+  byCode: {
+    required: "This field is required.",
+    blank: "This field is required.",
+    invalid: "This value is not valid.",
+    max_length: "This text is too long.",
+    min_length: "This text is too short.",
+    spam_detected: "Your message could not be sent. Please try again.",
+    rate_limited: "Too many requests. Please try again in a few minutes.",
+    network: "Could not connect. Check your network and try again.",
+    server: "Something went wrong on our side. Please try again shortly.",
+    unknown: "An unexpected error occurred. Please try again.",
+  },
+  byField: {
+    name: { required: "Please enter your name." },
+    email: {
+      required: "Please enter your email address.",
+      invalid: "Please enter a valid email address.",
+    },
+    subject: { invalid: "The subject cannot contain line breaks." },
+    message: { max_length: "Your message is too long." },
+  },
+},
+gift: {
        trigger: "Offer a Gift",
+      badge: { title: "Offrir", sub: "a gift card" },
   title: "Gift Voucher",
   subtitle: "Send a personalized massage voucher instantly.",
       form: {

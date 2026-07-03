@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/Button";
 import { Mail, Phone, User } from "lucide-react";
@@ -10,6 +10,12 @@ import {
   type ContactFormValues,
 } from "@/types/forms/contact";
 import { useSubmitContact } from "@/hooks/useContact";
+import {
+  apiErrorMessage,
+  parseApiErrors,
+  splitFieldErrors,
+} from "@/lib/apiErrors";
+import { HoneypotField } from "@/components/forms/HoneypotField";
 import {
   formInputTypo,
   formLabelTypo,
@@ -35,6 +41,8 @@ export function ContactForm({
   const {
     register,
     handleSubmit,
+    setError,
+    control,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<ContactFormValues>({
@@ -44,6 +52,8 @@ export function ContactForm({
     },
   });
 
+  const messageValue = useWatch({ control, name: "message" }) ?? "";
+
   const onSubmit = async (data: ContactFormValues) => {
     try {
       await submit.mutateAsync({
@@ -52,6 +62,7 @@ export function ContactForm({
         phone: data.phone || "",
         subject: data.subject,
         message: data.message,
+        website: data.website ?? "",
       });
 
       toast.success(
@@ -60,13 +71,25 @@ export function ContactForm({
       reset();
       onSuccess?.();
     } catch (error) {
-      console.error("Contact form submission error:", error);
-      toast.error(
-        t(
-          "contact.form.error",
-          "Error sending message. Please try again.",
-        ),
-      );
+      const { fieldErrors, rest } = splitFieldErrors(parseApiErrors(error), [
+        "name",
+        "email",
+        "phone",
+        "subject",
+        "message",
+      ] as const);
+      for (const entry of fieldErrors) {
+        setError(entry.field, {
+          type: "server",
+          message: apiErrorMessage(t, entry),
+        });
+      }
+      const toastEntry = rest[0];
+      if (toastEntry) {
+        toast.error(apiErrorMessage(t, toastEntry));
+      } else if (fieldErrors.length === 0) {
+        toast.error(t("formErrors.byCode.unknown"));
+      }
     }
   };
 
@@ -117,6 +140,8 @@ export function ContactForm({
               placeholder="Jean Dupont"
               autoComplete="name"
               aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? "name-error" : undefined}
+              maxLength={100}
               className={inputClass}
               style={formInputTypo}
               {...register("name")}
@@ -148,6 +173,7 @@ export function ContactForm({
               autoComplete="email"
               placeholder="jean@example.com"
               aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "email-error" : undefined}
               className={inputClass}
               style={formInputTypo}
               {...register("email")}
@@ -186,6 +212,8 @@ export function ContactForm({
             autoComplete="tel"
             placeholder="+33 6 00 00 00 00"
             aria-invalid={!!errors.phone}
+              aria-describedby={errors.phone ? "phone-error" : undefined}
+              maxLength={20}
             className={inputClass}
             style={formInputTypo}
             {...register("phone")}
@@ -217,6 +245,8 @@ export function ContactForm({
             "Appointment request",
           )}
           aria-invalid={!!errors.subject}
+              aria-describedby={errors.subject ? "subject-error" : undefined}
+              maxLength={200}
           className={subjectClass}
           style={formInputTypo}
           {...register("subject")}
@@ -247,10 +277,19 @@ export function ContactForm({
             "Describe your needs...",
           )}
           aria-invalid={!!errors.message}
+              aria-describedby={errors.message ? "message-error" : undefined}
+              maxLength={1500}
           className={textareaClass}
           style={formInputTypo}
           {...register("message")}
         />
+        <p
+          className="mt-1 text-right text-charcoal/50"
+          style={formCaptionTypo}
+          aria-hidden="true"
+        >
+          {messageValue.length}/1500
+        </p>
         {errors.message && (
           <p
             className="text-terracotta-600 mt-1"
@@ -260,6 +299,8 @@ export function ContactForm({
           </p>
         )}
       </div>
+
+      <HoneypotField {...register("website")} />
 
       <div className="bg-sage-50 rounded-lg p-3 border border-sage-200">
         <p className="text-charcoal/80" style={formCaptionTypo}>

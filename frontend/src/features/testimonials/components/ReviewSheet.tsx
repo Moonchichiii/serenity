@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  apiErrorMessage,
+  parseApiErrors,
+} from "@/lib/apiErrors";
 import { Star, X } from "lucide-react";
 import { useMountTransition } from "@/hooks/useMountTransition";
 import { useSubmitTestimonial } from "@/hooks/useTestimonials";
-import { normalizeHttpError } from "@/utils/normalizeHttpError";
 
 interface ReviewSheetProps {
   open: boolean;
@@ -24,6 +27,7 @@ export function ReviewSheet({
   const [text, setText] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [website, setWebsite] = useState("");
 
   const resetForm = () => {
     setRating(0);
@@ -65,6 +69,7 @@ export function ReviewSheet({
         email: email.trim() || undefined,
         rating,
         text: text.trim(),
+        website,
       });
 
       setSuccessMessage(response.message || t("review.success"));
@@ -75,7 +80,14 @@ export function ReviewSheet({
       }, 2000);
     } catch (error: unknown) {
       setErrorMessage(
-        normalizeHttpError(error).message || t("review.error")
+        apiErrorMessage(
+          t,
+          parseApiErrors(error)[0] ?? {
+            code: "unknown",
+            field: null,
+            message: "",
+          },
+        ),
       );
     }
   };
@@ -262,6 +274,18 @@ export function ReviewSheet({
                       "Your review will be stored in our system for moderation. We only collect the information you provide (name, optional email, and review text) to display your testimonial. Your email will not be published or shared."
                     )}
                   </p>
+                </div>
+
+                <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+                  <label htmlFor="rs-website">Website</label>
+                  <input
+                    id="rs-website"
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={website}
+                    onChange={(e) => setWebsite(e.target.value)}
+                  />
                 </div>
 
                 <button

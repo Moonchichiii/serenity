@@ -41,9 +41,13 @@ export const createCorporateInquirySchema = (t: TFunction) =>
     endDate: z.string().optional(),
     duration: z.string().optional(),
     onSiteAddress: z.string().optional(),
-    notes: z.string().optional(),
+    notes: z
+      .string()
+      .max(1000, t('formErrors.byCode.max_length', 'This text is too long.'))
+      .optional(),
     budget: z.string().optional(),
     services: z.string().optional(),
+    website: z.string().optional(),
   });
 
 export type CorporateInquiryFormValues = z.infer<

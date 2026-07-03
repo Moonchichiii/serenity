@@ -4,6 +4,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import {
+  apiErrorMessage,
+  parseApiErrors,
+  splitFieldErrors,
+} from "@/lib/apiErrors";
+import { HoneypotField } from "@/components/forms/HoneypotField";
+import {
   Building2,
   CalendarDays,
   ChevronDown,
@@ -50,6 +56,7 @@ export function CorporateInquiryForm({
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<CorporateInquiryFormValues>({
@@ -136,13 +143,20 @@ export function CorporateInquiryForm({
         reset();
         onSuccess?.();
       } catch (err) {
-        console.error("Corporate inquiry error:", err);
-        toast.error(
-          t(
-            "corp.form.error",
-            "Could not send your request. Please try again.",
-          ),
-        );
+        const { fieldErrors, rest } = splitFieldErrors(parseApiErrors(err), [
+          "name",
+          "email",
+        ] as const);
+        for (const entry of fieldErrors) {
+          setError(entry.field, {
+            type: "server",
+            message: apiErrorMessage(t, entry),
+          });
+        }
+        const toastEntry = rest[0];
+        if (toastEntry) toast.error(apiErrorMessage(t, toastEntry));
+        else if (fieldErrors.length === 0)
+          toast.error(t("formErrors.byCode.unknown"));
       }
     };
 
@@ -548,6 +562,8 @@ export function CorporateInquiryForm({
           )}
         </p>
       </div>
+
+      <HoneypotField {...register("website")} />
 
       <Button
         type="submit"

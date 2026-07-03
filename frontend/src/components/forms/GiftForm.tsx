@@ -4,6 +4,12 @@ import { useTranslation } from "react-i18next";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import {
+  apiErrorMessage,
+  parseApiErrors,
+  splitFieldErrors,
+} from "@/lib/apiErrors";
+import { HoneypotField } from "@/components/forms/HoneypotField";
+import {
   Calendar as CalendarIcon,
   User,
   CreditCard,
@@ -19,7 +25,6 @@ import { useCreateCheckoutMutation } from "@/queries/payments.mutations";
 import { useBusyDays, useFreeSlots } from "@/hooks/useCalendar";
 import { useCMSServices } from "@/hooks/useCMS";
 import { isPastDate } from "@/lib/utils";
-import { normalizeHttpError } from "@/api/httpError";
 import type { CheckoutRequest } from "@/types/api/payments";
 import "react-calendar/dist/Calendar.css";
 interface GiftFormProps {
@@ -40,6 +45,7 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
     reset,
     setValue,
@@ -126,6 +132,7 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
       recipient_name: data.recipientName,
       recipient_email: data.recipientEmail,
       message: data.message?.trim() || "",
+      website: data.website ?? "",
       amount: data.amount,
       preferred_language: lang,
       ...(start_datetime && end_datetime
@@ -145,8 +152,37 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
       onSuccess?.();
       window.location.assign(res.url);
     } catch (err) {
-      const apiErr = normalizeHttpError(err);
-      toast.error(apiErr.message || "Something went wrong.");
+      const backendToRhf = {
+        sender_name: "senderName",
+        sender_email: "senderEmail",
+        recipient_name: "recipientName",
+        recipient_email: "recipientEmail",
+        message: "message",
+      } as const;
+      const parsed = parseApiErrors(err).map((entry) => ({
+        ...entry,
+        field:
+          entry.field && entry.field in backendToRhf
+            ? backendToRhf[entry.field as keyof typeof backendToRhf]
+            : entry.field,
+      }));
+      const { fieldErrors, rest } = splitFieldErrors(parsed, [
+        "senderName",
+        "senderEmail",
+        "recipientName",
+        "recipientEmail",
+        "message",
+      ] as const);
+      for (const entry of fieldErrors) {
+        setError(entry.field, {
+          type: "server",
+          message: apiErrorMessage(t, entry),
+        });
+      }
+      const toastEntry = rest[0];
+      if (toastEntry) toast.error(apiErrorMessage(t, toastEntry));
+      else if (fieldErrors.length === 0)
+        toast.error(t("formErrors.byCode.unknown"));
     }
   };
 
@@ -391,6 +427,8 @@ export function GiftForm({ settings, onSuccess }: GiftFormProps) {
             {t("gift.form.poweredByStripe", "Secure checkout with Stripe")}
           </div>
         </div>
+
+        <HoneypotField {...register("website")} />
 
         <Button
           type="submit"

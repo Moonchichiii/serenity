@@ -4,6 +4,7 @@ export interface ContactSubmission {
   phone: string
   subject: string
   message: string
+  website?: string
 }
 
 export interface ContactSubmissionResponse {

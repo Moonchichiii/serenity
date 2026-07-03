@@ -26,6 +26,7 @@ export interface TestimonialSubmission {
   email?: string
   rating: number
   text: string
+  website?: string
 }
 
 export interface TestimonialSubmissionResponse {
