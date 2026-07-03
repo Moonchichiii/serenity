@@ -289,8 +289,8 @@ const BackgroundFallback: FC = () => (
 
 const Overlays: FC = () => (
   <>
-    <div className="absolute inset-0 bg-sage-950/20" />
-    <div className="absolute inset-0 bg-linear-to-t from-sage-950/75 via-sage-950/30 to-transparent" />
+    <div className="absolute inset-0 bg-sage-950/55" />
+    <div className="absolute inset-0 bg-linear-to-t from-sage-950/90 via-sage-950/60 to-sage-950/30" />
   </>
 );
 

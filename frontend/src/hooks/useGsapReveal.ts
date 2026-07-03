@@ -12,21 +12,19 @@ import { SHUTTER } from "@/lib/motion/config";
  *
  * `whenVisible: true` defers the entrance until the scope scrolls into
  * view (IntersectionObserver, fires once) — for sections below the fold.
- * Default plays on mount — for above-the-fold content like the hero.
  *
- * Safety model:
- *  - Content is visible by default in the markup. We only hide it inside
- *    useLayoutEffect (pre-paint), and only when motion will actually play,
- *    so no-JS, reduced-motion and test environments never see hidden text.
- *  - A failsafe restores visibility if nothing has played within 4s
- *    (covers IO edge cases and failed gsap loads).
- *  - The tween is killed and props cleared on unmount.
+ * Per the V2 GSAP performance rules:
+ *  - animations are created inside `gsap.context(..., scope)` and torn
+ *    down with `ctx.revert()` on unmount;
+ *  - transform/opacity only;
+ *  - reduced motion never even loads gsap (stricter than matchMedia:
+ *    zero animation JS is fetched at all);
+ *  - content is visible by default — hidden only pre-paint when motion
+ *    will actually play, with a 4s failsafe restore.
  */
 
 type Options = {
-  /** Seconds before the first element starts. */
   delay?: number;
-  /** Vertical travel in px. */
   y?: number;
   stagger?: number;
   duration?: number;
@@ -78,7 +76,7 @@ export function useGsapReveal(
     };
 
     let killed = false;
-    let kill: (() => void) | null = null;
+    let ctx: { revert: () => void } | null = null;
     let observer: IntersectionObserver | null = null;
     const failsafe = setTimeout(() => {
       if (!playedRef.current) restore();
@@ -90,20 +88,21 @@ export function useGsapReveal(
       void loadGsap()
         .then((gsap) => {
           if (killed) return;
-          const tween = gsap.fromTo(
-            targets,
-            { y, opacity: 0 },
-            {
-              y: 0,
-              opacity: 1,
-              duration,
-              ease: SHUTTER.easeOut,
-              stagger,
-              delay,
-              clearProps: "transform,opacity",
-            },
-          );
-          kill = () => tween.kill();
+          ctx = gsap.context(() => {
+            gsap.fromTo(
+              targets,
+              { y, opacity: 0 },
+              {
+                y: 0,
+                opacity: 1,
+                duration,
+                ease: SHUTTER.easeOut,
+                stagger,
+                delay,
+                clearProps: "transform,opacity",
+              },
+            );
+          }, root);
         })
         .catch(restore);
     };
@@ -127,7 +126,7 @@ export function useGsapReveal(
       killed = true;
       clearTimeout(failsafe);
       observer?.disconnect();
-      kill?.();
+      ctx?.revert();
       restore();
     };
     // Mount-only by design: entrance plays once per section mount.

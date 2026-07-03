@@ -62,7 +62,10 @@ RUN DJANGO_SECRET_KEY=build-only-not-a-secret-0123456789abcdefghijklmnopqrstuv \
 USER app
 EXPOSE 8000
 
-CMD ["bash", "-lc", "exec gunicorn config.asgi:application \
+# NOTE: bash -c (NOT -lc). A login shell sources /etc/profile which resets
+# PATH and loses /app/.venv/bin -> "gunicorn: command not found" crash loop.
+# The absolute binary path makes the entrypoint PATH-independent entirely.
+CMD ["bash", "-c", "exec /app/.venv/bin/gunicorn config.asgi:application \
   -k uvicorn_worker.UvicornWorker \
   --bind 0.0.0.0:${PORT:-8000} \
   --workers ${WEB_CONCURRENCY:-1} \
