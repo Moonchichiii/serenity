@@ -2059,7 +2059,7 @@ requires-dist = [
     { name = "google-auth-oauthlib", specifier = ">=1.2,<2" },
     { name = "gunicorn", specifier = ">=23,<24" },
     { name = "hiredis", marker = "extra == 'prod'", specifier = ">=3.0,<4" },
-    { name = "pillow", specifier = ">=11.0,<12" },
+    { name = "pillow", specifier = ">=12.0,<13" },
     { name = "psycopg2-binary", specifier = ">=2.9.10,<3" },
     { name = "python-dateutil", specifier = ">=2.9,<3" },
     { name = "python-decouple", specifier = ">=3.8,<4" },
