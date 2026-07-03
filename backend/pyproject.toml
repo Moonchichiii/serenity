@@ -186,3 +186,6 @@ markers = [
     "performance: performance/queries tests",
     "e2e: end-to-end tests",
 ]
+
+[tool.uv]
+override-dependencies = ["pillow>=12.2.0"]
