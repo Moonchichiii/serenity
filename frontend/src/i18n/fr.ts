@@ -14,6 +14,7 @@ export default {
       chooseLanguage: "Choisir la langue",
     },
     hero: {
+      eyebrow: "La Serenity — Marseille",
       title: "Trouvez votre équilibre",
       subtitle: "Massage bien-être premium dans un cadre serein et privé",
       cta: "Réserver votre séance",

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { useMountTransition } from "@/hooks/useMountTransition";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +21,8 @@ export function ModalShell({
   className,
   scrollable = true,
 }: ModalShellProps) {
+  const { rendered, open } = useMountTransition(isOpen, 250);
+
   useEffect(() => {
     if (!isOpen) return;
     const onKey = (e: KeyboardEvent) => {
@@ -39,10 +41,10 @@ export function ModalShell({
     };
   }, [isOpen]);
 
+  if (!rendered) return null;
+
   const ui = (
-    <AnimatePresence>
-      {isOpen && (
-        <div
+    <div
           className="
             fixed inset-0 z-9999
             h-dvh w-screen overflow-hidden
@@ -52,31 +54,30 @@ export function ModalShell({
           aria-modal="true"
           role="dialog"
         >
-          <motion.div
-            data-testid="modal-backdrop"
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onMouseDown={onClose}
-          />
+      <div
+        data-testid="modal-backdrop"
+        className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-200 motion-reduce:transition-none ${
+          open ? "opacity-100" : "opacity-0"
+        }`}
+        onMouseDown={onClose}
+      />
 
-          <motion.div
-            className={cn(
-              "relative z-10 flex flex-col overflow-hidden",
-              "bg-porcelain border border-warm-grey-200/40",
-              "shadow-elevated",
-              "w-full sm:w-[92vw]",
-              "max-w-lg",
-              "max-h-[92dvh] sm:max-h-[85vh]",
-              "rounded-t-3xl sm:rounded-3xl",
-              className,
-            )}
-            initial={{ opacity: 0, scale: 0.96, y: 8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: 8 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          >
+      <div
+        className={cn(
+          "relative z-10 flex flex-col overflow-hidden",
+          "bg-porcelain border border-warm-grey-200/40",
+          "shadow-elevated",
+          "w-full sm:w-[92vw]",
+          "max-w-lg",
+          "max-h-[92dvh] sm:max-h-[85vh]",
+          "rounded-t-3xl sm:rounded-3xl",
+          "transition-all duration-200 ease-out motion-reduce:transition-none",
+          open
+            ? "translate-y-0 scale-100 opacity-100"
+            : "translate-y-2 scale-[0.97] opacity-0",
+          className,
+        )}
+      >
             {/* Mobile Drag Handle */}
             <div className="sm:hidden flex justify-center pt-3 pb-1">
               <div className="w-10 h-1 rounded-full bg-warm-grey-300" />
@@ -120,10 +121,8 @@ export function ModalShell({
             >
               <div className="p-6 sm:p-6 pb-8 sm:pb-6">{children}</div>
             </div>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+      </div>
+    </div>
   );
 
   return createPortal(ui, document.body);

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from rest_framework import serializers
 
 from apps.services.models import Service
@@ -32,7 +34,7 @@ class GiftVoucherInputSerializer(serializers.Serializer):
         required=False, allow_null=True
     )
 
-    def validate(self, attrs):
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
         service_id = attrs.get("service_id")
         start_dt = attrs.get("start_datetime")
         end_dt = attrs.get("end_datetime")
@@ -65,7 +67,7 @@ class GiftVoucherResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GiftVoucher
-        fields = [
+        fields = (
             "id",
             "code",
             "recipient_name",
@@ -82,4 +84,4 @@ class GiftVoucherResponseSerializer(serializers.ModelSerializer):
             "calendar_event_link",
             "calendar_event_status",
             "created_at",
-        ]
+        )

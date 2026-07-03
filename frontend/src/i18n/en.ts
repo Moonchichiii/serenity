@@ -14,6 +14,7 @@ export default {
       chooseLanguage: "Choose language",
     },
     hero: {
+      eyebrow: "La Serenity — Marseille",
       title: "Find your balance",
       subtitle: "Premium wellness massage in a serene, private setting",
       cta: "Book your session",

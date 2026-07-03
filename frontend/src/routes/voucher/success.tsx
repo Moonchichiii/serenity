@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useEffect, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import {
   CheckCircle,
   Home,
@@ -9,6 +9,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { paymentsApi } from "@/api/payments.api";
+import { useShutter } from "@/components/motion/ShutterTransition";
 
 export const Route = createFileRoute("/voucher/success")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -22,6 +23,8 @@ export const Route = createFileRoute("/voucher/success")({
 
 function VoucherSuccess() {
   const { session_id } = Route.useSearch();
+  const router = useRouter();
+  const { run } = useShutter();
 
   // Initialize state based on whether session_id exists
   const [status, setStatus] = useState<
@@ -162,6 +165,10 @@ function VoucherSuccess() {
         <div className="flex flex-col gap-3">
           <Link
             to="/"
+            onClick={(event) => {
+              event.preventDefault();
+              void run(() => router.navigate({ to: "/" }));
+            }}
             className="w-full py-3 px-4 bg-sage-deep hover:bg-sage-800 text-white rounded-xl font-medium transition-all shadow-warm flex items-center justify-center gap-2"
           >
             <Home className="w-4 h-4" />
@@ -171,6 +178,12 @@ function VoucherSuccess() {
           <Link
             to="/"
             search={{ modal: "gift" }}
+            onClick={(event) => {
+              event.preventDefault();
+              void run(() =>
+                router.navigate({ to: "/", search: { modal: "gift" } }),
+              );
+            }}
             className="w-full py-3 px-4 bg-white hover:bg-sand-50 text-sage-900 border border-warm-grey-200 rounded-xl font-medium transition-all flex items-center justify-center gap-2"
           >
             <Calendar className="w-4 h-4" />

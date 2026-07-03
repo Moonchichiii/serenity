@@ -85,7 +85,7 @@ def _cloudinary_image_url(
         flags="progressive",
         secure=True,
     )
-    return url
+    return str(url)
 
 
 def _build_srcset(

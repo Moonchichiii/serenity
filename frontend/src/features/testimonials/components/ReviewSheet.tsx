@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Star, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useMountTransition } from "@/hooks/useMountTransition";
 import { useSubmitTestimonial } from "@/hooks/useTestimonials";
 import { normalizeHttpError } from "@/utils/normalizeHttpError";
 
@@ -80,29 +80,23 @@ export function ReviewSheet({
     }
   };
 
-  return (
-    <AnimatePresence>
-      {open && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={handleClose}
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
-          />
+  const { rendered, open: shown } = useMountTransition(open, 320);
+  if (!rendered) return null;
 
-          <motion.div
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{
-              type: "spring",
-              damping: 25,
-              stiffness: 300,
-            }}
-            className="fixed right-0 top-0 z-50 h-full w-full overflow-y-auto bg-white shadow-2xl sm:max-w-md"
-          >
+  return (
+    <>
+      <div
+        onClick={handleClose}
+        className={`fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-opacity duration-300 motion-reduce:transition-none ${
+          shown ? "opacity-100" : "opacity-0"
+        }`}
+      />
+
+      <div
+        className={`fixed right-0 top-0 z-50 h-full w-full overflow-y-auto bg-white shadow-2xl transition-transform duration-300 ease-out motion-reduce:transition-none sm:max-w-md ${
+          shown ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
             <div className="bg-sage-deep px-6 py-6">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -130,27 +124,19 @@ export function ReviewSheet({
 
             <div className="p-6">
               {successMessage && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-4 rounded-lg border border-sage-300 bg-sage-100 p-4"
-                >
+                <div className="dropdown-pop mb-4 rounded-lg border border-sage-300 bg-sage-100 p-4">
                   <p className="text-sm text-sage-800">
                     {successMessage}
                   </p>
-                </motion.div>
+                </div>
               )}
 
               {errorMessage && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-4 rounded-lg border border-red-300 bg-red-50 p-4"
-                >
+                <div className="dropdown-pop mb-4 rounded-lg border border-red-300 bg-red-50 p-4">
                   <p className="text-sm text-red-800">
                     {errorMessage}
                   </p>
-                </motion.div>
+                </div>
               )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -293,9 +279,7 @@ export function ReviewSheet({
                 </p>
               </form>
             </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+      </div>
+    </>
   );
 }

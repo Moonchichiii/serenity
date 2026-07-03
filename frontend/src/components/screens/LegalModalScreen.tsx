@@ -7,16 +7,9 @@ import { CookiePolicy } from "@/components/legal/CookiePolicy";
 import { TermsAndConditions } from "@/components/legal/TermsAndConditions";
 import { AccessibilityStatement } from "@/components/legal/AccessibilityStatement";
 
-type LegalPageKey =
-  | "legal"
-  | "privacy"
-  | "cookies"
-  | "terms"
-  | "accessibility";
-
 export default function LegalModalScreen() {
   const { getPayload } = useModal();
-  const page = (getPayload("legal")?.page ?? "legal") as LegalPageKey;
+  const page = (getPayload("legal")?.page ?? "legal");
 
   const Content = useMemo(() => {
     switch (page) {

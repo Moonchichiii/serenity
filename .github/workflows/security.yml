@@ -1,0 +1,76 @@
+name: Security Scans
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "23 4 * * 1" # Mondays 04:23 UTC
+
+permissions:
+  contents: read
+
+jobs:
+  # ── Python dependency audit (uv.lock → pip-audit against OSV/PyPI) ──
+  python-deps:
+    name: pip-audit (backend)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - name: Export locked prod dependencies
+        working-directory: backend
+        run: uv export --frozen --no-dev --extra prod --no-emit-project -o requirements-audit.txt
+      - name: Audit
+        working-directory: backend
+        run: uvx pip-audit --strict -r requirements-audit.txt
+
+  # ── JS dependency audit (bun.lock) ──
+  js-deps:
+    name: bun audit (frontend)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun audit
+
+  # ── Secrets scanning (full git history) ──
+  gitleaks:
+    name: Gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── Docker image build + Trivy scan (gate on HIGH/CRITICAL) ──
+  docker-scan:
+    name: Trivy (backend image)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -f backend/Dockerfile backend -t laserenity-backend:scan
+      - name: Trivy image scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: laserenity-backend:scan
+          format: sarif
+          output: trivy-image.sarif
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+          ignore-unfixed: true
+      - name: Upload SARIF to code scanning
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-image.sarif
+          category: trivy-image

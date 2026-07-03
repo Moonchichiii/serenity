@@ -23,7 +23,8 @@ DATABASES = {
 # ── Cache — dummy ──────────────────────────────────
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "serenity-tests",
     }
 }
 
@@ -62,3 +63,6 @@ CONTENT_SECURITY_POLICY = None
 
 # ── Rate limiting — disabled for tests/dev ──────────
 RATELIMIT_ENABLE = False
+
+# WhiteNoise has no role under pytest and warns when staticfiles/ is absent.
+MIDDLEWARE = [m for m in MIDDLEWARE if "whitenoise" not in m.lower()]

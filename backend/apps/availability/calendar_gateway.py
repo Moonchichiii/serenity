@@ -32,7 +32,7 @@ def _get_credentials() -> Credentials | None:
     try:
         sa_json = base64.b64decode(sa_b64).decode("utf-8")
         info = json.loads(sa_json)
-        creds = Credentials.from_service_account_info(
+        creds: Credentials = Credentials.from_service_account_info(
             info, scopes=SCOPES
         )
         return creds

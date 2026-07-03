@@ -1,20 +1,17 @@
 import {
-  useMemo,
-  useState,
   useEffect,
+  useMemo,
+  useRef,
+  useState,
   type FC,
   type ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  motion,
-  AnimatePresence,
-  useReducedMotion,
-} from "framer-motion";
 import { ArrowLeft, ArrowRight, ChevronRight, X } from "lucide-react";
 
 import { ServicesHero } from "./ServicesHero";
 import { useCMSServices } from "@/hooks/useCMS";
+import { useGsapReveal } from "@/hooks/useGsapReveal";
 import { getLocalizedText } from "@/lib/localize";
 import TestimonialBanner from "@/features/testimonials/TestimonialBanner";
 import type { ResponsiveImage as ResponsiveImageType } from "@/types/api";
@@ -253,47 +250,83 @@ const MobileListItem: FC<{
   </button>
 );
 
-// 3. MOBILE DRAWER
+// 3. MOBILE DRAWER — CSS bottom sheet (framer-motion removed).
+//    Enter: mount closed → double-rAF → slide up. Exit: slide down,
+//    unmount on transitionend (timeout failsafe covers reduced motion,
+//    where transitions are disabled and the event never fires).
 const MobileServiceDrawer: FC<{
   service: ResolvedService | null;
   onClose: () => void;
 }> = ({ service, onClose }) => {
+  const [rendered, setRendered] = useState<ResolvedService | null>(null);
+  const [openCls, setOpenCls] = useState(false);
+  const isOpen = service !== null;
+
   useEffect(() => {
-    if (service) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "";
+    let raf1 = 0;
+    let raf2 = 0;
+    if (service) {
+      raf1 = requestAnimationFrame(() => {
+        setRendered(service);
+        raf2 = requestAnimationFrame(() => {
+          raf2 = requestAnimationFrame(() => setOpenCls(true));
+        });
+      });
+      return () => {
+        cancelAnimationFrame(raf1);
+        cancelAnimationFrame(raf2);
+      };
+    }
+    raf1 = requestAnimationFrame(() => setOpenCls(false));
+    const failsafe = setTimeout(() => setRendered(null), 450);
     return () => {
-      document.body.style.overflow = "";
+      cancelAnimationFrame(raf1);
+      clearTimeout(failsafe);
     };
   }, [service]);
 
-  return (
-    <AnimatePresence>
-      {service && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 z-50 bg-sage-deep/80 backdrop-blur-sm md:hidden"
-          />
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
-          <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{
-              type: "spring",
-              damping: 25,
-              stiffness: 200,
-            }}
-            className="fixed bottom-0 left-0 right-0 z-50 flex h-[85vh] flex-col overflow-hidden rounded-t-[2rem] bg-sage-deep shadow-[0_-10px_40px_rgba(0,0,0,0.3)] md:hidden"
-          >
+  if (!rendered) return null;
+
+  return (
+    <>
+      <div
+        onClick={onClose}
+        aria-hidden="true"
+        className={`fixed inset-0 z-50 bg-sage-deep/80 backdrop-blur-sm transition-opacity duration-300 motion-reduce:transition-none md:hidden ${
+          openCls ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      />
+
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={rendered.title}
+        inert={!openCls}
+        onTransitionEnd={(e) => {
+          if (
+            !openCls &&
+            e.target === e.currentTarget &&
+            e.propertyName === "transform"
+          ) {
+            setRendered(null);
+          }
+        }}
+        className={`fixed bottom-0 left-0 right-0 z-50 flex h-[85vh] flex-col overflow-hidden rounded-t-[2rem] bg-sage-deep shadow-[0_-10px_40px_rgba(0,0,0,0.3)] transition-transform duration-300 ease-out motion-reduce:transition-none md:hidden ${
+          openCls ? "translate-y-0" : "translate-y-full"
+        }`}
+      >
             <div className="relative h-2/5 w-full bg-sage-deep/80">
-              {service.image && (
+              {rendered.image && (
                 <ResponsiveImage
-                  image={service.image}
-                  alt={service.title}
+                  image={rendered.image}
+                  alt={rendered.title}
                   className="h-full w-full object-cover opacity-90"
                   optimizeWidth={800}
                 />
@@ -318,7 +351,7 @@ const MobileServiceDrawer: FC<{
                   lineHeight: "var(--leading-overline)",
                 }}
               >
-                {service.durationMinutes} Minutes
+                {rendered.durationMinutes} Minutes
               </span>
               <h3
                 className="mb-6 font-serif text-porcelain"
@@ -327,7 +360,7 @@ const MobileServiceDrawer: FC<{
                   lineHeight: "var(--leading-h2)",
                 }}
               >
-                {service.title}
+                {rendered.title}
               </h3>
               <p
                 className="mb-8 font-light text-sage-200/90"
@@ -336,7 +369,7 @@ const MobileServiceDrawer: FC<{
                   lineHeight: "var(--leading-body)",
                 }}
               >
-                {service.description}
+                {rendered.description}
               </p>
 
               <div className="flex items-center justify-between border-t border-white/10 pt-6">
@@ -347,14 +380,12 @@ const MobileServiceDrawer: FC<{
                     lineHeight: "var(--leading-h3)",
                   }}
                 >
-                  {formatPrice(service.price)}
+                  {formatPrice(rendered.price)}
                 </span>
               </div>
             </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+          </div>
+    </>
   );
 };
 
@@ -410,8 +441,10 @@ const DesktopGrid: FC<{ services: ResolvedService[] }> = ({
 // ── Main component ───────────────────────────────────────────────────
 export const Services: FC = () => {
   const { t } = useTranslation();
-  const reduceMotion = useReducedMotion();
   const services = useResolvedServices();
+
+  const headingRef = useRef<HTMLDivElement>(null);
+  useGsapReveal(headingRef, { whenVisible: true, stagger: 0.12 });
 
   const [selectedMobileService, setSelectedMobileService] =
     useState<ResolvedService | null>(null);
@@ -426,20 +459,15 @@ export const Services: FC = () => {
         className="bg-sage-deep py-(--space-section-y)"
       >
         <div className="container mx-auto px-(--space-container-x)">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={
-              reduceMotion ? { duration: 0 } : { duration: 0.8 }
-            }
+          <div
+            ref={headingRef}
             className="flex flex-col items-start gap-8 border-b border-white/10 md:flex-row md:items-end md:justify-between"
             style={{
               marginBottom: "var(--space-grid-gap)",
               paddingBottom: "var(--space-title-to-content)",
             }}
           >
-            <div className="max-w-2xl">
+            <div className="max-w-2xl" data-reveal>
               <p
                 className="mb-6 font-semibold uppercase tracking-[0.25em] text-terracotta-400"
                 style={{
@@ -463,6 +491,7 @@ export const Services: FC = () => {
               </h2>
             </div>
             <p
+              data-reveal
               className="max-w-md font-light text-sage-100/90"
               style={{
                 fontSize: "var(--typo-body)",
@@ -474,7 +503,7 @@ export const Services: FC = () => {
                   "A tailored approach to physical and mental equilibrium.",
               })}
             </p>
-          </motion.div>
+          </div>
 
           {!services ? (
             <div

@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type FC,
 } from "react";
@@ -13,6 +14,8 @@ import ResponsiveImage from "@/components/ui/ResponsiveImage";
 import CookieConsent from "@/components/ui/CookieConsent";
 import { useModal } from "@/components/modal/useModal";
 import { useCMSPage } from "@/hooks/useCMS";
+import { useGsapReveal } from "@/hooks/useGsapReveal";
+import { renderAccentTitle } from "@/lib/accentTitle";
 import { cn } from "@/lib/utils";
 import type { RenderableImage, WagtailHeroSlide } from "@/types/api";
 
@@ -32,6 +35,7 @@ interface HeroSlidesResult {
 }
 
 interface HeroContent {
+  eyebrow: string;
   title: string;
   subtitle: string;
   ctaPrivate: string;
@@ -212,6 +216,7 @@ function useHeroContent(
     );
 
     return {
+      eyebrow: t("hero.eyebrow"),
       title: slideTitle ?? pageTitle ?? t("hero.title"),
       subtitle:
         slideSubtitle ?? pageSubtitle ?? t("hero.subtitle"),
@@ -284,8 +289,8 @@ const BackgroundFallback: FC = () => (
 
 const Overlays: FC = () => (
   <>
-    <div className="absolute inset-0 bg-sage-900/30" />
-    <div className="absolute inset-0 bg-linear-to-r from-sage-900/45 via-transparent to-transparent" />
+    <div className="absolute inset-0 bg-sage-950/20" />
+    <div className="absolute inset-0 bg-linear-to-t from-sage-950/75 via-sage-950/30 to-transparent" />
   </>
 );
 
@@ -317,6 +322,9 @@ export const Hero: FC = () => {
     scrollToElement("services-hero");
   }, []);
 
+  const contentRef = useRef<HTMLDivElement>(null);
+  useGsapReveal(contentRef, { delay: 0.55, stagger: 0.09 });
+
   return (
     <section
       id="home"
@@ -341,28 +349,42 @@ export const Hero: FC = () => {
       </div>
 
       {/* Content */}
-      <div className="container relative z-10 mx-auto flex h-full w-full max-w-275 flex-col items-start justify-end px-[var(--space-container-x)] text-left md:justify-center">
-        <h1 className="hero-heading-mb max-w-3xl text-editorial-lg text-white sm:text-editorial-xl">
-          {content.title}
+      <div
+        ref={contentRef}
+        className="container relative z-10 mx-auto flex h-full w-full max-w-275 flex-col items-start justify-end px-[var(--space-container-x)] text-left md:justify-center"
+      >
+        <p className="hero-eyebrow mb-5" data-reveal>
+          {content.eyebrow}
+        </p>
+
+        <h1
+          className="hero-heading-mb max-w-4xl text-hero-display text-balance text-white"
+          data-reveal
+        >
+          {renderAccentTitle(content.title)}
         </h1>
 
         <p
-          className="max-w-xs text-sm/relaxed text-white/80 line-clamp-2 sm:line-clamp-none sm:max-w-xl sm:text-base/relaxed"
+          className="max-w-xs text-sm/relaxed text-white/85 line-clamp-2 sm:line-clamp-none sm:max-w-xl sm:text-base/relaxed"
           style={{
             marginBottom: "clamp(1.5rem, 1rem + 2vw, 2.5rem)",
           }}
+          data-reveal
         >
           {content.subtitle}
         </p>
 
         {/* CTAs */}
-        <div className="flex w-full flex-col items-start gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-5">
+        <div
+          className="flex w-full flex-col items-start gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-5"
+          data-reveal
+        >
           <Button
             size="lg"
             onClick={handlePrivateClick}
             aria-label={content.ctaPrivate}
             className={cn(
-              "hero-cta-text btn-primary rounded-full font-bold uppercase",
+              "hero-cta-text btn-accent rounded-full font-bold uppercase",
               "h-11 w-full px-5 text-xs tracking-wider",
               "sm:h-12 sm:w-auto sm:px-7 sm:text-sm sm:tracking-widest",
             )}
@@ -375,10 +397,12 @@ export const Hero: FC = () => {
             onClick={handleCorporateClick}
             aria-label={content.ctaCorporate}
             className={cn(
-              "hero-cta-text group inline-flex items-center gap-2",
-              "text-sm font-semibold tracking-wide text-white/90",
-              "transition-colors duration-300 hover:text-white",
-              "py-2 sm:text-base",
+              "hero-cta-text group inline-flex items-center justify-center gap-2",
+              "h-11 rounded-full px-6 sm:h-12",
+              "text-sm font-semibold tracking-wide text-white/90 sm:text-base",
+              "ring-1 ring-inset ring-white/50",
+              "transition-all duration-300",
+              "hover:-translate-y-0.5 hover:bg-white/10 hover:text-white hover:ring-white/90",
             )}
           >
             {content.ctaCorporate}

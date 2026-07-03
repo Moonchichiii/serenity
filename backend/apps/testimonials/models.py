@@ -28,6 +28,7 @@ MONTHS_FR: ClassVar[dict[int, str]] = {
 
 @register_snippet
 class Testimonial(ClusterableModel):
+    __test__ = False  # name starts with "Test" — tell pytest this is not a test class
     """Customer testimonial with moderation support."""
 
     STATUS_CHOICES: ClassVar[list[tuple[str, str]]] = [
@@ -91,6 +92,7 @@ class Testimonial(ClusterableModel):
 
 @register_snippet
 class TestimonialReply(models.Model):
+    __test__ = False  # name starts with "Test" — tell pytest this is not a test class
     """Reply to a testimonial."""
 
     STATUS_CHOICES: ClassVar[list[tuple[str, str]]] = [

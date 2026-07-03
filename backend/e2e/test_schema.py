@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 from drf_spectacular.generators import SchemaGenerator
 from drf_spectacular.validation import validate_schema
@@ -5,22 +7,22 @@ from drf_spectacular.validation import validate_schema
 
 @pytest.mark.django_db
 class TestOpenAPISchema:
-    def _generate_schema(self):
+    def _generate_schema(self) -> dict[str, Any]:
         generator = SchemaGenerator(patterns=None)
-        return generator.get_schema(request=None, public=True)
+        return dict(generator.get_schema(request=None, public=True))
 
-    def test_schema_generates_without_errors(self):
+    def test_schema_generates_without_errors(self) -> None:
         schema = self._generate_schema()
         assert schema is not None
         assert "paths" in schema
         assert "components" in schema
 
-    def test_schema_is_valid_openapi(self):
+    def test_schema_is_valid_openapi(self) -> None:
         schema = self._generate_schema()
         errors = validate_schema(schema)
         assert not errors, f"Schema validation errors: {errors}"
 
-    def test_schema_contains_critical_endpoints(self):
+    def test_schema_contains_critical_endpoints(self) -> None:
         schema = self._generate_schema()
         paths = schema.get("paths", {})
 
@@ -31,7 +33,7 @@ class TestOpenAPISchema:
         for path in critical:
             assert path in paths, f"Missing critical endpoint: {path}"
 
-    def test_hydrated_response_shape(self):
+    def test_hydrated_response_shape(self) -> None:
         schema = self._generate_schema()
         hydrated_path = schema["paths"].get("/api/homepage/hydrated/", {})
         get_op = hydrated_path.get("get", {})

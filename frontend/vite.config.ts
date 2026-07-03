@@ -48,7 +48,6 @@ export default defineConfig({
             }
             if (id.includes("@tanstack/react-router")) return "router";
             if (id.includes("@tanstack/react-query")) return "query";
-            if (id.includes("framer-motion")) return "motion";
             if (id.includes("@react-google-maps")) return "maps";
             if (
               id.includes("react-hook-form") ||

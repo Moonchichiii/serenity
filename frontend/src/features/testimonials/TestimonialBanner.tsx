@@ -1,94 +1,102 @@
-import { memo, useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { motion } from 'framer-motion'
-import { Star, MessageCircle, Quote } from 'lucide-react'
+import { memo, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Star, MessageCircle, Quote } from "lucide-react";
 
-import { useTestimonials } from '@/hooks/useTestimonials'
-import type { WagtailTestimonial } from '@/types/api'
-import { TestimonialModal } from '@/components/modal/TestimonialModal'
+import { useTestimonials } from "@/hooks/useTestimonials";
+import { renderAccentTitle } from "@/lib/accentTitle";
+import type { WagtailTestimonial } from "@/types/api";
+import { TestimonialModal } from "@/components/modal/TestimonialModal";
+
+/**
+ * TestimonialBanner — V2 skin, identical behaviour.
+ *
+ * The roller stays: two opposing rows on desktop, one row on mobile,
+ * pause on hover and while the modal is open, click a card to read the
+ * full story. What changed:
+ *  - framer-motion removed — the loop is a pure CSS keyframe
+ *    (.marquee-track, translateX 0→-50% over duplicated content), so
+ *    prefers-reduced-motion is handled in the stylesheet and the main
+ *    thread does nothing while it rolls.
+ *  - Palette aligned: Tailwind's default stone/amber greys are gone —
+ *    charcoal, warm-grey, sand, terracotta and honey tokens throughout,
+ *    on a cream section canvas so the white cards actually lift.
+ *  - Typography: Sentient heading with the shared accent-word italic,
+ *    terracotta section eyebrow (the light-canvas rule).
+ */
 
 export function TestimonialBanner() {
-  const { t } = useTranslation()
-  const { data: testimonials = [] } = useTestimonials(4)
+  const { t } = useTranslation();
+  const { data: testimonials = [] } = useTestimonials(4);
 
   const [selectedTestimonial, setSelectedTestimonial] =
-    useState<WagtailTestimonial | null>(null)
+    useState<WagtailTestimonial | null>(null);
 
-  const prefersReduced =
-    typeof window !== 'undefined' &&
-    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-
-  const [isMobile, setIsMobile] = useState(false)
+  const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
-  /* ── Items: always duplicate for seamless marquee on both layouts ── */
+  /* Duplicate so a -50% translate loops seamlessly. */
   const items = useMemo(() => {
-    if (testimonials.length === 0) return []
+    if (testimonials.length === 0) return [];
     if (testimonials.length < 4) {
-      return [
-        ...testimonials,
-        ...testimonials,
-        ...testimonials,
-        ...testimonials,
-      ]
+      return [...testimonials, ...testimonials, ...testimonials, ...testimonials];
     }
-    return [...testimonials, ...testimonials]
-  }, [testimonials])
+    return [...testimonials, ...testimonials];
+  }, [testimonials]);
 
-  const [paused, setPaused] = useState(false)
+  const [paused, setPaused] = useState(false);
 
-  if (!testimonials || testimonials.length === 0) return null
+  if (!testimonials || testimonials.length === 0) return null;
 
   const handleCardClick = (testimonial: WagtailTestimonial) => {
-    setPaused(true)
-    setSelectedTestimonial(testimonial)
-  }
+    setPaused(true);
+    setSelectedTestimonial(testimonial);
+  };
 
   const handleModalClose = () => {
-    setSelectedTestimonial(null)
-    setPaused(false)
-  }
+    setSelectedTestimonial(null);
+    setPaused(false);
+  };
 
   const renderCard = (testimonial: WagtailTestimonial, index: number) => (
     <article
       key={`${testimonial.id}-${index}`}
       onClick={() => handleCardClick(testimonial)}
-      className="bg-white border border-stone-100 rounded-[24px] p-6 sm:p-8 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300 w-[280px] sm:w-[320px] md:w-[380px] flex-shrink-0 cursor-pointer group relative snap-center"
+      className="group relative w-[280px] flex-shrink-0 cursor-pointer rounded-2xl border border-warm-grey-100 bg-white p-6 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover sm:w-[320px] sm:p-8 md:w-[380px]"
     >
-      <Quote className="absolute top-6 right-6 w-6 h-6 sm:w-8 sm:h-8 text-stone-100 fill-stone-100 group-hover:text-sage-100 group-hover:fill-sage-100 transition-colors" />
+      <Quote className="absolute top-6 right-6 h-6 w-6 fill-sand-200 text-sand-200 transition-colors group-hover:fill-honey-200 group-hover:text-honey-200 sm:h-8 sm:w-8" />
 
-      <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+      <div className="mb-4 flex items-center gap-3 sm:mb-6 sm:gap-4">
         {testimonial.avatar ? (
           <img
             src={testimonial.avatar}
             alt=""
-            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white shadow-sm"
+            className="h-10 w-10 rounded-full border-2 border-white object-cover shadow-sm sm:h-12 sm:w-12"
             loading="lazy"
           />
         ) : (
           <div
-            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-serif font-medium"
+            className="flex h-10 w-10 items-center justify-center rounded-full font-heading sm:h-12 sm:w-12"
             style={{
-              backgroundColor: 'var(--color-sand-200)',
-              color: 'var(--color-sage-700)',
-              fontSize: 'var(--typo-body)',
+              backgroundColor: "var(--color-sand-200)",
+              color: "var(--color-sage-700)",
+              fontSize: "var(--typo-body)",
             }}
           >
-            {testimonial.name?.[0]?.toUpperCase() ?? '?'}
+            {testimonial.name?.[0]?.toUpperCase() ?? "?"}
           </div>
         )}
 
         <div className="min-w-0">
           <h3
-            className="font-serif font-medium text-stone-900 truncate"
+            className="truncate font-heading text-charcoal"
             style={{
-              fontSize: 'var(--typo-h4)',
-              lineHeight: 'var(--leading-h4)',
+              fontSize: "var(--typo-h4)",
+              lineHeight: "var(--leading-h4)",
             }}
           >
             {testimonial.name}
@@ -97,10 +105,10 @@ export function TestimonialBanner() {
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
                 key={i}
-                className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${
+                className={`h-3 w-3 sm:h-3.5 sm:w-3.5 ${
                   i < testimonial.rating
-                    ? 'fill-amber-400 text-amber-400'
-                    : 'text-stone-200'
+                    ? "fill-terracotta-400 text-terracotta-400"
+                    : "text-warm-grey-200"
                 }`}
               />
             ))}
@@ -109,10 +117,10 @@ export function TestimonialBanner() {
       </div>
 
       <p
-        className="text-stone-600 line-clamp-4 font-light"
+        className="line-clamp-4 font-light text-charcoal/70"
         style={{
-          fontSize: 'var(--typo-small)',
-          lineHeight: 'var(--leading-small)',
+          fontSize: "var(--typo-small)",
+          lineHeight: "var(--leading-small)",
         }}
       >
         &ldquo;{testimonial.text}&rdquo;
@@ -120,70 +128,84 @@ export function TestimonialBanner() {
 
       {testimonial.replies && testimonial.replies.length > 0 && (
         <div
-          className="mt-4 sm:mt-6 pt-4 border-t border-stone-50 flex items-center gap-2 font-medium text-sage-600"
+          className="mt-4 flex items-center gap-2 border-t border-sand-100 pt-4 font-medium text-sage-600 sm:mt-6"
           style={{
-            fontSize: 'var(--typo-caption)',
-            lineHeight: 'var(--leading-caption)',
+            fontSize: "var(--typo-caption)",
+            lineHeight: "var(--leading-caption)",
           }}
         >
-          <MessageCircle className="w-3.5 h-3.5" />
-          <span>
-            {t('testimonials.reply', { defaultValue: 'Read reply' })}
-          </span>
+          <MessageCircle className="h-3.5 w-3.5" />
+          <span>{t("testimonials.reply", { defaultValue: "Read reply" })}</span>
         </div>
       )}
     </article>
-  )
+  );
+
+  const marqueeRow = (
+    direction: "left" | "right",
+    duration: string,
+    keyOffsetA: number,
+    keyOffsetB: number,
+    gapClass: string,
+  ) => (
+    <div className={`flex overflow-hidden py-4 ${gapClass}`}>
+      <div
+        className={`marquee-track ${gapClass}`}
+        data-direction={direction}
+        data-paused={paused}
+        style={{ "--marquee-duration": duration } as React.CSSProperties}
+      >
+        {items.map((tst, i) => renderCard(tst, i + keyOffsetA))}
+        {items.map((tst, i) => renderCard(tst, i + keyOffsetB))}
+      </div>
+    </div>
+  );
 
   return (
     <section
-  className="relative overflow-hidden bg-white"
-  id="testimonials"
-  style={{
-    paddingTop: 'var(--space-section-y)',
-    paddingBottom: isMobile
-      ? 'calc(var(--space-section-y) + 5rem)'
-      : 'var(--space-section-y)',
-  }}
->
+      className="bg-tint-cream relative overflow-hidden"
+      id="testimonials"
+      style={{
+        paddingTop: "var(--space-section-y)",
+        paddingBottom: isMobile
+          ? "calc(var(--space-section-y) + 5rem)"
+          : "var(--space-section-y)",
+      }}
+    >
       <div className="noise-texture-subtle" aria-hidden="true" />
 
       <div
-        className="relative z-10 max-w-7xl mx-auto text-center"
+        className="relative z-10 mx-auto max-w-7xl text-center"
         style={{
-          paddingLeft: 'var(--space-container-x)',
-          paddingRight: 'var(--space-container-x)',
-          marginBottom: 'var(--space-title-to-content)',
+          paddingLeft: "var(--space-container-x)",
+          paddingRight: "var(--space-container-x)",
+          marginBottom: "var(--space-title-to-content)",
         }}
       >
-        <span
-          className="inline-block font-bold tracking-[0.2em] text-stone-600 uppercase mb-3"
-          style={{
-            fontSize: 'var(--typo-overline)',
-            lineHeight: 'var(--leading-overline)',
-          }}
-        >
-          {t('testimonials.label', { defaultValue: 'Testimonials' })}
+        <span className="section-eyebrow mb-4">
+          {t("testimonials.label", { defaultValue: "Testimonials" })}
         </span>
         <h2
-          className="font-serif font-medium text-stone-900"
+          className="font-heading text-charcoal"
           style={{
-            fontSize: 'var(--typo-h2)',
-            lineHeight: 'var(--leading-h2)',
-            marginBottom: 'var(--space-heading-to-paragraph)',
+            fontSize: "var(--typo-h2)",
+            lineHeight: "var(--leading-h2)",
+            marginBottom: "var(--space-heading-to-paragraph)",
           }}
         >
-          {t('testimonials.title', { defaultValue: 'Kind Words' })}
+          {renderAccentTitle(
+            t("testimonials.title", { defaultValue: "Kind Words" }),
+          )}
         </h2>
         <p
-          className="text-stone-500 max-w-xl mx-auto font-light"
+          className="mx-auto max-w-xl font-light text-charcoal/60"
           style={{
-            fontSize: 'var(--typo-body)',
-            lineHeight: 'var(--leading-body)',
+            fontSize: "var(--typo-body)",
+            lineHeight: "var(--leading-body)",
           }}
         >
-          {t('testimonials.subtitle', {
-            defaultValue: 'Experiences shared by our community',
+          {t("testimonials.subtitle", {
+            defaultValue: "Experiences shared by our community",
           })}
         </p>
       </div>
@@ -195,86 +217,29 @@ export function TestimonialBanner() {
           !isMobile && !selectedTestimonial && setPaused(false)
         }
       >
+        {/* Edge fades — cream, matching the section canvas */}
+        <div
+          className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 sm:w-32"
+          style={{
+            background:
+              "linear-gradient(to right, var(--color-cream), transparent)",
+          }}
+        />
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 sm:w-32"
+          style={{
+            background:
+              "linear-gradient(to left, var(--color-cream), transparent)",
+          }}
+        />
+
         {isMobile ? (
-          /* ── Mobile: single-row auto-scrolling marquee ── */
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-            <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
-
-            <div className="flex gap-4 overflow-hidden py-4">
-              <motion.div
-                className="flex gap-4 w-max"
-                animate={
-                  prefersReduced || paused
-                    ? undefined
-                    : { x: ['0%', '-50%'] }
-                }
-                transition={{
-                  x: {
-                    repeat: Infinity,
-                    repeatType: 'loop',
-                    duration: 25,
-                    ease: 'linear',
-                  },
-                }}
-              >
-                {items.map((tst, i) => renderCard(tst, i))}
-                {items.map((tst, i) => renderCard(tst, i + 500))}
-              </motion.div>
-            </div>
-          </div>
+          marqueeRow("left", "25s", 0, 500, "gap-4")
         ) : (
-          /* ── Desktop / Tablet: two-row opposing marquees ── */
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 w-24 sm:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-            <div className="absolute inset-y-0 right-0 w-24 sm:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
-
-            {/* Row 1 → left */}
-            <div className="flex gap-6 overflow-hidden py-4">
-              <motion.div
-                className="flex gap-6 w-max"
-                animate={
-                  prefersReduced || paused
-                    ? undefined
-                    : { x: ['0%', '-50%'] }
-                }
-                transition={{
-                  x: {
-                    repeat: Infinity,
-                    repeatType: 'loop',
-                    duration: 40,
-                    ease: 'linear',
-                  },
-                }}
-              >
-                {items.map((tst, i) => renderCard(tst, i))}
-                {items.map((tst, i) => renderCard(tst, i + 100))}
-              </motion.div>
-            </div>
-
-            {/* Row 2 → right */}
-            <div className="flex gap-6 overflow-hidden py-4">
-              <motion.div
-                className="flex gap-6 w-max"
-                animate={
-                  prefersReduced || paused
-                    ? undefined
-                    : { x: ['-50%', '0%'] }
-                }
-                transition={{
-                  x: {
-                    repeat: Infinity,
-                    repeatType: 'loop',
-                    duration: 45,
-                    ease: 'linear',
-                  },
-                }}
-              >
-                {items.map((tst, i) => renderCard(tst, i + 200))}
-                {items.map((tst, i) => renderCard(tst, i + 300))}
-              </motion.div>
-            </div>
-          </div>
+          <>
+            {marqueeRow("left", "40s", 0, 100, "gap-6")}
+            {marqueeRow("right", "45s", 200, 300, "gap-6")}
+          </>
         )}
       </div>
 
@@ -284,7 +249,7 @@ export function TestimonialBanner() {
         onClose={handleModalClose}
       />
     </section>
-  )
+  );
 }
 
-export default memo(TestimonialBanner)
+export default memo(TestimonialBanner);

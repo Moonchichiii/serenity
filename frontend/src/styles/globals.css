@@ -58,6 +58,7 @@
   --typo-caption: clamp(0.6875rem, 0.66rem + 0.14vw, 0.75rem);
   --typo-overline: clamp(0.625rem, 0.6rem + 0.1vw, 0.6875rem);
 
+  --typo-hero-display: clamp(2.5rem, 1.9rem + 4.2vw, 5rem);
   --typo-services-display: clamp(3.5rem, 2.5rem + 5vw, 7.5rem);
   --typo-services-display-sub: clamp(2.8rem, 2rem + 4vw, 6.5rem);
   --leading-services-display: 0.92;
@@ -90,6 +91,7 @@
   --color-sage-700: #3a5c45;
   --color-sage-800: #2b4633;
   --color-sage-900: #233d37;
+  --color-sage-950: #182b25;
 
   --color-sand-50: #fdfaf6;
   --color-sand-100: #f7f2eb;
@@ -406,6 +408,184 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     background-color: var(--color-sage-800);
     border-color: var(--color-sage-800);
     box-shadow: var(--shadow-glow-sage);
+  }
+
+  /* Accent action — terracotta is reserved for "do this" moments (V2). */
+  .btn-accent {
+    background-color: var(--color-terracotta-500);
+    color: #ffffff;
+    border: 2px solid var(--color-terracotta-500);
+    transition: var(--transition-smooth);
+  }
+
+  .btn-accent:hover {
+    background-color: var(--color-terracotta-600);
+    border-color: var(--color-terracotta-600);
+    box-shadow: var(--shadow-warm);
+    transform: translateY(-2px);
+  }
+
+  .btn-accent:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  /* ── Header V2 motion (no framer-motion) ─────────────────── */
+
+  /* Underline sweep: honey over the dark hero, terracotta on light. */
+  .site-nav {
+    --nav-underline: var(--color-honey-300);
+  }
+  .site-nav[data-scrolled="true"] {
+    --nav-underline: var(--color-terracotta-500);
+  }
+  .nav-underline {
+    position: relative;
+  }
+  .nav-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -6px;
+    height: 2px;
+    background-color: var(--nav-underline);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  .nav-underline:hover::after,
+  .nav-underline:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  /* Language dropdown entrance. */
+  @keyframes dropdown-pop {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .dropdown-pop {
+    animation: dropdown-pop 0.18s ease-out both;
+  }
+
+  /* Mobile panel: animate height-to-auto via grid-template-rows. */
+  .mobile-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition:
+      grid-template-rows 0.32s cubic-bezier(0.65, 0, 0.35, 1),
+      opacity 0.25s ease;
+  }
+  .mobile-panel.is-open {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+  .mobile-panel-inner {
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-underline::after,
+    .mobile-panel {
+      transition: none;
+    }
+    .dropdown-pop {
+      animation: none;
+    }
+  }
+
+  /* ── Section eyebrow — light-canvas sibling of .hero-eyebrow ── */
+  .section-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: var(--typo-overline);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--color-terracotta-500);
+  }
+  .section-eyebrow::before {
+    content: "";
+    width: 1.75rem;
+    height: 1px;
+    background-color: var(--color-terracotta-400);
+  }
+
+  /* ── Pure-CSS marquee (replaces the framer-motion loops) ──────
+     Track content must be duplicated once; translating -50% then
+     looping is therefore seamless. Pause via data-paused (hover /
+     open modal). Reduced motion: no animation, first cards visible. */
+  @keyframes marquee-left {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes marquee-right {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee-left var(--marquee-duration, 40s) linear infinite;
+    will-change: transform;
+  }
+  .marquee-track[data-direction="right"] {
+    animation-name: marquee-right;
+  }
+  .marquee-track[data-paused="true"] {
+    animation-play-state: paused;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+    }
+  }
+
+  /* Hero display type — the V2 statement size (Sentient, tight leading). */
+  .text-hero-display {
+    font-family: var(--font-heading);
+    font-size: var(--typo-hero-display);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    font-weight: 420;
+  }
+
+  .text-hero-display em {
+    font-style: italic;
+    font-weight: 380;
+  }
+
+  /* Eyebrow — overline with a honey dash, for dark photo canvases. */
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: var(--typo-overline);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .hero-eyebrow::before {
+    content: "";
+    width: 1.75rem;
+    height: 1px;
+    background-color: var(--color-honey-300);
   }
 }
 

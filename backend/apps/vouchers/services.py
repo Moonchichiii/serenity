@@ -82,9 +82,9 @@ def _send_recipient_email(
     text_template = f"vouchers/emails/voucher_recipient_{lang}.txt"
 
     try:
-        html = render_to_string(html_template, context)
+        html: str = render_to_string(html_template, context)
         try:
-            text = render_to_string(text_template, context)
+            text: str = render_to_string(text_template, context)
         except TemplateDoesNotExist:
             text = (
                 f"You have received a gift voucher: {voucher.code}\n"
@@ -126,7 +126,7 @@ def _send_admin_email(
     html_template = "vouchers/email_admin.html"
 
     try:
-        html = render_to_string(html_template, context)
+        html: str = render_to_string(html_template, context)
     except TemplateDoesNotExist:
         logger.error("Template not found: %s", html_template)
         html = (

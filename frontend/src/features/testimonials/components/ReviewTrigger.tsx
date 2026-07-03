@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MessageSquarePlus } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useMountTransition } from "@/hooks/useMountTransition";
 import { ReviewSheet } from "./ReviewSheet";
 
 interface ReviewTriggerProps {
@@ -87,17 +87,16 @@ export function ReviewTrigger({
     };
   }, [targetSectionId, hideSectionId]);
 
+  const { rendered, open: shown } = useMountTransition(isVisible, 300);
+
   return (
     <>
-      <AnimatePresence>
-        {isVisible && (
-          <motion.div
-            initial={{ x: 100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 100, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed right-4 top-1/2 z-40 -translate-y-1/2"
-          >
+      {rendered && (
+        <div
+          className={`fixed right-4 top-1/2 z-40 -translate-y-1/2 transition-all duration-300 ease-out motion-reduce:transition-none ${
+            shown ? "translate-x-0 opacity-100" : "translate-x-24 opacity-0"
+          }`}
+        >
             <button
               type="button"
               onClick={() => setIsOpen(true)}
@@ -109,9 +108,8 @@ export function ReviewTrigger({
                 {t("review.trigger")}
               </span>
             </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
 
       <ReviewSheet open={isOpen} onOpenChange={setIsOpen} />
     </>

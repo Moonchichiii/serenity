@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { useMountTransition } from "@/hooks/useMountTransition";
 import { X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
@@ -62,36 +62,35 @@ export function SheetShell({
     };
   }, [isOpen]);
 
-  const ui = (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-9999 flex justify-end">
-          <motion.div
-            ref={overlayRef}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={(e) => {
-              if (e.target === overlayRef.current) onClose();
-            }}
-            className="absolute inset-0 bg-sage-deep/60 backdrop-blur-sm"
-          />
+  const { rendered, open } = useMountTransition(isOpen, 320);
 
-          <motion.div
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            role="dialog"
+  if (!rendered) return null;
+
+  const ui = (
+    <div className="fixed inset-0 z-9999 flex justify-end">
+      <div
+        ref={overlayRef}
+        onClick={(e) => {
+          if (e.target === overlayRef.current) onClose();
+        }}
+        className={`absolute inset-0 bg-sage-deep/60 backdrop-blur-sm transition-opacity duration-300 motion-reduce:transition-none ${
+          open ? "opacity-100" : "opacity-0"
+        }`}
+      />
+
+      <div
+        role="dialog"
             aria-modal="true"
             aria-labelledby={headingId}
             data-testid={modalId ? `${modalId}-modal` : "modal-shell"}
-            className={cn(
-              "relative z-10 flex h-full w-full flex-col overflow-hidden bg-porcelain shadow-2xl",
-              "sm:max-w-md md:max-w-lg",
-              className,
-            )}
-          >
+        className={cn(
+          "relative z-10 flex h-full w-full flex-col overflow-hidden bg-porcelain shadow-2xl",
+          "sm:max-w-md md:max-w-lg",
+          "transition-transform duration-300 ease-out motion-reduce:transition-none",
+          open ? "translate-x-0" : "translate-x-full",
+          className,
+        )}
+      >
             <div className="relative flex items-center justify-between overflow-hidden bg-sage-deep px-6 py-6 text-porcelain shrink-0">
               <div className="noise-texture pointer-events-none absolute inset-0 opacity-10" />
 
@@ -123,10 +122,8 @@ export function SheetShell({
             <div className="modal-scroll flex-1 overflow-y-auto bg-porcelain p-6 md:p-8">
               {children}
             </div>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+      </div>
+    </div>
   );
 
   return createPortal(ui, document.body);

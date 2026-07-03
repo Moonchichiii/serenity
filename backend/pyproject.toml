@@ -4,7 +4,7 @@ version = "1.0.0"
 description = "Serenity salon booking platform backend"
 requires-python = ">=3.12"
 dependencies = [
-    "django>=5.0.10,<5.1",
+    "django>=5.2,<5.3",
     "djangorestframework>=3.15.2,<4",
     "django-cors-headers>=4.6,<5",
     "django-filter>=24,<26",
@@ -14,7 +14,7 @@ dependencies = [
     "dj-database-url>=2.3,<3",
     "python-decouple>=3.8,<4",
     "python-dateutil>=2.9,<3",
-    "wagtail>=7.3,<8",
+    "wagtail>=7.4,<8",
     "wagtail-localize>=1.10,<2",
     "Pillow>=11.0,<12",
     "cloudinary>=1.40,<2",
@@ -25,6 +25,7 @@ dependencies = [
     "google-api-python-client>=2.158,<3",
     "drf-spectacular>=0.28,<1",
     "gunicorn>=23,<24",
+    "uvicorn-worker>=0.3,<1",
     "stripe>=14.4.0,<15",
     "whitenoise>=6.8,<7",
     "uvicorn[standard]>=0.42.0",
@@ -93,19 +94,14 @@ module = [
     "decouple",
     "decouple.*",
     "cloudinary.*",
-    "cloudinary_storage.*",
     "wagtail.*",
-    "wagtail_localize.*",
     "modelcluster.*",
     "taggit.*",
     "dj_database_url.*",
-    "django_filters.*",
     "drf_spectacular.*",
-    "csp.*",
     "django_ratelimit.*",
     "google.*",
     "googleapiclient.*",
-    "httplib2.*",
     "pytest",
     "_pytest.*",
 ]
@@ -124,7 +120,7 @@ ignore_errors = true
 
 # ── django-stubs config ────────────────────────────
 [tool.django-stubs]
-django_settings_module = "config.settings"
+django_settings_module = "config.settings.test"
 
 # ── Ruff ────────────────────────────────────────────
 [tool.ruff]
@@ -158,8 +154,6 @@ ignore = [
     "E501",
     "B008",
     "B904",
-    "ANN101",
-    "ANN102",
     "ANN401",
 ]
 
@@ -181,7 +175,7 @@ line-ending = "auto"
 
 # ── Pytest ──────────────────────────────────────────
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "config.settings"
+DJANGO_SETTINGS_MODULE = "config.settings.test"
 pythonpath = ["."]
 testpaths = ["apps", "e2e"]
 python_files = ["test_*.py"]

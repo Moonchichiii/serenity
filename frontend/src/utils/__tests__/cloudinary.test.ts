@@ -1,135 +1,65 @@
 import { describe, it, expect } from "vitest";
 import {
-  extractPublicId,
-  buildCloudinaryUrl,
-  buildCloudinaryVideoUrl,
-  getOptimizedUrl,
-  getOptimizedVideoUrl,
-  getOptimizedBackgroundCover,
-  getOptimizedThumbnail,
+  CLOUDINARY_CLOUD_NAME,
+  getOptimizedCloudinaryUrl,
 } from "../cloudinary";
 
-describe("extractPublicId", () => {
-  it("extracts public ID from image upload URL", () => {
-    const url =
-      "https://res.cloudinary.com/dbzlaawqt/image/upload/v1234567890/folder/my-image.jpg";
-    expect(extractPublicId(url)).toBe("folder/my-image");
+const BASE = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}`;
+
+describe("getOptimizedCloudinaryUrl", () => {
+  it("returns empty string unchanged", () => {
+    expect(getOptimizedCloudinaryUrl("")).toBe("");
   });
 
-  it("extracts public ID from video upload URL", () => {
-    const url =
-      "https://res.cloudinary.com/dbzlaawqt/video/upload/v1234567890/folder/clip.mp4";
-    expect(extractPublicId(url)).toBe("folder/clip");
+  it("returns non-Cloudinary URLs unchanged", () => {
+    const url = "https://example.com/images/photo.jpg";
+    expect(getOptimizedCloudinaryUrl(url, 640)).toBe(url);
   });
 
-  it("extracts public ID without version prefix", () => {
-    const url =
-      "https://res.cloudinary.com/dbzlaawqt/image/upload/folder/my-image.jpg";
-    expect(extractPublicId(url)).toBe("folder/my-image");
+  it("skips URLs that already carry Cloudinary transforms", () => {
+    const url = `${BASE}/image/upload/f_auto,q_auto:good,w_800/v1/media/hero`;
+    expect(getOptimizedCloudinaryUrl(url, 320, "low")).toBe(url);
   });
 
-  it("returns the input as-is when it is not a URL", () => {
-    expect(extractPublicId("folder/my-image")).toBe(
-      "folder/my-image"
+  it("applies eco quality by default and preserves the version prefix", () => {
+    const url = `${BASE}/image/upload/v1234567890/folder/my-image`;
+    expect(getOptimizedCloudinaryUrl(url)).toBe(
+      `${BASE}/image/upload/f_auto,q_auto:eco/v1234567890/folder/my-image`,
     );
   });
 
-  it("returns null for empty string", () => {
-    expect(extractPublicId("")).toBeNull();
-  });
-
-  it("returns null for non-cloudinary URLs that don't match pattern", () => {
-    expect(
-      extractPublicId("https://example.com/random-image.jpg")
-    ).toBeNull();
-  });
-});
-
-describe("buildCloudinaryUrl", () => {
-  it("builds URL without transformations", () => {
-    const url = buildCloudinaryUrl("folder/image");
-    expect(url).toBe(
-      "https://res.cloudinary.com/dbzlaawqt/image/upload/folder/image"
+  it("applies good quality when requested", () => {
+    const url = `${BASE}/image/upload/v1/media/hero`;
+    expect(getOptimizedCloudinaryUrl(url, undefined, "good")).toBe(
+      `${BASE}/image/upload/f_auto,q_auto:good/v1/media/hero`,
     );
   });
 
-  it("builds URL with transformations", () => {
-    const url = buildCloudinaryUrl("folder/image", [
-      "w_400",
-      "f_auto",
-    ]);
-    expect(url).toBe(
-      "https://res.cloudinary.com/dbzlaawqt/image/upload/w_400,f_auto/folder/image"
+  it("applies low quality when requested", () => {
+    const url = `${BASE}/image/upload/v1/media/hero`;
+    expect(getOptimizedCloudinaryUrl(url, undefined, "low")).toBe(
+      `${BASE}/image/upload/f_auto,q_auto:low/v1/media/hero`,
     );
   });
-});
 
-describe("buildCloudinaryVideoUrl", () => {
-  it("builds video URL and strips .mp4 from public ID", () => {
-    const url = buildCloudinaryVideoUrl("folder/clip.mp4", [
-      "f_mp4",
-    ]);
-    expect(url).toContain("/video/upload/");
-    expect(url.endsWith("/folder/clip.mp4")).toBe(true);
-    expect(url).not.toContain("clip.mp4.mp4");
-  });
-});
-
-describe("getOptimizedUrl", () => {
-  it("returns empty string for empty input", () => {
-    expect(getOptimizedUrl("")).toBe("");
+  it("adds width with c_limit when width is given", () => {
+    const url = `${BASE}/image/upload/v1/media/hero`;
+    expect(getOptimizedCloudinaryUrl(url, 640)).toBe(
+      `${BASE}/image/upload/f_auto,q_auto:eco,w_640,c_limit/v1/media/hero`,
+    );
   });
 
-  it("applies width and quality transforms", () => {
-    const url = getOptimizedUrl("folder/image", 800, "good");
-    expect(url).toContain("w_800");
-    expect(url).toContain("q_auto:good");
-    expect(url).toContain("f_auto");
-    expect(url).toContain("dpr_1.5");
+  it("handles URLs without a version prefix", () => {
+    const url = `${BASE}/image/upload/folder/my-image`;
+    expect(getOptimizedCloudinaryUrl(url, 480)).toBe(
+      `${BASE}/image/upload/f_auto,q_auto:eco,w_480,c_limit/folder/my-image`,
+    );
   });
 
-  it("defaults to eco quality", () => {
-    const url = getOptimizedUrl("folder/image", 400);
-    expect(url).toContain("q_auto:eco");
-  });
-});
-
-describe("getOptimizedVideoUrl", () => {
-  it("returns empty string for empty input", () => {
-    expect(getOptimizedVideoUrl("")).toBe("");
-  });
-
-  it("applies f_mp4 and width transforms", () => {
-    const url = getOptimizedVideoUrl("folder/clip", 1280, "good");
-    expect(url).toContain("f_mp4");
-    expect(url).toContain("w_1280");
-    expect(url).toContain("q_auto:good");
-  });
-});
-
-describe("getOptimizedBackgroundCover", () => {
-  it("scales width by 1.2x", () => {
-    const url = getOptimizedBackgroundCover("folder/bg", 640);
-    // 640 * 1.2 = 768
-    expect(url).toContain("w_768");
-  });
-});
-
-describe("getOptimizedThumbnail", () => {
-  it("returns empty string for empty input", () => {
-    expect(getOptimizedThumbnail("")).toBe("");
-  });
-
-  it("applies square crop transforms", () => {
-    const url = getOptimizedThumbnail("folder/thumb", 150);
-    expect(url).toContain("w_150");
-    expect(url).toContain("h_150");
-    expect(url).toContain("c_fill");
-  });
-
-  it("defaults to 200px size", () => {
-    const url = getOptimizedThumbnail("folder/thumb");
-    expect(url).toContain("w_200");
-    expect(url).toContain("h_200");
+  it("also optimizes video upload URLs", () => {
+    const url = `${BASE}/video/upload/v99/media/clip`;
+    expect(getOptimizedCloudinaryUrl(url)).toBe(
+      `${BASE}/video/upload/f_auto,q_auto:eco/v99/media/clip`,
+    );
   });
 });

@@ -1,4 +1,4 @@
-import { Facebook } from "lucide-react";
+import { FacebookGlyph } from "@/components/ui/BrandIcons";
 
 type Props = {
   size?: number;
@@ -52,7 +52,7 @@ const AnimatedFacebookIcon = ({
           boxShadow: "0 4px 12px -4px rgba(59, 89, 152, 0.2)",
         }}
       >
-        <Facebook
+        <FacebookGlyph
           size={Math.round(size * 0.45)}
           className="text-white transition-transform duration-300 ease-out group-hover:scale-110"
           strokeWidth={1.6}

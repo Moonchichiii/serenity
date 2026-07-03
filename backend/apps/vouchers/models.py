@@ -1,5 +1,6 @@
 import secrets
 import string
+from typing import Any
 
 from django.db import models
 from wagtail.snippets.models import register_snippet
@@ -55,7 +56,7 @@ class GiftVoucher(models.Model):
     def __str__(self) -> str:
         return f"Voucher {self.code} — {self.recipient_name}"
 
-    def save(self, *args, **kwargs) -> None:
+    def save(self, *args: Any, **kwargs: Any) -> None:
         if not self.code:
             self.code = generate_voucher_code()
         super().save(*args, **kwargs)

@@ -1,10 +1,6 @@
-import { useMemo, type FC } from "react";
+import { useMemo, useRef, type FC } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  motion,
-  useReducedMotion,
-  type Transition,
-} from "framer-motion";
+import { useGsapReveal } from "@/hooks/useGsapReveal";
 import {
   Heart,
   User,
@@ -22,11 +18,6 @@ import { cn } from "@/lib/utils";
 
 const SECRET_TRIGGER_TAPS = 3;
 const SECRET_TRIGGER_WINDOW_MS = 900;
-
-const FADE_IN_TRANSITION: Transition = {
-  duration: 0.7,
-  ease: [0.16, 1, 0.3, 1],
-};
 
 interface GuideItem {
   icon: LucideIcon;
@@ -164,7 +155,7 @@ function useAboutContent(): AboutContent | null {
       en: unknown,
       fallback: string,
     ): string =>
-      cmsText(pick(fr, en) as string | undefined, fallback);
+      cmsText(pick(fr, en), fallback);
 
     return {
       title: txt(
@@ -208,7 +199,8 @@ function useAboutContent(): AboutContent | null {
 export const About: FC = () => {
   const { t } = useTranslation();
   const { open } = useModal();
-  const reduceMotion = useReducedMotion();
+  const revealRef = useRef<HTMLDivElement>(null);
+  useGsapReveal(revealRef, { whenVisible: true });
   const content = useAboutContent();
 
   const openContactDefault = () =>
@@ -231,13 +223,9 @@ export const About: FC = () => {
       />
 
       <div className="container relative z-10 mx-auto max-w-6xl px-[var(--space-container-x)]">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.1 }}
-          transition={
-            reduceMotion ? undefined : FADE_IN_TRANSITION
-          }
+        <div
+          ref={revealRef}
+          data-reveal
           className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-[var(--space-grid-gap)]"
         >
           {/* ── Left Column ── */}
@@ -347,7 +335,7 @@ export const About: FC = () => {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

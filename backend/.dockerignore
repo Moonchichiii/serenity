@@ -1,0 +1,45 @@
+# ── Build context = backend/ — this file is the one Docker reads ──
+
+# Virtualenvs & caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Tests & tooling — never ship in the image
+e2e/
+apps/*/tests/
+conftest.py
+
+# Local artifacts (regenerated or irrelevant in-image)
+staticfiles/
+media/
+db.sqlite3
+schema.yml
+*.log
+
+# Secrets & env — belt and braces
+.env
+.env.*
+*.env
+credentials.json
+client_secret*.json
+
+# Docker/deploy metadata
+Dockerfile
+.dockerignore
+fly.toml
+
+# VCS/editor
+.git/
+.gitignore
+.vscode/
+.idea/
+.DS_Store

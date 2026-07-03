@@ -9,12 +9,7 @@ import {
   type FC,
 } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  motion,
-  AnimatePresence,
-  useReducedMotion,
-  type Transition,
-} from "framer-motion";
+import { useGsapReveal } from "@/hooks/useGsapReveal";
 import { ChevronDown, MapPin } from "lucide-react";
 
 import { useCMSPage, useCMSGlobals } from "@/hooks/useCMS";
@@ -29,16 +24,6 @@ const LocationMap = lazy(() =>
 );
 
 // ── Constants ────────────────────────────────────────────────────────
-const FADE_TRANSITION: Transition = {
-  duration: 0.6,
-  ease: [0.16, 1, 0.3, 1],
-};
-
-const EXPAND_TRANSITION: Transition = {
-  duration: 0.35,
-  ease: [0.16, 1, 0.3, 1],
-};
-
 // ── Types ────────────────────────────────────────────────────────────
 interface FaqItem {
   question: string;
@@ -81,8 +66,7 @@ const AccordionItem: FC<{
   index: number;
   isOpen: boolean;
   onToggle: () => void;
-  reduceMotion: boolean | null;
-}> = ({ item, index, isOpen, onToggle, reduceMotion }) => (
+}> = ({ item, index, isOpen, onToggle }) => (
   <div
     className={cn(
       "border-b border-warm-grey-200/50 transition-colors",
@@ -117,21 +101,18 @@ const AccordionItem: FC<{
         )}
       />
     </button>
-    <AnimatePresence initial={false}>
-      {isOpen && (
-        <motion.div
-          id={`faq-answer-${index}`}
-          role="region"
-          aria-labelledby={`faq-question-${index}`}
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: "auto", opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
-          transition={
-            reduceMotion ? { duration: 0 } : EXPAND_TRANSITION
-          }
-          className="overflow-hidden"
-        >
-          <p
+    <div
+      id={`faq-answer-${index}`}
+      role="region"
+      aria-labelledby={`faq-question-${index}`}
+      aria-hidden={!isOpen}
+      className={cn(
+        "grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none",
+        isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+      )}
+    >
+      <div className="min-h-0 overflow-hidden">
+        <p
             className="text-warm-grey-500"
             style={{
               paddingBottom: "var(--space-card-gap)",
@@ -140,10 +121,9 @@ const AccordionItem: FC<{
             }}
           >
             {item.answer}
-          </p>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        </p>
+      </div>
+    </div>
   </div>
 );
 
@@ -161,7 +141,7 @@ function useFaqContent() {
     const pick = <T,>(fr: T, en: T): T =>
       pickLocalized(lang, fr, en);
     const txt = (fr: unknown, en: unknown, fb: string): string =>
-      cmsText(pick(fr, en) as string | undefined, fb);
+      cmsText(pick(fr, en), fb);
 
     const title = txt(
       data.faq_title_fr,
@@ -223,7 +203,8 @@ function useMapInView() {
 // ── Main component ──────────────────────────────────────────────────
 export const Faq: FC = () => {
   const { t } = useTranslation();
-  const reduceMotion = useReducedMotion();
+  const revealRef = useRef<HTMLDivElement>(null);
+  useGsapReveal(revealRef, { whenVisible: true });
   const content = useFaqContent();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const { ref: mapGateRef, inView: mapInView } = useMapInView();
@@ -255,14 +236,7 @@ export const Faq: FC = () => {
           paddingRight: "var(--space-container-x)",
         }}
       >
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.1 }}
-          transition={
-            reduceMotion ? undefined : FADE_TRANSITION
-          }
-        >
+        <div ref={revealRef} data-reveal>
           {/* ─── Header ─────────────────────────────────────── */}
           <div
             className="max-w-2xl"
@@ -310,7 +284,6 @@ export const Faq: FC = () => {
                     index={i}
                     isOpen={openIndex === i}
                     onToggle={() => toggle(i)}
-                    reduceMotion={reduceMotion}
                   />
                 ))}
               </div>
@@ -357,7 +330,7 @@ export const Faq: FC = () => {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

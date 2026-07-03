@@ -1,0 +1,45 @@
+version: 2
+updates:
+  # ── Backend: Python via uv (reads pyproject.toml + uv.lock) ──
+  - package-ecosystem: "uv"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      python-minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+      python-major:
+        patterns: ["*"]
+        update-types: ["major"]
+    open-pull-requests-limit: 10
+
+  # ── Frontend: bun workspace (reads root bun.lock, text format) ──
+  - package-ecosystem: "bun"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      js-minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+      js-major:
+        patterns: ["*"]
+        update-types: ["major"]
+    open-pull-requests-limit: 10
+
+  # ── Dockerfile base images ──
+  - package-ecosystem: "docker"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+
+  # ── GitHub Actions pins ──
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"

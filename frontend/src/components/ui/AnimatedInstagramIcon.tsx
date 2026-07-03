@@ -1,4 +1,4 @@
-import { Instagram } from "lucide-react";
+import { InstagramGlyph } from "@/components/ui/BrandIcons";
 
 type Props = {
   size?: number;
@@ -52,7 +52,7 @@ const AnimatedInstagramIcon = ({
           boxShadow: "0 4px 12px -4px rgba(81, 91, 212, 0.2)",
         }}
       >
-        <Instagram
+        <InstagramGlyph
           size={Math.round(size * 0.45)}
           className="text-white transition-transform duration-300 ease-out group-hover:scale-110"
           strokeWidth={1.6}

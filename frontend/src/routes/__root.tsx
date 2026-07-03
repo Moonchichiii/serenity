@@ -1,6 +1,7 @@
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
 import { Layout } from '@/components/layout/Layout'
+import { ShutterProvider } from '@/components/motion/ShutterTransition'
 import { ensureHydratedCMS } from '@/loaders/cms.loader'
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
@@ -8,8 +9,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     await ensureHydratedCMS(context.queryClient)
   },
   component: () => (
-    <Layout>
-      <Outlet />
-    </Layout>
+    <ShutterProvider>
+      <Layout>
+        <Outlet />
+      </Layout>
+    </ShutterProvider>
   ),
 })

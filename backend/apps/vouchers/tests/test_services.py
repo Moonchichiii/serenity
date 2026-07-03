@@ -237,7 +237,6 @@ class TestAdminEmail:
 
         voucher_services._send_admin_email(voucher, context, gift_settings)
 
-        kwargs = mock_email_cls.call_args.kwargs
         attached_html = mock_msg.attach_alternative.call_args.args[0]
         assert "New Voucher: ADM7654321" in attached_html
         assert "Sold for 100.00 EUR" in attached_html

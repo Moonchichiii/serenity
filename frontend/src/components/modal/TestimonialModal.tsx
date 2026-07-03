@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { motion, AnimatePresence } from "framer-motion";
+import { useMountTransition } from "@/hooks/useMountTransition";
 import { X, MessageCircle, Send, Star } from "lucide-react";
 import { useReplyToTestimonial } from "@/hooks/useTestimonials";
 import type { WagtailTestimonial } from "@/types/api";
@@ -22,6 +22,7 @@ export function TestimonialModal({
   const [email, setEmail] = useState("");
 
   const replyMutation = useReplyToTestimonial();
+  const { rendered, open: shown } = useMountTransition(isOpen, 250);
 
   if (!testimonial) return null;
 
@@ -48,24 +49,24 @@ export function TestimonialModal({
       ? "success"
       : "idle";
 
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="absolute inset-0 bg-charcoal/40 backdrop-blur-sm"
-          />
+  if (!rendered) return null;
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-2xl bg-card rounded-3xl shadow-elevated overflow-hidden max-h-[90vh] flex flex-col"
-          >
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+      <div
+        onClick={onClose}
+        className={`absolute inset-0 bg-charcoal/40 backdrop-blur-sm transition-opacity duration-200 motion-reduce:transition-none ${
+          shown ? "opacity-100" : "opacity-0"
+        }`}
+      />
+
+      <div
+        className={`relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-card shadow-elevated transition-all duration-200 ease-out motion-reduce:transition-none ${
+          shown
+            ? "translate-y-0 scale-100 opacity-100"
+            : "translate-y-4 scale-95 opacity-0"
+        }`}
+      >
             {/* Header / Main Testimonial */}
             <div className="p-6 sm:p-8 border-b border-sage-100 bg-sand-50 overflow-y-auto">
               <div className="flex justify-between items-start mb-4">
@@ -372,9 +373,7 @@ export function TestimonialModal({
                 )}
               </div>
             </div>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+      </div>
+    </div>
   );
 }

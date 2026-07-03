@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
-from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
@@ -12,6 +11,9 @@ from django.middleware.csrf import get_token
 from django.utils.translation import gettext as _
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 if getattr(settings, 'RATELIMIT_ENABLE', True):
     from django_ratelimit.decorators import ratelimit

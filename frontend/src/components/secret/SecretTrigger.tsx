@@ -1,48 +1,51 @@
-import type { PropsWithChildren } from 'react'
-import { useCallback, useRef } from 'react'
-import { useModal } from '@/components/modal'
+import { useRef } from "react";
+import type { ReactNode } from "react";
+import { useModal } from "@/components/modal/useModal";
+import type { ModalId } from "@/components/modal/modalTypes";
 
-type SecretTriggerProps = PropsWithChildren<{
-  modalId: 'cmsLogin' | 'contact'
-  times?: number
-  windowMs?: number
-  className?: string
-}>
+/**
+ * SecretTrigger — invisible easter-egg entry point.
+ *
+ * Fires `open(modalId)` when the child is tapped `times` times within a
+ * rolling `windowMs` window (e.g. triple-click "Serenity." in the About
+ * section opens the CMS login). Intentionally pointer-only and outside
+ * the tab order: a secret door should not announce itself to keyboard
+ * or screen-reader navigation.
+ */
+
+type Props = {
+  modalId: ModalId;
+  times: number;
+  windowMs: number;
+  children: ReactNode;
+  className?: string;
+};
 
 export default function SecretTrigger({
   modalId,
-  times = 3,
-  windowMs = 800,
-  className = '',
+  times,
+  windowMs,
   children,
-}: SecretTriggerProps) {
-  const { open } = useModal()
-  const clicksRef = useRef<number>(0)
-  const timerRef = useRef<number | null>(null)
+  className,
+}: Props) {
+  const { open } = useModal();
+  const tapsRef = useRef<number[]>([]);
 
-  const reset = () => {
-    clicksRef.current = 0
-    if (timerRef.current) {
-      window.clearTimeout(timerRef.current)
-      timerRef.current = null
-    }
-  }
+  const handleTap = () => {
+    const now = Date.now();
+    const recent = tapsRef.current.filter((t) => now - t < windowMs);
+    recent.push(now);
+    tapsRef.current = recent;
 
-  const handleClick = useCallback((e: React.MouseEvent) => {
-    clicksRef.current += 1
-    if (!timerRef.current) {
-      timerRef.current = window.setTimeout(reset, windowMs)
+    if (recent.length >= times) {
+      tapsRef.current = [];
+      open(modalId);
     }
-    if (clicksRef.current >= times) {
-      e.preventDefault()
-      reset()
-      open(modalId)
-    }
-  }, [modalId, times, windowMs, open])
+  };
 
   return (
-    <span onClick={handleClick} className={className} aria-hidden="true">
+    <span className={className} onClick={handleTap}>
       {children}
     </span>
-  )
+  );
 }

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- registry module by design */
 import { lazy, type ComponentType } from "react";
 import type { ModalId } from "./modalTypes";
 

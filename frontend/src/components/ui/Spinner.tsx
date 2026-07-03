@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface SpinnerProps {
@@ -14,20 +13,14 @@ const sizeClasses = {
 
 export function Spinner({ className, size = "md" }: SpinnerProps) {
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-      <motion.div
+    <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center">
+      <div
         className={cn(
-          "rounded-full border-2 border-muted",
-          "border-t-foreground",
+          "animate-spin rounded-full border-2 border-muted",
+          "border-t-foreground motion-reduce:animate-none",
           sizeClasses[size],
-          className
+          className,
         )}
-        animate={{ rotate: 360 }}
-        transition={{
-          duration: 1,
-          repeat: Infinity,
-          ease: "linear",
-        }}
       />
     </div>
   );

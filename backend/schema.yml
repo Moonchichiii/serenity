@@ -54,6 +54,40 @@ paths:
       - {}
       responses:
         '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HydratedHomepageResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/payments/checkout/:
+    post:
+      operationId: payments_checkout_create
+      tags:
+      - payments
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/payments/status/:
+    get:
+      operationId: payments_status_retrieve
+      tags:
+      - payments
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
           description: No response body
   /api/testimonials/:
     get:
@@ -71,7 +105,6 @@ paths:
   /api/testimonials/{testimonial_id}/reply/:
     post:
       operationId: testimonials_reply_create
-      description: Submit a reply to a testimonial for moderation.
       parameters:
       - in: path
         name: testimonial_id
@@ -116,7 +149,6 @@ paths:
   /api/vouchers/create/:
     post:
       operationId: vouchers_create_create
-      description: Create a gift voucher and optionally book a calendar slot.
       tags:
       - vouchers
       security:
@@ -126,52 +158,6 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/vouchers/cancel/{confirmation_code}/:
-    delete:
-      operationId: vouchers_cancel_destroy
-      description: Cancel a booking by confirmation code.
-      parameters:
-      - in: path
-        name: confirmation_code
-        schema:
-          type: string
-        required: true
-      tags:
-      - vouchers
-      security:
-      - cookieAuth: []
-      - basicAuth: []
-      - {}
-      responses:
-        "200":
-          description: Booking cancelled successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  confirmation_code:
-                    type: string
-                  status:
-                    type: string
-        "400":
-          description: Cannot cancel booking in current status
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-        "404":
-          description: Booking not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
   /cms-admin/api/main/documents/:
     get:
       operationId: cms_admin_api_main_documents_retrieve
@@ -451,6 +437,305 @@ paths:
         '204':
           description: No response body
 components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        detail:
+          type: string
+      required:
+      - error
+    HeroSlide:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title_en:
+          type: string
+        title_fr:
+          type: string
+        subtitle_en:
+          type: string
+        subtitle_fr:
+          type: string
+        image:
+          type: object
+          additionalProperties: {}
+          nullable: true
+          readOnly: true
+      required:
+      - id
+      - image
+    HomePage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        slug:
+          type: string
+          description: The name of the page as it will appear in URLs e.g http://domain.com/blog/[my-slug]/
+          pattern: ^[-\w]+$
+          maxLength: 255
+        hero_title_en:
+          type: string
+          description: Main headline — keep it short and impactful (e.g. 'Find Your
+            Balance').
+          maxLength: 200
+        hero_title_fr:
+          type: string
+          description: 'Titre principal — court et percutant (ex : ''Trouvez Votre
+            Équilibre'').'
+          maxLength: 200
+        hero_subtitle_en:
+          type: string
+          description: Tagline under the title — describe your offer in one sentence.
+          maxLength: 300
+        hero_subtitle_fr:
+          type: string
+          description: Sous-titre — décrivez votre offre en une phrase.
+          maxLength: 300
+        hero_image:
+          type: object
+          additionalProperties: {}
+          nullable: true
+          readOnly: true
+        hero_slides:
+          type: array
+          items:
+            $ref: '#/components/schemas/HeroSlide'
+          readOnly: true
+        about_title_en:
+          type: string
+          description: Section heading (e.g. 'About Me').
+          maxLength: 200
+        about_title_fr:
+          type: string
+          description: 'Titre de section (ex : ''À Propos de Moi'').'
+          maxLength: 200
+        about_subtitle_en:
+          type: string
+          description: Subtitle under About title (e.g. 'Dedicated to Your Wellness').
+          maxLength: 200
+        about_subtitle_fr:
+          type: string
+          description: 'Sous-titre (ex : ''Dédiée à Votre Bien-Être'').'
+          maxLength: 200
+        about_intro_en:
+          type: string
+          description: Your professional introduction — who you are and your experience.
+        about_intro_fr:
+          type: string
+          description: Votre présentation professionnelle — qui vous êtes et votre
+            expérience.
+        about_certification_en:
+          type: string
+          description: Your main certification (e.g. 'Certified Professional Massage
+            Therapist').
+          maxLength: 200
+        about_certification_fr:
+          type: string
+          description: 'Votre certification principale (ex : ''Massothérapeute Professionnelle
+            Certifiée'').'
+          maxLength: 200
+        about_approach_title_en:
+          type: string
+          description: Title for your approach section (e.g. 'My Approach').
+          maxLength: 200
+        about_approach_title_fr:
+          type: string
+          description: 'Titre de votre approche (ex : ''Mon Approche'').'
+          maxLength: 200
+        about_approach_text_en:
+          type: string
+          description: Describe your unique approach to massage therapy.
+        about_approach_text_fr:
+          type: string
+          description: Décrivez votre approche unique du massage thérapeutique.
+        services_hero_title_en:
+          type: string
+          description: Main title for the services hero section (English).
+          maxLength: 255
+        services_hero_title_fr:
+          type: string
+          description: Main title for the services hero section (Français).
+          maxLength: 255
+        services_hero_pricing_label_en:
+          type: string
+          description: Label before price (English).
+          maxLength: 100
+        services_hero_pricing_label_fr:
+          type: string
+          description: Label before price (Français).
+          maxLength: 100
+        services_hero_price_en:
+          type: string
+          description: Displayed price (English).
+          maxLength: 100
+        services_hero_price_fr:
+          type: string
+          description: Displayed price (Français).
+          maxLength: 100
+        services_hero_cta_en:
+          type: string
+          description: CTA button text (English).
+          maxLength: 100
+        services_hero_cta_fr:
+          type: string
+          description: CTA button text (Français).
+          maxLength: 100
+        services_hero_benefit_1_en:
+          type: string
+          maxLength: 200
+        services_hero_benefit_1_fr:
+          type: string
+          maxLength: 200
+        services_hero_benefit_2_en:
+          type: string
+          maxLength: 200
+        services_hero_benefit_2_fr:
+          type: string
+          maxLength: 200
+        services_hero_benefit_3_en:
+          type: string
+          maxLength: 200
+        services_hero_benefit_3_fr:
+          type: string
+          maxLength: 200
+        services_hero_video_public_id:
+          type: string
+          description: Cloudinary public ID for background video (e.g. 'serenity/corporate-loop').
+            Do NOT include file extension.
+          maxLength: 255
+        services_hero_video_url:
+          type: string
+          nullable: true
+          readOnly: true
+        services_hero_poster_image:
+          type: object
+          additionalProperties: {}
+          nullable: true
+          readOnly: true
+        faq_title_en:
+          type: string
+          description: FAQ section heading (English).
+          maxLength: 200
+        faq_title_fr:
+          type: string
+          description: Titre de la section FAQ (Français).
+          maxLength: 200
+        faq_subtitle_en:
+          type: string
+          description: Short subtitle under the FAQ heading (English).
+          maxLength: 300
+        faq_subtitle_fr:
+          type: string
+          description: Sous-titre de la section FAQ (Français).
+          maxLength: 300
+        faq_q1_en:
+          type: string
+          maxLength: 300
+        faq_q1_fr:
+          type: string
+          maxLength: 300
+        faq_a1_en:
+          type: string
+        faq_a1_fr:
+          type: string
+        faq_q2_en:
+          type: string
+          maxLength: 300
+        faq_q2_fr:
+          type: string
+          maxLength: 300
+        faq_a2_en:
+          type: string
+        faq_a2_fr:
+          type: string
+        faq_q3_en:
+          type: string
+          maxLength: 300
+        faq_q3_fr:
+          type: string
+          maxLength: 300
+        faq_a3_en:
+          type: string
+        faq_a3_fr:
+          type: string
+        faq_q4_en:
+          type: string
+          maxLength: 300
+        faq_q4_fr:
+          type: string
+          maxLength: 300
+        faq_a4_en:
+          type: string
+        faq_a4_fr:
+          type: string
+        faq_q5_en:
+          type: string
+          maxLength: 300
+        faq_q5_fr:
+          type: string
+          maxLength: 300
+        faq_a5_en:
+          type: string
+        faq_a5_fr:
+          type: string
+        faq_q6_en:
+          type: string
+          maxLength: 300
+        faq_q6_fr:
+          type: string
+          maxLength: 300
+        faq_a6_en:
+          type: string
+        faq_a6_fr:
+          type: string
+        faq_q7_en:
+          type: string
+          maxLength: 300
+        faq_q7_fr:
+          type: string
+          maxLength: 300
+        faq_a7_en:
+          type: string
+        faq_a7_fr:
+          type: string
+        faq_q8_en:
+          type: string
+          maxLength: 300
+        faq_q8_fr:
+          type: string
+          maxLength: 300
+        faq_a8_en:
+          type: string
+        faq_a8_fr:
+          type: string
+      required:
+      - hero_image
+      - hero_slides
+      - id
+      - services_hero_poster_image
+      - services_hero_video_url
+      - slug
+    HydratedHomepageResponse:
+      type: object
+      properties:
+        page:
+          $ref: '#/components/schemas/HomePage'
+        services: {}
+        globals:
+          nullable: true
+        testimonials: {}
+      required:
+      - globals
+      - page
+      - services
+      - testimonials
   securitySchemes:
     basicAuth:
       type: http

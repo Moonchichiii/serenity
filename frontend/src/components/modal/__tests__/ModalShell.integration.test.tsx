@@ -5,7 +5,7 @@ import { renderWithQuery } from "../../../test/utils";
 import { ModalShell } from "../ModalShell";
 
 describe("ModalShell integration", () => {
-  it("renders children when open", () => {
+  it("renders children when open", async () => {
     const onClose = vi.fn();
 
     renderWithQuery(
@@ -14,7 +14,7 @@ describe("ModalShell integration", () => {
       </ModalShell>,
     );
 
-    expect(screen.getByTestId("modal-body")).toBeInTheDocument();
+    expect(await screen.findByTestId("modal-body")).toBeInTheDocument();
   });
 
   it("does not render children when closed", () => {
@@ -55,7 +55,7 @@ describe("ModalShell integration", () => {
       </ModalShell>,
     );
 
-    await user.click(screen.getByTestId("modal-backdrop"));
+    await user.click(await screen.findByTestId("modal-backdrop"));
 
     await waitFor(() => {
       expect(onClose).toHaveBeenCalledTimes(1);
@@ -72,7 +72,7 @@ describe("ModalShell integration", () => {
       </ModalShell>,
     );
 
-    await user.click(screen.getByTestId("inner"));
+    await user.click(await screen.findByTestId("inner"));
 
     // Allow any microtasks to settle
     await waitFor(() => {
