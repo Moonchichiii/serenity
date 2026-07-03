@@ -4,7 +4,7 @@
 # uv version pinned (never :latest). No compilers needed: every
 # dependency ships manylinux wheels for py3.12.
 # ═══════════════════════════════════════════════════════════════
-FROM python:3.12-slim AS builder
+FROM python:3.14-slim AS builder
 
 COPY --from=ghcr.io/astral-sh/uv:0.11 /uv /usr/local/bin/uv
 
@@ -27,7 +27,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # ═══════════════════════════════════════════════════════════════
 # Stage 2 — runtime: slim, non-root, no uv, no build tools.
 # ═══════════════════════════════════════════════════════════════
-FROM python:3.12-slim AS runtime
+FROM python:3.14-slim AS runtime
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates \
