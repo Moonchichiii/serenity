@@ -70,7 +70,6 @@ jobs:
           ignore-unfixed: true
           trivy-config: ""
           scan-type: image
-          skip-version-check: true
       - name: Upload SARIF to code scanning
         if: always()
         uses: github/codeql-action/upload-sarif@v4
