@@ -4,19 +4,25 @@ from typing import Any
 
 from rest_framework import serializers
 
+from apps.core.serializer_mixins import HoneypotMixin
+from apps.core.validators import validate_no_newlines
 from apps.services.models import Service
 
 from .models import GiftVoucher
 
 
-class GiftVoucherInputSerializer(serializers.Serializer):
-    recipient_name = serializers.CharField(max_length=200)
+class GiftVoucherInputSerializer(HoneypotMixin, serializers.Serializer):
+    recipient_name = serializers.CharField(
+        max_length=200, validators=[validate_no_newlines]
+    )
     recipient_email = serializers.EmailField()
-    sender_name = serializers.CharField(max_length=200)
+    sender_name = serializers.CharField(
+        max_length=200, validators=[validate_no_newlines]
+    )
     sender_email = serializers.EmailField()
 
     message = serializers.CharField(
-        required=False, allow_blank=True, default=""
+        required=False, allow_blank=True, default="", max_length=500
     )
     amount = serializers.DecimalField(max_digits=8, decimal_places=2)
 

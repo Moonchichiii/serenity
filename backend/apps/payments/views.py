@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.throttling import AnonRateThrottle
 
 from .models import StripePayment
 from .serializers import CheckoutRequestSerializer, CheckoutResponseSerializer
@@ -14,7 +15,12 @@ if TYPE_CHECKING:
     from rest_framework.request import Request
 
 
+class CheckoutThrottle(AnonRateThrottle):
+    rate = "10/hour"
+
+
 @api_view(["POST"])
+@throttle_classes([CheckoutThrottle])
 @permission_classes([AllowAny])
 def create_checkout(request: Request) -> Response:
     ser = CheckoutRequestSerializer(data=request.data)

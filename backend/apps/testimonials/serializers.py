@@ -4,6 +4,8 @@ from typing import Any
 
 from rest_framework import serializers
 
+from apps.core.serializer_mixins import HoneypotMixin
+
 from .models import Testimonial, TestimonialReply
 
 
@@ -52,14 +54,14 @@ class TestimonialSerializer(serializers.ModelSerializer):
 # --- Input serializers ---
 
 
-class SubmitTestimonialSerializer(serializers.Serializer):
+class SubmitTestimonialSerializer(HoneypotMixin, serializers.Serializer):
     name = serializers.CharField(min_length=2, max_length=100)
     email = serializers.EmailField(required=False, default='')
     rating = serializers.IntegerField(min_value=1, max_value=5)
     text = serializers.CharField(min_length=10, max_length=500)
 
 
-class SubmitReplySerializer(serializers.Serializer):
+class SubmitReplySerializer(HoneypotMixin, serializers.Serializer):
     name = serializers.CharField(min_length=2, max_length=100)
     email = serializers.EmailField()
     text = serializers.CharField(min_length=2, max_length=500)
