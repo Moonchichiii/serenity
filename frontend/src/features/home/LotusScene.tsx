@@ -21,6 +21,9 @@ import { prefersReducedMotion } from "@/lib/motion/reducedMotion";
  * reduced-motion gets the still, open flower.
  */
 
+const VIEWBOX = "0 0 233.61 200";
+const CORAL = "#e19f93";
+
 const PETALS: Array<{
   d: string;
   opacity: number;
@@ -28,32 +31,32 @@ const PETALS: Array<{
   lean: number;
 }> = [
   {
-    d: "M 185 232 C 118 226, 74 200, 60 165 C 96 169, 152 193, 193 227 Z",
-    opacity: 0.32,
-    origin: "96% 90%",
+    d: "M100.024,175.355c-22.095,0-42.418-8.204-57.222-23.002c-6.206-6.212-11.194-13.3-14.923-21.015 c-2.625-5.436-8.7-8.479-13.992-5.579c-2.995,1.641-5.901,3.479-8.7,5.513c-4.887,3.544-6.695,11.57-3.795,16.874 c10.126,18.521,26.785,32.317,47.568,36.983c15.233,3.431,30.55,1.462,44.376-4.708c5.513-2.464,8.98-5.096,8.163-5.084 C101.002,175.349,100.513,175.355,100.024,175.355z",
+    opacity: 0.45,
+    origin: "94% 74%",
     lean: 1,
   },
   {
-    d: "M 215 232 C 282 226, 326 200, 340 165 C 304 169, 248 193, 207 227 Z",
-    opacity: 0.32,
-    origin: "4% 90%",
+    d: "M228.425,131.272c-2.81-2.029-5.71-3.867-8.706-5.507c-5.305-2.9-11.361,0.137-13.986,5.573 c-3.729,7.727-8.718,14.816-14.929,21.015c-14.798,14.804-35.115,23.002-57.222,23.002c-0.489,0-0.979-0.006-1.48-0.024 c-0.817-0.024,2.649,2.613,8.169,5.084c13.819,6.17,29.136,8.139,44.376,4.708c20.783-4.672,37.436-18.467,47.574-36.977 C235.12,142.841,233.306,134.81,228.425,131.272z",
+    opacity: 0.45,
+    origin: "6% 74%",
     lean: 1,
   },
   {
-    d: "M 190 225 C 143 204, 118 155, 124 120 C 154 126, 190 163, 198 218 Z",
-    opacity: 0.58,
-    origin: "90% 95%",
+    d: "M94.248,166.894c6.027,0.43,7.083-3.019,2.906-7.375c-14.595-15.239-22.71-34.572-22.71-55.188 c0-3.425,0.227-6.814,0.668-10.15c0.74-5.573-2.44-12.107-8.246-13.772c-8.479-2.434-17.441-3.359-26.505-2.792 c-6.027,0.376-11.844,6.2-12.226,12.226c-1.331,21.063,5.37,41.625,20.431,56.685C60.989,158.952,77.153,165.671,94.248,166.894z",
+    opacity: 0.72,
+    origin: "88% 90%",
     lean: 0.7,
   },
   {
-    d: "M 210 225 C 257 204, 282 155, 276 120 C 246 126, 210 163, 202 218 Z",
-    opacity: 0.58,
-    origin: "10% 95%",
+    d: "M159.341,104.337c0,20.616-8.109,39.96-22.728,55.205c-4.171,4.356-3.109,7.787,2.912,7.345 c17.035-1.265,33.134-7.966,45.509-20.347c15.06-15.06,21.761-35.628,20.431-56.691c-0.382-6.027-6.212-11.85-12.238-12.226 c-8.992-0.561-17.889,0.346-26.314,2.739c-5.818,1.653-8.998,8.193-8.252,13.783C159.114,97.499,159.341,100.9,159.341,104.337z",
+    opacity: 0.72,
+    origin: "12% 90%",
     lean: 0.7,
   },
   {
-    d: "M 200 96 C 172 132, 168 195, 200 236 C 232 195, 228 132, 200 96 Z",
-    opacity: 0.92,
+    d: "M125.544,49.8c-4.529-3.992-12.769-3.992-17.298,0c-15.836,13.951-25.64,33.224-25.64,54.531 c0,21.302,9.804,40.587,25.64,54.537c4.529,3.986,12.769,3.986,17.298,0c15.836-13.951,25.64-33.229,25.64-54.537 C151.184,83.029,141.38,63.75,125.544,49.8z",
+    opacity: 0.95,
     origin: "50% 100%",
     lean: 0.5,
   },
@@ -166,12 +169,24 @@ export function LotusScene() {
             "radial-gradient(circle, rgba(231,226,107,0.16), transparent 68%)",
         }}
       />
-      <div className="pool-pulse absolute h-64 w-[26rem] rounded-full bg-honey-300/10 blur-none" />
-      <div className="pool-pulse-alt absolute h-44 w-72 translate-y-10 rounded-full bg-terracotta-500/10" />
+      <div
+        className="pool-pulse absolute h-[24rem] w-[34rem]"
+        style={{
+          background:
+            "radial-gradient(closest-side, rgba(231,226,107,0.13), transparent 72%)",
+        }}
+      />
+      <div
+        className="pool-pulse-alt absolute h-64 w-96 translate-y-16"
+        style={{
+          background:
+            "radial-gradient(closest-side, rgba(201,75,44,0.11), transparent 70%)",
+        }}
+      />
       <svg
         data-lotus
-        viewBox="0 0 400 300"
-        className="relative w-[min(34rem,90%)] will-change-transform"
+        viewBox={VIEWBOX}
+        className="relative w-[min(40rem,88%)] translate-y-4 will-change-transform"
         role="presentation"
       >
         {PETALS.map((petal) => (
@@ -179,7 +194,7 @@ export function LotusScene() {
             key={petal.d}
             data-petal
             d={petal.d}
-            fill="#eb9c86"
+            fill={CORAL}
             opacity={petal.opacity}
             style={{
               transformBox: "fill-box",
@@ -188,18 +203,18 @@ export function LotusScene() {
           />
         ))}
         <circle
-          cx="200"
-          cy="231"
-          r="4"
+          cx="116.8"
+          cy="168"
+          r="3.5"
           fill="var(--color-honey-300, #e7e26b)"
           className="core-glow"
         />
         <path
           data-vapeur
-          d="M 200 92 C 195 72, 208 62, 202 42 C 197 26, 208 18, 204 4"
+          d="M 116.8 44 C 112 30, 123 22, 117 8"
           fill="none"
           stroke="#f5f0e7"
-          strokeWidth="1.5"
+          strokeWidth="1.4"
           strokeLinecap="round"
           opacity="0.3"
         />
@@ -208,24 +223,21 @@ export function LotusScene() {
   );
 }
 
-/** Compact lotus behind the heading on small screens (CSS bloom only). */
-export function LotusSceneMobile() {
+/** Crisp brand mark above the eyebrow on small screens (CSS bloom). */
+export function LotusMark() {
   return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute left-1/2 top-24 w-64 -translate-x-1/2 opacity-40 md:hidden"
-    >
-      <svg viewBox="0 0 400 300" role="presentation" className="lotus-css-bloom">
+    <div aria-hidden="true" className="mb-8 w-32 md:hidden" data-reveal>
+      <svg viewBox={VIEWBOX} role="presentation">
         {PETALS.map((petal, i) => (
           <path
             key={petal.d}
             d={petal.d}
-            fill="#eb9c86"
-            opacity={petal.opacity}
+            fill={CORAL}
+            opacity={Math.min(petal.opacity + 0.15, 1)}
             style={{
               transformBox: "fill-box",
               transformOrigin: petal.origin,
-              animationDelay: `${0.15 + (4 - i) * 0.1}s`,
+              animationDelay: `${0.2 + (4 - i) * 0.1}s`,
             }}
             className="lotus-petal-css"
           />
@@ -247,6 +259,10 @@ export function HeroSoinsChips() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const lang = i18n.language.startsWith("fr") ? "fr" : "en";
+  const fmtPrice = (p: string | number) => {
+    const n = Number(p);
+    return Number.isFinite(n) ? `${n % 1 === 0 ? n : n.toFixed(2)}` : String(p);
+  };
 
   useEffect(() => {
     if (paused || services.length < 2) return;
@@ -262,7 +278,7 @@ export function HeroSoinsChips() {
   return (
     <div
       data-reveal
-      className="no-scrollbar -mx-1 mt-8 flex gap-3 overflow-x-auto px-1 pb-1"
+      className="no-scrollbar -mx-1 mt-8 flex max-w-full gap-3 overflow-x-auto px-1 pb-1 md:max-w-xl md:flex-wrap md:overflow-visible"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
@@ -284,7 +300,7 @@ export function HeroSoinsChips() {
           }}
         >
           {lang === "fr" ? s.title_fr : s.title_en} · {s.duration_minutes} min
-          · {s.price} €
+          · {fmtPrice(s.price)} €
         </button>
       ))}
     </div>

@@ -12,8 +12,8 @@ import { Button } from "@/components/ui/Button";
 import CookieConsent from "@/components/ui/CookieConsent";
 import {
   HeroSoinsChips,
+  LotusMark,
   LotusScene,
-  LotusSceneMobile,
 } from "@/features/home/LotusScene";
 import { useModal } from "@/components/modal/useModal";
 import { useCMSPage } from "@/hooks/useCMS";
@@ -261,12 +261,13 @@ export const Hero: FC = () => {
         <div className="absolute inset-0 bg-linear-to-t from-sage-950 via-transparent to-transparent" />
       </div>
 
-      <LotusSceneMobile />
       <LotusScene />
 
       <div
         className="reveal-stagger container relative z-10 mx-auto flex h-full w-full max-w-275 flex-col items-start justify-end px-[var(--space-container-x)] text-left md:justify-center"
       >
+        <LotusMark />
+
         <p className="hero-eyebrow mb-5" data-reveal>
           {content.eyebrow}
         </p>
