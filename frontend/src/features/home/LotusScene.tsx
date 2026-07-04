@@ -282,7 +282,7 @@ export function HeroSoinsChips() {
   return (
     <div
       data-reveal
-      className="mt-9"
+      className="mt-8"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
@@ -295,8 +295,9 @@ export function HeroSoinsChips() {
         aria-label={t("booking.title", "Book a session")}
       >
         <span
+          key={`dash-${current.id}`}
           aria-hidden="true"
-          className="mt-3 h-px w-8 shrink-0 bg-honey-300 transition-all duration-300 group-hover:w-12 sm:mt-0 sm:self-center"
+          className="soin-dash mt-3 h-px w-8 shrink-0 origin-left bg-honey-300 sm:mt-0 sm:self-center"
         />
         <span
           key={current.id}
@@ -318,23 +319,6 @@ export function HeroSoinsChips() {
         </span>
       </button>
 
-      <div className="mt-3 flex gap-2 pl-12" role="tablist" aria-label="Soins">
-        {services.map((s, i) => (
-          <button
-            key={s.id}
-            type="button"
-            role="tab"
-            aria-selected={i === active}
-            aria-label={lang === "fr" ? s.title_fr : s.title_en}
-            onClick={() => setActive(i)}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              i === active
-                ? "w-6 bg-honey-300"
-                : "w-1.5 bg-white/25 hover:bg-white/50"
-            }`}
-          />
-        ))}
-      </div>
     </div>
   );
 }

@@ -31,7 +31,7 @@ export function FloatingGiftButton() {
       onClick={() => open("gift")}
       aria-label={label}
       title={label}
-      className={`group fixed bottom-6 right-6 z-40 flex h-24 w-24 items-center justify-center rounded-full bg-honey-300 text-sage-950 shadow-elevated transition-all duration-300 ease-out will-change-transform hover:-rotate-6 hover:scale-105 active:scale-95 motion-reduce:transition-none sm:bottom-10 sm:right-10 sm:h-28 sm:w-28 ${
+      className={`group fixed bottom-5 right-5 z-40 flex h-20 w-20 items-center justify-center rounded-full bg-honey-300 text-sage-950 shadow-elevated transition-all duration-300 ease-out will-change-transform hover:-rotate-6 hover:scale-105 active:scale-95 motion-reduce:transition-none sm:bottom-10 sm:right-10 sm:h-28 sm:w-28 ${
         shown ? "scale-100 opacity-100" : "scale-0 opacity-0"
       }`}
     >

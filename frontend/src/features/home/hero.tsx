@@ -264,7 +264,7 @@ export const Hero: FC = () => {
       <LotusScene />
 
       <div
-        className="reveal-stagger container relative z-10 mx-auto flex h-full w-full max-w-275 flex-col items-start justify-end px-[var(--space-container-x)] text-left md:justify-center"
+        className="reveal-stagger container relative z-10 mx-auto flex h-full w-full max-w-275 flex-col items-start justify-end px-[var(--space-container-x)] pb-28 text-left md:justify-center md:pb-0"
       >
         <LotusMark />
 
