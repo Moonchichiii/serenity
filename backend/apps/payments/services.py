@@ -23,6 +23,24 @@ def create_checkout_session(
 
     amount = Decimal(str(voucher_payload["amount"]))
     currency = getattr(settings, "STRIPE_CURRENCY", "eur")
+    kind = voucher_payload.get("kind", "gift")
+
+    if kind == "booking":
+        product_name = "Massage booking"
+        service_id = voucher_payload.get("service_id")
+        if service_id:
+            from apps.services.models import Service
+
+            service = Service.objects.filter(pk=service_id).first()
+            if service:
+                product_name = f"Booking \u2014 {service}"
+        start = voucher_payload.get("start_datetime")
+        product_description = f"Session: {start}" if start else ""
+    else:
+        product_name = "Gift Voucher"
+        product_description = (
+            f"Voucher for {voucher_payload.get('recipient_name', '')}"
+        ).strip()
 
     session = stripe.checkout.Session.create(
         mode="payment",
@@ -35,11 +53,8 @@ def create_checkout_session(
                     "currency": currency,
                     "unit_amount": _money_to_minor_units(amount),
                     "product_data": {
-                        "name": "Gift Voucher",
-                        "description": (
-                            f"Voucher for "
-                            f"{voucher_payload.get('recipient_name', '')}"
-                        ).strip(),
+                        "name": product_name,
+                        "description": product_description or " ",
                     },
                 },
             }
@@ -52,6 +67,7 @@ def create_checkout_session(
     )
 
     payment = StripePayment.objects.create(
+        kind=kind,
         amount=amount,
         currency=currency,
         stripe_checkout_session_id=session["id"],

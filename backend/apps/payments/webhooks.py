@@ -71,7 +71,9 @@ def _fulfill_from_checkout_session(
         )
         return
 
-    if payment.status == PaymentStatus.PAID and payment.voucher_id:
+    if payment.status == PaymentStatus.PAID and (
+        payment.voucher_id or payment.booking_id
+    ):
         return  # idempotent
 
     payment_intent = session_obj.get("payment_intent") or ""
@@ -107,6 +109,34 @@ def _fulfill_from_checkout_session(
         payment.save(
             update_fields=["status", "stripe_payment_intent_id"]
         )
+        return
+
+    kind = voucher_payload.get("kind", "gift")
+
+    if kind == "booking":
+        from apps.availability.services import (
+            create_booking_from_payload,
+            send_booking_emails,
+            sync_booking_to_calendar,
+        )
+
+        booking, created = create_booking_from_payload(
+            voucher_payload, session_id=session_id
+        )
+        payment.status = PaymentStatus.PAID
+        payment.paid_at = timezone.now()
+        payment.booking_id = booking.id
+        payment.save(
+            update_fields=[
+                "status",
+                "paid_at",
+                "booking_id",
+                "stripe_payment_intent_id",
+            ]
+        )
+        if created:
+            sync_booking_to_calendar(booking)
+            send_booking_emails(booking)
         return
 
     voucher = create_voucher(voucher_payload)

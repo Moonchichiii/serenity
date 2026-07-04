@@ -10,6 +10,11 @@ class PaymentStatus(models.TextChoices):
     CANCELED = "canceled", "Canceled"
 
 
+class PaymentKind(models.TextChoices):
+    GIFT = "gift", "Gift voucher"
+    BOOKING = "booking", "Booking"
+
+
 class StripePayment(models.Model):
     """
     Tracks a single Stripe Checkout payment attempt.
@@ -25,6 +30,13 @@ class StripePayment(models.Model):
         db_index=True,
     )
 
+    kind = models.CharField(
+        max_length=20,
+        choices=PaymentKind.choices,
+        default=PaymentKind.GIFT,
+        db_index=True,
+    )
+
     amount = models.DecimalField(max_digits=8, decimal_places=2)
     currency = models.CharField(max_length=10, default="eur")
 
@@ -37,6 +49,7 @@ class StripePayment(models.Model):
 
     # Store voucher id once fulfilled (no FK to avoid circular imports)
     voucher_id = models.IntegerField(null=True, blank=True)
+    booking_id = models.IntegerField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     paid_at = models.DateTimeField(null=True, blank=True)

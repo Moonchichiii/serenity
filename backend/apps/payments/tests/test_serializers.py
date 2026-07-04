@@ -37,8 +37,8 @@ def test_checkout_request_serializer_requires_core_fields():
     assert not serializer.is_valid()
     assert "sender_name" in serializer.errors
     assert "sender_email" in serializer.errors
-    assert "recipient_name" in serializer.errors
-    assert "recipient_email" in serializer.errors
+    # recipient-kravet ligger nu i validate() per kind — täcks av
+    # test_booking_flow::test_gift_still_requires_recipient
     assert "preferred_language" in serializer.errors
     assert "amount" in serializer.errors
 
