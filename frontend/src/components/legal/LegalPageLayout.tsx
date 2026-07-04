@@ -13,7 +13,7 @@ export function LegalPageLayout({ title, children }: Props) {
           {title}
         </h1>
         <p className="mt-2 text-sm text-charcoal/70">
-          Dernière mise à jour : <time dateTime="2026-01-19">19 janvier 2026</time>
+          Dernière mise à jour : <time dateTime="2026-07-04">4 juillet 2026</time>
         </p>
       </header>
 
