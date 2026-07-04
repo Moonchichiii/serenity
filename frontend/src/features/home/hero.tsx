@@ -217,11 +217,6 @@ function useHeroContent(
   }, [slides, isCarousel, activeIndex, cmsData, lang, t]);
 }
 
-// ── Presentational components ────────────────────────────
-const BottomFade: FC = () => (
-  <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-28 bg-linear-to-b from-transparent to-cream" />
-);
-
 // ── Hero ─────────────────────────────────────────────────
 export const Hero: FC = () => {
   const cmsData = useCMSPage();
@@ -248,10 +243,8 @@ export const Hero: FC = () => {
   return (
     <section
       id="home"
-      className="hero-section relative flex min-h-[100svh] items-end overflow-hidden pb-28 pt-24 sm:pb-40 md:items-center md:pb-0"
+      className="hero-section relative flex min-h-[100svh] items-end overflow-hidden bg-sage-950 pb-28 pt-24 sm:pb-40 md:items-center md:pb-0"
     >
-      {/* Prototype forest canvas — CMS hero photos intentionally not
-          rendered in V2 (flat typographic hero per the approved design) */}
       <div className="absolute inset-0 z-0 bg-sage-950" aria-hidden="true">
         <div
           className="absolute inset-0"
@@ -263,7 +256,6 @@ export const Hero: FC = () => {
         <div className="absolute inset-0 bg-linear-to-t from-sage-950 via-transparent to-transparent" />
       </div>
 
-      {/* Content */}
       <div
         className="reveal-stagger container relative z-10 mx-auto flex h-full w-full max-w-275 flex-col items-start justify-end px-[var(--space-container-x)] text-left md:justify-center"
       >
@@ -288,7 +280,6 @@ export const Hero: FC = () => {
           {content.subtitle}
         </p>
 
-        {/* CTAs */}
         <div
           className="flex w-full flex-col items-start gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-5"
           data-reveal
@@ -329,7 +320,6 @@ export const Hero: FC = () => {
       </div>
 
       <CookieConsent />
-      <BottomFade />
     </section>
   );
 };
