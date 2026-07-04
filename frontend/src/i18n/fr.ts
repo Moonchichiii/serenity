@@ -197,6 +197,12 @@ subtitle:
       },
     },
     booking: {
+      schedule: "Choisissez date et heure",
+      validation: {
+        service: "Veuillez choisir un soin.",
+        date: "Veuillez choisir une date.",
+        time: "Veuillez choisir un cr\u00e9neau.",
+      },
       title: "Réserver votre séance",
       subtitle: "Sélectionnez votre horaire et service",
       form: {

@@ -8,6 +8,10 @@ const ContactModalScreen = lazy(
 const CorporateModalScreen = lazy(
   () => import("@/components/screens/CorporateInquiryScreen"),
 );
+const BookingModalScreen = lazy(
+  () => import("@/components/screens/BookingModalScreen"),
+)
+
 const GiftVoucherModalScreen = lazy(
   () => import("@/components/screens/GiftVoucherModalScreen"),
 );
@@ -22,6 +26,7 @@ export const modalRegistry: Record<ModalId, ComponentType> = {
   contact: ContactModalScreen,
   corporate: CorporateModalScreen,
   gift: GiftVoucherModalScreen,
+  booking: BookingModalScreen,
   cmsLogin: CMSLoginModalScreen,
   legal: LegalModalScreen,
 };
@@ -32,6 +37,7 @@ export const modalMeta: Record<
 > = {
   contact: { className: "max-w-lg", scrollable: true },
   gift: { className: "max-w-lg", scrollable: true },
+  booking: { className: "max-w-lg", scrollable: true },
   cmsLogin: { className: "max-w-lg", scrollable: true },
   corporate: { className: "max-w-3xl md:max-w-4xl", scrollable: true },
   legal: { className: "max-w-4xl", scrollable: true },

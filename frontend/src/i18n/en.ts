@@ -198,6 +198,12 @@ subtitle:
       },
     },
     booking: {
+      schedule: "Choose date & time",
+      validation: {
+        service: "Please choose a treatment.",
+        date: "Please choose a date.",
+        time: "Please choose a time slot.",
+      },
       title: "Book your session",
       subtitle: "Select your preferred time and service",
       form: {

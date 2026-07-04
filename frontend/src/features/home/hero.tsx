@@ -238,7 +238,7 @@ export const Hero: FC = () => {
   );
 
   const handlePrivateClick = useCallback(() => {
-    open("contact", { defaultSubject: "Private session inquiry" });
+    open("booking");
   }, [open]);
 
   const handleCorporateClick = useCallback(() => {

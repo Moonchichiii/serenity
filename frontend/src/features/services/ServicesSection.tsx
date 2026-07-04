@@ -274,7 +274,7 @@ const BookCta: FC<{ onBook: () => void }> = ({ onBook }) => {
 const DesktopServiceModal: FC<{
   service: ResolvedService | null;
   onClose: () => void;
-  onBook: () => void;
+  onBook: (serviceId?: number) => void;
 }> = ({ service, onClose, onBook }) => {
   const { t } = useTranslation();
   const [rendered, setRendered] = useState<ResolvedService | null>(null);
@@ -401,7 +401,7 @@ const DesktopServiceModal: FC<{
               >
                 {formatPrice(rendered.price)}
               </span>
-              <BookCta onBook={onBook} />
+              <BookCta onBook={() => onBook(rendered.id)} />
             </div>
           </div>
         </div>
@@ -413,7 +413,7 @@ const DesktopServiceModal: FC<{
 const MobileServiceDrawer: FC<{
   service: ResolvedService | null;
   onClose: () => void;
-  onBook: () => void;
+  onBook: (serviceId?: number) => void;
 }> = ({ service, onClose, onBook }) => {
   const [rendered, setRendered] = useState<ResolvedService | null>(null);
   const [openCls, setOpenCls] = useState(false);
@@ -539,7 +539,7 @@ const MobileServiceDrawer: FC<{
                 >
                   {formatPrice(rendered.price)}
                 </span>
-                <BookCta onBook={onBook} />
+                <BookCta onBook={() => onBook(rendered.id)} />
               </div>
             </div>
           </div>
@@ -613,9 +613,9 @@ export const Services: FC = () => {
     useState<ResolvedService | null>(null);
 
   const { open } = useModal();
-  const openBooking = () => {
+  const openBooking = (serviceId?: number) => {
     setSelectedService(null);
-    open("contact");
+    open("booking", serviceId ? { serviceId } : undefined);
   };
 
   useEffect(() => {

@@ -29,6 +29,7 @@ export function SheetShell({
 
     const modalTitleMap: Partial<Record<ModalId, string>> = {
       gift: t("gift.trigger", "Gift Voucher"),
+          booking: t("booking.title", "Book a session"),
       contact: t("contact.form.title", "Contact"),
       corporate: t("corp.subjectPrefix", "Corporate Inquiry"),
       legal: t("footer.legalNotice", "Legal"),

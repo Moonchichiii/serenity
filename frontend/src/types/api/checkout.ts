@@ -2,8 +2,8 @@ export type CheckoutRequest = {
   kind?: "gift" | "booking";
   sender_name: string;
   sender_email: string;
-  recipient_name: string;
-  recipient_email: string;
+  recipient_name?: string;
+  recipient_email?: string;
 
   message?: string;
   website?: string;

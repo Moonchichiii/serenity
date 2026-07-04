@@ -5,7 +5,13 @@ export type LegalPageKey =
   | "terms"
   | "accessibility"
 
-export type ModalId = "contact" | "corporate" | "gift" | "legal" | "cmsLogin"
+export type ModalId =
+  | "contact"
+  | "corporate"
+  | "gift"
+  | "booking"
+  | "legal"
+  | "cmsLogin"
 
 export type ModalPayloadMap = {
   contact: { defaultSubject?: string }
@@ -13,6 +19,7 @@ export type ModalPayloadMap = {
     defaultEventType?: "corporate" | "team" | "expo" | "private" | "other"
   }
   gift: undefined
+  booking: { serviceId?: number } | undefined
   legal: { page?: LegalPageKey }
   cmsLogin: undefined
 }
