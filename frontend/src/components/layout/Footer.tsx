@@ -1,11 +1,68 @@
 import React from "react";
 import { Clock, Mail } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
-import AnimatedFacebookIcon from "@/components/ui/AnimatedFacebookIcon";
-import AnimatedInstagramIcon from "@/components/ui/AnimatedInstagramIcon";
 import { useModal } from "@/components/modal/useModal";
 import { useCMSGlobals } from "@/hooks/useCMS";
+
+type GlyphProps = { size?: number; strokeWidth?: number };
+
+const InstagramGlyph = ({ size = 18, strokeWidth = 1.6 }: GlyphProps) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+  </svg>
+);
+
+const FacebookGlyph = ({ size = 18, strokeWidth = 1.6 }: GlyphProps) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
+
+const QuietSocialLink = ({
+  href,
+  label,
+  children,
+}: {
+  href: string;
+  label: string;
+  children: React.ReactNode;
+}) => (
+  <a
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={label}
+    className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-sage-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-honey-300/60 hover:text-honey-300 motion-reduce:transition-none"
+  >
+    {children}
+  </a>
+);
 
 const Footer: React.FC = () => {
   const { t } = useTranslation();
@@ -144,6 +201,15 @@ const Footer: React.FC = () => {
                       </a>
                     </li>
                     <li>
+                      <Link
+                        to="/offrir"
+                        className={linkClass}
+                        style={smallTextStyle}
+                      >
+                        {t("nav.offrir", "Offrir")}
+                      </Link>
+                    </li>
+                    <li>
                       <button
                         type="button"
                         onClick={() => open("contact")}
@@ -193,11 +259,18 @@ const Footer: React.FC = () => {
                   </h3>
 
                   <div className="flex items-center gap-3">
-                    <AnimatedInstagramIcon
-                      size={44}
+                    <QuietSocialLink
                       href={instagram}
-                    />
-                    <AnimatedFacebookIcon size={44} href={facebook} />
+                      label="Instagram"
+                    >
+                      <InstagramGlyph
+                        size={18}
+                        strokeWidth={1.6}
+                      />
+                    </QuietSocialLink>
+                    <QuietSocialLink href={facebook} label="Facebook">
+                      <FacebookGlyph size={18} strokeWidth={1.6} />
+                    </QuietSocialLink>
                   </div>
                 </div>
               </div>
