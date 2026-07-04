@@ -10,6 +10,11 @@ import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import CookieConsent from "@/components/ui/CookieConsent";
+import {
+  HeroSoinsChips,
+  LotusScene,
+  LotusSceneMobile,
+} from "@/features/home/LotusScene";
 import { useModal } from "@/components/modal/useModal";
 import { useCMSPage } from "@/hooks/useCMS";
 import { renderAccentTitle } from "@/lib/accentTitle";
@@ -256,6 +261,9 @@ export const Hero: FC = () => {
         <div className="absolute inset-0 bg-linear-to-t from-sage-950 via-transparent to-transparent" />
       </div>
 
+      <LotusSceneMobile />
+      <LotusScene />
+
       <div
         className="reveal-stagger container relative z-10 mx-auto flex h-full w-full max-w-275 flex-col items-start justify-end px-[var(--space-container-x)] text-left md:justify-center"
       >
@@ -279,6 +287,8 @@ export const Hero: FC = () => {
         >
           {content.subtitle}
         </p>
+
+        <HeroSoinsChips />
 
         <div
           className="flex w-full flex-col items-start gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-5"

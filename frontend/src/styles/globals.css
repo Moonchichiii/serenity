@@ -656,3 +656,33 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ── Le Lotus (hero, Drop 20) ── */
+@keyframes pool-pulse {
+  from { opacity: 0.7; transform: scale(1); }
+  to { opacity: 1; transform: scale(1.06); }
+}
+.pool-pulse { animation: pool-pulse 8s ease-in-out infinite alternate; }
+.pool-pulse-alt { animation: pool-pulse 8s ease-in-out 2s infinite alternate; }
+
+@keyframes core-glow {
+  from { opacity: 0.55; }
+  to { opacity: 1; }
+}
+.core-glow { animation: core-glow 4s ease-in-out infinite alternate; }
+
+@keyframes lotus-bloom-css {
+  from { transform: scale(0.2); opacity: 0; }
+}
+.lotus-petal-css {
+  animation: lotus-bloom-css 0.9s cubic-bezier(0.34, 1.4, 0.64, 1) backwards;
+}
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pool-pulse, .pool-pulse-alt, .core-glow, .lotus-petal-css {
+    animation: none;
+  }
+}

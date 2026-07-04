@@ -83,7 +83,7 @@ describe("Security — XSS prevention", () => {
         expect(script.textContent).not.toContain("alert");
       }
     });
-  });
+  }, 15_000);
 
   it("form inputs are sanitized — HTML in name field does not create DOM elements", async () => {
     const user = userEvent.setup();

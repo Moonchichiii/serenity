@@ -283,6 +283,11 @@ subtitle:
   cta: "Book this treatment",
   close: "Close service details",
 },
+notFound: {
+  title: "This page doesn't exist",
+  body: "The link may be old \u2014 find your balance again from the homepage.",
+  cta: "Back to home",
+},
 giftSection: {
   eyebrow: "La Serenity Essentials",
   title: "Give a moment of calm",

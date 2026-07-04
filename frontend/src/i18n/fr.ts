@@ -278,6 +278,11 @@ servicesDetail: {
   cta: "R\u00e9server ce soin",
   close: "Fermer les d\u00e9tails du soin",
 },
+notFound: {
+  title: "Cette page n'existe pas",
+  body: "Le lien est peut-\u00eatre ancien \u2014 retrouvez votre \u00e9quilibre depuis l'accueil.",
+  cta: "Retour \u00e0 l'accueil",
+},
 giftSection: {
   eyebrow: "La Serenity Essentials",
   title: "Offrir un moment de calme",
