@@ -268,6 +268,10 @@ subtitle:
     shell: {
       brand: "La Serenity Essentials",
     },
+servicesDetail: {
+  cta: "R\u00e9server ce soin",
+  close: "Fermer les d\u00e9tails du soin",
+},
 giftSection: {
   eyebrow: "La Serenity Essentials",
   title: "Offrir un moment de calme",

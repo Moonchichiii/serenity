@@ -42,21 +42,13 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-            if (id.includes("gsap")) return "motion";
+            if (id.includes("node_modules/gsap")) return "motion";
           if (id.includes("node_modules")) {
             if (id.includes("react-dom") || id.includes("/react/")) {
               return "react-core";
             }
             if (id.includes("@tanstack/react-router")) return "router";
             if (id.includes("@tanstack/react-query")) return "query";
-            if (id.includes("@react-google-maps")) return "maps";
-            if (
-              id.includes("react-hook-form") ||
-              id.includes("@hookform") ||
-              id.includes("/zod/")
-            ) {
-              return "forms";
-            }
             if (
               id.includes("i18next") ||
               id.includes("react-i18next") ||

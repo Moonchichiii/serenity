@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { useModal } from "@/components/modal/useModal";
 import { ArrowLeft, ArrowRight, ChevronRight, X } from "lucide-react";
 
 import { ServicesHero } from "./ServicesHero";
@@ -116,15 +117,20 @@ function useResolvedServices(): ResolvedService[] | null {
 // 1. DESKTOP ITEM
 const EditorialServiceItem: FC<{
   service: ResolvedService;
-}> = ({ service }) => (
-  <article className="group flex cursor-pointer flex-col gap-6">
+  onClick: () => void;
+}> = ({ service, onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="group flex w-full cursor-pointer flex-col gap-6 text-left"
+  >
     <div className="relative aspect-4/5 w-full overflow-hidden bg-sage-deep/80">
       {service.image && (
         <ResponsiveImage
           image={service.image}
           alt={service.title}
           className="h-full w-full object-cover opacity-90 transition-transform duration-700 ease-out group-hover:scale-105 group-hover:opacity-100"
-          optimizeWidth={800}
+          optimizeWidth={640}
         />
       )}
       <div className="absolute inset-0 bg-sage-deep/10 transition-opacity duration-500 group-hover:opacity-0" />
@@ -172,7 +178,7 @@ const EditorialServiceItem: FC<{
         {service.durationMinutes} Min
       </span>
     </div>
-  </article>
+  </button>
 );
 
 // 2. MOBILE APOTHECARY LIST ITEM
@@ -254,10 +260,161 @@ const MobileListItem: FC<{
 //    Enter: mount closed → double-rAF → slide up. Exit: slide down,
 //    unmount on transitionend (timeout failsafe covers reduced motion,
 //    where transitions are disabled and the event never fires).
+const BookCta: FC<{ onBook: () => void }> = ({ onBook }) => {
+  const { t } = useTranslation();
+  return (
+    <button type="button" onClick={onBook} className="btn-accent shrink-0">
+      {t("servicesDetail.cta", "Book this treatment")}
+    </button>
+  );
+};
+
+// 3b. DESKTOP DETAIL MODAL — same content as the mobile drawer,
+// presented as a centered dialog on md+ (the drawer stays md:hidden).
+const DesktopServiceModal: FC<{
+  service: ResolvedService | null;
+  onClose: () => void;
+  onBook: () => void;
+}> = ({ service, onClose, onBook }) => {
+  const { t } = useTranslation();
+  const [rendered, setRendered] = useState<ResolvedService | null>(null);
+  const [openCls, setOpenCls] = useState(false);
+
+  useEffect(() => {
+    let raf1 = 0;
+    let raf2 = 0;
+    if (service) {
+      raf1 = requestAnimationFrame(() => {
+        setRendered(service);
+        raf2 = requestAnimationFrame(() => {
+          raf2 = requestAnimationFrame(() => setOpenCls(true));
+        });
+      });
+      return () => {
+        cancelAnimationFrame(raf1);
+        cancelAnimationFrame(raf2);
+      };
+    }
+    raf1 = requestAnimationFrame(() => setOpenCls(false));
+    const failsafe = setTimeout(() => setRendered(null), 450);
+    return () => {
+      cancelAnimationFrame(raf1);
+      clearTimeout(failsafe);
+    };
+  }, [service]);
+
+  if (!rendered) return null;
+
+  return (
+    <div className="hidden md:block">
+      <div
+        onClick={onClose}
+        aria-hidden="true"
+        className={`fixed inset-0 z-50 bg-sage-deep/80 backdrop-blur-sm transition-opacity duration-300 motion-reduce:transition-none ${
+          openCls ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      />
+      <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-8">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={rendered.title}
+          inert={!openCls}
+          onTransitionEnd={(e) => {
+            if (
+              !openCls &&
+              e.target === e.currentTarget &&
+              e.propertyName === "opacity"
+            ) {
+              setRendered(null);
+            }
+          }}
+          className={`pointer-events-auto flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-sage-deep shadow-elevated transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none ${
+            openCls ? "scale-100 opacity-100" : "scale-95 opacity-0"
+          }`}
+        >
+          <div className="relative h-64 w-full shrink-0 bg-sage-deep/80">
+            {rendered.image ? (
+              <ResponsiveImage
+                image={rendered.image}
+                alt={rendered.title}
+                className="h-full w-full object-cover opacity-90"
+                optimizeWidth={1024}
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center">
+                <span
+                  className="font-serif text-sage-400"
+                  style={{ fontSize: "var(--typo-h2)" }}
+                >
+                  ✦
+                </span>
+              </div>
+            )}
+            <div className="absolute inset-0 bg-linear-to-t from-sage-deep via-sage-deep/30 to-transparent" />
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label={t("servicesDetail.close", "Close service details")}
+              className="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full bg-sage-deep/60 text-white backdrop-blur-md transition-colors hover:bg-black/20"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-10 pb-10 pt-8">
+            <span
+              className="mb-3 block font-semibold uppercase tracking-[0.2em] text-honey-300"
+              style={{
+                fontSize: "var(--typo-overline)",
+                lineHeight: "var(--leading-overline)",
+              }}
+            >
+              {rendered.durationMinutes} Minutes
+            </span>
+            <h3
+              className="mb-6 font-serif text-porcelain"
+              style={{
+                fontSize: "var(--typo-h2)",
+                lineHeight: "var(--leading-h2)",
+              }}
+            >
+              {rendered.title}
+            </h3>
+            <p
+              className="mb-8 font-light text-sage-200/90"
+              style={{
+                fontSize: "var(--typo-body)",
+                lineHeight: "var(--leading-body)",
+              }}
+            >
+              {rendered.description}
+            </p>
+
+            <div className="flex items-center justify-between gap-4 border-t border-white/10 pt-6">
+              <span
+                className="font-serif text-porcelain"
+                style={{
+                  fontSize: "var(--typo-h3)",
+                  lineHeight: "var(--leading-h3)",
+                }}
+              >
+                {formatPrice(rendered.price)}
+              </span>
+              <BookCta onBook={onBook} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const MobileServiceDrawer: FC<{
   service: ResolvedService | null;
   onClose: () => void;
-}> = ({ service, onClose }) => {
+  onBook: () => void;
+}> = ({ service, onClose, onBook }) => {
   const [rendered, setRendered] = useState<ResolvedService | null>(null);
   const [openCls, setOpenCls] = useState(false);
   const isOpen = service !== null;
@@ -372,7 +529,7 @@ const MobileServiceDrawer: FC<{
                 {rendered.description}
               </p>
 
-              <div className="flex items-center justify-between border-t border-white/10 pt-6">
+              <div className="flex items-center justify-between gap-4 border-t border-white/10 pt-6">
                 <span
                   className="font-serif text-porcelain"
                   style={{
@@ -382,6 +539,7 @@ const MobileServiceDrawer: FC<{
                 >
                   {formatPrice(rendered.price)}
                 </span>
+                <BookCta onBook={onBook} />
               </div>
             </div>
           </div>
@@ -389,9 +547,10 @@ const MobileServiceDrawer: FC<{
   );
 };
 
-const DesktopGrid: FC<{ services: ResolvedService[] }> = ({
-  services,
-}) => {
+const DesktopGrid: FC<{
+  services: ResolvedService[];
+  onSelect: (service: ResolvedService) => void;
+}> = ({ services, onSelect }) => {
   const [page, setPage] = useState(0);
   const totalPages = Math.ceil(services.length / DESKTOP_PAGE_SIZE);
   const visible = services.slice(
@@ -404,9 +563,13 @@ const DesktopGrid: FC<{ services: ResolvedService[] }> = ({
 
   return (
     <div className="hidden md:block">
-      <div className="mx-auto grid max-w-7xl grid-cols-3 gap-(--space-grid-gap)">
+      <div className="mx-auto grid max-w-5xl grid-cols-3 gap-(--space-grid-gap)">
         {visible.map((s) => (
-          <EditorialServiceItem key={s.id} service={s} />
+          <EditorialServiceItem
+            key={s.id}
+            service={s}
+            onClick={() => onSelect(s)}
+          />
         ))}
       </div>
 
@@ -446,8 +609,23 @@ export const Services: FC = () => {
   const headingRef = useRef<HTMLDivElement>(null);
   useGsapReveal(headingRef, { whenVisible: true, stagger: 0.12 });
 
-  const [selectedMobileService, setSelectedMobileService] =
+  const [selectedService, setSelectedService] =
     useState<ResolvedService | null>(null);
+
+  const { open } = useModal();
+  const openBooking = () => {
+    setSelectedService(null);
+    open("contact");
+  };
+
+  useEffect(() => {
+    if (!selectedService) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedService(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedService]);
 
   return (
     <div className="services-page">
@@ -522,20 +700,27 @@ export const Services: FC = () => {
                   <MobileListItem
                     key={s.id}
                     service={s}
-                    onClick={() => setSelectedMobileService(s)}
+                    onClick={() => setSelectedService(s)}
                   />
                 ))}
               </div>
 
-              <DesktopGrid services={services} />
+              <DesktopGrid services={services} onSelect={setSelectedService} />
             </>
           )}
         </div>
       </section>
 
       <MobileServiceDrawer
-        service={selectedMobileService}
-        onClose={() => setSelectedMobileService(null)}
+        service={selectedService}
+        onClose={() => setSelectedService(null)}
+        onBook={openBooking}
+      />
+
+      <DesktopServiceModal
+        service={selectedService}
+        onClose={() => setSelectedService(null)}
+        onBook={openBooking}
       />
 
       <TestimonialBanner />

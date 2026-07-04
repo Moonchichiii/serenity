@@ -273,7 +273,11 @@ subtitle:
     shell: {
       brand: "La Serenity Essentials",
     },
-    giftSection: {
+    servicesDetail: {
+  cta: "Book this treatment",
+  close: "Close service details",
+},
+giftSection: {
   eyebrow: "La Serenity Essentials",
   title: "Give a moment of calm",
   lede: "A gift card for someone who would never take this moment for themselves. Choose a treatment, add a personal note \u2014 we take care of the rest.",
