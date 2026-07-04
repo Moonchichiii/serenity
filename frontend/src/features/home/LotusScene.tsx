@@ -248,12 +248,15 @@ export function LotusMark() {
 }
 
 /**
- * HeroSoinsChips — the product row. First three CMS treatments cycle
- * softly; a click opens the booking modal with that treatment
- * preselected (Drop 16 payload).
+ * HeroSoinsTicker — one treatment at a time, editorial style.
+ *
+ * The pill stack competed with the real CTAs; this is a single elegant
+ * rotating line (crossfade every 5 s, paused on hover/focus) with three
+ * dots. The whole line is a button that opens the booking modal with
+ * that treatment preselected. Long titles wrap without layout shift.
  */
 export function HeroSoinsChips() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { open } = useModal();
   const services = (useCMSServices() ?? []).slice(0, 3);
   const [active, setActive] = useState(0);
@@ -273,36 +276,65 @@ export function HeroSoinsChips() {
     return () => window.clearInterval(id);
   }, [paused, services.length]);
 
-  if (services.length === 0) return null;
+  const current = services[active];
+  if (!current) return null;
 
   return (
     <div
       data-reveal
-      className="no-scrollbar -mx-1 mt-8 flex max-w-full gap-3 overflow-x-auto px-1 pb-1 md:max-w-xl md:flex-wrap md:overflow-visible"
+      className="mt-9"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
     >
-      {services.map((s, i) => (
-        <button
-          key={s.id}
-          type="button"
-          onClick={() => open("booking", { serviceId: s.id })}
-          className={`shrink-0 rounded-full border px-5 py-2 transition-all duration-500 ${
-            i === active
-              ? "border-honey-300 text-honey-300"
-              : "border-white/25 bg-white/5 text-porcelain/70 hover:border-white/50 hover:text-porcelain"
-          }`}
+      <button
+        type="button"
+        onClick={() => open("booking", { serviceId: current.id })}
+        className="group flex min-h-[3.5rem] items-start gap-4 text-left sm:min-h-[2rem] sm:items-baseline"
+        aria-label={t("booking.title", "Book a session")}
+      >
+        <span
+          aria-hidden="true"
+          className="mt-3 h-px w-8 shrink-0 bg-honey-300 transition-all duration-300 group-hover:w-12 sm:mt-0 sm:self-center"
+        />
+        <span
+          key={current.id}
+          className="soin-line-in text-porcelain/90 transition-colors group-hover:text-porcelain"
           style={{
-            fontSize: "var(--typo-small)",
-            lineHeight: "var(--leading-small)",
+            fontSize: "var(--typo-body)",
+            lineHeight: "var(--leading-body)",
           }}
         >
-          {lang === "fr" ? s.title_fr : s.title_en} · {s.duration_minutes} min
-          · {fmtPrice(s.price)} €
-        </button>
-      ))}
+          {lang === "fr" ? current.title_fr : current.title_en}
+          <span className="text-porcelain/50"> · {current.duration_minutes} min · </span>
+          <span className="text-honey-300">{fmtPrice(current.price)} €</span>
+          <span
+            aria-hidden="true"
+            className="ml-2 inline-block transition-transform duration-300 group-hover:translate-x-1"
+          >
+            →
+          </span>
+        </span>
+      </button>
+
+      <div className="mt-3 flex gap-2 pl-12" role="tablist" aria-label="Soins">
+        {services.map((s, i) => (
+          <button
+            key={s.id}
+            type="button"
+            role="tab"
+            aria-selected={i === active}
+            aria-label={lang === "fr" ? s.title_fr : s.title_en}
+            onClick={() => setActive(i)}
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              i === active
+                ? "w-6 bg-honey-300"
+                : "w-1.5 bg-white/25 hover:bg-white/50"
+            }`}
+          />
+        ))}
+      </div>
     </div>
   );
 }
