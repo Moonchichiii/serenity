@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v4
+      - uses: astral-sh/setup-uv@v7
       - name: Export locked prod dependencies
         working-directory: backend
         run: uv export --frozen --no-dev --extra prod --no-emit-project -o requirements-audit.txt
