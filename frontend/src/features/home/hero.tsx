@@ -292,7 +292,7 @@ export const Hero: FC = () => {
         <HeroSoinsChips />
 
         <div
-          className="flex w-full flex-col items-start gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-5"
+          className="flex w-full flex-col items-start gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-5 mt-10"
           data-reveal
         >
           <Button
