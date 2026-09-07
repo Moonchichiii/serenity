@@ -12,6 +12,6 @@
     "dev:all": "powershell -NoProfile -Command \"Start-Process -NoNewWindow bun -ArgumentList 'run','dev:backend'; bun run dev\""
   },
   "devDependencies": {
-    "typescript": "5.9.3"
+    "typescript": "7.0.2"
   }
 }
